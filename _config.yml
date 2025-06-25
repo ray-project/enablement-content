@@ -4,7 +4,7 @@ html:
         name: "sphinx_book_theme"
         options:
             default_mode: "light"
-            theme_switcher: false
+            theme_switcher: true
     extra_css:
         - custom_hide.css
     extra_js:
