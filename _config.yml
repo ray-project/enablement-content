@@ -7,3 +7,5 @@ html:
             theme_switcher: false
     extra_css:
         - custom_hide.css
+    extra_js:
+        - custom_toggle.js
