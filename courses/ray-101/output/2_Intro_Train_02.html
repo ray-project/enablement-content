@@ -432,19 +432,6 @@ document.write(`
 </pre></div>
 </div>
 </div>
-<div class="cell_output docutils container">
-<div class="output traceback highlight-ipythontb notranslate"><div class="highlight"><pre><span></span><span class="gt">---------------------------------------------------------------------------</span>
-<span class="ne">ModuleNotFoundError</span><span class="g g-Whitespace">                       </span>Traceback (most recent call last)
-<span class="n">Cell</span> <span class="n">In</span><span class="p">[</span><span class="mi">1</span><span class="p">],</span> <span class="n">line</span> <span class="mi">3</span>
-<span class="g g-Whitespace">      </span><span class="mi">1</span> <span class="kn">from</span><span class="w"> </span><span class="nn">pathlib</span><span class="w"> </span><span class="kn">import</span> <span class="n">Path</span>
-<span class="ne">----&gt; </span><span class="mi">3</span> <span class="kn">import</span><span class="w"> </span><span class="nn">torchmetrics</span>
-<span class="g g-Whitespace">      </span><span class="mi">4</span> <span class="kn">from</span><span class="w"> </span><span class="nn">torch.nn</span><span class="w"> </span><span class="kn">import</span> <span class="n">CrossEntropyLoss</span>
-<span class="g g-Whitespace">      </span><span class="mi">5</span> <span class="kn">from</span><span class="w"> </span><span class="nn">torch.optim</span><span class="w"> </span><span class="kn">import</span> <span class="n">Adam</span>
-
-<span class="ne">ModuleNotFoundError</span>: No module named &#39;torchmetrics&#39;
-</pre></div>
-</div>
-</div>
 </div>
 <section id="build-and-load-our-model-on-a-single-gpu">
 <h2>Build and load our model on a single GPU<a class="headerlink" href="#build-and-load-our-model-on-a-single-gpu" title="Link to this heading">#</a></h2>
@@ -503,12 +490,6 @@ document.write(`
 </div>
 </div>
 <div class="cell_output docutils container">
-<div class="output stderr highlight-myst-ansi notranslate"><div class="highlight"><pre><span></span>/home/ray/anaconda3/lib/python3.11/site-packages/torchvision/datasets/mnist.py:76: UserWarning: train_data has been renamed data
-  warnings.warn(&quot;train_data has been renamed data&quot;)
-/home/ray/anaconda3/lib/python3.11/site-packages/torchvision/datasets/mnist.py:66: UserWarning: train_labels has been renamed targets
-  warnings.warn(&quot;train_labels has been renamed targets&quot;)
-</pre></div>
-</div>
 <img alt="../../../_images/5a5dca6cca65af78a82c626031a695a709a369516c18caac3f5ec7fc20130b3e.png" src="../../../_images/5a5dca6cca65af78a82c626031a695a709a369516c18caac3f5ec7fc20130b3e.png" />
 </div>
 </div>
@@ -669,10 +650,6 @@ document.write(`
 </div>
 </div>
 <div class="cell_output docutils container">
-<div class="output stderr highlight-myst-ansi notranslate"><div class="highlight"><pre><span></span>/tmp/ipykernel_52702/470834418.py:2: FutureWarning: You are using `torch.load` with `weights_only=False` (the current default value), which uses the default pickle module implicitly. It is possible to construct malicious pickle data which will execute arbitrary code during unpickling (See https://github.com/pytorch/pytorch/blob/main/SECURITY.md#untrusted-models for more details). In a future release, the default value for `weights_only` will be flipped to `True`. This limits the functions that could be executed during unpickling. Arbitrary objects will no longer be allowed to be loaded via this mode unless they are explicitly allowlisted by the user via `torch.serialization.add_safe_globals`. We recommend you start setting `weights_only=True` for any use case where you don&#39;t have full control of the loaded file. Please open an issue on GitHub for any issues related to this experimental feature.
-  loaded_model.load_state_dict(torch.load(os.path.join(local_path, &quot;model.pt&quot;)))
-</pre></div>
-</div>
 <div class="output text_plain highlight-myst-ansi notranslate"><div class="highlight"><pre><span></span>ResNet(
   (conv1): Conv2d(1, 64, kernel_size=(7, 7), stride=(2, 2), padding=(3, 3), bias=False)
   (bn1): BatchNorm2d(64, eps=1e-05, momentum=0.1, affine=True, track_running_stats=True)
@@ -776,10 +753,6 @@ document.write(`
 </div>
 </div>
 <div class="cell_output docutils container">
-<div class="output stderr highlight-myst-ansi notranslate"><div class="highlight"><pre><span></span>/home/ray/anaconda3/lib/python3.11/site-packages/torchvision/datasets/mnist.py:76: UserWarning: train_data has been renamed data
-  warnings.warn(&quot;train_data has been renamed data&quot;)
-</pre></div>
-</div>
 <img alt="../../../_images/5a5dca6cca65af78a82c626031a695a709a369516c18caac3f5ec7fc20130b3e.png" src="../../../_images/5a5dca6cca65af78a82c626031a695a709a369516c18caac3f5ec7fc20130b3e.png" />
 </div>
 </div>

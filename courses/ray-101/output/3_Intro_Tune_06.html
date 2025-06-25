@@ -416,27 +416,95 @@ document.write(`
 </div>
 </div>
 <div class="cell_output docutils container">
-<div class="output traceback highlight-ipythontb notranslate"><div class="highlight"><pre><span></span><span class="gt">---------------------------------------------------------------------------</span>
-<span class="ne">NameError</span><span class="g g-Whitespace">                                 </span>Traceback (most recent call last)
-<span class="n">Cell</span> <span class="n">In</span><span class="p">[</span><span class="mi">2</span><span class="p">],</span> <span class="n">line</span> <span class="mi">1</span>
-<span class="ne">----&gt; </span><span class="mi">1</span> <span class="n">tuner</span> <span class="o">=</span> <span class="n">tune</span><span class="o">.</span><span class="n">Tuner</span><span class="p">(</span>
-<span class="g g-Whitespace">      </span><span class="mi">2</span>     <span class="n">trainable</span><span class="o">=</span><span class="n">tune</span><span class="o">.</span><span class="n">with_resources</span><span class="p">(</span><span class="n">train_pytorch</span><span class="p">,</span> <span class="p">{</span><span class="s2">&quot;gpu&quot;</span><span class="p">:</span> <span class="mi">1</span><span class="p">}),</span> <span class="c1"># we will dedicate 1 GPU to each trial</span>
-<span class="g g-Whitespace">      </span><span class="mi">3</span>     <span class="n">param_space</span><span class="o">=</span><span class="p">{</span>
-<span class="g g-Whitespace">      </span><span class="mi">4</span>         <span class="s2">&quot;num_epochs&quot;</span><span class="p">:</span> <span class="mi">1</span><span class="p">,</span>
-<span class="g g-Whitespace">      </span><span class="mi">5</span>         <span class="s2">&quot;batch_size&quot;</span><span class="p">:</span> <span class="mi">128</span><span class="p">,</span>
-<span class="g g-Whitespace">      </span><span class="mi">6</span>         <span class="s2">&quot;lr&quot;</span><span class="p">:</span> <span class="n">tune</span><span class="o">.</span><span class="n">loguniform</span><span class="p">(</span><span class="mf">1e-4</span><span class="p">,</span> <span class="mf">1e-1</span><span class="p">),</span>
-<span class="g g-Whitespace">      </span><span class="mi">7</span>     <span class="p">},</span>
-<span class="g g-Whitespace">      </span><span class="mi">8</span>     <span class="n">tune_config</span><span class="o">=</span><span class="n">tune</span><span class="o">.</span><span class="n">TuneConfig</span><span class="p">(</span>
-<span class="g g-Whitespace">      </span><span class="mi">9</span>         <span class="n">mode</span><span class="o">=</span><span class="s2">&quot;min&quot;</span><span class="p">,</span>
-<span class="g g-Whitespace">     </span><span class="mi">10</span>         <span class="n">metric</span><span class="o">=</span><span class="s2">&quot;loss&quot;</span><span class="p">,</span>
-<span class="g g-Whitespace">     </span><span class="mi">11</span>         <span class="n">num_samples</span><span class="o">=</span><span class="mi">2</span><span class="p">,</span>
-<span class="g g-Whitespace">     </span><span class="mi">12</span>         <span class="n">search_alg</span><span class="o">=</span><span class="n">tune</span><span class="o">.</span><span class="n">search</span><span class="o">.</span><span class="n">BasicVariantGenerator</span><span class="p">(),</span>
-<span class="g g-Whitespace">     </span><span class="mi">13</span>         <span class="n">scheduler</span><span class="o">=</span><span class="n">tune</span><span class="o">.</span><span class="n">schedulers</span><span class="o">.</span><span class="n">FIFOScheduler</span><span class="p">(),</span>
-<span class="g g-Whitespace">     </span><span class="mi">14</span>     <span class="p">),</span>
-<span class="g g-Whitespace">     </span><span class="mi">15</span> <span class="p">)</span>
-<span class="g g-Whitespace">     </span><span class="mi">17</span> <span class="n">results</span> <span class="o">=</span> <span class="n">tuner</span><span class="o">.</span><span class="n">fit</span><span class="p">()</span>
-
-<span class="ne">NameError</span>: name &#39;tune&#39; is not defined
+<div class="output text_html"><div class="tuneStatus">
+  <div style="display: flex;flex-direction: row">
+    <div style="display: flex;flex-direction: column;">
+      <h3>Tune Status</h3>
+      <table>
+<tbody>
+<tr><td>Current time:</td><td>2024-11-29 09:44:37</td></tr>
+<tr><td>Running for: </td><td>00:00:25.36        </td></tr>
+<tr><td>Memory:      </td><td>4.6/31.0 GiB       </td></tr>
+</tbody>
+</table>
+    </div>
+    <div class="vDivider"></div>
+    <div class="systemInfo">
+      <h3>System Info</h3>
+      Using FIFO scheduling algorithm.<br>Logical resource usage: 0/16 CPUs, 1.0/2 GPUs (0.0/1.0 anyscale/node-group:1xT4:8CPU-32GB, 0.0/2.0 accelerator_type:T4, 0.0/2.0 anyscale/region:us-west-2, 0.0/2.0 anyscale/provider:aws, 0.0/2.0 anyscale/accelerator_shape:1xT4, 0.0/1.0 anyscale/node-group:head)
+    </div>
+    
+  </div>
+  <div class="hDivider"></div>
+  <div class="trialStatus">
+    <h3>Trial Status</h3>
+    <table>
+<thead>
+<tr><th>Trial name               </th><th>status    </th><th>loc              </th><th style="text-align: right;">        lr</th><th style="text-align: right;">  iter</th><th style="text-align: right;">  total time (s)</th><th style="text-align: right;">     loss</th></tr>
+</thead>
+<tbody>
+<tr><td>train_pytorch_7cf0c_00000</td><td>TERMINATED</td><td>10.0.35.222:38448</td><td style="text-align: right;">0.0582891 </td><td style="text-align: right;">     1</td><td style="text-align: right;">         19.9064</td><td style="text-align: right;">0.264131 </td></tr>
+<tr><td>train_pytorch_7cf0c_00001</td><td>TERMINATED</td><td>10.0.20.35:10307 </td><td style="text-align: right;">0.00787705</td><td style="text-align: right;">     1</td><td style="text-align: right;">         20.2805</td><td style="text-align: right;">0.0564279</td></tr>
+</tbody>
+</table>
+  </div>
+</div>
+<style>
+.tuneStatus {
+  color: var(--jp-ui-font-color1);
+}
+.tuneStatus .systemInfo {
+  display: flex;
+  flex-direction: column;
+}
+.tuneStatus td {
+  white-space: nowrap;
+}
+.tuneStatus .trialStatus {
+  display: flex;
+  flex-direction: column;
+}
+.tuneStatus h3 {
+  font-weight: bold;
+}
+.tuneStatus .hDivider {
+  border-bottom-width: var(--jp-border-width);
+  border-bottom-color: var(--jp-border-color0);
+  border-bottom-style: solid;
+}
+.tuneStatus .vDivider {
+  border-left-width: var(--jp-border-width);
+  border-left-color: var(--jp-border-color0);
+  border-left-style: solid;
+  margin: 0.5em 1em 0.5em 1em;
+}
+</style>
+</div><div class="output stream highlight-myst-ansi notranslate"><div class="highlight"><pre><span></span><span class=" -Color -Color-Cyan">(train_pytorch pid=38448)</span> Extracting ./data/MNIST/raw/train-images-idx3-ubyte.gz to ./data/MNIST/raw
+<span class=" -Color -Color-Cyan">(train_pytorch pid=38448)</span> 
+<span class=" -Color -Color-Cyan">(train_pytorch pid=10307, ip=10.0.20.35)</span> 
+<span class=" -Color -Color-Cyan">(train_pytorch pid=38448)</span> 
+</pre></div>
+</div>
+<div class="output stream highlight-myst-ansi notranslate"><div class="highlight"><pre><span></span><span class=" -Color -Color-Cyan">(train_pytorch pid=38448)</span> Extracting ./data/MNIST/raw/train-labels-idx1-ubyte.gz to ./data/MNIST/raw
+<span class=" -Color -Color-Cyan">(train_pytorch pid=38448)</span> 
+<span class=" -Color -Color-Cyan">(train_pytorch pid=10307, ip=10.0.20.35)</span> 
+<span class=" -Color -Color-Cyan">(train_pytorch pid=38448)</span> 
+<span class=" -Color -Color-Cyan">(train_pytorch pid=10307, ip=10.0.20.35)</span> 
+</pre></div>
+</div>
+<div class="output stream highlight-myst-ansi notranslate"><div class="highlight"><pre><span></span><span class=" -Color -Color-Cyan">(train_pytorch pid=38448)</span> 
+<span class=" -Color -Color-Cyan">(train_pytorch pid=10307, ip=10.0.20.35)</span> 
+<span class=" -Color -Color-Cyan">(train_pytorch pid=38448)</span> 
+<span class=" -Color -Color-Cyan">(train_pytorch pid=10307, ip=10.0.20.35)</span> 
+<span class=" -Color -Color-Cyan">(train_pytorch pid=10307, ip=10.0.20.35)</span> Downloading https://ossci-datasets.s3.amazonaws.com/mnist/t10k-images-idx3-ubyte.gz<span class=" -Color -Color-Green"> [repeated 12x across cluster] (Ray deduplicates logs by default. Set RAY_DEDUP_LOGS=0 to disable log deduplication, or see https://docs.ray.io/en/master/ray-observability/user-guides/configure-logging.html#log-deduplication for more options.)</span>
+<span class=" -Color -Color-Cyan">(train_pytorch pid=38448)</span> 
+<span class=" -Color -Color-Cyan">(train_pytorch pid=10307, ip=10.0.20.35)</span> 
+<span class=" -Color -Color-Cyan">(train_pytorch pid=10307, ip=10.0.20.35)</span> Failed to download (trying next):<span class=" -Color -Color-Green"> [repeated 6x across cluster]</span>
+<span class=" -Color -Color-Cyan">(train_pytorch pid=10307, ip=10.0.20.35)</span> HTTP Error 403: Forbidden<span class=" -Color -Color-Green"> [repeated 6x across cluster]</span>
+<span class=" -Color -Color-Cyan">(train_pytorch pid=10307, ip=10.0.20.35)</span> 
+<span class=" -Color -Color-Cyan">(train_pytorch pid=10307, ip=10.0.20.35)</span> Downloading https://ossci-datasets.s3.amazonaws.com/mnist/t10k-images-idx3-ubyte.gz to ./data/MNIST/raw/t10k-images-idx3-ubyte.gz<span class=" -Color -Color-Green"> [repeated 6x across cluster]</span>
+<span class=" -Color -Color-Cyan">(train_pytorch pid=10307, ip=10.0.20.35)</span> 
+<span class=" -Color -Color-Cyan">(train_pytorch pid=10307, ip=10.0.20.35)</span> Extracting ./data/MNIST/raw/t10k-labels-idx1-ubyte.gz to ./data/MNIST/raw<span class=" -Color -Color-Green"> [repeated 6x across cluster]</span>
 </pre></div>
 </div>
 </div>

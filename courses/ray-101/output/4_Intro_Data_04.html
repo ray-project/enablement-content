@@ -399,19 +399,7 @@ document.write(`
 </div>
 </div>
 <div class="cell_output docutils container">
-<div class="output traceback highlight-ipythontb notranslate"><div class="highlight"><pre><span></span><span class="gt">---------------------------------------------------------------------------</span>
-<span class="ne">ModuleNotFoundError</span><span class="g g-Whitespace">                       </span>Traceback (most recent call last)
-<span class="n">Cell</span> <span class="n">In</span><span class="p">[</span><span class="mi">1</span><span class="p">],</span> <span class="n">line</span> <span class="mi">1</span>
-<span class="ne">----&gt; </span><span class="mi">1</span> <span class="kn">import</span><span class="w"> </span><span class="nn">numpy</span><span class="w"> </span><span class="k">as</span><span class="w"> </span><span class="nn">np</span>
-<span class="g g-Whitespace">      </span><span class="mi">2</span> <span class="kn">from</span><span class="w"> </span><span class="nn">torchvision.transforms</span><span class="w"> </span><span class="kn">import</span> <span class="n">Compose</span><span class="p">,</span> <span class="n">ToTensor</span><span class="p">,</span> <span class="n">Normalize</span>
-<span class="g g-Whitespace">      </span><span class="mi">5</span> <span class="k">def</span><span class="w"> </span><span class="nf">normalize</span><span class="p">(</span>
-<span class="g g-Whitespace">      </span><span class="mi">6</span>     <span class="n">batch</span><span class="p">:</span> <span class="nb">dict</span><span class="p">[</span><span class="nb">str</span><span class="p">,</span> <span class="n">np</span><span class="o">.</span><span class="n">ndarray</span><span class="p">],</span> <span class="n">min_</span><span class="p">:</span> <span class="nb">float</span><span class="p">,</span> <span class="n">max_</span><span class="p">:</span> <span class="nb">float</span>
-<span class="g g-Whitespace">      </span><span class="mi">7</span> <span class="p">)</span> <span class="o">-&gt;</span> <span class="nb">dict</span><span class="p">[</span><span class="nb">str</span><span class="p">,</span> <span class="n">np</span><span class="o">.</span><span class="n">ndarray</span><span class="p">]:</span>
-
-<span class="ne">ModuleNotFoundError</span>: No module named &#39;numpy&#39;
-</pre></div>
-</div>
-</div>
+<script type="application/vnd.jupyter.widget-view+json">{"model_id": "debf0cd6aa144027a1730b48d094e063", "version_major": 2, "version_minor": 0}</script><script type="application/vnd.jupyter.widget-view+json">{"model_id": "aaeb35aa32174da7b0376bf1d53d7ece", "version_major": 2, "version_minor": 0}</script><script type="application/vnd.jupyter.widget-view+json">{"model_id": "bb630a7f713b44608c45f31e5eaaabf7", "version_major": 2, "version_minor": 0}</script><script type="application/vnd.jupyter.widget-view+json">{"model_id": "be5fc542b7c744978d6a76e2aeb94598", "version_major": 2, "version_minor": 0}</script></div>
 </div>
 <section id="execution-mode">
 <h2>Execution mode<a class="headerlink" href="#execution-mode" title="Link to this heading">#</a></h2>
@@ -431,10 +419,6 @@ document.write(`
 </div>
 </div>
 <div class="cell_output docutils container">
-<div class="output stderr highlight-myst-ansi notranslate"><div class="highlight"><pre><span></span>2024-12-06 09:26:40,187	INFO streaming_executor.py:108 -- Starting execution of Dataset. Full logs are in /tmp/ray/session_2024-12-06_07-31-15_546129_2446/logs/ray-data
-2024-12-06 09:26:40,188	INFO streaming_executor.py:109 -- Execution plan of Dataset: InputDataBuffer[Input] -&gt; TaskPoolMapOperator[ExpandPaths] -&gt; TaskPoolMapOperator[ReadFiles] -&gt; TaskPoolMapOperator[MapBatches(normalize)] -&gt; LimitOperator[limit=10]
-</pre></div>
-</div>
 <script type="application/vnd.jupyter.widget-view+json">{"model_id": "f81c5672e9e349eb8982271fae7bd8b3", "version_major": 2, "version_minor": 0}</script><script type="application/vnd.jupyter.widget-view+json">{"model_id": "0c12997069324bc89a9c751574583951", "version_major": 2, "version_minor": 0}</script><script type="application/vnd.jupyter.widget-view+json">{"model_id": "2dd7e0ccb4c64af8b19fa1ef7985755f", "version_major": 2, "version_minor": 0}</script><script type="application/vnd.jupyter.widget-view+json">{"model_id": "bd832f487d884d23b5a32a4643b4474f", "version_major": 2, "version_minor": 0}</script><script type="application/vnd.jupyter.widget-view+json">{"model_id": "1cb9aa61c98b4ecc857290ead31aa1e2", "version_major": 2, "version_minor": 0}</script></div>
 </div>
 <div class="alert alert-block alert-info">
@@ -545,10 +529,6 @@ document.write(`
 </div>
 </div>
 <div class="cell_output docutils container">
-<div class="output stderr highlight-myst-ansi notranslate"><div class="highlight"><pre><span></span>2024-12-06 09:32:17,604	INFO streaming_executor.py:108 -- Starting execution of Dataset. Full logs are in /tmp/ray/session_2024-12-06_07-31-15_546129_2446/logs/ray-data
-2024-12-06 09:32:17,605	INFO streaming_executor.py:109 -- Execution plan of Dataset: InputDataBuffer[Input] -&gt; TaskPoolMapOperator[ExpandPaths] -&gt; TaskPoolMapOperator[ReadFiles] -&gt; TaskPoolMapOperator[MapBatches(normalize)] -&gt; ActorPoolMapOperator[MapBatches(MNISTClassifier)] -&gt; LimitOperator[limit=100]
-</pre></div>
-</div>
 <script type="application/vnd.jupyter.widget-view+json">{"model_id": "6beddafcd55b4fa39331c47dca354694", "version_major": 2, "version_minor": 0}</script><script type="application/vnd.jupyter.widget-view+json">{"model_id": "377536a77b2c46d29e581d22d439660d", "version_major": 2, "version_minor": 0}</script><script type="application/vnd.jupyter.widget-view+json">{"model_id": "b5226e75c8634d66b06bc059388855db", "version_major": 2, "version_minor": 0}</script><script type="application/vnd.jupyter.widget-view+json">{"model_id": "f235c00540fc42d1b61713fbde1d55cf", "version_major": 2, "version_minor": 0}</script><script type="application/vnd.jupyter.widget-view+json">{"model_id": "67495077a9ba4f11b29c726dff36b3f9", "version_major": 2, "version_minor": 0}</script><script type="application/vnd.jupyter.widget-view+json">{"model_id": "8ae2d3152f184b128382fdff9b8bbf06", "version_major": 2, "version_minor": 0}</script></div>
 </div>
 <div class="cell docutils container">
@@ -571,10 +551,6 @@ document.write(`
 </div>
 </div>
 <div class="cell_output docutils container">
-<div class="output stderr highlight-myst-ansi notranslate"><div class="highlight"><pre><span></span>2024-12-06 09:35:32,187	INFO streaming_executor.py:108 -- Starting execution of Dataset. Full logs are in /tmp/ray/session_2024-12-06_07-31-15_546129_2446/logs/ray-data
-2024-12-06 09:35:32,187	INFO streaming_executor.py:109 -- Execution plan of Dataset: InputDataBuffer[Input] -&gt; TaskPoolMapOperator[ExpandPaths] -&gt; TaskPoolMapOperator[ReadFiles] -&gt; TaskPoolMapOperator[MapBatches(normalize)] -&gt; ActorPoolMapOperator[MapBatches(MNISTClassifier)]
-</pre></div>
-</div>
 <script type="application/vnd.jupyter.widget-view+json">{"model_id": "14433956907646ab97142199354bbe66", "version_major": 2, "version_minor": 0}</script><script type="application/vnd.jupyter.widget-view+json">{"model_id": "6ed4da38dad143a0ab2589d323d7063f", "version_major": 2, "version_minor": 0}</script><script type="application/vnd.jupyter.widget-view+json">{"model_id": "f88036718ece46b48a40d6ad1660c71b", "version_major": 2, "version_minor": 0}</script><script type="application/vnd.jupyter.widget-view+json">{"model_id": "d724ec1140654239ae4ea98ded56fefb", "version_major": 2, "version_minor": 0}</script><script type="application/vnd.jupyter.widget-view+json">{"model_id": "7b53b0cbca374bd7bd7507bb0497270f", "version_major": 2, "version_minor": 0}</script><script type="application/vnd.jupyter.widget-view+json">{"model_id": "5494f7ba227449dba13694a8410960dd", "version_major": 2, "version_minor": 0}</script></div>
 </div>
 </section>

@@ -417,30 +417,6 @@ document.write(`
 </pre></div>
 </div>
 </div>
-<div class="cell_output docutils container">
-<div class="output traceback highlight-ipythontb notranslate"><div class="highlight"><pre><span></span><span class="gt">---------------------------------------------------------------------------</span>
-<span class="ne">NameError</span><span class="g g-Whitespace">                                 </span>Traceback (most recent call last)
-<span class="n">Cell</span> <span class="n">In</span><span class="p">[</span><span class="mi">1</span><span class="p">],</span> <span class="n">line</span> <span class="mi">1</span>
-<span class="ne">----&gt; </span><span class="mi">1</span> <span class="n">tuner</span> <span class="o">=</span> <span class="n">tune</span><span class="o">.</span><span class="n">Tuner</span><span class="p">(</span>
-<span class="g g-Whitespace">      </span><span class="mi">2</span>     <span class="c1"># This is how to specify resources for your trainable function</span>
-<span class="g g-Whitespace">      </span><span class="mi">3</span>     <span class="n">trainable</span><span class="o">=</span><span class="n">tune</span><span class="o">.</span><span class="n">with_resources</span><span class="p">(</span><span class="n">train_my_simple_model</span><span class="p">,</span> <span class="p">{</span><span class="s2">&quot;cpu&quot;</span><span class="p">:</span> <span class="mi">1</span><span class="p">}),</span>
-<span class="g g-Whitespace">      </span><span class="mi">4</span>     <span class="n">param_space</span><span class="o">=</span><span class="p">{</span><span class="s2">&quot;a&quot;</span><span class="p">:</span> <span class="n">tune</span><span class="o">.</span><span class="n">randint</span><span class="p">(</span><span class="mi">0</span><span class="p">,</span> <span class="mi">20</span><span class="p">)},</span>
-<span class="g g-Whitespace">      </span><span class="mi">5</span>     <span class="n">tune_config</span><span class="o">=</span><span class="n">tune</span><span class="o">.</span><span class="n">TuneConfig</span><span class="p">(</span>
-<span class="g g-Whitespace">      </span><span class="mi">6</span>         <span class="n">mode</span><span class="o">=</span><span class="s2">&quot;min&quot;</span><span class="p">,</span>
-<span class="g g-Whitespace">      </span><span class="mi">7</span>         <span class="n">metric</span><span class="o">=</span><span class="s2">&quot;rmse&quot;</span><span class="p">,</span>
-<span class="g g-Whitespace">      </span><span class="mi">8</span>         <span class="n">num_samples</span><span class="o">=</span><span class="mi">5</span><span class="p">,</span> 
-<span class="g g-Whitespace">      </span><span class="mi">9</span>         <span class="c1"># This search algorithm is a basic variation (i.e random/grid search) based on parameter space</span>
-<span class="g g-Whitespace">     </span><span class="mi">10</span>         <span class="n">search_alg</span><span class="o">=</span><span class="n">tune</span><span class="o">.</span><span class="n">search</span><span class="o">.</span><span class="n">BasicVariantGenerator</span><span class="p">(),</span> 
-<span class="g g-Whitespace">     </span><span class="mi">11</span>         <span class="c1"># This scheduler is very simple: no early stopping, just run all trials in submission order</span>
-<span class="g g-Whitespace">     </span><span class="mi">12</span>         <span class="n">scheduler</span><span class="o">=</span><span class="n">tune</span><span class="o">.</span><span class="n">schedulers</span><span class="o">.</span><span class="n">FIFOScheduler</span><span class="p">(),</span> 
-<span class="g g-Whitespace">     </span><span class="mi">13</span>     <span class="p">),</span>
-<span class="g g-Whitespace">     </span><span class="mi">14</span> <span class="p">)</span>
-<span class="g g-Whitespace">     </span><span class="mi">15</span> <span class="n">results</span> <span class="o">=</span> <span class="n">tuner</span><span class="o">.</span><span class="n">fit</span><span class="p">()</span>
-
-<span class="ne">NameError</span>: name &#39;tune&#39; is not defined
-</pre></div>
-</div>
-</div>
 </div>
 <p>Below is a diagram showing the relationship between the different Ray Tune components we have discussed.</p>
 <img src="https://docs.ray.io/en/latest/_images/tune_flow.png" width="800" />

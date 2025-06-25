@@ -467,18 +467,6 @@ document.write(`
 </pre></div>
 </div>
 </div>
-<div class="cell_output docutils container">
-<div class="output traceback highlight-ipythontb notranslate"><div class="highlight"><pre><span></span><span class="gt">---------------------------------------------------------------------------</span>
-<span class="ne">ModuleNotFoundError</span><span class="g g-Whitespace">                       </span>Traceback (most recent call last)
-<span class="n">Cell</span> <span class="n">In</span><span class="p">[</span><span class="mi">1</span><span class="p">],</span> <span class="n">line</span> <span class="mi">1</span>
-<span class="ne">----&gt; </span><span class="mi">1</span> <span class="kn">import</span><span class="w"> </span><span class="nn">numpy</span><span class="w"> </span><span class="k">as</span><span class="w"> </span><span class="nn">np</span>
-<span class="g g-Whitespace">      </span><span class="mi">2</span> <span class="kn">import</span><span class="w"> </span><span class="nn">torch</span>
-<span class="g g-Whitespace">      </span><span class="mi">5</span> <span class="k">class</span><span class="w"> </span><span class="nc">OfflineMNISTClassifier</span><span class="p">:</span>
-
-<span class="ne">ModuleNotFoundError</span>: No module named &#39;numpy&#39;
-</pre></div>
-</div>
-</div>
 </div>
 <div class="cell docutils container">
 <div class="cell_input docutils container">
@@ -516,218 +504,10 @@ document.write(`
 </div>
 </div>
 <div class="cell_output docutils container">
-<div class="output stderr highlight-myst-ansi notranslate"><div class="highlight"><pre><span></span>2024-12-13 08:07:46,919	INFO worker.py:1596 -- Connecting to existing Ray cluster at address: 10.0.7.17:6379...
-2024-12-13 08:07:46,925	INFO worker.py:1772 -- Connected to Ray cluster. View the dashboard at <span class=" -Color -Color-Bold -Color-Bold-Green">https://session-wun39fg7yb3g9682a8fejskwz3.i.anyscaleuserdata.com </span>
-2024-12-13 08:07:47,081	INFO packaging.py:358 -- Pushing file package &#39;gcs://_ray_pkg_2c93dc3dcf185c9c264569cb6910da7968e97c04.zip&#39; (63.75MiB) to Ray cluster...
-2024-12-13 08:07:47,789	INFO packaging.py:371 -- Successfully pushed file package &#39;gcs://_ray_pkg_2c93dc3dcf185c9c264569cb6910da7968e97c04.zip&#39;.
-2024-12-13 08:07:49,557	INFO streaming_executor.py:108 -- Starting execution of Dataset. Full logs are in /tmp/ray/session_2024-12-13_08-07-01_151483_2430/logs/ray-data
-2024-12-13 08:07:49,558	INFO streaming_executor.py:109 -- Execution plan of Dataset: InputDataBuffer[Input] -&gt; ActorPoolMapOperator[MapBatches(OfflineMNISTClassifier)] -&gt; LimitOperator[limit=10]
-</pre></div>
-</div>
 <script type="application/vnd.jupyter.widget-view+json">{"model_id": "8a3af3b732284449b3c954b46ad8ff76", "version_major": 2, "version_minor": 0}</script><script type="application/vnd.jupyter.widget-view+json">{"model_id": "18d92d81b774430fa1975b4f54ab6f22", "version_major": 2, "version_minor": 0}</script><script type="application/vnd.jupyter.widget-view+json">{"model_id": "411126f0b77f4180ad1dd6185dfb2a18", "version_major": 2, "version_minor": 0}</script><div class="output text_plain highlight-myst-ansi notranslate"><div class="highlight"><pre><span></span>array([6, 1, 6, 6, 1, 1, 1, 6, 6, 1])
 </pre></div>
 </div>
 <div class="output stream highlight-myst-ansi notranslate"><div class="highlight"><pre><span></span><span class=" -Color -Color-Cyan">(autoscaler +1m10s)</span> Tip: use `ray status` to view detailed cluster status. To disable these messages, set RAY_SCHEDULER_EVENTS=0.
-</pre></div>
-</div>
-<div class="output stderr highlight-myst-ansi notranslate"><div class="highlight"><pre><span></span><span class=" -Color -Color-Cyan">(ServeReplica:mnist_classifier:OnlineMNISTClassifier pid=4242)</span> INFO 2024-12-13 08:09:45,181 mnist_classifier_OnlineMNISTClassifier igfqf50m adbb3ada-000d-4fd7-9c4b-beeac31c59e4 replica.py:408 - PREDICT OK 98.8ms
-<span class=" -Color -Color-Cyan">(ServeReplica:mnist_classifier:OnlineMNISTClassifier pid=4242)</span> ERROR 2024-12-13 08:13:24,247 mnist_classifier_OnlineMNISTClassifier igfqf50m 86bc4797-76d5-41f4-becf-f1e4e8c60f5f / replica.py:394 - Request failed:
-<span class=" -Color -Color-Cyan">(ServeReplica:mnist_classifier:OnlineMNISTClassifier pid=4242)</span> <span class=" -Color -Color-Cyan">ray::ServeReplica:mnist_classifier:OnlineMNISTClassifier.handle_request_with_rejection()</span> (pid=4242, ip=10.0.7.17)
-<span class=" -Color -Color-Cyan">(ServeReplica:mnist_classifier:OnlineMNISTClassifier pid=4242)</span>   File &quot;/home/ray/anaconda3/lib/python3.11/site-packages/ray/serve/_private/utils.py&quot;, line 168, in wrap_to_ray_error
-<span class=" -Color -Color-Cyan">(ServeReplica:mnist_classifier:OnlineMNISTClassifier pid=4242)</span>     raise exception
-<span class=" -Color -Color-Cyan">(ServeReplica:mnist_classifier:OnlineMNISTClassifier pid=4242)</span>   File &quot;/home/ray/anaconda3/lib/python3.11/site-packages/ray/serve/_private/replica.py&quot;, line 1192, in call_user_method
-<span class=" -Color -Color-Cyan">(ServeReplica:mnist_classifier:OnlineMNISTClassifier pid=4242)</span>     await self._call_func_or_gen(
-<span class=" -Color -Color-Cyan">(ServeReplica:mnist_classifier:OnlineMNISTClassifier pid=4242)</span>   File &quot;/home/ray/anaconda3/lib/python3.11/site-packages/ray/serve/_private/replica.py&quot;, line 916, in _call_func_or_gen
-<span class=" -Color -Color-Cyan">(ServeReplica:mnist_classifier:OnlineMNISTClassifier pid=4242)</span>     result = await result
-<span class=" -Color -Color-Cyan">(ServeReplica:mnist_classifier:OnlineMNISTClassifier pid=4242)</span>              ^^^^^^^^^^^^
-<span class=" -Color -Color-Cyan">(ServeReplica:mnist_classifier:OnlineMNISTClassifier pid=4242)</span>   File &quot;/tmp/ipykernel_3618/1676735073.py&quot;, line 16, in __call__
-<span class=" -Color -Color-Cyan">(ServeReplica:mnist_classifier:OnlineMNISTClassifier pid=4242)</span>   File &quot;/home/ray/anaconda3/lib/python3.11/site-packages/starlette/requests.py&quot;, line 252, in json
-<span class=" -Color -Color-Cyan">(ServeReplica:mnist_classifier:OnlineMNISTClassifier pid=4242)</span>     self._json = json.loads(body)
-<span class=" -Color -Color-Cyan">(ServeReplica:mnist_classifier:OnlineMNISTClassifier pid=4242)</span>                  ^^^^^^^^^^^^^^^^
-<span class=" -Color -Color-Cyan">(ServeReplica:mnist_classifier:OnlineMNISTClassifier pid=4242)</span>   File &quot;/home/ray/anaconda3/lib/python3.11/json/__init__.py&quot;, line 346, in loads
-<span class=" -Color -Color-Cyan">(ServeReplica:mnist_classifier:OnlineMNISTClassifier pid=4242)</span>     return _default_decoder.decode(s)
-<span class=" -Color -Color-Cyan">(ServeReplica:mnist_classifier:OnlineMNISTClassifier pid=4242)</span>            ^^^^^^^^^^^^^^^^^^^^^^^^^^
-<span class=" -Color -Color-Cyan">(ServeReplica:mnist_classifier:OnlineMNISTClassifier pid=4242)</span>   File &quot;/home/ray/anaconda3/lib/python3.11/json/decoder.py&quot;, line 337, in decode
-<span class=" -Color -Color-Cyan">(ServeReplica:mnist_classifier:OnlineMNISTClassifier pid=4242)</span>     obj, end = self.raw_decode(s, idx=_w(s, 0).end())
-<span class=" -Color -Color-Cyan">(ServeReplica:mnist_classifier:OnlineMNISTClassifier pid=4242)</span>                ^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
-<span class=" -Color -Color-Cyan">(ServeReplica:mnist_classifier:OnlineMNISTClassifier pid=4242)</span>   File &quot;/home/ray/anaconda3/lib/python3.11/json/decoder.py&quot;, line 355, in raw_decode
-<span class=" -Color -Color-Cyan">(ServeReplica:mnist_classifier:OnlineMNISTClassifier pid=4242)</span>     raise JSONDecodeError(&quot;Expecting value&quot;, s, err.value) from None
-<span class=" -Color -Color-Cyan">(ServeReplica:mnist_classifier:OnlineMNISTClassifier pid=4242)</span> json.decoder.JSONDecodeError: Expecting value: line 1 column 1 (char 0)
-<span class=" -Color -Color-Cyan">(ServeReplica:mnist_classifier:OnlineMNISTClassifier pid=4242)</span> INFO 2024-12-13 08:13:24,247 mnist_classifier_OnlineMNISTClassifier igfqf50m 86bc4797-76d5-41f4-becf-f1e4e8c60f5f / replica.py:408 - __CALL__ ERROR 9.2ms
-<span class=" -Color -Color-Cyan">(ServeController pid=4122)</span> INFO 2024-12-13 08:26:56,522 controller 4122 deployment_state.py:1598 - Deploying new version of Deployment(name=&#39;OnlineMNISTClassifier&#39;, app=&#39;mnist_classifier&#39;) (initial target replicas: 4).
-<span class=" -Color -Color-Cyan">(ServeController pid=4122)</span> INFO 2024-12-13 08:26:56,626 controller 4122 deployment_state.py:1844 - Adding 3 replicas to Deployment(name=&#39;OnlineMNISTClassifier&#39;, app=&#39;mnist_classifier&#39;).
-<span class=" -Color -Color-Cyan">(ServeController pid=4122)</span> INFO 2024-12-13 08:27:01,018 controller 4122 deployment_state.py:1721 - Stopping 1 replicas of Deployment(name=&#39;OnlineMNISTClassifier&#39;, app=&#39;mnist_classifier&#39;) with outdated versions.
-<span class=" -Color -Color-Cyan">(ServeController pid=4122)</span> INFO 2024-12-13 08:27:01,019 controller 4122 deployment_state.py:1844 - Adding 1 replica to Deployment(name=&#39;OnlineMNISTClassifier&#39;, app=&#39;mnist_classifier&#39;).
-<span class=" -Color -Color-Cyan">(ProxyActor pid=4048, ip=10.0.34.228)</span> INFO 2024-12-13 08:27:02,071 proxy 10.0.34.228 proxy.py:1225 - Proxy starting on node 110bfa514ef99a26c475fa71f98a338b54b953a6d6fe53937cde202f (HTTP port: 8000).
-<span class=" -Color -Color-Cyan">(ServeController pid=4122)</span> INFO 2024-12-13 08:27:03,098 controller 4122 deployment_state.py:2182 - Replica(id=&#39;igfqf50m&#39;, deployment=&#39;OnlineMNISTClassifier&#39;, app=&#39;mnist_classifier&#39;) is stopped.
-<span class=" -Color -Color-Cyan">(ServeReplica:mnist_classifier:OnlineMNISTClassifier pid=4064, ip=10.0.34.228)</span> INFO 2024-12-13 08:27:23,538 mnist_classifier_OnlineMNISTClassifier yzcovfs1 5f06772e-3258-4bd1-9d3a-68e42b76145e / replica.py:408 - __CALL__ OK 379.1ms
-<span class=" -Color -Color-Cyan">(ServeController pid=4122)</span> INFO 2024-12-13 08:33:39,159 controller 4122 deployment_state.py:1598 - Deploying new version of Deployment(name=&#39;OnlineMNISTClassifier&#39;, app=&#39;mnist_classifier&#39;) (initial target replicas: 0).
-<span class=" -Color -Color-Cyan">(ServeController pid=4122)</span> INFO 2024-12-13 08:33:39,263 controller 4122 deployment_state.py:1860 - Removing 4 replicas from Deployment(name=&#39;OnlineMNISTClassifier&#39;, app=&#39;mnist_classifier&#39;).
-<span class=" -Color -Color-Cyan">(ServeController pid=4122)</span> INFO 2024-12-13 08:33:39,266 controller 4122 proxy_state.py:493 - Draining proxy on node &#39;110bfa514ef99a26c475fa71f98a338b54b953a6d6fe53937cde202f&#39;.
-<span class=" -Color -Color-Cyan">(ServeController pid=4122)</span> INFO 2024-12-13 08:33:41,338 controller 4122 deployment_state.py:2182 - Replica(id=&#39;3jw5er2a&#39;, deployment=&#39;OnlineMNISTClassifier&#39;, app=&#39;mnist_classifier&#39;) is stopped.
-<span class=" -Color -Color-Cyan">(ServeController pid=4122)</span> INFO 2024-12-13 08:33:41,339 controller 4122 deployment_state.py:2182 - Replica(id=&#39;33le5oca&#39;, deployment=&#39;OnlineMNISTClassifier&#39;, app=&#39;mnist_classifier&#39;) is stopped.
-<span class=" -Color -Color-Cyan">(ServeController pid=4122)</span> INFO 2024-12-13 08:33:41,340 controller 4122 deployment_state.py:2182 - Replica(id=&#39;ldfdsx9y&#39;, deployment=&#39;OnlineMNISTClassifier&#39;, app=&#39;mnist_classifier&#39;) is stopped.
-<span class=" -Color -Color-Cyan">(ServeController pid=4122)</span> INFO 2024-12-13 08:33:41,340 controller 4122 deployment_state.py:2182 - Replica(id=&#39;yzcovfs1&#39;, deployment=&#39;OnlineMNISTClassifier&#39;, app=&#39;mnist_classifier&#39;) is stopped.
-<span class=" -Color -Color-Cyan">(ServeController pid=4122)</span> INFO 2024-12-13 08:34:10,319 controller 4122 proxy_state.py:758 - Removing drained proxy on node &#39;110bfa514ef99a26c475fa71f98a338b54b953a6d6fe53937cde202f&#39;.
-<span class=" -Color -Color-Cyan">(ServeController pid=4122)</span> INFO 2024-12-13 08:35:16,157 controller 4122 deployment_state.py:1647 - Upscaling Deployment(name=&#39;OnlineMNISTClassifier&#39;, app=&#39;mnist_classifier&#39;) from 0 to 1 replicas. Current ongoing requests: 18.00, current running replicas: 0.
-<span class=" -Color -Color-Cyan">(ServeController pid=4122)</span> INFO 2024-12-13 08:35:16,157 controller 4122 deployment_state.py:1844 - Adding 1 replica to Deployment(name=&#39;OnlineMNISTClassifier&#39;, app=&#39;mnist_classifier&#39;).
-<span class=" -Color -Color-Cyan">(ServeController pid=4122)</span> INFO 2024-12-13 08:35:20,314 controller 4122 deployment_state.py:1647 - Upscaling Deployment(name=&#39;OnlineMNISTClassifier&#39;, app=&#39;mnist_classifier&#39;) from 1 to 10 replicas. Current ongoing requests: 100.00, current running replicas: 1.
-<span class=" -Color -Color-Cyan">(ServeController pid=4122)</span> INFO 2024-12-13 08:35:20,315 controller 4122 deployment_state.py:1844 - Adding 9 replicas to Deployment(name=&#39;OnlineMNISTClassifier&#39;, app=&#39;mnist_classifier&#39;).
-<span class=" -Color -Color-Cyan">(ServeReplica:mnist_classifier:OnlineMNISTClassifier pid=14028)</span> INFO 2024-12-13 08:35:20,987 mnist_classifier_OnlineMNISTClassifier rxr0eh2z 8b33e11c-afbd-4d26-8e63-f9c3ea2b2b80 replica.py:408 - PREDICT OK 746.2ms
-<span class=" -Color -Color-Cyan">(ServeReplica:mnist_classifier:OnlineMNISTClassifier pid=14028)</span> INFO 2024-12-13 08:35:20,994 mnist_classifier_OnlineMNISTClassifier rxr0eh2z 198f7fc4-247e-4770-ae60-f00b0eebe46a replica.py:408 - PREDICT OK 750.5ms
-<span class=" -Color -Color-Cyan">(ServeReplica:mnist_classifier:OnlineMNISTClassifier pid=14028)</span> INFO 2024-12-13 08:35:20,997 mnist_classifier_OnlineMNISTClassifier rxr0eh2z 13d771ba-91bb-4834-88eb-7d43a29eb930 replica.py:408 - PREDICT OK 749.4ms
-<span class=" -Color -Color-Cyan">(ServeReplica:mnist_classifier:OnlineMNISTClassifier pid=14028)</span> INFO 2024-12-13 08:35:20,998 mnist_classifier_OnlineMNISTClassifier rxr0eh2z f42481cf-6ecf-4580-8e38-19afc8d10cb0 replica.py:408 - PREDICT OK 750.5ms
-<span class=" -Color -Color-Cyan">(ServeReplica:mnist_classifier:OnlineMNISTClassifier pid=14028)</span> INFO 2024-12-13 08:35:20,998 mnist_classifier_OnlineMNISTClassifier rxr0eh2z 849b9cea-ea37-4fb4-a6be-d8fad4f81cbc replica.py:408 - PREDICT OK 750.6ms
-<span class=" -Color -Color-Cyan">(ServeReplica:mnist_classifier:OnlineMNISTClassifier pid=14028)</span> INFO 2024-12-13 08:35:21,464 mnist_classifier_OnlineMNISTClassifier rxr0eh2z 9d24a656-893a-42f8-a9df-a89d0e67250e replica.py:408 - PREDICT OK 51.6ms
-<span class=" -Color -Color-Cyan">(ServeReplica:mnist_classifier:OnlineMNISTClassifier pid=14028)</span> INFO 2024-12-13 08:35:21,468 mnist_classifier_OnlineMNISTClassifier rxr0eh2z 397b0ed4-51ca-4bd9-96c1-82bea6c3b3f6 replica.py:408 - PREDICT OK 44.1ms
-<span class=" -Color -Color-Cyan">(ServeReplica:mnist_classifier:OnlineMNISTClassifier pid=14028)</span> INFO 2024-12-13 08:35:21,527 mnist_classifier_OnlineMNISTClassifier rxr0eh2z fe7247a0-0a61-41d7-b75c-0b744f0af96b replica.py:408 - PREDICT OK 101.7ms
-<span class=" -Color -Color-Cyan">(ServeReplica:mnist_classifier:OnlineMNISTClassifier pid=14028)</span> INFO 2024-12-13 08:35:21,537 mnist_classifier_OnlineMNISTClassifier rxr0eh2z 99096134-2baf-4273-989c-9855722d0246 replica.py:408 - PREDICT OK 106.4ms
-<span class=" -Color -Color-Cyan">(ServeReplica:mnist_classifier:OnlineMNISTClassifier pid=14028)</span> INFO 2024-12-13 08:35:21,538 mnist_classifier_OnlineMNISTClassifier rxr0eh2z 5b73562d-a289-4e5c-9f00-2bb58e1d94b0 replica.py:408 - PREDICT OK 106.9ms
-<span class=" -Color -Color-Cyan">(ServeReplica:mnist_classifier:OnlineMNISTClassifier pid=14028)</span> INFO 2024-12-13 08:35:21,549 mnist_classifier_OnlineMNISTClassifier rxr0eh2z f8858038-f04a-48ad-b215-163c2eb7200d replica.py:408 - PREDICT OK 80.4ms
-<span class=" -Color -Color-Cyan">(ServeReplica:mnist_classifier:OnlineMNISTClassifier pid=14028)</span> INFO 2024-12-13 08:35:21,561 mnist_classifier_OnlineMNISTClassifier rxr0eh2z 66c9e87d-2335-4657-971a-f2b28825c927 replica.py:408 - PREDICT OK 88.9ms
-<span class=" -Color -Color-Cyan">(ServeReplica:mnist_classifier:OnlineMNISTClassifier pid=14028)</span> INFO 2024-12-13 08:35:21,586 mnist_classifier_OnlineMNISTClassifier rxr0eh2z d2e33b6d-b3e1-47cc-8219-b3ad4dc44bd8 replica.py:408 - PREDICT OK 48.9ms
-<span class=" -Color -Color-Cyan">(ServeReplica:mnist_classifier:OnlineMNISTClassifier pid=14028)</span> INFO 2024-12-13 08:35:21,587 mnist_classifier_OnlineMNISTClassifier rxr0eh2z f83f7753-72a4-4cd4-b5b3-e3760faf5e33 replica.py:408 - PREDICT OK 49.1ms
-<span class=" -Color -Color-Cyan">(ServeReplica:mnist_classifier:OnlineMNISTClassifier pid=14028)</span> INFO 2024-12-13 08:35:21,662 mnist_classifier_OnlineMNISTClassifier rxr0eh2z ac402fae-a35d-451a-b722-0185fe491b93 replica.py:408 - PREDICT OK 114.3ms
-<span class=" -Color -Color-Cyan">(ServeReplica:mnist_classifier:OnlineMNISTClassifier pid=14028)</span> INFO 2024-12-13 08:35:21,664 mnist_classifier_OnlineMNISTClassifier rxr0eh2z f8dc8415-d165-4e83-9171-a01b15a5b5be replica.py:408 - PREDICT OK 114.6ms
-<span class=" -Color -Color-Cyan">(ServeReplica:mnist_classifier:OnlineMNISTClassifier pid=14028)</span> INFO 2024-12-13 08:35:21,666 mnist_classifier_OnlineMNISTClassifier rxr0eh2z 17afcb4f-cf44-4ce7-9d9e-9ef4b27f9eef replica.py:408 - PREDICT OK 103.2ms
-<span class=" -Color -Color-Cyan">(ServeReplica:mnist_classifier:OnlineMNISTClassifier pid=14028)</span> INFO 2024-12-13 08:35:21,676 mnist_classifier_OnlineMNISTClassifier rxr0eh2z 33aa7c7b-3126-412b-bc7f-106c7187fb31 replica.py:408 - PREDICT OK 89.1ms
-<span class=" -Color -Color-Cyan">(ServeReplica:mnist_classifier:OnlineMNISTClassifier pid=14028)</span> INFO 2024-12-13 08:35:21,677 mnist_classifier_OnlineMNISTClassifier rxr0eh2z d0ca98cf-9e5f-4adf-aa82-2face0e9f79a replica.py:408 - PREDICT OK 86.4ms
-<span class=" -Color -Color-Cyan">(ServeReplica:mnist_classifier:OnlineMNISTClassifier pid=14028)</span> INFO 2024-12-13 08:35:21,776 mnist_classifier_OnlineMNISTClassifier rxr0eh2z a9f8f400-125f-47bc-b189-f373ed73d831 replica.py:408 - PREDICT OK 14.4ms
-<span class=" -Color -Color-Cyan">(ServeReplica:mnist_classifier:OnlineMNISTClassifier pid=14028)</span> INFO 2024-12-13 08:35:21,796 mnist_classifier_OnlineMNISTClassifier rxr0eh2z 75bb405a-3222-4563-96a7-da854dfc7ea0 replica.py:408 - PREDICT OK 20.6ms
-<span class=" -Color -Color-Cyan">(ServeReplica:mnist_classifier:OnlineMNISTClassifier pid=14028)</span> INFO 2024-12-13 08:35:21,832 mnist_classifier_OnlineMNISTClassifier rxr0eh2z 8c0b2615-012a-4afb-b657-14e9eff572db replica.py:408 - PREDICT OK 55.3ms
-<span class=" -Color -Color-Cyan">(ServeReplica:mnist_classifier:OnlineMNISTClassifier pid=14028)</span> INFO 2024-12-13 08:35:21,833 mnist_classifier_OnlineMNISTClassifier rxr0eh2z fde32f32-2169-46b2-8d7a-358d6c65843b replica.py:408 - PREDICT OK 48.7ms
-<span class=" -Color -Color-Cyan">(ServeReplica:mnist_classifier:OnlineMNISTClassifier pid=14028)</span> INFO 2024-12-13 08:35:21,834 mnist_classifier_OnlineMNISTClassifier rxr0eh2z c367b64e-6306-4ac3-86a9-1aa6adb1f432 replica.py:408 - PREDICT OK 47.9ms
-<span class=" -Color -Color-Cyan">(ServeReplica:mnist_classifier:OnlineMNISTClassifier pid=14028)</span> INFO 2024-12-13 08:35:21,839 mnist_classifier_OnlineMNISTClassifier rxr0eh2z 055231b5-0a5e-4cf9-9857-a7ddb68cd245 replica.py:408 - PREDICT OK 53.1ms
-<span class=" -Color -Color-Cyan">(ServeReplica:mnist_classifier:OnlineMNISTClassifier pid=14028)</span> INFO 2024-12-13 08:35:21,868 mnist_classifier_OnlineMNISTClassifier rxr0eh2z fb055019-bfe0-4a95-9712-ad817c34f956 replica.py:408 - PREDICT OK 61.5ms
-<span class=" -Color -Color-Cyan">(ServeReplica:mnist_classifier:OnlineMNISTClassifier pid=14028)</span> INFO 2024-12-13 08:35:21,927 mnist_classifier_OnlineMNISTClassifier rxr0eh2z e08658d7-e26a-461a-b898-b4998163f409 replica.py:408 - PREDICT OK 93.9ms
-<span class=" -Color -Color-Cyan">(ServeReplica:mnist_classifier:OnlineMNISTClassifier pid=14028)</span> INFO 2024-12-13 08:35:21,929 mnist_classifier_OnlineMNISTClassifier rxr0eh2z 7601c764-bd44-4190-bec1-e315715a219b replica.py:408 - PREDICT OK 89.0ms
-<span class=" -Color -Color-Cyan">(ServeReplica:mnist_classifier:OnlineMNISTClassifier pid=14028)</span> INFO 2024-12-13 08:35:21,930 mnist_classifier_OnlineMNISTClassifier rxr0eh2z 3ca864dc-9a5e-4386-ba35-abfae7c26043 replica.py:408 - PREDICT OK 89.9ms
-<span class=" -Color -Color-Cyan">(ServeReplica:mnist_classifier:OnlineMNISTClassifier pid=14028)</span> INFO 2024-12-13 08:35:21,930 mnist_classifier_OnlineMNISTClassifier rxr0eh2z 764a73de-61d2-4ffc-a7d2-032912f30ff5 replica.py:408 - PREDICT OK 90.1ms
-<span class=" -Color -Color-Cyan">(ServeReplica:mnist_classifier:OnlineMNISTClassifier pid=14028)</span> INFO 2024-12-13 08:35:21,932 mnist_classifier_OnlineMNISTClassifier rxr0eh2z 9b641f18-15f8-4e90-ae7e-cf3965934494 replica.py:408 - PREDICT OK 53.4ms
-<span class=" -Color -Color-Cyan">(ServeReplica:mnist_classifier:OnlineMNISTClassifier pid=14028)</span> INFO 2024-12-13 08:35:21,940 mnist_classifier_OnlineMNISTClassifier rxr0eh2z 68b06455-09cc-4ecc-abfa-980e3078fcc8 replica.py:408 - PREDICT OK 11.7ms
-<span class=" -Color -Color-Cyan">(ServeReplica:mnist_classifier:OnlineMNISTClassifier pid=14028)</span> INFO 2024-12-13 08:35:21,948 mnist_classifier_OnlineMNISTClassifier rxr0eh2z 8c11bec2-af41-4a9a-84cf-db8d5c128784 replica.py:408 - PREDICT OK 12.6ms
-<span class=" -Color -Color-Cyan">(ServeReplica:mnist_classifier:OnlineMNISTClassifier pid=14028)</span> INFO 2024-12-13 08:35:21,973 mnist_classifier_OnlineMNISTClassifier rxr0eh2z 4420a646-b4c0-411e-9be1-5d733a6b1b53 replica.py:408 - PREDICT OK 35.4ms
-<span class=" -Color -Color-Cyan">(ServeReplica:mnist_classifier:OnlineMNISTClassifier pid=14028)</span> INFO 2024-12-13 08:35:21,980 mnist_classifier_OnlineMNISTClassifier rxr0eh2z b07d9302-0b54-4a32-a59b-81c68bd7c359 replica.py:408 - PREDICT OK 37.4ms
-<span class=" -Color -Color-Cyan">(ServeReplica:mnist_classifier:OnlineMNISTClassifier pid=14028)</span> INFO 2024-12-13 08:35:21,992 mnist_classifier_OnlineMNISTClassifier rxr0eh2z d6ccf670-36db-40f4-b9b0-e91d0228fc62 replica.py:408 - PREDICT OK 46.9ms
-<span class=" -Color -Color-Cyan">(ServeReplica:mnist_classifier:OnlineMNISTClassifier pid=14028)</span> INFO 2024-12-13 08:35:22,034 mnist_classifier_OnlineMNISTClassifier rxr0eh2z c3d55581-95d0-42d8-a35a-a21b928d6dcd replica.py:408 - PREDICT OK 80.7ms
-<span class=" -Color -Color-Cyan">(ServeReplica:mnist_classifier:OnlineMNISTClassifier pid=14028)</span> INFO 2024-12-13 08:35:22,049 mnist_classifier_OnlineMNISTClassifier rxr0eh2z aa3d9e41-5387-4ce9-8210-2487ba0e9ded replica.py:408 - PREDICT OK 93.3ms
-<span class=" -Color -Color-Cyan">(ServeReplica:mnist_classifier:OnlineMNISTClassifier pid=14028)</span> INFO 2024-12-13 08:35:22,052 mnist_classifier_OnlineMNISTClassifier rxr0eh2z 5f823b37-9dff-459f-abf0-b92f33f4e6e1 replica.py:408 - PREDICT OK 78.3ms
-<span class=" -Color -Color-Cyan">(ServeReplica:mnist_classifier:OnlineMNISTClassifier pid=14028)</span> INFO 2024-12-13 08:35:22,054 mnist_classifier_OnlineMNISTClassifier rxr0eh2z dd35223a-303a-40ed-ae40-79af2936d153 replica.py:408 - PREDICT OK 63.8ms
-<span class=" -Color -Color-Cyan">(ServeReplica:mnist_classifier:OnlineMNISTClassifier pid=14028)</span> INFO 2024-12-13 08:35:22,055 mnist_classifier_OnlineMNISTClassifier rxr0eh2z 54bf6b8c-bcd3-4b35-bc60-b648b2388eb5 replica.py:408 - PREDICT OK 61.4ms
-<span class=" -Color -Color-Cyan">(ServeReplica:mnist_classifier:OnlineMNISTClassifier pid=14028)</span> INFO 2024-12-13 08:35:22,086 mnist_classifier_OnlineMNISTClassifier rxr0eh2z f11b7533-7ae3-4493-9384-90e6a0e7590b replica.py:408 - PREDICT OK 27.3ms
-<span class=" -Color -Color-Cyan">(ServeReplica:mnist_classifier:OnlineMNISTClassifier pid=14028)</span> INFO 2024-12-13 08:35:22,321 mnist_classifier_OnlineMNISTClassifier rxr0eh2z 9bde4ea1-af4c-42dc-aa54-58429ed8feed replica.py:408 - PREDICT OK 260.5ms
-<span class=" -Color -Color-Cyan">(ServeReplica:mnist_classifier:OnlineMNISTClassifier pid=14028)</span> INFO 2024-12-13 08:35:22,324 mnist_classifier_OnlineMNISTClassifier rxr0eh2z 9e31af96-5f0f-472e-b3df-7d259a3f1724 replica.py:408 - PREDICT OK 263.6ms
-<span class=" -Color -Color-Cyan">(ServeReplica:mnist_classifier:OnlineMNISTClassifier pid=14028)</span> INFO 2024-12-13 08:35:22,325 mnist_classifier_OnlineMNISTClassifier rxr0eh2z cb701050-3b0f-42a7-b47d-f8636cd2b1e8 replica.py:408 - PREDICT OK 264.5ms
-<span class=" -Color -Color-Cyan">(ServeReplica:mnist_classifier:OnlineMNISTClassifier pid=14028)</span> INFO 2024-12-13 08:35:22,326 mnist_classifier_OnlineMNISTClassifier rxr0eh2z 739dd5bd-193e-4b91-a3b1-38c5823e9680 replica.py:408 - PREDICT OK 265.3ms
-<span class=" -Color -Color-Cyan">(ServeReplica:mnist_classifier:OnlineMNISTClassifier pid=14028)</span> INFO 2024-12-13 08:35:22,337 mnist_classifier_OnlineMNISTClassifier rxr0eh2z 9a869580-9787-41d6-a250-0fc50e2851a6 replica.py:408 - PREDICT OK 245.6ms
-<span class=" -Color -Color-Cyan">(ServeReplica:mnist_classifier:OnlineMNISTClassifier pid=14028)</span> INFO 2024-12-13 08:35:22,347 mnist_classifier_OnlineMNISTClassifier rxr0eh2z f18636e7-39bb-4621-b55e-acb2e84a7555 replica.py:408 - PREDICT OK 25.2ms
-<span class=" -Color -Color-Cyan">(ServeReplica:mnist_classifier:OnlineMNISTClassifier pid=14028)</span> INFO 2024-12-13 08:35:22,376 mnist_classifier_OnlineMNISTClassifier rxr0eh2z 8bd01702-5adf-4734-8357-de964fa0ffbe replica.py:408 - PREDICT OK 51.3ms
-<span class=" -Color -Color-Cyan">(ServeReplica:mnist_classifier:OnlineMNISTClassifier pid=14028)</span> INFO 2024-12-13 08:35:22,378 mnist_classifier_OnlineMNISTClassifier rxr0eh2z cd49ca4c-dc01-485e-bcaf-0301e3293111 replica.py:408 - PREDICT OK 46.5ms
-<span class=" -Color -Color-Cyan">(ServeReplica:mnist_classifier:OnlineMNISTClassifier pid=14028)</span> INFO 2024-12-13 08:35:22,379 mnist_classifier_OnlineMNISTClassifier rxr0eh2z 020ac7b0-0990-406a-bd0d-3558a5df2255 replica.py:408 - PREDICT OK 47.1ms
-<span class=" -Color -Color-Cyan">(ServeReplica:mnist_classifier:OnlineMNISTClassifier pid=14028)</span> INFO 2024-12-13 08:35:22,394 mnist_classifier_OnlineMNISTClassifier rxr0eh2z 5c7fcedd-ac23-4ab9-84fb-b80c307061e9 replica.py:408 - PREDICT OK 49.9ms
-<span class=" -Color -Color-Cyan">(ServeReplica:mnist_classifier:OnlineMNISTClassifier pid=14028)</span> INFO 2024-12-13 08:35:22,397 mnist_classifier_OnlineMNISTClassifier rxr0eh2z 2b08a381-ffa9-4615-8cfe-797418e78a2b replica.py:408 - PREDICT OK 48.2ms
-<span class=" -Color -Color-Cyan">(ServeReplica:mnist_classifier:OnlineMNISTClassifier pid=14028)</span> INFO 2024-12-13 08:35:22,457 mnist_classifier_OnlineMNISTClassifier rxr0eh2z f9b3dde0-b043-4734-a7c6-29eea496239a replica.py:408 - PREDICT OK 24.4ms
-<span class=" -Color -Color-Cyan">(ServeReplica:mnist_classifier:OnlineMNISTClassifier pid=14028)</span> INFO 2024-12-13 08:35:22,502 mnist_classifier_OnlineMNISTClassifier rxr0eh2z 2a46beee-d290-4067-a4ac-15fac5d69999 replica.py:408 - PREDICT OK 62.9ms
-<span class=" -Color -Color-Cyan">(ServeReplica:mnist_classifier:OnlineMNISTClassifier pid=14028)</span> INFO 2024-12-13 08:35:22,503 mnist_classifier_OnlineMNISTClassifier rxr0eh2z cbf2b558-e41e-44e9-9289-208603160954 replica.py:408 - PREDICT OK 63.0ms
-<span class=" -Color -Color-Cyan">(ServeReplica:mnist_classifier:OnlineMNISTClassifier pid=14028)</span> INFO 2024-12-13 08:35:22,503 mnist_classifier_OnlineMNISTClassifier rxr0eh2z 9c554fe2-a79f-4632-9413-7ca41aa026c0 replica.py:408 - PREDICT OK 60.6ms
-<span class=" -Color -Color-Cyan">(ServeReplica:mnist_classifier:OnlineMNISTClassifier pid=14028)</span> INFO 2024-12-13 08:35:22,503 mnist_classifier_OnlineMNISTClassifier rxr0eh2z da39b197-9eff-4606-94a8-1bf0aa266dc7 replica.py:408 - PREDICT OK 60.7ms
-<span class=" -Color -Color-Cyan">(ServeReplica:mnist_classifier:OnlineMNISTClassifier pid=14028)</span> INFO 2024-12-13 08:35:22,512 mnist_classifier_OnlineMNISTClassifier rxr0eh2z 347958d7-a496-4f36-847f-cc11291bc063 replica.py:408 - PREDICT OK 54.1ms
-<span class=" -Color -Color-Cyan">(ServeReplica:mnist_classifier:OnlineMNISTClassifier pid=14028)</span> INFO 2024-12-13 08:35:22,575 mnist_classifier_OnlineMNISTClassifier rxr0eh2z 01b009dc-a480-4bcf-9bf6-aca98bc59bde replica.py:408 - PREDICT OK 70.6ms
-<span class=" -Color -Color-Cyan">(ServeReplica:mnist_classifier:OnlineMNISTClassifier pid=14028)</span> INFO 2024-12-13 08:35:22,576 mnist_classifier_OnlineMNISTClassifier rxr0eh2z b23546e7-11ee-44c4-95e7-eac679b97284 replica.py:408 - PREDICT OK 72.1ms
-<span class=" -Color -Color-Cyan">(ServeReplica:mnist_classifier:OnlineMNISTClassifier pid=14028)</span> INFO 2024-12-13 08:35:22,577 mnist_classifier_OnlineMNISTClassifier rxr0eh2z d07dcb75-ce74-4d13-a46f-7276ec5900aa replica.py:408 - PREDICT OK 72.5ms
-<span class=" -Color -Color-Cyan">(ServeReplica:mnist_classifier:OnlineMNISTClassifier pid=14028)</span> INFO 2024-12-13 08:35:22,577 mnist_classifier_OnlineMNISTClassifier rxr0eh2z 311c7985-7d33-41b2-8635-efd92019ac98 replica.py:408 - PREDICT OK 72.6ms
-<span class=" -Color -Color-Cyan">(ServeReplica:mnist_classifier:OnlineMNISTClassifier pid=14028)</span> INFO 2024-12-13 08:35:22,586 mnist_classifier_OnlineMNISTClassifier rxr0eh2z 8b4e7ef3-3736-44d6-b342-6b2803ee9d75 replica.py:408 - PREDICT OK 73.6ms
-<span class=" -Color -Color-Cyan">(ServeReplica:mnist_classifier:OnlineMNISTClassifier pid=14028)</span> INFO 2024-12-13 08:35:22,720 mnist_classifier_OnlineMNISTClassifier rxr0eh2z 76c218b5-550a-4e32-8398-e27fcdb7d764 replica.py:408 - PREDICT OK 96.4ms
-<span class=" -Color -Color-Cyan">(ServeReplica:mnist_classifier:OnlineMNISTClassifier pid=14028)</span> INFO 2024-12-13 08:35:22,720 mnist_classifier_OnlineMNISTClassifier rxr0eh2z 99f1fb9c-9a4d-45b6-8a6d-51b2c8f91245 replica.py:408 - PREDICT OK 96.8ms
-<span class=" -Color -Color-Cyan">(ServeReplica:mnist_classifier:OnlineMNISTClassifier pid=14028)</span> INFO 2024-12-13 08:35:22,721 mnist_classifier_OnlineMNISTClassifier rxr0eh2z 086e2fd8-1dbf-40ef-b592-88d9b7d41436 replica.py:408 - PREDICT OK 95.1ms
-<span class=" -Color -Color-Cyan">(ServeReplica:mnist_classifier:OnlineMNISTClassifier pid=14028)</span> INFO 2024-12-13 08:35:22,721 mnist_classifier_OnlineMNISTClassifier rxr0eh2z ad88d3a8-b1c8-4121-8c75-cfa8e309885c replica.py:408 - PREDICT OK 94.1ms
-<span class=" -Color -Color-Cyan">(ServeReplica:mnist_classifier:OnlineMNISTClassifier pid=14028)</span> INFO 2024-12-13 08:35:22,721 mnist_classifier_OnlineMNISTClassifier rxr0eh2z 22bce676-b5f8-4927-879b-3dfe801dfe28 replica.py:408 - PREDICT OK 90.7ms
-<span class=" -Color -Color-Cyan">(ServeReplica:mnist_classifier:OnlineMNISTClassifier pid=14028)</span> INFO 2024-12-13 08:35:22,807 mnist_classifier_OnlineMNISTClassifier rxr0eh2z 9247b29a-8d92-4986-938c-fee45cdf37c1 replica.py:408 - PREDICT OK 17.0ms
-<span class=" -Color -Color-Cyan">(ServeReplica:mnist_classifier:OnlineMNISTClassifier pid=14028)</span> INFO 2024-12-13 08:35:22,856 mnist_classifier_OnlineMNISTClassifier rxr0eh2z 3fb0fa8e-9f2b-49bb-9adc-88d8c6b13f68 replica.py:408 - PREDICT OK 65.0ms
-<span class=" -Color -Color-Cyan">(ServeReplica:mnist_classifier:OnlineMNISTClassifier pid=14028)</span> INFO 2024-12-13 08:35:22,857 mnist_classifier_OnlineMNISTClassifier rxr0eh2z 44d5cfea-5890-4b8e-8d31-ae096d2fa1e3 replica.py:408 - PREDICT OK 64.1ms
-<span class=" -Color -Color-Cyan">(ServeReplica:mnist_classifier:OnlineMNISTClassifier pid=14028)</span> INFO 2024-12-13 08:35:22,857 mnist_classifier_OnlineMNISTClassifier rxr0eh2z 66b9454d-a122-412f-aeaf-1ae76a31bb0f replica.py:408 - PREDICT OK 61.0ms
-<span class=" -Color -Color-Cyan">(ServeReplica:mnist_classifier:OnlineMNISTClassifier pid=14028)</span> INFO 2024-12-13 08:35:22,867 mnist_classifier_OnlineMNISTClassifier rxr0eh2z 9c3bf661-61e3-4ca8-bb04-01de007bcb5a replica.py:408 - PREDICT OK 68.7ms
-<span class=" -Color -Color-Cyan">(ServeReplica:mnist_classifier:OnlineMNISTClassifier pid=14028)</span> INFO 2024-12-13 08:35:22,867 mnist_classifier_OnlineMNISTClassifier rxr0eh2z 758dbc7b-1850-417c-88a3-8cbc22bad0c3 replica.py:408 - PREDICT OK 57.7ms
-<span class=" -Color -Color-Cyan">(ServeReplica:mnist_classifier:OnlineMNISTClassifier pid=14028)</span> INFO 2024-12-13 08:35:22,896 mnist_classifier_OnlineMNISTClassifier rxr0eh2z 03f1c229-d93a-43f7-b07d-5cf8d8e738bc replica.py:408 - PREDICT OK 36.7ms
-<span class=" -Color -Color-Cyan">(ServeReplica:mnist_classifier:OnlineMNISTClassifier pid=14028)</span> INFO 2024-12-13 08:35:22,897 mnist_classifier_OnlineMNISTClassifier rxr0eh2z 12bc031f-a420-4a7f-9114-046540e0f6ed replica.py:408 - PREDICT OK 37.3ms
-<span class=" -Color -Color-Cyan">(ServeReplica:mnist_classifier:OnlineMNISTClassifier pid=14028)</span> INFO 2024-12-13 08:35:22,897 mnist_classifier_OnlineMNISTClassifier rxr0eh2z 88c883f3-438f-427a-aefd-68b49d84aa7c replica.py:408 - PREDICT OK 37.5ms
-<span class=" -Color -Color-Cyan">(ServeReplica:mnist_classifier:OnlineMNISTClassifier pid=14028)</span> INFO 2024-12-13 08:35:22,904 mnist_classifier_OnlineMNISTClassifier rxr0eh2z 5dc65486-f1d6-4b62-8044-c22e14d7f178 replica.py:408 - PREDICT OK 30.8ms
-<span class=" -Color -Color-Cyan">(ServeReplica:mnist_classifier:OnlineMNISTClassifier pid=14028)</span> INFO 2024-12-13 08:35:22,905 mnist_classifier_OnlineMNISTClassifier rxr0eh2z 9adb067c-19fb-4366-891b-adf3767bae2b replica.py:408 - PREDICT OK 31.4ms
-<span class=" -Color -Color-Cyan">(ServeReplica:mnist_classifier:OnlineMNISTClassifier pid=14028)</span> INFO 2024-12-13 08:35:23,014 mnist_classifier_OnlineMNISTClassifier rxr0eh2z b096c122-0158-4dae-9ec4-08f3147421e1 replica.py:408 - PREDICT OK 45.7ms
-<span class=" -Color -Color-Cyan">(ServeReplica:mnist_classifier:OnlineMNISTClassifier pid=14028)</span> INFO 2024-12-13 08:35:23,043 mnist_classifier_OnlineMNISTClassifier rxr0eh2z 025e9e5f-906a-402e-84df-2b4a31ae4b84 replica.py:408 - PREDICT OK 72.4ms
-<span class=" -Color -Color-Cyan">(ServeReplica:mnist_classifier:OnlineMNISTClassifier pid=14028)</span> INFO 2024-12-13 08:35:23,253 mnist_classifier_OnlineMNISTClassifier rxr0eh2z e2525dbf-5f2b-4287-8fde-d6838e5f4905 replica.py:408 - PREDICT OK 277.5ms
-<span class=" -Color -Color-Cyan">(ServeReplica:mnist_classifier:OnlineMNISTClassifier pid=14028)</span> INFO 2024-12-13 08:35:23,257 mnist_classifier_OnlineMNISTClassifier rxr0eh2z 1659b973-f911-44d3-9721-c7abd15477ea replica.py:408 - PREDICT OK 279.3ms
-<span class=" -Color -Color-Cyan">(ServeReplica:mnist_classifier:OnlineMNISTClassifier pid=14028)</span> INFO 2024-12-13 08:35:23,257 mnist_classifier_OnlineMNISTClassifier rxr0eh2z 00dd0fdd-41e6-4281-b54e-c3b84b20eb8d replica.py:408 - PREDICT OK 279.3ms
-<span class=" -Color -Color-Cyan">(ServeReplica:mnist_classifier:OnlineMNISTClassifier pid=14028)</span> INFO 2024-12-13 08:35:23,258 mnist_classifier_OnlineMNISTClassifier rxr0eh2z 935c8d4c-a94b-405a-a123-24cafd504339 replica.py:408 - PREDICT OK 243.2ms
-<span class=" -Color -Color-Cyan">(ServeReplica:mnist_classifier:OnlineMNISTClassifier pid=14028)</span> INFO 2024-12-13 08:35:23,302 mnist_classifier_OnlineMNISTClassifier rxr0eh2z 1f9acacf-14c4-4f9f-a25a-7a101e46b308 replica.py:408 - PREDICT OK 29.3ms
-<span class=" -Color -Color-Cyan">(ServeReplica:mnist_classifier:OnlineMNISTClassifier pid=14028)</span> INFO 2024-12-13 08:35:23,328 mnist_classifier_OnlineMNISTClassifier rxr0eh2z 263125dd-10da-4c6b-87bb-1913973233a1 replica.py:408 - PREDICT OK 53.6ms
-<span class=" -Color -Color-Cyan">(ServeReplica:mnist_classifier:OnlineMNISTClassifier pid=14028)</span> INFO 2024-12-13 08:35:23,328 mnist_classifier_OnlineMNISTClassifier rxr0eh2z 8587431f-2d1a-46f6-ae9e-de479ba5fb98 replica.py:408 - PREDICT OK 49.2ms
-<span class=" -Color -Color-Cyan">(ServeReplica:mnist_classifier:OnlineMNISTClassifier pid=14028)</span> INFO 2024-12-13 08:35:23,330 mnist_classifier_OnlineMNISTClassifier rxr0eh2z 30dce11b-7cc4-4d25-a82a-e991d61aaddd replica.py:408 - PREDICT OK 50.1ms
-<span class=" -Color -Color-Cyan">(ServeReplica:mnist_classifier:OnlineMNISTClassifier pid=14028)</span> INFO 2024-12-13 08:35:23,332 mnist_classifier_OnlineMNISTClassifier rxr0eh2z da61e14d-a924-4d6f-8763-90397ae89134 replica.py:408 - PREDICT OK 49.3ms
-<span class=" -Color -Color-Cyan">(ServeReplica:mnist_classifier:OnlineMNISTClassifier pid=14028)</span> INFO 2024-12-13 08:35:23,332 mnist_classifier_OnlineMNISTClassifier rxr0eh2z 7049697b-1d60-489b-9b9b-e2ae43467f43 replica.py:408 - PREDICT OK 29.4ms
-<span class=" -Color -Color-Cyan">(ServeReplica:mnist_classifier:OnlineMNISTClassifier pid=14028)</span> INFO 2024-12-13 08:35:23,415 mnist_classifier_OnlineMNISTClassifier rxr0eh2z 9eefff86-84e2-4351-9181-4b79a58705f2 replica.py:408 - PREDICT OK 46.0ms
-<span class=" -Color -Color-Cyan">(ServeReplica:mnist_classifier:OnlineMNISTClassifier pid=14028)</span> INFO 2024-12-13 08:35:23,417 mnist_classifier_OnlineMNISTClassifier rxr0eh2z bf2ffed4-6223-4fd9-ae8e-11135d3d7b44 replica.py:408 - PREDICT OK 46.6ms
-<span class=" -Color -Color-Cyan">(ServeReplica:mnist_classifier:OnlineMNISTClassifier pid=14028)</span> INFO 2024-12-13 08:35:23,418 mnist_classifier_OnlineMNISTClassifier rxr0eh2z 4310a785-62ed-47c9-bc7a-09666db07f8d replica.py:408 - PREDICT OK 47.2ms
-<span class=" -Color -Color-Cyan">(ServeReplica:mnist_classifier:OnlineMNISTClassifier pid=14028)</span> INFO 2024-12-13 08:35:23,420 mnist_classifier_OnlineMNISTClassifier rxr0eh2z d8f077cc-ce15-47cf-b36d-61e43170ae7b replica.py:408 - PREDICT OK 46.6ms
-<span class=" -Color -Color-Cyan">(ServeReplica:mnist_classifier:OnlineMNISTClassifier pid=14028)</span> INFO 2024-12-13 08:35:23,420 mnist_classifier_OnlineMNISTClassifier rxr0eh2z 3fef23f7-7ed4-4a30-b588-e7ced403d88d replica.py:408 - PREDICT OK 46.7ms
-<span class=" -Color -Color-Cyan">(ServeReplica:mnist_classifier:OnlineMNISTClassifier pid=14028)</span> INFO 2024-12-13 08:35:23,454 mnist_classifier_OnlineMNISTClassifier rxr0eh2z 49b36a80-952b-4893-b914-36b5ff9e5797 replica.py:408 - PREDICT OK 9.8ms
-<span class=" -Color -Color-Cyan">(ServeReplica:mnist_classifier:OnlineMNISTClassifier pid=14028)</span> INFO 2024-12-13 08:35:23,468 mnist_classifier_OnlineMNISTClassifier rxr0eh2z 86c97f57-05e9-41f1-8743-40eee0ad1582 replica.py:408 - PREDICT OK 22.7ms
-<span class=" -Color -Color-Cyan">(ServeReplica:mnist_classifier:OnlineMNISTClassifier pid=14028)</span> INFO 2024-12-13 08:35:23,469 mnist_classifier_OnlineMNISTClassifier rxr0eh2z 107fe15a-7b5d-41a5-bb22-35d7619a7371 replica.py:408 - PREDICT OK 23.3ms
-<span class=" -Color -Color-Cyan">(ProxyActor pid=4934, ip=10.0.34.228)</span> INFO 2024-12-13 08:35:25,816 proxy 10.0.34.228 proxy.py:1225 - Proxy starting on node 110bfa514ef99a26c475fa71f98a338b54b953a6d6fe53937cde202f (HTTP port: 8000).
-<span class=" -Color -Color-Cyan">(ServeController pid=4122)</span> INFO 2024-12-13 08:36:04,494 controller 4122 deployment_state.py:1860 - Removing 10 replicas from Deployment(name=&#39;OnlineMNISTClassifier&#39;, app=&#39;mnist_classifier&#39;).
-<span class=" -Color -Color-Cyan">(ServeController pid=4122)</span> INFO 2024-12-13 08:36:06,562 controller 4122 deployment_state.py:2182 - Replica(id=&#39;rxr0eh2z&#39;, deployment=&#39;OnlineMNISTClassifier&#39;, app=&#39;mnist_classifier&#39;) is stopped.
-<span class=" -Color -Color-Cyan">(ServeController pid=4122)</span> INFO 2024-12-13 08:36:06,562 controller 4122 deployment_state.py:2182 - Replica(id=&#39;p50j70xb&#39;, deployment=&#39;OnlineMNISTClassifier&#39;, app=&#39;mnist_classifier&#39;) is stopped.
-<span class=" -Color -Color-Cyan">(ServeController pid=4122)</span> INFO 2024-12-13 08:36:06,563 controller 4122 deployment_state.py:2182 - Replica(id=&#39;8g7ss5ya&#39;, deployment=&#39;OnlineMNISTClassifier&#39;, app=&#39;mnist_classifier&#39;) is stopped.
-<span class=" -Color -Color-Cyan">(ServeController pid=4122)</span> INFO 2024-12-13 08:36:06,564 controller 4122 deployment_state.py:2182 - Replica(id=&#39;3jf5e3d8&#39;, deployment=&#39;OnlineMNISTClassifier&#39;, app=&#39;mnist_classifier&#39;) is stopped.
-<span class=" -Color -Color-Cyan">(ServeController pid=4122)</span> INFO 2024-12-13 08:36:06,564 controller 4122 deployment_state.py:2182 - Replica(id=&#39;4dvcy3de&#39;, deployment=&#39;OnlineMNISTClassifier&#39;, app=&#39;mnist_classifier&#39;) is stopped.
-<span class=" -Color -Color-Cyan">(ServeController pid=4122)</span> INFO 2024-12-13 08:36:06,565 controller 4122 deployment_state.py:2182 - Replica(id=&#39;fptnfbbe&#39;, deployment=&#39;OnlineMNISTClassifier&#39;, app=&#39;mnist_classifier&#39;) is stopped.
-<span class=" -Color -Color-Cyan">(ServeController pid=4122)</span> INFO 2024-12-13 08:36:06,566 controller 4122 deployment_state.py:2182 - Replica(id=&#39;pjtb8s60&#39;, deployment=&#39;OnlineMNISTClassifier&#39;, app=&#39;mnist_classifier&#39;) is stopped.
-<span class=" -Color -Color-Cyan">(ServeController pid=4122)</span> INFO 2024-12-13 08:36:06,567 controller 4122 deployment_state.py:2182 - Replica(id=&#39;7vmfe6bq&#39;, deployment=&#39;OnlineMNISTClassifier&#39;, app=&#39;mnist_classifier&#39;) is stopped.
-<span class=" -Color -Color-Cyan">(ServeController pid=4122)</span> INFO 2024-12-13 08:36:06,568 controller 4122 deployment_state.py:2182 - Replica(id=&#39;dvp7icd9&#39;, deployment=&#39;OnlineMNISTClassifier&#39;, app=&#39;mnist_classifier&#39;) is stopped.
-<span class=" -Color -Color-Cyan">(ServeController pid=4122)</span> INFO 2024-12-13 08:36:06,569 controller 4122 deployment_state.py:2182 - Replica(id=&#39;xoqusa5a&#39;, deployment=&#39;OnlineMNISTClassifier&#39;, app=&#39;mnist_classifier&#39;) is stopped.
-<span class=" -Color -Color-Cyan">(ServeController pid=15676)</span> INFO 2024-12-13 08:38:44,264 controller 15676 deployment_state.py:1598 - Deploying new version of Deployment(name=&#39;OnlineMNISTPreprocessor&#39;, app=&#39;mnist_preprocessor&#39;) (initial target replicas: 1).
-<span class=" -Color -Color-Cyan">(ProxyActor pid=15740)</span> INFO 2024-12-13 08:38:44,212 proxy 10.0.7.17 proxy.py:1225 - Proxy starting on node e741c55434a3ea7340f7710115b0bf60b65a7e5ca47446a7590b3497 (HTTP port: 8000).
-<span class=" -Color -Color-Cyan">(ServeController pid=15676)</span> INFO 2024-12-13 08:38:44,367 controller 15676 deployment_state.py:1844 - Adding 1 replica to Deployment(name=&#39;OnlineMNISTPreprocessor&#39;, app=&#39;mnist_preprocessor&#39;).
-<span class=" -Color -Color-Cyan">(ProxyActor pid=5313, ip=10.0.34.228)</span> INFO 2024-12-13 08:38:51,099 proxy 10.0.34.228 proxy.py:1225 - Proxy starting on node 110bfa514ef99a26c475fa71f98a338b54b953a6d6fe53937cde202f (HTTP port: 8000).
-<span class=" -Color -Color-Cyan">(ServeReplica:mnist_preprocessor:OnlineMNISTPreprocessor pid=5257, ip=10.0.34.228)</span> INFO 2024-12-13 08:39:56,518 mnist_preprocessor_OnlineMNISTPreprocessor 5ld5x44p d9cbb09e-46b6-4cf2-89e8-36192f5759d4 replica.py:408 - RUN OK 6.9ms
-<span class=" -Color -Color-Cyan">(ServeController pid=15676)</span> INFO 2024-12-13 08:40:37,811 controller 15676 deployment_state.py:1860 - Removing 1 replica from Deployment(name=&#39;OnlineMNISTPreprocessor&#39;, app=&#39;mnist_preprocessor&#39;).
-<span class=" -Color -Color-Cyan">(ServeController pid=15676)</span> INFO 2024-12-13 08:40:39,836 controller 15676 deployment_state.py:2182 - Replica(id=&#39;5ld5x44p&#39;, deployment=&#39;OnlineMNISTPreprocessor&#39;, app=&#39;mnist_preprocessor&#39;) is stopped.
-<span class=" -Color -Color-Cyan">(ServeController pid=17833)</span> INFO 2024-12-13 08:44:20,006 controller 17833 deployment_state.py:1598 - Deploying new version of Deployment(name=&#39;OnlineMNISTPreprocessor&#39;, app=&#39;image_classifier&#39;) (initial target replicas: 1).
-<span class=" -Color -Color-Cyan">(ServeController pid=17833)</span> INFO 2024-12-13 08:44:20,007 controller 17833 deployment_state.py:1598 - Deploying new version of Deployment(name=&#39;OnlineMNISTClassifier&#39;, app=&#39;image_classifier&#39;) (initial target replicas: 1).
-<span class=" -Color -Color-Cyan">(ServeController pid=17833)</span> INFO 2024-12-13 08:44:20,009 controller 17833 deployment_state.py:1598 - Deploying new version of Deployment(name=&#39;ImageServiceIngress&#39;, app=&#39;image_classifier&#39;) (initial target replicas: 1).
-<span class=" -Color -Color-Cyan">(ProxyActor pid=17893)</span> INFO 2024-12-13 08:44:19,933 proxy 10.0.7.17 proxy.py:1225 - Proxy starting on node e741c55434a3ea7340f7710115b0bf60b65a7e5ca47446a7590b3497 (HTTP port: 8000).
-<span class=" -Color -Color-Cyan">(ServeController pid=17833)</span> INFO 2024-12-13 08:44:20,112 controller 17833 deployment_state.py:1844 - Adding 1 replica to Deployment(name=&#39;OnlineMNISTPreprocessor&#39;, app=&#39;image_classifier&#39;).
-<span class=" -Color -Color-Cyan">(ServeController pid=17833)</span> INFO 2024-12-13 08:44:20,115 controller 17833 deployment_state.py:1844 - Adding 1 replica to Deployment(name=&#39;OnlineMNISTClassifier&#39;, app=&#39;image_classifier&#39;).
-<span class=" -Color -Color-Cyan">(ServeController pid=17833)</span> INFO 2024-12-13 08:44:20,117 controller 17833 deployment_state.py:1844 - Adding 1 replica to Deployment(name=&#39;ImageServiceIngress&#39;, app=&#39;image_classifier&#39;).
-<span class=" -Color -Color-Cyan">(ProxyActor pid=6017, ip=10.0.34.228)</span> INFO 2024-12-13 08:44:25,614 proxy 10.0.34.228 proxy.py:1225 - Proxy starting on node 110bfa514ef99a26c475fa71f98a338b54b953a6d6fe53937cde202f (HTTP port: 8000).
-<span class=" -Color -Color-Cyan">(ServeReplica:image_classifier:OnlineMNISTClassifier pid=5869, ip=10.0.34.228)</span> /tmp/ipykernel_3618/1676735073.py:21: UserWarning: Creating a tensor from a list of numpy.ndarrays is extremely slow. Please consider converting the list to a single numpy.ndarray with numpy.array() before converting to a tensor. (Triggered internally at ../torch/csrc/utils/tensor_new.cpp:278.)
-<span class=" -Color -Color-Cyan">(ServeReplica:image_classifier:OnlineMNISTPreprocessor pid=5870, ip=10.0.34.228)</span> INFO 2024-12-13 08:44:44,195 image_classifier_OnlineMNISTPreprocessor zv52t6ra 866c4570-07d3-4318-bd64-6cc30cc272da / replica.py:408 - RUN OK 4.4ms
-<span class=" -Color -Color-Cyan">(ServeReplica:image_classifier:ImageServiceIngress pid=5871, ip=10.0.34.228)</span> INFO 2024-12-13 08:44:44,602 image_classifier_ImageServiceIngress j6wko98k 866c4570-07d3-4318-bd64-6cc30cc272da / replica.py:408 - __CALL__ OK 445.0ms
-<span class=" -Color -Color-Cyan">(ServeReplica:image_classifier:OnlineMNISTClassifier pid=5869, ip=10.0.34.228)</span> INFO 2024-12-13 08:44:44,596 image_classifier_OnlineMNISTClassifier dig5lvz8 866c4570-07d3-4318-bd64-6cc30cc272da / replica.py:408 - PREDICT OK 384.2ms
-<span class=" -Color -Color-Cyan">(ServeController pid=17833)</span> INFO 2024-12-13 08:49:02,270 controller 17833 deployment_state.py:1598 - Deploying new version of Deployment(name=&#39;OnlineMNISTPreprocessor&#39;, app=&#39;image_classifier&#39;) (initial target replicas: 1).
-<span class=" -Color -Color-Cyan">(ServeController pid=17833)</span> INFO 2024-12-13 08:49:02,271 controller 17833 deployment_state.py:1598 - Deploying new version of Deployment(name=&#39;OnlineMNISTClassifier&#39;, app=&#39;image_classifier&#39;) (initial target replicas: 1).
-<span class=" -Color -Color-Cyan">(ServeController pid=17833)</span> INFO 2024-12-13 08:49:02,272 controller 17833 deployment_state.py:1598 - Deploying new version of Deployment(name=&#39;ImageServiceIngress&#39;, app=&#39;image_classifier&#39;) (initial target replicas: 1).
-<span class=" -Color -Color-Cyan">(ServeController pid=17833)</span> INFO 2024-12-13 08:49:02,376 controller 17833 deployment_state.py:1721 - Stopping 1 replicas of Deployment(name=&#39;OnlineMNISTPreprocessor&#39;, app=&#39;image_classifier&#39;) with outdated versions.
-<span class=" -Color -Color-Cyan">(ServeController pid=17833)</span> INFO 2024-12-13 08:49:02,376 controller 17833 deployment_state.py:1844 - Adding 1 replica to Deployment(name=&#39;OnlineMNISTPreprocessor&#39;, app=&#39;image_classifier&#39;).
-<span class=" -Color -Color-Cyan">(ServeController pid=17833)</span> INFO 2024-12-13 08:49:02,379 controller 17833 deployment_state.py:1721 - Stopping 1 replicas of Deployment(name=&#39;OnlineMNISTClassifier&#39;, app=&#39;image_classifier&#39;) with outdated versions.
-<span class=" -Color -Color-Cyan">(ServeController pid=17833)</span> INFO 2024-12-13 08:49:02,379 controller 17833 deployment_state.py:1844 - Adding 1 replica to Deployment(name=&#39;OnlineMNISTClassifier&#39;, app=&#39;image_classifier&#39;).
-<span class=" -Color -Color-Cyan">(ServeController pid=17833)</span> INFO 2024-12-13 08:49:02,382 controller 17833 deployment_state.py:1721 - Stopping 1 replicas of Deployment(name=&#39;ImageServiceIngress&#39;, app=&#39;image_classifier&#39;) with outdated versions.
-<span class=" -Color -Color-Cyan">(ServeController pid=17833)</span> INFO 2024-12-13 08:49:02,382 controller 17833 deployment_state.py:1844 - Adding 1 replica to Deployment(name=&#39;ImageServiceIngress&#39;, app=&#39;image_classifier&#39;).
-<span class=" -Color -Color-Cyan">(ServeController pid=17833)</span> INFO 2024-12-13 08:49:02,450 controller 17833 proxy_state.py:493 - Draining proxy on node &#39;110bfa514ef99a26c475fa71f98a338b54b953a6d6fe53937cde202f&#39;.
-<span class=" -Color -Color-Cyan">(ServeController pid=17833)</span> INFO 2024-12-13 08:49:04,427 controller 17833 deployment_state.py:2182 - Replica(id=&#39;zv52t6ra&#39;, deployment=&#39;OnlineMNISTPreprocessor&#39;, app=&#39;image_classifier&#39;) is stopped.
-<span class=" -Color -Color-Cyan">(ServeController pid=17833)</span> INFO 2024-12-13 08:49:04,428 controller 17833 deployment_state.py:2182 - Replica(id=&#39;dig5lvz8&#39;, deployment=&#39;OnlineMNISTClassifier&#39;, app=&#39;image_classifier&#39;) is stopped.
-<span class=" -Color -Color-Cyan">(ServeController pid=17833)</span> INFO 2024-12-13 08:49:04,429 controller 17833 deployment_state.py:2182 - Replica(id=&#39;j6wko98k&#39;, deployment=&#39;ImageServiceIngress&#39;, app=&#39;image_classifier&#39;) is stopped.
-<span class=" -Color -Color-Cyan">(ServeController pid=17833)</span> INFO 2024-12-13 08:49:05,984 controller 17833 proxy_state.py:500 - No longer draining proxy on node &#39;110bfa514ef99a26c475fa71f98a338b54b953a6d6fe53937cde202f&#39;.
-<span class=" -Color -Color-Cyan">(ServeReplica:image_classifier:OnlineMNISTClassifier pid=6453, ip=10.0.34.228)</span> /tmp/ipykernel_3618/1676735073.py:21: UserWarning: Creating a tensor from a list of numpy.ndarrays is extremely slow. Please consider converting the list to a single numpy.ndarray with numpy.array() before converting to a tensor. (Triggered internally at ../torch/csrc/utils/tensor_new.cpp:278.)
-<span class=" -Color -Color-Cyan">(ServeReplica:image_classifier:OnlineMNISTPreprocessor pid=6454, ip=10.0.34.228)</span> INFO 2024-12-13 08:49:39,493 image_classifier_OnlineMNISTPreprocessor srogyxhv 74129d89-41b9-4fdd-b69a-bafb1bc917b1 /predict replica.py:408 - RUN OK 4.4ms
-<span class=" -Color -Color-Cyan">(ServeReplica:image_classifier:ImageServiceIngress pid=6455, ip=10.0.34.228)</span> INFO 2024-12-13 08:49:39,893 image_classifier_ImageServiceIngress 5m61i465 74129d89-41b9-4fdd-b69a-bafb1bc917b1 /predict replica.py:408 - __CALL__ OK 441.2ms
-<span class=" -Color -Color-Cyan">(ServeReplica:image_classifier:OnlineMNISTClassifier pid=6453, ip=10.0.34.228)</span> INFO 2024-12-13 08:49:39,892 image_classifier_OnlineMNISTClassifier 02evdjqs 74129d89-41b9-4fdd-b69a-bafb1bc917b1 /predict replica.py:408 - PREDICT OK 380.8ms
-<span class=" -Color -Color-Cyan">(ServeController pid=17833)</span> INFO 2024-12-13 09:00:19,142 controller 17833 deployment_state.py:1860 - Removing 1 replica from Deployment(name=&#39;OnlineMNISTPreprocessor&#39;, app=&#39;image_classifier&#39;).
-<span class=" -Color -Color-Cyan">(ServeController pid=17833)</span> INFO 2024-12-13 09:00:19,142 controller 17833 deployment_state.py:1860 - Removing 1 replica from Deployment(name=&#39;OnlineMNISTClassifier&#39;, app=&#39;image_classifier&#39;).
-<span class=" -Color -Color-Cyan">(ServeController pid=17833)</span> INFO 2024-12-13 09:00:19,142 controller 17833 deployment_state.py:1860 - Removing 1 replica from Deployment(name=&#39;ImageServiceIngress&#39;, app=&#39;image_classifier&#39;).
-<span class=" -Color -Color-Cyan">(ServeController pid=17833)</span> INFO 2024-12-13 09:00:21,180 controller 17833 deployment_state.py:2182 - Replica(id=&#39;srogyxhv&#39;, deployment=&#39;OnlineMNISTPreprocessor&#39;, app=&#39;image_classifier&#39;) is stopped.
-<span class=" -Color -Color-Cyan">(ServeController pid=17833)</span> INFO 2024-12-13 09:00:21,181 controller 17833 deployment_state.py:2182 - Replica(id=&#39;02evdjqs&#39;, deployment=&#39;OnlineMNISTClassifier&#39;, app=&#39;image_classifier&#39;) is stopped.
-<span class=" -Color -Color-Cyan">(ServeController pid=17833)</span> INFO 2024-12-13 09:00:21,182 controller 17833 deployment_state.py:2182 - Replica(id=&#39;5m61i465&#39;, deployment=&#39;ImageServiceIngress&#39;, app=&#39;image_classifier&#39;) is stopped.
 </pre></div>
 </div>
 </div>
@@ -766,10 +546,6 @@ document.write(`
 </div>
 </div>
 <div class="cell_output docutils container">
-<div class="output stderr highlight-myst-ansi notranslate"><div class="highlight"><pre><span></span>2024-12-13 08:07:58,171	WARNING api.py:346 -- The default value for `max_ongoing_requests` has changed from 100 to 5 in Ray 2.32.0.
-2024-12-13 08:07:58,172	WARNING api.py:397 -- The default value for `max_ongoing_requests` has changed from 100 to 5 in Ray 2.32.0.
-</pre></div>
-</div>
 </div>
 </div>
 <p>We can now instantiate the <code class="docutils literal notranslate"><span class="pre">OnlineMNISTClassifier</span></code> as a Ray Serve Application using <code class="docutils literal notranslate"><span class="pre">.bind</span></code>.</p>
@@ -796,18 +572,6 @@ document.write(`
 </div>
 </div>
 <div class="cell_output docutils container">
-<div class="output stderr highlight-myst-ansi notranslate"><div class="highlight"><pre><span></span>2024-12-13 08:08:11,879	INFO handle.py:126 -- Created DeploymentHandle &#39;i6mh0ukx&#39; for Deployment(name=&#39;OnlineMNISTClassifier&#39;, app=&#39;mnist_classifier&#39;).
-2024-12-13 08:08:11,880	INFO handle.py:126 -- Created DeploymentHandle &#39;9cukvklw&#39; for Deployment(name=&#39;OnlineMNISTClassifier&#39;, app=&#39;mnist_classifier&#39;).
-2024-12-13 08:08:16,901	INFO handle.py:126 -- Created DeploymentHandle &#39;nbalzf4x&#39; for Deployment(name=&#39;OnlineMNISTClassifier&#39;, app=&#39;mnist_classifier&#39;).
-2024-12-13 08:08:16,902	INFO api.py:574 -- Deployed app &#39;mnist_classifier&#39; successfully.
-</pre></div>
-</div>
-<div class="output stderr highlight-myst-ansi notranslate"><div class="highlight"><pre><span></span><span class=" -Color -Color-Cyan">(ProxyActor pid=4182)</span> INFO 2024-12-13 08:08:11,838 proxy 10.0.7.17 proxy.py:1225 - Proxy starting on node e741c55434a3ea7340f7710115b0bf60b65a7e5ca47446a7590b3497 (HTTP port: 8000).
-<span class=" -Color -Color-Cyan">(ServeController pid=4122)</span> INFO 2024-12-13 08:08:11,946 controller 4122 deployment_state.py:1598 - Deploying new version of Deployment(name=&#39;OnlineMNISTClassifier&#39;, app=&#39;mnist_classifier&#39;) (initial target replicas: 1).
-<span class=" -Color -Color-Cyan">(ServeController pid=4122)</span> INFO 2024-12-13 08:08:12,049 controller 4122 deployment_state.py:1844 - Adding 1 replica to Deployment(name=&#39;OnlineMNISTClassifier&#39;, app=&#39;mnist_classifier&#39;).
-<span class=" -Color -Color-Cyan">(ServeReplica:mnist_classifier:OnlineMNISTClassifier pid=4242)</span> INFO 2024-12-13 08:08:21,242 mnist_classifier_OnlineMNISTClassifier igfqf50m ec22c448-6399-4720-8a80-07fe34ab2c9a / replica.py:408 - __CALL__ OK 505.0ms
-</pre></div>
-</div>
 </div>
 </div>
 <p>We can test it as an HTTP endpoint</p>
@@ -840,10 +604,6 @@ document.write(`
 </div>
 </div>
 <div class="cell_output docutils container">
-<div class="output stderr highlight-myst-ansi notranslate"><div class="highlight"><pre><span></span>2024-12-13 08:09:45,066	INFO handle.py:126 -- Created DeploymentHandle &#39;84zvztwn&#39; for Deployment(name=&#39;OnlineMNISTClassifier&#39;, app=&#39;mnist_classifier&#39;).
-2024-12-13 08:09:45,077	INFO pow_2_scheduler.py:260 -- Got updated replicas for Deployment(name=&#39;OnlineMNISTClassifier&#39;, app=&#39;mnist_classifier&#39;): {&#39;igfqf50m&#39;}.
-</pre></div>
-</div>
 <div class="output text_plain highlight-myst-ansi notranslate"><div class="highlight"><pre><span></span>array([1, 6, 1, 6, 1, 1, 1, 1, 1, 6])
 </pre></div>
 </div>
@@ -875,24 +635,6 @@ document.write(`
 </div>
 </div>
 <div class="cell_output docutils container">
-<div class="output stderr highlight-myst-ansi notranslate"><div class="highlight"><pre><span></span>2024-12-13 08:26:56,510	INFO handle.py:126 -- Created DeploymentHandle &#39;t03z0nz6&#39; for Deployment(name=&#39;OnlineMNISTClassifier&#39;, app=&#39;mnist_classifier&#39;).
-2024-12-13 08:26:56,511	INFO handle.py:126 -- Created DeploymentHandle &#39;nkuhydqb&#39; for Deployment(name=&#39;OnlineMNISTClassifier&#39;, app=&#39;mnist_classifier&#39;).
-2024-12-13 08:27:05,544	INFO api.py:574 -- Deployed app &#39;mnist_classifier&#39; successfully.
-</pre></div>
-</div>
-<div class="output stderr highlight-myst-ansi notranslate"><div class="highlight"><pre><span></span>2024-12-13 08:27:01,026	INFO pow_2_scheduler.py:260 -- Got updated replicas for Deployment(name=&#39;OnlineMNISTClassifier&#39;, app=&#39;mnist_classifier&#39;): {&#39;3jw5er2a&#39;, &#39;33le5oca&#39;, &#39;ldfdsx9y&#39;}.
-2024-12-13 08:27:04,963	INFO pow_2_scheduler.py:260 -- Got updated replicas for Deployment(name=&#39;OnlineMNISTClassifier&#39;, app=&#39;mnist_classifier&#39;): {&#39;3jw5er2a&#39;, &#39;yzcovfs1&#39;, &#39;33le5oca&#39;, &#39;ldfdsx9y&#39;}.
-2024-12-13 08:33:39,268	INFO pow_2_scheduler.py:260 -- Got updated replicas for Deployment(name=&#39;OnlineMNISTClassifier&#39;, app=&#39;mnist_classifier&#39;): set().
-2024-12-13 08:35:20,218	INFO pow_2_scheduler.py:260 -- Got updated replicas for Deployment(name=&#39;OnlineMNISTClassifier&#39;, app=&#39;mnist_classifier&#39;): {&#39;rxr0eh2z&#39;}.
-2024-12-13 08:35:24,606	INFO pow_2_scheduler.py:260 -- Got updated replicas for Deployment(name=&#39;OnlineMNISTClassifier&#39;, app=&#39;mnist_classifier&#39;): {&#39;8g7ss5ya&#39;, &#39;rxr0eh2z&#39;, &#39;p50j70xb&#39;}.
-2024-12-13 08:35:27,930	INFO pow_2_scheduler.py:260 -- Got updated replicas for Deployment(name=&#39;OnlineMNISTClassifier&#39;, app=&#39;mnist_classifier&#39;): {&#39;8g7ss5ya&#39;, &#39;3jf5e3d8&#39;, &#39;rxr0eh2z&#39;, &#39;p50j70xb&#39;}.
-2024-12-13 08:35:28,780	INFO pow_2_scheduler.py:260 -- Got updated replicas for Deployment(name=&#39;OnlineMNISTClassifier&#39;, app=&#39;mnist_classifier&#39;): {&#39;7vmfe6bq&#39;, &#39;p50j70xb&#39;, &#39;rxr0eh2z&#39;, &#39;pjtb8s60&#39;, &#39;4dvcy3de&#39;, &#39;fptnfbbe&#39;, &#39;8g7ss5ya&#39;, &#39;3jf5e3d8&#39;}.
-2024-12-13 08:35:28,887	INFO pow_2_scheduler.py:260 -- Got updated replicas for Deployment(name=&#39;OnlineMNISTClassifier&#39;, app=&#39;mnist_classifier&#39;): {&#39;7vmfe6bq&#39;, &#39;p50j70xb&#39;, &#39;dvp7icd9&#39;, &#39;xoqusa5a&#39;, &#39;pjtb8s60&#39;, &#39;rxr0eh2z&#39;, &#39;4dvcy3de&#39;, &#39;fptnfbbe&#39;, &#39;8g7ss5ya&#39;, &#39;3jf5e3d8&#39;}.
-2024-12-13 08:36:04,504	INFO pow_2_scheduler.py:260 -- Got updated replicas for Deployment(name=&#39;OnlineMNISTClassifier&#39;, app=&#39;mnist_classifier&#39;): set().
-2024-12-13 08:39:56,498	INFO pow_2_scheduler.py:260 -- Got updated replicas for Deployment(name=&#39;OnlineMNISTPreprocessor&#39;, app=&#39;mnist_preprocessor&#39;): {&#39;5ld5x44p&#39;}.
-2024-12-13 08:40:37,815	INFO pow_2_scheduler.py:260 -- Got updated replicas for Deployment(name=&#39;OnlineMNISTPreprocessor&#39;, app=&#39;mnist_preprocessor&#39;): set().
-</pre></div>
-</div>
 </div>
 </div>
 <p>We can test the new application by sending a sample request.</p>
@@ -980,11 +722,6 @@ document.write(`
 </div>
 </div>
 <div class="cell_output docutils container">
-<div class="output stderr highlight-myst-ansi notranslate"><div class="highlight"><pre><span></span>2024-12-13 08:33:39,101	INFO handle.py:126 -- Created DeploymentHandle &#39;g1hdd0kd&#39; for Deployment(name=&#39;OnlineMNISTClassifier&#39;, app=&#39;mnist_classifier&#39;).
-2024-12-13 08:33:39,102	INFO handle.py:126 -- Created DeploymentHandle &#39;r42tv4g9&#39; for Deployment(name=&#39;OnlineMNISTClassifier&#39;, app=&#39;mnist_classifier&#39;).
-2024-12-13 08:33:42,117	INFO api.py:574 -- Deployed app &#39;mnist_classifier&#39; successfully.
-</pre></div>
-</div>
 </div>
 </div>
 <p>Looking at the Ray Serve dashboard, we can see we are currently at 0 replicas - i.e. no GPU resources are being used.</p>
@@ -1000,108 +737,6 @@ document.write(`
 </div>
 </div>
 <div class="cell_output docutils container">
-<div class="output stderr highlight-myst-ansi notranslate"><div class="highlight"><pre><span></span>2024-12-13 08:35:16,122	INFO handle.py:126 -- Created DeploymentHandle &#39;o9qyndkq&#39; for Deployment(name=&#39;OnlineMNISTClassifier&#39;, app=&#39;mnist_classifier&#39;).
-2024-12-13 08:35:16,123	INFO handle.py:126 -- Created DeploymentHandle &#39;t4jr7eto&#39; for Deployment(name=&#39;OnlineMNISTClassifier&#39;, app=&#39;mnist_classifier&#39;).
-2024-12-13 08:35:16,124	INFO handle.py:126 -- Created DeploymentHandle &#39;kmmsc84y&#39; for Deployment(name=&#39;OnlineMNISTClassifier&#39;, app=&#39;mnist_classifier&#39;).
-2024-12-13 08:35:16,126	INFO handle.py:126 -- Created DeploymentHandle &#39;tsct5mrk&#39; for Deployment(name=&#39;OnlineMNISTClassifier&#39;, app=&#39;mnist_classifier&#39;).
-2024-12-13 08:35:16,127	INFO handle.py:126 -- Created DeploymentHandle &#39;43ppxrvj&#39; for Deployment(name=&#39;OnlineMNISTClassifier&#39;, app=&#39;mnist_classifier&#39;).
-2024-12-13 08:35:16,130	INFO handle.py:126 -- Created DeploymentHandle &#39;i4i1kg29&#39; for Deployment(name=&#39;OnlineMNISTClassifier&#39;, app=&#39;mnist_classifier&#39;).
-2024-12-13 08:35:16,132	INFO handle.py:126 -- Created DeploymentHandle &#39;4keu50ib&#39; for Deployment(name=&#39;OnlineMNISTClassifier&#39;, app=&#39;mnist_classifier&#39;).
-2024-12-13 08:35:16,133	INFO handle.py:126 -- Created DeploymentHandle &#39;c4lx979m&#39; for Deployment(name=&#39;OnlineMNISTClassifier&#39;, app=&#39;mnist_classifier&#39;).
-2024-12-13 08:35:16,135	INFO handle.py:126 -- Created DeploymentHandle &#39;mnytevsp&#39; for Deployment(name=&#39;OnlineMNISTClassifier&#39;, app=&#39;mnist_classifier&#39;).
-2024-12-13 08:35:16,136	INFO handle.py:126 -- Created DeploymentHandle &#39;7a8egk9c&#39; for Deployment(name=&#39;OnlineMNISTClassifier&#39;, app=&#39;mnist_classifier&#39;).
-2024-12-13 08:35:16,138	INFO handle.py:126 -- Created DeploymentHandle &#39;gaf509er&#39; for Deployment(name=&#39;OnlineMNISTClassifier&#39;, app=&#39;mnist_classifier&#39;).
-2024-12-13 08:35:16,140	INFO handle.py:126 -- Created DeploymentHandle &#39;4qwjdyhl&#39; for Deployment(name=&#39;OnlineMNISTClassifier&#39;, app=&#39;mnist_classifier&#39;).
-2024-12-13 08:35:16,141	INFO handle.py:126 -- Created DeploymentHandle &#39;forgjbb7&#39; for Deployment(name=&#39;OnlineMNISTClassifier&#39;, app=&#39;mnist_classifier&#39;).
-2024-12-13 08:35:16,143	INFO handle.py:126 -- Created DeploymentHandle &#39;o1rs6ke4&#39; for Deployment(name=&#39;OnlineMNISTClassifier&#39;, app=&#39;mnist_classifier&#39;).
-2024-12-13 08:35:16,144	INFO handle.py:126 -- Created DeploymentHandle &#39;9j7orxhb&#39; for Deployment(name=&#39;OnlineMNISTClassifier&#39;, app=&#39;mnist_classifier&#39;).
-2024-12-13 08:35:16,146	INFO handle.py:126 -- Created DeploymentHandle &#39;qo3d18n4&#39; for Deployment(name=&#39;OnlineMNISTClassifier&#39;, app=&#39;mnist_classifier&#39;).
-2024-12-13 08:35:16,147	INFO handle.py:126 -- Created DeploymentHandle &#39;w3hz4r5o&#39; for Deployment(name=&#39;OnlineMNISTClassifier&#39;, app=&#39;mnist_classifier&#39;).
-2024-12-13 08:35:16,149	INFO handle.py:126 -- Created DeploymentHandle &#39;rg846qqv&#39; for Deployment(name=&#39;OnlineMNISTClassifier&#39;, app=&#39;mnist_classifier&#39;).
-2024-12-13 08:35:16,151	INFO handle.py:126 -- Created DeploymentHandle &#39;vbcp62l0&#39; for Deployment(name=&#39;OnlineMNISTClassifier&#39;, app=&#39;mnist_classifier&#39;).
-2024-12-13 08:35:16,152	INFO handle.py:126 -- Created DeploymentHandle &#39;zeyl4zj4&#39; for Deployment(name=&#39;OnlineMNISTClassifier&#39;, app=&#39;mnist_classifier&#39;).
-2024-12-13 08:35:16,154	INFO handle.py:126 -- Created DeploymentHandle &#39;k2jf3t41&#39; for Deployment(name=&#39;OnlineMNISTClassifier&#39;, app=&#39;mnist_classifier&#39;).
-2024-12-13 08:35:16,155	INFO handle.py:126 -- Created DeploymentHandle &#39;ojiw6ruk&#39; for Deployment(name=&#39;OnlineMNISTClassifier&#39;, app=&#39;mnist_classifier&#39;).
-2024-12-13 08:35:16,157	INFO handle.py:126 -- Created DeploymentHandle &#39;s7g4mnno&#39; for Deployment(name=&#39;OnlineMNISTClassifier&#39;, app=&#39;mnist_classifier&#39;).
-2024-12-13 08:35:16,159	INFO handle.py:126 -- Created DeploymentHandle &#39;g6ge143j&#39; for Deployment(name=&#39;OnlineMNISTClassifier&#39;, app=&#39;mnist_classifier&#39;).
-2024-12-13 08:35:16,160	INFO handle.py:126 -- Created DeploymentHandle &#39;aycc3jzz&#39; for Deployment(name=&#39;OnlineMNISTClassifier&#39;, app=&#39;mnist_classifier&#39;).
-2024-12-13 08:35:16,162	INFO handle.py:126 -- Created DeploymentHandle &#39;863eil7v&#39; for Deployment(name=&#39;OnlineMNISTClassifier&#39;, app=&#39;mnist_classifier&#39;).
-2024-12-13 08:35:16,163	INFO handle.py:126 -- Created DeploymentHandle &#39;afrtkukv&#39; for Deployment(name=&#39;OnlineMNISTClassifier&#39;, app=&#39;mnist_classifier&#39;).
-2024-12-13 08:35:16,165	INFO handle.py:126 -- Created DeploymentHandle &#39;kiwiwx6w&#39; for Deployment(name=&#39;OnlineMNISTClassifier&#39;, app=&#39;mnist_classifier&#39;).
-2024-12-13 08:35:16,166	INFO handle.py:126 -- Created DeploymentHandle &#39;dmfb9o8e&#39; for Deployment(name=&#39;OnlineMNISTClassifier&#39;, app=&#39;mnist_classifier&#39;).
-2024-12-13 08:35:16,168	INFO handle.py:126 -- Created DeploymentHandle &#39;4dx69y7z&#39; for Deployment(name=&#39;OnlineMNISTClassifier&#39;, app=&#39;mnist_classifier&#39;).
-2024-12-13 08:35:16,169	INFO handle.py:126 -- Created DeploymentHandle &#39;wa49q72p&#39; for Deployment(name=&#39;OnlineMNISTClassifier&#39;, app=&#39;mnist_classifier&#39;).
-2024-12-13 08:35:16,171	INFO handle.py:126 -- Created DeploymentHandle &#39;gqosgo3x&#39; for Deployment(name=&#39;OnlineMNISTClassifier&#39;, app=&#39;mnist_classifier&#39;).
-2024-12-13 08:35:16,172	INFO handle.py:126 -- Created DeploymentHandle &#39;mq5m9qbe&#39; for Deployment(name=&#39;OnlineMNISTClassifier&#39;, app=&#39;mnist_classifier&#39;).
-2024-12-13 08:35:16,174	INFO handle.py:126 -- Created DeploymentHandle &#39;ztsj0ktj&#39; for Deployment(name=&#39;OnlineMNISTClassifier&#39;, app=&#39;mnist_classifier&#39;).
-2024-12-13 08:35:16,176	INFO handle.py:126 -- Created DeploymentHandle &#39;bj3ly8ov&#39; for Deployment(name=&#39;OnlineMNISTClassifier&#39;, app=&#39;mnist_classifier&#39;).
-2024-12-13 08:35:16,177	INFO handle.py:126 -- Created DeploymentHandle &#39;9kbp397d&#39; for Deployment(name=&#39;OnlineMNISTClassifier&#39;, app=&#39;mnist_classifier&#39;).
-2024-12-13 08:35:16,177	INFO handle.py:126 -- Created DeploymentHandle &#39;luycbjig&#39; for Deployment(name=&#39;OnlineMNISTClassifier&#39;, app=&#39;mnist_classifier&#39;).
-2024-12-13 08:35:16,179	INFO handle.py:126 -- Created DeploymentHandle &#39;fu88vbzd&#39; for Deployment(name=&#39;OnlineMNISTClassifier&#39;, app=&#39;mnist_classifier&#39;).
-2024-12-13 08:35:16,180	INFO handle.py:126 -- Created DeploymentHandle &#39;tro4yp33&#39; for Deployment(name=&#39;OnlineMNISTClassifier&#39;, app=&#39;mnist_classifier&#39;).
-2024-12-13 08:35:16,182	INFO handle.py:126 -- Created DeploymentHandle &#39;1sy9d18b&#39; for Deployment(name=&#39;OnlineMNISTClassifier&#39;, app=&#39;mnist_classifier&#39;).
-2024-12-13 08:35:16,184	INFO handle.py:126 -- Created DeploymentHandle &#39;pih9lj2h&#39; for Deployment(name=&#39;OnlineMNISTClassifier&#39;, app=&#39;mnist_classifier&#39;).
-2024-12-13 08:35:16,185	INFO handle.py:126 -- Created DeploymentHandle &#39;8bl4grcf&#39; for Deployment(name=&#39;OnlineMNISTClassifier&#39;, app=&#39;mnist_classifier&#39;).
-2024-12-13 08:35:16,188	INFO handle.py:126 -- Created DeploymentHandle &#39;4jymfgl8&#39; for Deployment(name=&#39;OnlineMNISTClassifier&#39;, app=&#39;mnist_classifier&#39;).
-2024-12-13 08:35:16,189	INFO handle.py:126 -- Created DeploymentHandle &#39;mqbbyp92&#39; for Deployment(name=&#39;OnlineMNISTClassifier&#39;, app=&#39;mnist_classifier&#39;).
-2024-12-13 08:35:16,191	INFO handle.py:126 -- Created DeploymentHandle &#39;mzk39v26&#39; for Deployment(name=&#39;OnlineMNISTClassifier&#39;, app=&#39;mnist_classifier&#39;).
-2024-12-13 08:35:16,192	INFO handle.py:126 -- Created DeploymentHandle &#39;56d20oxd&#39; for Deployment(name=&#39;OnlineMNISTClassifier&#39;, app=&#39;mnist_classifier&#39;).
-2024-12-13 08:35:16,193	INFO handle.py:126 -- Created DeploymentHandle &#39;lioyj9t2&#39; for Deployment(name=&#39;OnlineMNISTClassifier&#39;, app=&#39;mnist_classifier&#39;).
-2024-12-13 08:35:16,194	INFO handle.py:126 -- Created DeploymentHandle &#39;0lix4p8u&#39; for Deployment(name=&#39;OnlineMNISTClassifier&#39;, app=&#39;mnist_classifier&#39;).
-2024-12-13 08:35:16,196	INFO handle.py:126 -- Created DeploymentHandle &#39;km7jmcal&#39; for Deployment(name=&#39;OnlineMNISTClassifier&#39;, app=&#39;mnist_classifier&#39;).
-2024-12-13 08:35:16,198	INFO handle.py:126 -- Created DeploymentHandle &#39;mu928t8b&#39; for Deployment(name=&#39;OnlineMNISTClassifier&#39;, app=&#39;mnist_classifier&#39;).
-2024-12-13 08:35:16,200	INFO handle.py:126 -- Created DeploymentHandle &#39;ukk56jrd&#39; for Deployment(name=&#39;OnlineMNISTClassifier&#39;, app=&#39;mnist_classifier&#39;).
-2024-12-13 08:35:16,201	INFO handle.py:126 -- Created DeploymentHandle &#39;wfmj1ano&#39; for Deployment(name=&#39;OnlineMNISTClassifier&#39;, app=&#39;mnist_classifier&#39;).
-2024-12-13 08:35:16,203	INFO handle.py:126 -- Created DeploymentHandle &#39;mo8cpl2k&#39; for Deployment(name=&#39;OnlineMNISTClassifier&#39;, app=&#39;mnist_classifier&#39;).
-2024-12-13 08:35:16,205	INFO handle.py:126 -- Created DeploymentHandle &#39;x3bymtjn&#39; for Deployment(name=&#39;OnlineMNISTClassifier&#39;, app=&#39;mnist_classifier&#39;).
-2024-12-13 08:35:16,207	INFO handle.py:126 -- Created DeploymentHandle &#39;ec5048q3&#39; for Deployment(name=&#39;OnlineMNISTClassifier&#39;, app=&#39;mnist_classifier&#39;).
-2024-12-13 08:35:16,210	INFO handle.py:126 -- Created DeploymentHandle &#39;hfea8lag&#39; for Deployment(name=&#39;OnlineMNISTClassifier&#39;, app=&#39;mnist_classifier&#39;).
-2024-12-13 08:35:16,211	INFO handle.py:126 -- Created DeploymentHandle &#39;vi3u7wlw&#39; for Deployment(name=&#39;OnlineMNISTClassifier&#39;, app=&#39;mnist_classifier&#39;).
-2024-12-13 08:35:16,213	INFO handle.py:126 -- Created DeploymentHandle &#39;m2mvtxw2&#39; for Deployment(name=&#39;OnlineMNISTClassifier&#39;, app=&#39;mnist_classifier&#39;).
-2024-12-13 08:35:16,215	INFO handle.py:126 -- Created DeploymentHandle &#39;peg6kptb&#39; for Deployment(name=&#39;OnlineMNISTClassifier&#39;, app=&#39;mnist_classifier&#39;).
-2024-12-13 08:35:16,217	INFO handle.py:126 -- Created DeploymentHandle &#39;43qcvv91&#39; for Deployment(name=&#39;OnlineMNISTClassifier&#39;, app=&#39;mnist_classifier&#39;).
-2024-12-13 08:35:16,218	INFO handle.py:126 -- Created DeploymentHandle &#39;94uw2160&#39; for Deployment(name=&#39;OnlineMNISTClassifier&#39;, app=&#39;mnist_classifier&#39;).
-2024-12-13 08:35:16,220	INFO handle.py:126 -- Created DeploymentHandle &#39;hrr91nul&#39; for Deployment(name=&#39;OnlineMNISTClassifier&#39;, app=&#39;mnist_classifier&#39;).
-2024-12-13 08:35:16,221	INFO handle.py:126 -- Created DeploymentHandle &#39;p16c3312&#39; for Deployment(name=&#39;OnlineMNISTClassifier&#39;, app=&#39;mnist_classifier&#39;).
-2024-12-13 08:35:16,224	INFO handle.py:126 -- Created DeploymentHandle &#39;a8n0pbvv&#39; for Deployment(name=&#39;OnlineMNISTClassifier&#39;, app=&#39;mnist_classifier&#39;).
-2024-12-13 08:35:16,226	INFO handle.py:126 -- Created DeploymentHandle &#39;dakxt7ig&#39; for Deployment(name=&#39;OnlineMNISTClassifier&#39;, app=&#39;mnist_classifier&#39;).
-2024-12-13 08:35:16,227	INFO handle.py:126 -- Created DeploymentHandle &#39;untzastd&#39; for Deployment(name=&#39;OnlineMNISTClassifier&#39;, app=&#39;mnist_classifier&#39;).
-2024-12-13 08:35:16,230	INFO handle.py:126 -- Created DeploymentHandle &#39;lyml3p0p&#39; for Deployment(name=&#39;OnlineMNISTClassifier&#39;, app=&#39;mnist_classifier&#39;).
-2024-12-13 08:35:16,232	INFO handle.py:126 -- Created DeploymentHandle &#39;r3yam311&#39; for Deployment(name=&#39;OnlineMNISTClassifier&#39;, app=&#39;mnist_classifier&#39;).
-2024-12-13 08:35:16,234	INFO handle.py:126 -- Created DeploymentHandle &#39;73ifaw9t&#39; for Deployment(name=&#39;OnlineMNISTClassifier&#39;, app=&#39;mnist_classifier&#39;).
-2024-12-13 08:35:16,235	INFO handle.py:126 -- Created DeploymentHandle &#39;hi2v9p7y&#39; for Deployment(name=&#39;OnlineMNISTClassifier&#39;, app=&#39;mnist_classifier&#39;).
-2024-12-13 08:35:16,236	INFO handle.py:126 -- Created DeploymentHandle &#39;onz1py2d&#39; for Deployment(name=&#39;OnlineMNISTClassifier&#39;, app=&#39;mnist_classifier&#39;).
-2024-12-13 08:35:16,238	INFO handle.py:126 -- Created DeploymentHandle &#39;fiqshp4f&#39; for Deployment(name=&#39;OnlineMNISTClassifier&#39;, app=&#39;mnist_classifier&#39;).
-2024-12-13 08:35:16,240	INFO handle.py:126 -- Created DeploymentHandle &#39;q4qjjrz7&#39; for Deployment(name=&#39;OnlineMNISTClassifier&#39;, app=&#39;mnist_classifier&#39;).
-2024-12-13 08:35:16,242	INFO handle.py:126 -- Created DeploymentHandle &#39;wuum6q2j&#39; for Deployment(name=&#39;OnlineMNISTClassifier&#39;, app=&#39;mnist_classifier&#39;).
-2024-12-13 08:35:16,243	INFO handle.py:126 -- Created DeploymentHandle &#39;5kv2loip&#39; for Deployment(name=&#39;OnlineMNISTClassifier&#39;, app=&#39;mnist_classifier&#39;).
-2024-12-13 08:35:16,246	INFO handle.py:126 -- Created DeploymentHandle &#39;gbvrasl0&#39; for Deployment(name=&#39;OnlineMNISTClassifier&#39;, app=&#39;mnist_classifier&#39;).
-2024-12-13 08:35:16,247	INFO handle.py:126 -- Created DeploymentHandle &#39;8qw8viiq&#39; for Deployment(name=&#39;OnlineMNISTClassifier&#39;, app=&#39;mnist_classifier&#39;).
-2024-12-13 08:35:16,248	INFO handle.py:126 -- Created DeploymentHandle &#39;cudtvybh&#39; for Deployment(name=&#39;OnlineMNISTClassifier&#39;, app=&#39;mnist_classifier&#39;).
-2024-12-13 08:35:16,250	INFO handle.py:126 -- Created DeploymentHandle &#39;djsxax17&#39; for Deployment(name=&#39;OnlineMNISTClassifier&#39;, app=&#39;mnist_classifier&#39;).
-2024-12-13 08:35:16,252	INFO handle.py:126 -- Created DeploymentHandle &#39;0mk0c2tc&#39; for Deployment(name=&#39;OnlineMNISTClassifier&#39;, app=&#39;mnist_classifier&#39;).
-2024-12-13 08:35:16,254	INFO handle.py:126 -- Created DeploymentHandle &#39;602qn7iy&#39; for Deployment(name=&#39;OnlineMNISTClassifier&#39;, app=&#39;mnist_classifier&#39;).
-2024-12-13 08:35:16,255	INFO handle.py:126 -- Created DeploymentHandle &#39;wk73qq4z&#39; for Deployment(name=&#39;OnlineMNISTClassifier&#39;, app=&#39;mnist_classifier&#39;).
-2024-12-13 08:35:16,257	INFO handle.py:126 -- Created DeploymentHandle &#39;20d4a1xw&#39; for Deployment(name=&#39;OnlineMNISTClassifier&#39;, app=&#39;mnist_classifier&#39;).
-2024-12-13 08:35:16,258	INFO handle.py:126 -- Created DeploymentHandle &#39;wl5w157g&#39; for Deployment(name=&#39;OnlineMNISTClassifier&#39;, app=&#39;mnist_classifier&#39;).
-2024-12-13 08:35:16,259	INFO handle.py:126 -- Created DeploymentHandle &#39;fktbfghq&#39; for Deployment(name=&#39;OnlineMNISTClassifier&#39;, app=&#39;mnist_classifier&#39;).
-2024-12-13 08:35:16,261	INFO handle.py:126 -- Created DeploymentHandle &#39;c4awkjvt&#39; for Deployment(name=&#39;OnlineMNISTClassifier&#39;, app=&#39;mnist_classifier&#39;).
-2024-12-13 08:35:16,262	INFO handle.py:126 -- Created DeploymentHandle &#39;sohuw3jz&#39; for Deployment(name=&#39;OnlineMNISTClassifier&#39;, app=&#39;mnist_classifier&#39;).
-2024-12-13 08:35:16,263	INFO handle.py:126 -- Created DeploymentHandle &#39;4lznjzy6&#39; for Deployment(name=&#39;OnlineMNISTClassifier&#39;, app=&#39;mnist_classifier&#39;).
-2024-12-13 08:35:16,265	INFO handle.py:126 -- Created DeploymentHandle &#39;y5k7um6y&#39; for Deployment(name=&#39;OnlineMNISTClassifier&#39;, app=&#39;mnist_classifier&#39;).
-2024-12-13 08:35:16,267	INFO handle.py:126 -- Created DeploymentHandle &#39;9f9a4lm7&#39; for Deployment(name=&#39;OnlineMNISTClassifier&#39;, app=&#39;mnist_classifier&#39;).
-2024-12-13 08:35:16,269	INFO handle.py:126 -- Created DeploymentHandle &#39;770uxl2c&#39; for Deployment(name=&#39;OnlineMNISTClassifier&#39;, app=&#39;mnist_classifier&#39;).
-2024-12-13 08:35:16,270	INFO handle.py:126 -- Created DeploymentHandle &#39;5kwz94bm&#39; for Deployment(name=&#39;OnlineMNISTClassifier&#39;, app=&#39;mnist_classifier&#39;).
-2024-12-13 08:35:16,271	INFO handle.py:126 -- Created DeploymentHandle &#39;jwk1uhya&#39; for Deployment(name=&#39;OnlineMNISTClassifier&#39;, app=&#39;mnist_classifier&#39;).
-2024-12-13 08:35:16,273	INFO handle.py:126 -- Created DeploymentHandle &#39;9a8g91w2&#39; for Deployment(name=&#39;OnlineMNISTClassifier&#39;, app=&#39;mnist_classifier&#39;).
-2024-12-13 08:35:16,275	INFO handle.py:126 -- Created DeploymentHandle &#39;eo0il11n&#39; for Deployment(name=&#39;OnlineMNISTClassifier&#39;, app=&#39;mnist_classifier&#39;).
-2024-12-13 08:35:16,277	INFO handle.py:126 -- Created DeploymentHandle &#39;2mzh03wj&#39; for Deployment(name=&#39;OnlineMNISTClassifier&#39;, app=&#39;mnist_classifier&#39;).
-2024-12-13 08:35:16,280	INFO handle.py:126 -- Created DeploymentHandle &#39;wh9d8isv&#39; for Deployment(name=&#39;OnlineMNISTClassifier&#39;, app=&#39;mnist_classifier&#39;).
-2024-12-13 08:35:16,282	INFO handle.py:126 -- Created DeploymentHandle &#39;byana9mh&#39; for Deployment(name=&#39;OnlineMNISTClassifier&#39;, app=&#39;mnist_classifier&#39;).
-2024-12-13 08:35:16,283	INFO handle.py:126 -- Created DeploymentHandle &#39;i4tjjgln&#39; for Deployment(name=&#39;OnlineMNISTClassifier&#39;, app=&#39;mnist_classifier&#39;).
-2024-12-13 08:35:16,285	INFO handle.py:126 -- Created DeploymentHandle &#39;j93j2ayj&#39; for Deployment(name=&#39;OnlineMNISTClassifier&#39;, app=&#39;mnist_classifier&#39;).
-</pre></div>
-</div>
 <div class="output text_plain highlight-myst-ansi notranslate"><div class="highlight"><pre><span></span>[&lt;ray.serve.handle.DeploymentResponse at 0x72c6e03660d0&gt;,
  &lt;ray.serve.handle.DeploymentResponse at 0x72c6d8752290&gt;,
  &lt;ray.serve.handle.DeploymentResponse at 0x72c6d87500d0&gt;,
@@ -1204,16 +839,6 @@ document.write(`
  &lt;ray.serve.handle.DeploymentResponse at 0x72c6d862c690&gt;]
 </pre></div>
 </div>
-<div class="output stderr highlight-myst-ansi notranslate"><div class="highlight"><pre><span></span>2024-12-13 08:35:21,559	WARNING pow_2_scheduler.py:501 -- Failed to get queue length from Replica(id=&#39;rxr0eh2z&#39;, deployment=&#39;OnlineMNISTClassifier&#39;, app=&#39;mnist_classifier&#39;) within 0.1s. If this happens repeatedly it&#39;s likely caused by high network latency in the cluster. You can configure the deadline using the `RAY_SERVE_QUEUE_LENGTH_RESPONSE_DEADLINE_S` environment variable.
-2024-12-13 08:35:21,560	WARNING pow_2_scheduler.py:501 -- Failed to get queue length from Replica(id=&#39;rxr0eh2z&#39;, deployment=&#39;OnlineMNISTClassifier&#39;, app=&#39;mnist_classifier&#39;) within 0.1s. If this happens repeatedly it&#39;s likely caused by high network latency in the cluster. You can configure the deadline using the `RAY_SERVE_QUEUE_LENGTH_RESPONSE_DEADLINE_S` environment variable.
-2024-12-13 08:35:21,890	WARNING pow_2_scheduler.py:501 -- Failed to get queue length from Replica(id=&#39;rxr0eh2z&#39;, deployment=&#39;OnlineMNISTClassifier&#39;, app=&#39;mnist_classifier&#39;) within 0.1s. If this happens repeatedly it&#39;s likely caused by high network latency in the cluster. You can configure the deadline using the `RAY_SERVE_QUEUE_LENGTH_RESPONSE_DEADLINE_S` environment variable.
-2024-12-13 08:35:21,892	WARNING pow_2_scheduler.py:501 -- Failed to get queue length from Replica(id=&#39;rxr0eh2z&#39;, deployment=&#39;OnlineMNISTClassifier&#39;, app=&#39;mnist_classifier&#39;) within 0.1s. If this happens repeatedly it&#39;s likely caused by high network latency in the cluster. You can configure the deadline using the `RAY_SERVE_QUEUE_LENGTH_RESPONSE_DEADLINE_S` environment variable.
-2024-12-13 08:35:22,156	WARNING pow_2_scheduler.py:501 -- Failed to get queue length from Replica(id=&#39;rxr0eh2z&#39;, deployment=&#39;OnlineMNISTClassifier&#39;, app=&#39;mnist_classifier&#39;) within 0.1s. If this happens repeatedly it&#39;s likely caused by high network latency in the cluster. You can configure the deadline using the `RAY_SERVE_QUEUE_LENGTH_RESPONSE_DEADLINE_S` environment variable.
-2024-12-13 08:35:22,157	WARNING pow_2_scheduler.py:501 -- Failed to get queue length from Replica(id=&#39;rxr0eh2z&#39;, deployment=&#39;OnlineMNISTClassifier&#39;, app=&#39;mnist_classifier&#39;) within 0.1s. If this happens repeatedly it&#39;s likely caused by high network latency in the cluster. You can configure the deadline using the `RAY_SERVE_QUEUE_LENGTH_RESPONSE_DEADLINE_S` environment variable.
-2024-12-13 08:35:22,359	WARNING pow_2_scheduler.py:501 -- Failed to get queue length from Replica(id=&#39;rxr0eh2z&#39;, deployment=&#39;OnlineMNISTClassifier&#39;, app=&#39;mnist_classifier&#39;) within 0.2s. If this happens repeatedly it&#39;s likely caused by high network latency in the cluster. You can configure the deadline using the `RAY_SERVE_QUEUE_LENGTH_RESPONSE_DEADLINE_S` environment variable.
-2024-12-13 08:35:22,360	WARNING pow_2_scheduler.py:501 -- Failed to get queue length from Replica(id=&#39;rxr0eh2z&#39;, deployment=&#39;OnlineMNISTClassifier&#39;, app=&#39;mnist_classifier&#39;) within 0.2s. If this happens repeatedly it&#39;s likely caused by high network latency in the cluster. You can configure the deadline using the `RAY_SERVE_QUEUE_LENGTH_RESPONSE_DEADLINE_S` environment variable.
-</pre></div>
-</div>
 </div>
 </div>
 <p>Looking at the Ray Serve dashboard, we can see that the number of replicas has scaled up to 10 as expected.</p>
@@ -1253,10 +878,6 @@ document.write(`
 </div>
 </div>
 <div class="cell_output docutils container">
-<div class="output stderr highlight-myst-ansi notranslate"><div class="highlight"><pre><span></span>2024-12-13 08:38:36,797	WARNING api.py:346 -- The default value for `max_ongoing_requests` has changed from 100 to 5 in Ray 2.32.0.
-2024-12-13 08:38:36,797	WARNING api.py:397 -- The default value for `max_ongoing_requests` has changed from 100 to 5 in Ray 2.32.0.
-</pre></div>
-</div>
 </div>
 </div>
 <div class="cell docutils container">
@@ -1266,12 +887,6 @@ document.write(`
 </div>
 </div>
 <div class="cell_output docutils container">
-<div class="output stderr highlight-myst-ansi notranslate"><div class="highlight"><pre><span></span>2024-12-13 08:38:44,236	INFO handle.py:126 -- Created DeploymentHandle &#39;8px5rnva&#39; for Deployment(name=&#39;OnlineMNISTPreprocessor&#39;, app=&#39;mnist_preprocessor&#39;).
-2024-12-13 08:38:44,237	INFO handle.py:126 -- Created DeploymentHandle &#39;l4gmboko&#39; for Deployment(name=&#39;OnlineMNISTPreprocessor&#39;, app=&#39;mnist_preprocessor&#39;).
-2024-12-13 08:38:49,254	INFO handle.py:126 -- Created DeploymentHandle &#39;gf1a4vjq&#39; for Deployment(name=&#39;OnlineMNISTPreprocessor&#39;, app=&#39;mnist_preprocessor&#39;).
-2024-12-13 08:38:49,255	INFO api.py:574 -- Deployed app &#39;mnist_preprocessor&#39; successfully.
-</pre></div>
-</div>
 </div>
 </div>
 <p>Let’s load an image and pass it to the <code class="docutils literal notranslate"><span class="pre">OnlineMNISTPreprocessor</span></code></p>
@@ -1285,10 +900,6 @@ document.write(`
 </div>
 </div>
 <div class="cell_output docutils container">
-<div class="output stderr highlight-myst-ansi notranslate"><div class="highlight"><pre><span></span>2024-12-13 08:39:23,784	INFO streaming_executor.py:108 -- Starting execution of Dataset. Full logs are in /tmp/ray/session_2024-12-13_08-07-01_151483_2430/logs/ray-data
-2024-12-13 08:39:23,785	INFO streaming_executor.py:109 -- Execution plan of Dataset: InputDataBuffer[Input] -&gt; TaskPoolMapOperator[ExpandPaths] -&gt; TaskPoolMapOperator[ReadFiles] -&gt; LimitOperator[limit=10]
-</pre></div>
-</div>
 <script type="application/vnd.jupyter.widget-view+json">{"model_id": "03c9a18054ef422094517b401e8a431c", "version_major": 2, "version_minor": 0}</script><script type="application/vnd.jupyter.widget-view+json">{"model_id": "2944020331594577909f9e7b33042ab4", "version_major": 2, "version_minor": 0}</script><script type="application/vnd.jupyter.widget-view+json">{"model_id": "2deffdd695634713a03cfa9f74b8c676", "version_major": 2, "version_minor": 0}</script><script type="application/vnd.jupyter.widget-view+json">{"model_id": "6121fc146c3d4f798de2af378bc6f181", "version_major": 2, "version_minor": 0}</script></div>
 </div>
 <div class="cell docutils container">
@@ -1317,9 +928,6 @@ document.write(`
 </div>
 </div>
 <div class="cell_output docutils container">
-<div class="output stderr highlight-myst-ansi notranslate"><div class="highlight"><pre><span></span>2024-12-13 08:39:56,494	INFO handle.py:126 -- Created DeploymentHandle &#39;oy7ram11&#39; for Deployment(name=&#39;OnlineMNISTPreprocessor&#39;, app=&#39;mnist_preprocessor&#39;).
-</pre></div>
-</div>
 </div>
 </div>
 <p>We will proceed to shutdown the preprocessor application to prove it will be automatically recreated later.</p>
@@ -1347,10 +955,6 @@ document.write(`
 </div>
 </div>
 <div class="cell_output docutils container">
-<div class="output stderr highlight-myst-ansi notranslate"><div class="highlight"><pre><span></span>2024-12-13 08:42:47,216	WARNING api.py:346 -- The default value for `max_ongoing_requests` has changed from 100 to 5 in Ray 2.32.0.
-2024-12-13 08:42:47,217	WARNING api.py:397 -- The default value for `max_ongoing_requests` has changed from 100 to 5 in Ray 2.32.0.
-</pre></div>
-</div>
 </div>
 </div>
 <div class="cell docutils container">
@@ -1368,18 +972,6 @@ document.write(`
 </div>
 </div>
 <div class="cell_output docutils container">
-<div class="output stderr highlight-myst-ansi notranslate"><div class="highlight"><pre><span></span>2024-12-13 08:44:19,957	INFO handle.py:126 -- Created DeploymentHandle &#39;fsqpub6j&#39; for Deployment(name=&#39;OnlineMNISTPreprocessor&#39;, app=&#39;image_classifier&#39;).
-2024-12-13 08:44:19,963	INFO handle.py:126 -- Created DeploymentHandle &#39;o631o8sp&#39; for Deployment(name=&#39;OnlineMNISTClassifier&#39;, app=&#39;image_classifier&#39;).
-2024-12-13 08:44:19,964	INFO handle.py:126 -- Created DeploymentHandle &#39;s082atuf&#39; for Deployment(name=&#39;OnlineMNISTPreprocessor&#39;, app=&#39;image_classifier&#39;).
-2024-12-13 08:44:19,964	INFO handle.py:126 -- Created DeploymentHandle &#39;l8s57gz6&#39; for Deployment(name=&#39;OnlineMNISTClassifier&#39;, app=&#39;image_classifier&#39;).
-2024-12-13 08:44:19,971	INFO handle.py:126 -- Created DeploymentHandle &#39;3mpn24fn&#39; for Deployment(name=&#39;ImageServiceIngress&#39;, app=&#39;image_classifier&#39;).
-2024-12-13 08:44:19,972	INFO handle.py:126 -- Created DeploymentHandle &#39;lwk6vdl4&#39; for Deployment(name=&#39;OnlineMNISTPreprocessor&#39;, app=&#39;image_classifier&#39;).
-2024-12-13 08:44:19,972	INFO handle.py:126 -- Created DeploymentHandle &#39;hsxt2a9i&#39; for Deployment(name=&#39;OnlineMNISTClassifier&#39;, app=&#39;image_classifier&#39;).
-2024-12-13 08:44:19,973	INFO handle.py:126 -- Created DeploymentHandle &#39;lrxdx3jo&#39; for Deployment(name=&#39;ImageServiceIngress&#39;, app=&#39;image_classifier&#39;).
-2024-12-13 08:44:25,003	INFO handle.py:126 -- Created DeploymentHandle &#39;kdnf0qjt&#39; for Deployment(name=&#39;ImageServiceIngress&#39;, app=&#39;image_classifier&#39;).
-2024-12-13 08:44:25,004	INFO api.py:574 -- Deployed app &#39;image_classifier&#39; successfully.
-</pre></div>
-</div>
 </div>
 </div>
 <p>Let’s test the application by sending a sample HTTP request to our ingress endpoint.</p>
@@ -1431,10 +1023,6 @@ document.write(`
 </div>
 </div>
 <div class="cell_output docutils container">
-<div class="output stderr highlight-myst-ansi notranslate"><div class="highlight"><pre><span></span>2024-12-13 08:48:29,697	WARNING api.py:346 -- The default value for `max_ongoing_requests` has changed from 100 to 5 in Ray 2.32.0.
-2024-12-13 08:48:29,698	WARNING api.py:397 -- The default value for `max_ongoing_requests` has changed from 100 to 5 in Ray 2.32.0.
-</pre></div>
-</div>
 </div>
 </div>
 <p>We now can build the application and run it.</p>
@@ -1453,17 +1041,6 @@ document.write(`
 </div>
 </div>
 <div class="cell_output docutils container">
-<div class="output stderr highlight-myst-ansi notranslate"><div class="highlight"><pre><span></span>2024-12-13 08:49:02,196	INFO handle.py:126 -- Created DeploymentHandle &#39;zs9xlv6l&#39; for Deployment(name=&#39;OnlineMNISTPreprocessor&#39;, app=&#39;image_classifier&#39;).
-2024-12-13 08:49:02,201	INFO handle.py:126 -- Created DeploymentHandle &#39;e6czhw0i&#39; for Deployment(name=&#39;OnlineMNISTClassifier&#39;, app=&#39;image_classifier&#39;).
-2024-12-13 08:49:02,201	INFO handle.py:126 -- Created DeploymentHandle &#39;s26zdw7w&#39; for Deployment(name=&#39;OnlineMNISTPreprocessor&#39;, app=&#39;image_classifier&#39;).
-2024-12-13 08:49:02,202	INFO handle.py:126 -- Created DeploymentHandle &#39;73tfa712&#39; for Deployment(name=&#39;OnlineMNISTClassifier&#39;, app=&#39;image_classifier&#39;).
-2024-12-13 08:49:02,212	INFO handle.py:126 -- Created DeploymentHandle &#39;8ywfb0i5&#39; for Deployment(name=&#39;ImageServiceIngress&#39;, app=&#39;image_classifier&#39;).
-2024-12-13 08:49:02,212	INFO handle.py:126 -- Created DeploymentHandle &#39;2fvhvuyy&#39; for Deployment(name=&#39;OnlineMNISTPreprocessor&#39;, app=&#39;image_classifier&#39;).
-2024-12-13 08:49:02,213	INFO handle.py:126 -- Created DeploymentHandle &#39;500czr1l&#39; for Deployment(name=&#39;OnlineMNISTClassifier&#39;, app=&#39;image_classifier&#39;).
-2024-12-13 08:49:02,213	INFO handle.py:126 -- Created DeploymentHandle &#39;6vbdxtpb&#39; for Deployment(name=&#39;ImageServiceIngress&#39;, app=&#39;image_classifier&#39;).
-2024-12-13 08:49:07,243	INFO api.py:574 -- Deployed app &#39;image_classifier&#39; successfully.
-</pre></div>
-</div>
 </div>
 </div>
 <p>After running the application, we can get test it as an HTTP endpoint programmatically.</p>

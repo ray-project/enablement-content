@@ -391,17 +391,7 @@ document.write(`
 </div>
 </div>
 <div class="cell_output docutils container">
-<div class="output traceback highlight-ipythontb notranslate"><div class="highlight"><pre><span></span><span class="gt">---------------------------------------------------------------------------</span>
-<span class="ne">ModuleNotFoundError</span><span class="g g-Whitespace">                       </span>Traceback (most recent call last)
-<span class="n">Cell</span> <span class="n">In</span><span class="p">[</span><span class="mi">1</span><span class="p">],</span> <span class="n">line</span> <span class="mi">1</span>
-<span class="ne">----&gt; </span><span class="mi">1</span> <span class="kn">import</span><span class="w"> </span><span class="nn">ray</span>
-<span class="g g-Whitespace">      </span><span class="mi">3</span> <span class="c1"># Read the dataset from S3 (Parquet file)</span>
-<span class="g g-Whitespace">      </span><span class="mi">4</span> <span class="n">dataset</span> <span class="o">=</span> <span class="n">ray</span><span class="o">.</span><span class="n">data</span><span class="o">.</span><span class="n">read_parquet</span><span class="p">(</span><span class="s2">&quot;s3://anonymous@anyscale-training-data/intro-to-ray-air/nyc_taxi_2021.parquet&quot;</span><span class="p">)</span>
-
-<span class="ne">ModuleNotFoundError</span>: No module named &#39;ray&#39;
-</pre></div>
-</div>
-</div>
+<script type="application/vnd.jupyter.widget-view+json">{"model_id": "4171837fd1c94e5882794ad391d8c1fc", "version_major": 2, "version_minor": 0}</script></div>
 </div>
 <div class="cell docutils container">
 <div class="cell_input docutils container">
@@ -411,15 +401,7 @@ document.write(`
 </div>
 </div>
 <div class="cell_output docutils container">
-<div class="output stderr highlight-myst-ansi notranslate"><div class="highlight"><pre><span></span>2024-11-15 15:50:21,044	INFO streaming_executor.py:108 -- Starting execution of Dataset. Full logs are in /tmp/ray/session_2024-11-15_08-44-25_924022_2383/logs/ray-data
-2024-11-15 15:50:21,044	INFO streaming_executor.py:109 -- Execution plan of Dataset: InputDataBuffer[Input] -&gt; TaskPoolMapOperator[ReadParquet]
-</pre></div>
-</div>
-<script type="application/vnd.jupyter.widget-view+json">{"model_id": "4b6bb7e909d14bc882d43009e78efcd2", "version_major": 2, "version_minor": 0}</script><script type="application/vnd.jupyter.widget-view+json">{"model_id": "479f8e44c62544feb87819a1fdc8fc7f", "version_major": 2, "version_minor": 0}</script><div class="output stderr highlight-myst-ansi notranslate"><div class="highlight"><pre><span></span>2024-11-15 15:50:21,913	INFO streaming_executor.py:108 -- Starting execution of Dataset. Full logs are in /tmp/ray/session_2024-11-15_08-44-25_924022_2383/logs/ray-data
-2024-11-15 15:50:21,913	INFO streaming_executor.py:109 -- Execution plan of Dataset: InputDataBuffer[Input] -&gt; TaskPoolMapOperator[ReadParquet]
-</pre></div>
-</div>
-<script type="application/vnd.jupyter.widget-view+json">{"model_id": "6df515a45ff042f18618c9a8de31a32b", "version_major": 2, "version_minor": 0}</script><script type="application/vnd.jupyter.widget-view+json">{"model_id": "69d8b5498be1439eb75aebeb29bef4df", "version_major": 2, "version_minor": 0}</script></div>
+<script type="application/vnd.jupyter.widget-view+json">{"model_id": "4b6bb7e909d14bc882d43009e78efcd2", "version_major": 2, "version_minor": 0}</script><script type="application/vnd.jupyter.widget-view+json">{"model_id": "479f8e44c62544feb87819a1fdc8fc7f", "version_major": 2, "version_minor": 0}</script><script type="application/vnd.jupyter.widget-view+json">{"model_id": "6df515a45ff042f18618c9a8de31a32b", "version_major": 2, "version_minor": 0}</script><script type="application/vnd.jupyter.widget-view+json">{"model_id": "69d8b5498be1439eb75aebeb29bef4df", "version_major": 2, "version_minor": 0}</script></div>
 </div>
 <p><strong>Fit model with Ray Train</strong></p>
 <div class="cell docutils container">
@@ -448,10 +430,6 @@ document.write(`
 </div>
 </div>
 <div class="cell_output docutils container">
-<div class="output stderr highlight-myst-ansi notranslate"><div class="highlight"><pre><span></span>2024-11-15 15:54:19,191	INFO tune.py:616 -- [output] This uses the legacy output and progress reporter, as Jupyter notebooks are not supported by the new engine, yet. For more information, please see https://github.com/ray-project/ray/issues/36949
-2024-11-15 15:54:19,206	INFO data_parallel_trainer.py:340 -- GPUs are detected in your Ray cluster, but GPU training is not enabled for this trainer. To enable GPU training, make sure to set `use_gpu` to True in your scaling config.
-</pre></div>
-</div>
 <div class="output stream highlight-myst-ansi notranslate"><div class="highlight"><pre><span></span>== Status ==
 Current time: 2024-11-15 15:54:19 (running for 00:00:00.11)
 Using FIFO scheduling algorithm.
@@ -474,10 +452,6 @@ Using FIFO scheduling algorithm.
 Logical resource usage: 5.0/16 CPUs, 0/2 GPUs (0.0/2.0 anyscale/accelerator_shape:1xT4, 0.0/2.0 anyscale/provider:aws, 0.0/2.0 anyscale/region:us-west-2, 0.0/2.0 accelerator_type:T4)
 Result logdir: /tmp/ray/session_2024-11-15_08-44-25_924022_2383/artifacts/2024-11-15_15-54-19/XGBoostTrainer_2024-11-15_15-54-19/driver_artifacts
 Number of trials: 1/1 (1 RUNNING)
-</pre></div>
-</div>
-<div class="output stderr highlight-myst-ansi notranslate"><div class="highlight"><pre><span></span>2024-11-15 15:54:31,784	INFO tune.py:1009 -- Wrote the latest version of all result files and experiment state to &#39;/mnt/cluster_storage/XGBoostTrainer_2024-11-15_15-54-19&#39; in 0.0222s.
-2024-11-15 15:54:31,786	INFO tune.py:1041 -- Total run time: 12.60 seconds (12.56 seconds for the tuning loop).
 </pre></div>
 </div>
 <div class="output stream highlight-myst-ansi notranslate"><div class="highlight"><pre><span></span>== Status ==
@@ -579,16 +553,7 @@ Number of trials: 1/1 (1 TERMINATED)
   margin: 0.5em 1em 0.5em 1em;
 }
 </style>
-</div><div class="output stderr highlight-myst-ansi notranslate"><div class="highlight"><pre><span></span>2024-11-15 15:58:50,120	INFO data_parallel_trainer.py:340 -- GPUs are detected in your Ray cluster, but GPU training is not enabled for this trainer. To enable GPU training, make sure to set `use_gpu` to True in your scaling config.
-2024-11-15 15:58:50,123	INFO data_parallel_trainer.py:340 -- GPUs are detected in your Ray cluster, but GPU training is not enabled for this trainer. To enable GPU training, make sure to set `use_gpu` to True in your scaling config.
-2024-11-15 15:58:50,127	INFO data_parallel_trainer.py:340 -- GPUs are detected in your Ray cluster, but GPU training is not enabled for this trainer. To enable GPU training, make sure to set `use_gpu` to True in your scaling config.
-</pre></div>
-</div>
-<script type="application/vnd.jupyter.widget-view+json">{"model_id": "30f9e22dd4784d80863e3781805052f8", "version_major": 2, "version_minor": 0}</script><script type="application/vnd.jupyter.widget-view+json">{"model_id": "6398e9e2df08452c882c4ab105d49868", "version_major": 2, "version_minor": 0}</script><script type="application/vnd.jupyter.widget-view+json">{"model_id": "7bd78ce7678b4e6fa53f99b1e09bd3e4", "version_major": 2, "version_minor": 0}</script><script type="application/vnd.jupyter.widget-view+json">{"model_id": "806ccd0b5ec94ef98c0e3e603fb049f7", "version_major": 2, "version_minor": 0}</script><script type="application/vnd.jupyter.widget-view+json">{"model_id": "21e450d69d49426aad1eff31652a5c52", "version_major": 2, "version_minor": 0}</script><script type="application/vnd.jupyter.widget-view+json">{"model_id": "66f05ffd807747b1aa5ec75c41f1a219", "version_major": 2, "version_minor": 0}</script><script type="application/vnd.jupyter.widget-view+json">{"model_id": "77c870497eac42629f915ac6bac6ad8c", "version_major": 2, "version_minor": 0}</script><script type="application/vnd.jupyter.widget-view+json">{"model_id": "7f9c7bc17b9b43589f9816889d615081", "version_major": 2, "version_minor": 0}</script><script type="application/vnd.jupyter.widget-view+json">{"model_id": "438969ea3e094c59a13a4e4b66adb21c", "version_major": 2, "version_minor": 0}</script><script type="application/vnd.jupyter.widget-view+json">{"model_id": "9566d31c0d45409d8069531b559e4549", "version_major": 2, "version_minor": 0}</script><script type="application/vnd.jupyter.widget-view+json">{"model_id": "eee51de61b9143b4ae68896f1ec29ad6", "version_major": 2, "version_minor": 0}</script><script type="application/vnd.jupyter.widget-view+json">{"model_id": "da60c29650ed44feb38760e048a9f123", "version_major": 2, "version_minor": 0}</script><div class="output stderr highlight-myst-ansi notranslate"><div class="highlight"><pre><span></span>2024-11-15 15:59:03,410	INFO tune.py:1009 -- Wrote the latest version of all result files and experiment state to &#39;/mnt/cluster_storage/XGBoostTrainer_2024-11-15_15-58-50&#39; in 0.0516s.
-2024-11-15 15:59:03,415	INFO tune.py:1041 -- Total run time: 13.31 seconds (13.24 seconds for the tuning loop).
-</pre></div>
-</div>
-</div>
+</div><script type="application/vnd.jupyter.widget-view+json">{"model_id": "30f9e22dd4784d80863e3781805052f8", "version_major": 2, "version_minor": 0}</script><script type="application/vnd.jupyter.widget-view+json">{"model_id": "6398e9e2df08452c882c4ab105d49868", "version_major": 2, "version_minor": 0}</script><script type="application/vnd.jupyter.widget-view+json">{"model_id": "7bd78ce7678b4e6fa53f99b1e09bd3e4", "version_major": 2, "version_minor": 0}</script><script type="application/vnd.jupyter.widget-view+json">{"model_id": "806ccd0b5ec94ef98c0e3e603fb049f7", "version_major": 2, "version_minor": 0}</script><script type="application/vnd.jupyter.widget-view+json">{"model_id": "21e450d69d49426aad1eff31652a5c52", "version_major": 2, "version_minor": 0}</script><script type="application/vnd.jupyter.widget-view+json">{"model_id": "66f05ffd807747b1aa5ec75c41f1a219", "version_major": 2, "version_minor": 0}</script><script type="application/vnd.jupyter.widget-view+json">{"model_id": "77c870497eac42629f915ac6bac6ad8c", "version_major": 2, "version_minor": 0}</script><script type="application/vnd.jupyter.widget-view+json">{"model_id": "7f9c7bc17b9b43589f9816889d615081", "version_major": 2, "version_minor": 0}</script><script type="application/vnd.jupyter.widget-view+json">{"model_id": "438969ea3e094c59a13a4e4b66adb21c", "version_major": 2, "version_minor": 0}</script><script type="application/vnd.jupyter.widget-view+json">{"model_id": "9566d31c0d45409d8069531b559e4549", "version_major": 2, "version_minor": 0}</script><script type="application/vnd.jupyter.widget-view+json">{"model_id": "eee51de61b9143b4ae68896f1ec29ad6", "version_major": 2, "version_minor": 0}</script><script type="application/vnd.jupyter.widget-view+json">{"model_id": "da60c29650ed44feb38760e048a9f123", "version_major": 2, "version_minor": 0}</script></div>
 </div>
 <p><strong>Batch inference with Ray Data</strong></p>
 <div class="cell docutils container">
@@ -626,14 +591,7 @@ Number of trials: 1/1 (1 TERMINATED)
 </div>
 </div>
 <div class="cell_output docutils container">
-<div class="output stderr highlight-myst-ansi notranslate"><div class="highlight"><pre><span></span>2024-11-15 16:05:08,459	INFO streaming_executor.py:108 -- Starting execution of Dataset. Full logs are in /tmp/ray/session_2024-11-15_08-44-25_924022_2383/logs/ray-data
-2024-11-15 16:05:08,460	INFO streaming_executor.py:109 -- Execution plan of Dataset: InputDataBuffer[Input] -&gt; ActorPoolMapOperator[MapBatches(drop_columns)-&gt;MapBatches(OfflinePredictor)] -&gt; LimitOperator[limit=10]
-</pre></div>
-</div>
-<script type="application/vnd.jupyter.widget-view+json">{"model_id": "020cdc52c156498d93d5ac50905882c2", "version_major": 2, "version_minor": 0}</script><script type="application/vnd.jupyter.widget-view+json">{"model_id": "efd4d96ee39c4be0b4c05fc233aaaa35", "version_major": 2, "version_minor": 0}</script><script type="application/vnd.jupyter.widget-view+json">{"model_id": "7349b3f1ba794b08a66b8b855489625a", "version_major": 2, "version_minor": 0}</script><div class="output stderr highlight-myst-ansi notranslate"><div class="highlight"><pre><span></span>2024-11-15 16:05:10,388	WARNING actor_pool_map_operator.py:265 -- To ensure full parallelization across an actor pool of size 2, the Dataset should consist of at least 2 distinct blocks. Consider increasing the parallelism when creating the Dataset.
-</pre></div>
-</div>
-<div class="output text_plain highlight-myst-ansi notranslate"><div class="highlight"><pre><span></span>{&#39;prediction&#39;: array([0.6290559 , 0.6290559 , 0.5404948 , 0.6290559 , 0.5552995 ,
+<script type="application/vnd.jupyter.widget-view+json">{"model_id": "020cdc52c156498d93d5ac50905882c2", "version_major": 2, "version_minor": 0}</script><script type="application/vnd.jupyter.widget-view+json">{"model_id": "efd4d96ee39c4be0b4c05fc233aaaa35", "version_major": 2, "version_minor": 0}</script><script type="application/vnd.jupyter.widget-view+json">{"model_id": "7349b3f1ba794b08a66b8b855489625a", "version_major": 2, "version_minor": 0}</script><div class="output text_plain highlight-myst-ansi notranslate"><div class="highlight"><pre><span></span>{&#39;prediction&#39;: array([0.6290559 , 0.6290559 , 0.5404948 , 0.6290559 , 0.5552995 ,
         0.5529555 , 0.6290559 , 0.6290559 , 0.60417205, 0.5588189 ],
        dtype=float32)}
 </pre></div>
@@ -671,14 +629,6 @@ Number of trials: 1/1 (1 TERMINATED)
 </div>
 </div>
 <div class="cell_output docutils container">
-<div class="output stderr highlight-myst-ansi notranslate"><div class="highlight"><pre><span></span>2024-11-15 16:08:47,352	WARNING api.py:346 -- The default value for `max_ongoing_requests` has changed from 100 to 5 in Ray 2.32.0.
-2024-11-15 16:08:47,354	WARNING api.py:397 -- The default value for `max_ongoing_requests` has changed from 100 to 5 in Ray 2.32.0.
-2024-11-15 16:08:51,404	INFO handle.py:126 -- Created DeploymentHandle &#39;dx5qijjx&#39; for Deployment(name=&#39;OnlinePredictor&#39;, app=&#39;default&#39;).
-2024-11-15 16:08:51,405	INFO handle.py:126 -- Created DeploymentHandle &#39;bw4198ni&#39; for Deployment(name=&#39;OnlinePredictor&#39;, app=&#39;default&#39;).
-2024-11-15 16:08:54,422	INFO handle.py:126 -- Created DeploymentHandle &#39;es3qaucg&#39; for Deployment(name=&#39;OnlinePredictor&#39;, app=&#39;default&#39;).
-2024-11-15 16:08:54,423	INFO api.py:574 -- Deployed app &#39;default&#39; successfully.
-</pre></div>
-</div>
 </div>
 </div>
 <div class="cell docutils container">
@@ -695,10 +645,6 @@ Number of trials: 1/1 (1 TERMINATED)
 </div>
 </div>
 <div class="cell_output docutils container">
-<div class="output stderr highlight-myst-ansi notranslate"><div class="highlight"><pre><span></span>2024-11-15 16:09:49,192	INFO streaming_executor.py:108 -- Starting execution of Dataset. Full logs are in /tmp/ray/session_2024-11-15_08-44-25_924022_2383/logs/ray-data
-2024-11-15 16:09:49,192	INFO streaming_executor.py:109 -- Execution plan of Dataset: InputDataBuffer[Input] -&gt; TaskPoolMapOperator[MapBatches(drop_columns)] -&gt; LimitOperator[limit=1]
-</pre></div>
-</div>
 <script type="application/vnd.jupyter.widget-view+json">{"model_id": "2678e03029204bb2ab5d53fcf1960566", "version_major": 2, "version_minor": 0}</script><script type="application/vnd.jupyter.widget-view+json">{"model_id": "b12bc1dd44f449e4ac518405338f7e5c", "version_major": 2, "version_minor": 0}</script><script type="application/vnd.jupyter.widget-view+json">{"model_id": "18f6b315401a4758920d699be2347224", "version_major": 2, "version_minor": 0}</script><div class="output text_plain highlight-myst-ansi notranslate"><div class="highlight"><pre><span></span>{&#39;prediction&#39;: [0.629055917263031]}
 </pre></div>
 </div>

@@ -422,18 +422,6 @@ document.write(`
 </pre></div>
 </div>
 </div>
-<div class="cell_output docutils container">
-<div class="output traceback highlight-ipythontb notranslate"><div class="highlight"><pre><span></span><span class="gt">---------------------------------------------------------------------------</span>
-<span class="ne">ModuleNotFoundError</span><span class="g g-Whitespace">                       </span>Traceback (most recent call last)
-<span class="n">Cell</span> <span class="n">In</span><span class="p">[</span><span class="mi">1</span><span class="p">],</span> <span class="n">line</span> <span class="mi">1</span>
-<span class="ne">----&gt; </span><span class="mi">1</span> <span class="kn">import</span><span class="w"> </span><span class="nn">torch</span>
-<span class="g g-Whitespace">      </span><span class="mi">2</span> <span class="kn">from</span><span class="w"> </span><span class="nn">torchvision.datasets</span><span class="w"> </span><span class="kn">import</span> <span class="n">MNIST</span>
-<span class="g g-Whitespace">      </span><span class="mi">3</span> <span class="kn">from</span><span class="w"> </span><span class="nn">torchvision.transforms</span><span class="w"> </span><span class="kn">import</span> <span class="n">Compose</span><span class="p">,</span> <span class="n">ToTensor</span><span class="p">,</span> <span class="n">Normalize</span>
-
-<span class="ne">ModuleNotFoundError</span>: No module named &#39;torch&#39;
-</pre></div>
-</div>
-</div>
 </div>
 <p>Let’s visualize a batch</p>
 <div class="cell docutils container">
@@ -649,11 +637,7 @@ Epoch 1, Loss: 0.20302368700504303
   margin: 0.5em 1em 0.5em 1em;
 }
 </style>
-</div><div class="output stderr highlight-myst-ansi notranslate"><div class="highlight"><pre><span></span>2024-11-29 09:13:31,837	INFO tune.py:1009 -- Wrote the latest version of all result files and experiment state to &#39;/home/ray/ray_results/train_my_simple_model_2024-11-29_09-13-26&#39; in 0.0075s.
-2024-11-29 09:13:31,841	INFO tune.py:1041 -- Total run time: 3.57 seconds (3.33 seconds for the tuning loop).
-</pre></div>
-</div>
-<div class="output stream highlight-myst-ansi notranslate"><div class="highlight"><pre><span></span><span class=" -Color -Color-Cyan">(autoscaler +4m37s)</span> Tip: use `ray status` to view detailed cluster status. To disable these messages, set RAY_SCHEDULER_EVENTS=0.
+</div><div class="output stream highlight-myst-ansi notranslate"><div class="highlight"><pre><span></span><span class=" -Color -Color-Cyan">(autoscaler +4m37s)</span> Tip: use `ray status` to view detailed cluster status. To disable these messages, set RAY_SCHEDULER_EVENTS=0.
 <span class=" -Color -Color-Cyan">(train_pytorch pid=38448)</span> Downloading http://yann.lecun.com/exdb/mnist/train-images-idx3-ubyte.gz
 <span class=" -Color -Color-Cyan">(train_pytorch pid=38448)</span> Failed to download (trying next):
 <span class=" -Color -Color-Cyan">(train_pytorch pid=38448)</span> HTTP Error 403: Forbidden
@@ -971,22 +955,10 @@ Epoch 1, Loss: 0.20302368700504303
   margin: 0.5em 1em 0.5em 1em;
 }
 </style>
-</div><div class="output stderr highlight-myst-ansi notranslate"><div class="highlight"><pre><span></span>  0%|          | 0/9912422 [00:00&lt;?, ?it/s]
-  1%|          | 98304/9912422 [00:00&lt;00:11, 831953.25it/s]
-  4%|▍         | 393216/9912422 [00:00&lt;00:05, 1806326.67it/s]
- 16%|█▌        | 1572864/9912422 [00:00&lt;00:01, 5521900.47it/s]
- 62%|██████▏   | 6127616/9912422 [00:00&lt;00:00, 18478655.81it/s]
-100%|██████████| 9912422/9912422 [00:00&lt;00:00, 18409805.78it/s]
-</pre></div>
-</div>
-<div class="output stream highlight-myst-ansi notranslate"><div class="highlight"><pre><span></span><span class=" -Color -Color-Cyan">(train_pytorch pid=38448)</span> Extracting ./data/MNIST/raw/train-images-idx3-ubyte.gz to ./data/MNIST/raw
+</div><div class="output stream highlight-myst-ansi notranslate"><div class="highlight"><pre><span></span><span class=" -Color -Color-Cyan">(train_pytorch pid=38448)</span> Extracting ./data/MNIST/raw/train-images-idx3-ubyte.gz to ./data/MNIST/raw
 <span class=" -Color -Color-Cyan">(train_pytorch pid=38448)</span> 
 <span class=" -Color -Color-Cyan">(train_pytorch pid=10307, ip=10.0.20.35)</span> 
 <span class=" -Color -Color-Cyan">(train_pytorch pid=38448)</span> 
-</pre></div>
-</div>
-<div class="output stderr highlight-myst-ansi notranslate"><div class="highlight"><pre><span></span>100%|██████████| 28881/28881 [00:00&lt;00:00, 507557.46it/s]
-100%|██████████| 9912422/9912422 [00:00&lt;00:00, 16263535.27it/s]
 </pre></div>
 </div>
 <div class="output stream highlight-myst-ansi notranslate"><div class="highlight"><pre><span></span><span class=" -Color -Color-Cyan">(train_pytorch pid=38448)</span> Extracting ./data/MNIST/raw/train-labels-idx1-ubyte.gz to ./data/MNIST/raw
@@ -994,10 +966,6 @@ Epoch 1, Loss: 0.20302368700504303
 <span class=" -Color -Color-Cyan">(train_pytorch pid=10307, ip=10.0.20.35)</span> 
 <span class=" -Color -Color-Cyan">(train_pytorch pid=38448)</span> 
 <span class=" -Color -Color-Cyan">(train_pytorch pid=10307, ip=10.0.20.35)</span> 
-</pre></div>
-</div>
-<div class="output stderr highlight-myst-ansi notranslate"><div class="highlight"><pre><span></span>100%|██████████| 1648877/1648877 [00:00&lt;00:00, 4649632.58it/s]
-100%|██████████| 28881/28881 [00:00&lt;00:00, 490189.76it/s]
 </pre></div>
 </div>
 <div class="output stream highlight-myst-ansi notranslate"><div class="highlight"><pre><span></span><span class=" -Color -Color-Cyan">(train_pytorch pid=38448)</span> 
@@ -1013,14 +981,6 @@ Epoch 1, Loss: 0.20302368700504303
 <span class=" -Color -Color-Cyan">(train_pytorch pid=10307, ip=10.0.20.35)</span> Downloading https://ossci-datasets.s3.amazonaws.com/mnist/t10k-images-idx3-ubyte.gz to ./data/MNIST/raw/t10k-images-idx3-ubyte.gz<span class=" -Color -Color-Green"> [repeated 6x across cluster]</span>
 <span class=" -Color -Color-Cyan">(train_pytorch pid=10307, ip=10.0.20.35)</span> 
 <span class=" -Color -Color-Cyan">(train_pytorch pid=10307, ip=10.0.20.35)</span> Extracting ./data/MNIST/raw/t10k-labels-idx1-ubyte.gz to ./data/MNIST/raw<span class=" -Color -Color-Green"> [repeated 6x across cluster]</span>
-</pre></div>
-</div>
-<div class="output stderr highlight-myst-ansi notranslate"><div class="highlight"><pre><span></span>100%|██████████| 4542/4542 [00:00&lt;00:00, 3523960.19it/s]<span class=" -Color -Color-Green"> [repeated 7x across cluster]</span>
-100%|██████████| 1648877/1648877 [00:00&lt;00:00, 4641500.47it/s]<span class=" -Color -Color-Green"> [repeated 10x across cluster]</span>
-</pre></div>
-</div>
-<div class="output stderr highlight-myst-ansi notranslate"><div class="highlight"><pre><span></span>2024-11-29 09:44:37,315	INFO tune.py:1009 -- Wrote the latest version of all result files and experiment state to &#39;/home/ray/ray_results/train_pytorch_2024-11-29_09-44-11&#39; in 0.0033s.
-2024-11-29 09:44:37,319	INFO tune.py:1041 -- Total run time: 25.37 seconds (25.36 seconds for the tuning loop).
 </pre></div>
 </div>
 </div>

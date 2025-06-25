@@ -399,18 +399,6 @@ document.write(`
 </pre></div>
 </div>
 </div>
-<div class="cell_output docutils container">
-<div class="output traceback highlight-ipythontb notranslate"><div class="highlight"><pre><span></span><span class="gt">---------------------------------------------------------------------------</span>
-<span class="ne">ModuleNotFoundError</span><span class="g g-Whitespace">                       </span>Traceback (most recent call last)
-<span class="n">Cell</span> <span class="n">In</span><span class="p">[</span><span class="mi">1</span><span class="p">],</span> <span class="n">line</span> <span class="mi">1</span>
-<span class="ne">----&gt; </span><span class="mi">1</span> <span class="kn">import</span><span class="w"> </span><span class="nn">ray</span>
-<span class="g g-Whitespace">      </span><span class="mi">2</span> <span class="kn">from</span><span class="w"> </span><span class="nn">ray</span><span class="w"> </span><span class="kn">import</span> <span class="n">tune</span><span class="p">,</span> <span class="n">train</span>
-<span class="g g-Whitespace">      </span><span class="mi">3</span> <span class="kn">from</span><span class="w"> </span><span class="nn">ray.tune.search</span><span class="w"> </span><span class="kn">import</span> <span class="n">optuna</span>
-
-<span class="ne">ModuleNotFoundError</span>: No module named &#39;ray&#39;
-</pre></div>
-</div>
-</div>
 </div>
 <div class="alert alert-block alert-warning">
 <b>Note:</b> how the training function needs to accept a config argument. This is because Ray Tune will pass the hyperparameters to the training function as a dictionary.
@@ -506,11 +494,7 @@ document.write(`
   margin: 0.5em 1em 0.5em 1em;
 }
 </style>
-</div><div class="output stderr highlight-myst-ansi notranslate"><div class="highlight"><pre><span></span>2024-11-29 09:13:31,837	INFO tune.py:1009 -- Wrote the latest version of all result files and experiment state to &#39;/home/ray/ray_results/train_my_simple_model_2024-11-29_09-13-26&#39; in 0.0075s.
-2024-11-29 09:13:31,841	INFO tune.py:1041 -- Total run time: 3.57 seconds (3.33 seconds for the tuning loop).
-</pre></div>
-</div>
-<div class="output stream highlight-myst-ansi notranslate"><div class="highlight"><pre><span></span><span class=" -Color -Color-Cyan">(autoscaler +4m37s)</span> Tip: use `ray status` to view detailed cluster status. To disable these messages, set RAY_SCHEDULER_EVENTS=0.
+</div><div class="output stream highlight-myst-ansi notranslate"><div class="highlight"><pre><span></span><span class=" -Color -Color-Cyan">(autoscaler +4m37s)</span> Tip: use `ray status` to view detailed cluster status. To disable these messages, set RAY_SCHEDULER_EVENTS=0.
 <span class=" -Color -Color-Cyan">(train_pytorch pid=38448)</span> Downloading http://yann.lecun.com/exdb/mnist/train-images-idx3-ubyte.gz
 <span class=" -Color -Color-Cyan">(train_pytorch pid=38448)</span> Failed to download (trying next):
 <span class=" -Color -Color-Cyan">(train_pytorch pid=38448)</span> HTTP Error 403: Forbidden

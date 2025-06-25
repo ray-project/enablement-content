@@ -473,19 +473,6 @@ document.write(`
 </pre></div>
 </div>
 </div>
-<div class="cell_output docutils container">
-<div class="output traceback highlight-ipythontb notranslate"><div class="highlight"><pre><span></span><span class="gt">---------------------------------------------------------------------------</span>
-<span class="ne">ModuleNotFoundError</span><span class="g g-Whitespace">                       </span>Traceback (most recent call last)
-<span class="n">Cell</span> <span class="n">In</span><span class="p">[</span><span class="mi">1</span><span class="p">],</span> <span class="n">line</span> <span class="mi">3</span>
-<span class="g g-Whitespace">      </span><span class="mi">1</span> <span class="kn">from</span><span class="w"> </span><span class="nn">pathlib</span><span class="w"> </span><span class="kn">import</span> <span class="n">Path</span>
-<span class="ne">----&gt; </span><span class="mi">3</span> <span class="kn">import</span><span class="w"> </span><span class="nn">torchmetrics</span>
-<span class="g g-Whitespace">      </span><span class="mi">4</span> <span class="kn">from</span><span class="w"> </span><span class="nn">torch.nn</span><span class="w"> </span><span class="kn">import</span> <span class="n">CrossEntropyLoss</span>
-<span class="g g-Whitespace">      </span><span class="mi">5</span> <span class="kn">from</span><span class="w"> </span><span class="nn">torch.optim</span><span class="w"> </span><span class="kn">import</span> <span class="n">Adam</span>
-
-<span class="ne">ModuleNotFoundError</span>: No module named &#39;torchmetrics&#39;
-</pre></div>
-</div>
-</div>
 </div>
 <section id="build-and-load-our-model-on-a-single-gpu">
 <h2>Build and load our model on a single GPU<a class="headerlink" href="#build-and-load-our-model-on-a-single-gpu" title="Link to this heading">#</a></h2>
@@ -544,12 +531,6 @@ document.write(`
 </div>
 </div>
 <div class="cell_output docutils container">
-<div class="output stderr highlight-myst-ansi notranslate"><div class="highlight"><pre><span></span>/home/ray/anaconda3/lib/python3.11/site-packages/torchvision/datasets/mnist.py:76: UserWarning: train_data has been renamed data
-  warnings.warn(&quot;train_data has been renamed data&quot;)
-/home/ray/anaconda3/lib/python3.11/site-packages/torchvision/datasets/mnist.py:66: UserWarning: train_labels has been renamed targets
-  warnings.warn(&quot;train_labels has been renamed targets&quot;)
-</pre></div>
-</div>
 <img alt="../../_images/5a5dca6cca65af78a82c626031a695a709a369516c18caac3f5ec7fc20130b3e.png" src="../../_images/5a5dca6cca65af78a82c626031a695a709a369516c18caac3f5ec7fc20130b3e.png" />
 </div>
 </div>
@@ -710,10 +691,6 @@ document.write(`
 </div>
 </div>
 <div class="cell_output docutils container">
-<div class="output stderr highlight-myst-ansi notranslate"><div class="highlight"><pre><span></span>/tmp/ipykernel_52702/470834418.py:2: FutureWarning: You are using `torch.load` with `weights_only=False` (the current default value), which uses the default pickle module implicitly. It is possible to construct malicious pickle data which will execute arbitrary code during unpickling (See https://github.com/pytorch/pytorch/blob/main/SECURITY.md#untrusted-models for more details). In a future release, the default value for `weights_only` will be flipped to `True`. This limits the functions that could be executed during unpickling. Arbitrary objects will no longer be allowed to be loaded via this mode unless they are explicitly allowlisted by the user via `torch.serialization.add_safe_globals`. We recommend you start setting `weights_only=True` for any use case where you don&#39;t have full control of the loaded file. Please open an issue on GitHub for any issues related to this experimental feature.
-  loaded_model.load_state_dict(torch.load(os.path.join(local_path, &quot;model.pt&quot;)))
-</pre></div>
-</div>
 <div class="output text_plain highlight-myst-ansi notranslate"><div class="highlight"><pre><span></span>ResNet(
   (conv1): Conv2d(1, 64, kernel_size=(7, 7), stride=(2, 2), padding=(3, 3), bias=False)
   (bn1): BatchNorm2d(64, eps=1e-05, momentum=0.1, affine=True, track_running_stats=True)
@@ -817,10 +794,6 @@ document.write(`
 </div>
 </div>
 <div class="cell_output docutils container">
-<div class="output stderr highlight-myst-ansi notranslate"><div class="highlight"><pre><span></span>/home/ray/anaconda3/lib/python3.11/site-packages/torchvision/datasets/mnist.py:76: UserWarning: train_data has been renamed data
-  warnings.warn(&quot;train_data has been renamed data&quot;)
-</pre></div>
-</div>
 <img alt="../../_images/5a5dca6cca65af78a82c626031a695a709a369516c18caac3f5ec7fc20130b3e.png" src="../../_images/5a5dca6cca65af78a82c626031a695a709a369516c18caac3f5ec7fc20130b3e.png" />
 </div>
 </div>
@@ -1054,12 +1027,6 @@ document.write(`
 </div>
 </div>
 <div class="cell_output docutils container">
-<div class="output stderr highlight-myst-ansi notranslate"><div class="highlight"><pre><span></span>2024-11-22 11:46:34,891	INFO worker.py:1596 -- Connecting to existing Ray cluster at address: 10.0.25.5:6379...
-2024-11-22 11:46:34,898	INFO worker.py:1772 -- Connected to Ray cluster. View the dashboard at <span class=" -Color -Color-Bold -Color-Bold-Green">https://session-wun39fg7yb3g9682a8fejskwz3.i.anyscaleuserdata.com </span>
-2024-11-22 11:46:35,055	INFO packaging.py:358 -- Pushing file package &#39;gcs://_ray_pkg_c0d0f875c8f886002dd044911a6c5a1d734f1c8c.zip&#39; (63.64MiB) to Ray cluster...
-2024-11-22 11:46:35,772	INFO packaging.py:371 -- Successfully pushed file package &#39;gcs://_ray_pkg_c0d0f875c8f886002dd044911a6c5a1d734f1c8c.zip&#39;.
-</pre></div>
-</div>
 <div class="output stream highlight-myst-ansi notranslate"><div class="highlight"><pre><span></span><span class=" -Color -Color-Cyan">(autoscaler +1h34m20s)</span> Tip: use `ray status` to view detailed cluster status. To disable these messages, set RAY_SCHEDULER_EVENTS=0.
 </pre></div>
 </div>
@@ -1073,9 +1040,6 @@ document.write(`
 </div>
 </div>
 <div class="cell_output docutils container">
-<div class="output stderr highlight-myst-ansi notranslate"><div class="highlight"><pre><span></span>2024-11-22 11:49:35,784	INFO tune.py:616 -- [output] This uses the legacy output and progress reporter, as Jupyter notebooks are not supported by the new engine, yet. For more information, please see https://github.com/ray-project/ray/issues/36949
-</pre></div>
-</div>
 <div class="output stream highlight-myst-ansi notranslate"><div class="highlight"><pre><span></span>== Status ==
 Current time: 2024-11-22 11:49:35 (running for 00:00:00.11)
 Using FIFO scheduling algorithm.
@@ -1172,10 +1136,6 @@ Number of trials: 1/1 (1 RUNNING)
 <span class=" -Color -Color-Cyan">(RayTrainWorker pid=129887)</span> Downloading https://ossci-datasets.s3.amazonaws.com/mnist/train-images-idx3-ubyte.gz to ./data/MNIST/raw/train-images-idx3-ubyte.gz
 </pre></div>
 </div>
-<div class="output stderr highlight-myst-ansi notranslate"><div class="highlight"><pre><span></span>  0%|          | 0/9912422 [00:00&lt;?, ?it/s]38) 
-  1%|          | 98304/9912422 [00:00&lt;00:11, 875444.52it/s]
-</pre></div>
-</div>
 <div class="output stream highlight-myst-ansi notranslate"><div class="highlight"><pre><span></span><span class=" -Color -Color-Cyan">(RayTrainWorker pid=129887)</span> Extracting ./data/MNIST/raw/train-images-idx3-ubyte.gz to ./data/MNIST/raw
 <span class=" -Color -Color-Cyan">(RayTrainWorker pid=129887)</span> 
 <span class=" -Color -Color-Cyan">(RayTrainWorker pid=30603, ip=10.0.4.138)</span> 
@@ -1187,21 +1147,12 @@ Number of trials: 1/1 (1 RUNNING)
 <span class=" -Color -Color-Cyan">(RayTrainWorker pid=30603, ip=10.0.4.138)</span> 
 </pre></div>
 </div>
-<div class="output stderr highlight-myst-ansi notranslate"><div class="highlight"><pre><span></span><span class=" -Color -Color-Cyan">(RayTrainWorker pid=129887)</span> [rank1]:[W1122 11:49:45.059424410 Utils.hpp:110] Warning: Environment variable NCCL_ASYNC_ERROR_HANDLING is deprecated; use TORCH_NCCL_ASYNC_ERROR_HANDLING instead (function operator())<span class=" -Color -Color-Green"> [repeated 3x across cluster] (Ray deduplicates logs by default. Set RAY_DEDUP_LOGS=0 to disable log deduplication, or see https://docs.ray.io/en/master/ray-observability/user-guides/configure-logging.html#log-deduplication for more options.)</span>
-100%|██████████| 1648877/1648877 [00:00&lt;00:00, 4945514.39it/s]
-100%|██████████| 1648877/1648877 [00:00&lt;00:00, 4100558.59it/s]
-</pre></div>
-</div>
 <div class="output stream highlight-myst-ansi notranslate"><div class="highlight"><pre><span></span><span class=" -Color -Color-Cyan">(RayTrainWorker pid=129887)</span> 
 <span class=" -Color -Color-Cyan">(RayTrainWorker pid=30603, ip=10.0.4.138)</span> 
 <span class=" -Color -Color-Cyan">(RayTrainWorker pid=129887)</span> 
 <span class=" -Color -Color-Cyan">(RayTrainWorker pid=30603, ip=10.0.4.138)</span> 
 <span class=" -Color -Color-Cyan">(RayTrainWorker pid=30603, ip=10.0.4.138)</span> Downloading https://ossci-datasets.s3.amazonaws.com/mnist/t10k-labels-idx1-ubyte.gz<span class=" -Color -Color-Green"> [repeated 15x across cluster]</span>
 <span class=" -Color -Color-Cyan">(RayTrainWorker pid=129887)</span> 
-</pre></div>
-</div>
-<div class="output stderr highlight-myst-ansi notranslate"><div class="highlight"><pre><span></span><span class=" -Color -Color-Cyan">(RayTrainWorker pid=129887)</span> Moving model to device: cuda:0
-<span class=" -Color -Color-Cyan">(RayTrainWorker pid=129887)</span> Wrapping provided model in DistributedDataParallel.
 </pre></div>
 </div>
 <div class="output stream highlight-myst-ansi notranslate"><div class="highlight"><pre><span></span><span class=" -Color -Color-Cyan">(RayTrainWorker pid=30603, ip=10.0.4.138)</span> 
@@ -1212,19 +1163,7 @@ Number of trials: 1/1 (1 RUNNING)
 <span class=" -Color -Color-Cyan">(RayTrainWorker pid=30603, ip=10.0.4.138)</span> Extracting ./data/MNIST/raw/t10k-labels-idx1-ubyte.gz to ./data/MNIST/raw<span class=" -Color -Color-Green"> [repeated 7x across cluster]</span>
 </pre></div>
 </div>
-<div class="output stderr highlight-myst-ansi notranslate"><div class="highlight"><pre><span></span><span class=" -Color -Color-Cyan">(RayTrainWorker pid=30603, ip=10.0.4.138)</span> Checkpoint successfully created at: Checkpoint(filesystem=local, path=/mnt/cluster_storage/ray-summit-2024-training/distributed-mnist-resnet18/TorchTrainer_d89d0_00000_0_2024-11-22_11-49-35/checkpoint_000000)
-100%|██████████| 4542/4542 [00:00&lt;00:00, 3756759.76it/s]<span class=" -Color -Color-Green"> [repeated 7x across cluster]</span>
- 38%|███▊      | 622592/1648877 [00:00&lt;00:00, 2175211.11it/s]<span class=" -Color -Color-Green"> [repeated 13x across cluster]</span>
-</pre></div>
-</div>
 <div class="output stream highlight-myst-ansi notranslate"><div class="highlight"><pre><span></span><span class=" -Color -Color-Cyan">(RayTrainWorker pid=30603, ip=10.0.4.138)</span> {&#39;loss&#39;: 0.06367093324661255, &#39;accuracy&#39;: 0.9425080418586731, &#39;epoch&#39;: 1}
-</pre></div>
-</div>
-<div class="output stderr highlight-myst-ansi notranslate"><div class="highlight"><pre><span></span><span class=" -Color -Color-Cyan">(RayTrainWorker pid=129887)</span> Checkpoint successfully created at: Checkpoint(filesystem=local, path=/mnt/cluster_storage/ray-summit-2024-training/distributed-mnist-resnet18/TorchTrainer_d89d0_00000_0_2024-11-22_11-49-35/checkpoint_000001)<span class=" -Color -Color-Green"> [repeated 2x across cluster]</span>
-</pre></div>
-</div>
-<div class="output stderr highlight-myst-ansi notranslate"><div class="highlight"><pre><span></span>2024-11-22 11:50:29,707	INFO tune.py:1009 -- Wrote the latest version of all result files and experiment state to &#39;/mnt/cluster_storage/ray-summit-2024-training/distributed-mnist-resnet18&#39; in 0.0255s.
-2024-11-22 11:50:29,709	INFO tune.py:1041 -- Total run time: 53.92 seconds (53.89 seconds for the tuning loop).
 </pre></div>
 </div>
 <div class="output stream highlight-myst-ansi notranslate"><div class="highlight"><pre><span></span>== Status ==

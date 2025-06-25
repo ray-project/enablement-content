@@ -386,19 +386,6 @@ document.write(`
 </pre></div>
 </div>
 </div>
-<div class="cell_output docutils container">
-<div class="output traceback highlight-ipythontb notranslate"><div class="highlight"><pre><span></span><span class="gt">---------------------------------------------------------------------------</span>
-<span class="ne">NameError</span><span class="g g-Whitespace">                                 </span>Traceback (most recent call last)
-<span class="n">Cell</span> <span class="n">In</span><span class="p">[</span><span class="mi">1</span><span class="p">],</span> <span class="n">line</span> <span class="mi">1</span>
-<span class="ne">----&gt; </span><span class="mi">1</span> <span class="n">mnist_app</span> <span class="o">=</span> <span class="n">OnlineMNISTClassifier</span><span class="o">.</span><span class="n">options</span><span class="p">(</span>
-<span class="g g-Whitespace">      </span><span class="mi">2</span>     <span class="n">num_replicas</span><span class="o">=</span><span class="mi">4</span><span class="p">,</span> <span class="c1"># we can scale to up to 10 replicas on a single GPU</span>
-<span class="g g-Whitespace">      </span><span class="mi">3</span>     <span class="n">ray_actor_options</span><span class="o">=</span><span class="p">{</span><span class="s2">&quot;num_gpus&quot;</span><span class="p">:</span> <span class="mf">0.1</span><span class="p">},</span> 
-<span class="g g-Whitespace">      </span><span class="mi">4</span> <span class="p">)</span><span class="o">.</span><span class="n">bind</span><span class="p">(</span><span class="n">local_path</span><span class="o">=</span><span class="s2">&quot;/mnt/cluster_storage/model.pt&quot;</span><span class="p">)</span>
-
-<span class="ne">NameError</span>: name &#39;OnlineMNISTClassifier&#39; is not defined
-</pre></div>
-</div>
-</div>
 </div>
 <p>Next we update the running application by running serve.run with the new options.</p>
 <div class="cell docutils container">
@@ -408,24 +395,6 @@ document.write(`
 </div>
 </div>
 <div class="cell_output docutils container">
-<div class="output stderr highlight-myst-ansi notranslate"><div class="highlight"><pre><span></span>2024-12-13 08:26:56,510	INFO handle.py:126 -- Created DeploymentHandle &#39;t03z0nz6&#39; for Deployment(name=&#39;OnlineMNISTClassifier&#39;, app=&#39;mnist_classifier&#39;).
-2024-12-13 08:26:56,511	INFO handle.py:126 -- Created DeploymentHandle &#39;nkuhydqb&#39; for Deployment(name=&#39;OnlineMNISTClassifier&#39;, app=&#39;mnist_classifier&#39;).
-2024-12-13 08:27:05,544	INFO api.py:574 -- Deployed app &#39;mnist_classifier&#39; successfully.
-</pre></div>
-</div>
-<div class="output stderr highlight-myst-ansi notranslate"><div class="highlight"><pre><span></span>2024-12-13 08:27:01,026	INFO pow_2_scheduler.py:260 -- Got updated replicas for Deployment(name=&#39;OnlineMNISTClassifier&#39;, app=&#39;mnist_classifier&#39;): {&#39;3jw5er2a&#39;, &#39;33le5oca&#39;, &#39;ldfdsx9y&#39;}.
-2024-12-13 08:27:04,963	INFO pow_2_scheduler.py:260 -- Got updated replicas for Deployment(name=&#39;OnlineMNISTClassifier&#39;, app=&#39;mnist_classifier&#39;): {&#39;3jw5er2a&#39;, &#39;yzcovfs1&#39;, &#39;33le5oca&#39;, &#39;ldfdsx9y&#39;}.
-2024-12-13 08:33:39,268	INFO pow_2_scheduler.py:260 -- Got updated replicas for Deployment(name=&#39;OnlineMNISTClassifier&#39;, app=&#39;mnist_classifier&#39;): set().
-2024-12-13 08:35:20,218	INFO pow_2_scheduler.py:260 -- Got updated replicas for Deployment(name=&#39;OnlineMNISTClassifier&#39;, app=&#39;mnist_classifier&#39;): {&#39;rxr0eh2z&#39;}.
-2024-12-13 08:35:24,606	INFO pow_2_scheduler.py:260 -- Got updated replicas for Deployment(name=&#39;OnlineMNISTClassifier&#39;, app=&#39;mnist_classifier&#39;): {&#39;8g7ss5ya&#39;, &#39;rxr0eh2z&#39;, &#39;p50j70xb&#39;}.
-2024-12-13 08:35:27,930	INFO pow_2_scheduler.py:260 -- Got updated replicas for Deployment(name=&#39;OnlineMNISTClassifier&#39;, app=&#39;mnist_classifier&#39;): {&#39;8g7ss5ya&#39;, &#39;3jf5e3d8&#39;, &#39;rxr0eh2z&#39;, &#39;p50j70xb&#39;}.
-2024-12-13 08:35:28,780	INFO pow_2_scheduler.py:260 -- Got updated replicas for Deployment(name=&#39;OnlineMNISTClassifier&#39;, app=&#39;mnist_classifier&#39;): {&#39;7vmfe6bq&#39;, &#39;p50j70xb&#39;, &#39;rxr0eh2z&#39;, &#39;pjtb8s60&#39;, &#39;4dvcy3de&#39;, &#39;fptnfbbe&#39;, &#39;8g7ss5ya&#39;, &#39;3jf5e3d8&#39;}.
-2024-12-13 08:35:28,887	INFO pow_2_scheduler.py:260 -- Got updated replicas for Deployment(name=&#39;OnlineMNISTClassifier&#39;, app=&#39;mnist_classifier&#39;): {&#39;7vmfe6bq&#39;, &#39;p50j70xb&#39;, &#39;dvp7icd9&#39;, &#39;xoqusa5a&#39;, &#39;pjtb8s60&#39;, &#39;rxr0eh2z&#39;, &#39;4dvcy3de&#39;, &#39;fptnfbbe&#39;, &#39;8g7ss5ya&#39;, &#39;3jf5e3d8&#39;}.
-2024-12-13 08:36:04,504	INFO pow_2_scheduler.py:260 -- Got updated replicas for Deployment(name=&#39;OnlineMNISTClassifier&#39;, app=&#39;mnist_classifier&#39;): set().
-2024-12-13 08:39:56,498	INFO pow_2_scheduler.py:260 -- Got updated replicas for Deployment(name=&#39;OnlineMNISTPreprocessor&#39;, app=&#39;mnist_preprocessor&#39;): {&#39;5ld5x44p&#39;}.
-2024-12-13 08:40:37,815	INFO pow_2_scheduler.py:260 -- Got updated replicas for Deployment(name=&#39;OnlineMNISTPreprocessor&#39;, app=&#39;mnist_preprocessor&#39;): set().
-</pre></div>
-</div>
 </div>
 </div>
 <p>We can test the new application by sending a sample request.</p>
@@ -513,11 +482,6 @@ document.write(`
 </div>
 </div>
 <div class="cell_output docutils container">
-<div class="output stderr highlight-myst-ansi notranslate"><div class="highlight"><pre><span></span>2024-12-13 08:33:39,101	INFO handle.py:126 -- Created DeploymentHandle &#39;g1hdd0kd&#39; for Deployment(name=&#39;OnlineMNISTClassifier&#39;, app=&#39;mnist_classifier&#39;).
-2024-12-13 08:33:39,102	INFO handle.py:126 -- Created DeploymentHandle &#39;r42tv4g9&#39; for Deployment(name=&#39;OnlineMNISTClassifier&#39;, app=&#39;mnist_classifier&#39;).
-2024-12-13 08:33:42,117	INFO api.py:574 -- Deployed app &#39;mnist_classifier&#39; successfully.
-</pre></div>
-</div>
 </div>
 </div>
 <p>Looking at the Ray Serve dashboard, we can see we are currently at 0 replicas - i.e. no GPU resources are being used.</p>
@@ -533,108 +497,6 @@ document.write(`
 </div>
 </div>
 <div class="cell_output docutils container">
-<div class="output stderr highlight-myst-ansi notranslate"><div class="highlight"><pre><span></span>2024-12-13 08:35:16,122	INFO handle.py:126 -- Created DeploymentHandle &#39;o9qyndkq&#39; for Deployment(name=&#39;OnlineMNISTClassifier&#39;, app=&#39;mnist_classifier&#39;).
-2024-12-13 08:35:16,123	INFO handle.py:126 -- Created DeploymentHandle &#39;t4jr7eto&#39; for Deployment(name=&#39;OnlineMNISTClassifier&#39;, app=&#39;mnist_classifier&#39;).
-2024-12-13 08:35:16,124	INFO handle.py:126 -- Created DeploymentHandle &#39;kmmsc84y&#39; for Deployment(name=&#39;OnlineMNISTClassifier&#39;, app=&#39;mnist_classifier&#39;).
-2024-12-13 08:35:16,126	INFO handle.py:126 -- Created DeploymentHandle &#39;tsct5mrk&#39; for Deployment(name=&#39;OnlineMNISTClassifier&#39;, app=&#39;mnist_classifier&#39;).
-2024-12-13 08:35:16,127	INFO handle.py:126 -- Created DeploymentHandle &#39;43ppxrvj&#39; for Deployment(name=&#39;OnlineMNISTClassifier&#39;, app=&#39;mnist_classifier&#39;).
-2024-12-13 08:35:16,130	INFO handle.py:126 -- Created DeploymentHandle &#39;i4i1kg29&#39; for Deployment(name=&#39;OnlineMNISTClassifier&#39;, app=&#39;mnist_classifier&#39;).
-2024-12-13 08:35:16,132	INFO handle.py:126 -- Created DeploymentHandle &#39;4keu50ib&#39; for Deployment(name=&#39;OnlineMNISTClassifier&#39;, app=&#39;mnist_classifier&#39;).
-2024-12-13 08:35:16,133	INFO handle.py:126 -- Created DeploymentHandle &#39;c4lx979m&#39; for Deployment(name=&#39;OnlineMNISTClassifier&#39;, app=&#39;mnist_classifier&#39;).
-2024-12-13 08:35:16,135	INFO handle.py:126 -- Created DeploymentHandle &#39;mnytevsp&#39; for Deployment(name=&#39;OnlineMNISTClassifier&#39;, app=&#39;mnist_classifier&#39;).
-2024-12-13 08:35:16,136	INFO handle.py:126 -- Created DeploymentHandle &#39;7a8egk9c&#39; for Deployment(name=&#39;OnlineMNISTClassifier&#39;, app=&#39;mnist_classifier&#39;).
-2024-12-13 08:35:16,138	INFO handle.py:126 -- Created DeploymentHandle &#39;gaf509er&#39; for Deployment(name=&#39;OnlineMNISTClassifier&#39;, app=&#39;mnist_classifier&#39;).
-2024-12-13 08:35:16,140	INFO handle.py:126 -- Created DeploymentHandle &#39;4qwjdyhl&#39; for Deployment(name=&#39;OnlineMNISTClassifier&#39;, app=&#39;mnist_classifier&#39;).
-2024-12-13 08:35:16,141	INFO handle.py:126 -- Created DeploymentHandle &#39;forgjbb7&#39; for Deployment(name=&#39;OnlineMNISTClassifier&#39;, app=&#39;mnist_classifier&#39;).
-2024-12-13 08:35:16,143	INFO handle.py:126 -- Created DeploymentHandle &#39;o1rs6ke4&#39; for Deployment(name=&#39;OnlineMNISTClassifier&#39;, app=&#39;mnist_classifier&#39;).
-2024-12-13 08:35:16,144	INFO handle.py:126 -- Created DeploymentHandle &#39;9j7orxhb&#39; for Deployment(name=&#39;OnlineMNISTClassifier&#39;, app=&#39;mnist_classifier&#39;).
-2024-12-13 08:35:16,146	INFO handle.py:126 -- Created DeploymentHandle &#39;qo3d18n4&#39; for Deployment(name=&#39;OnlineMNISTClassifier&#39;, app=&#39;mnist_classifier&#39;).
-2024-12-13 08:35:16,147	INFO handle.py:126 -- Created DeploymentHandle &#39;w3hz4r5o&#39; for Deployment(name=&#39;OnlineMNISTClassifier&#39;, app=&#39;mnist_classifier&#39;).
-2024-12-13 08:35:16,149	INFO handle.py:126 -- Created DeploymentHandle &#39;rg846qqv&#39; for Deployment(name=&#39;OnlineMNISTClassifier&#39;, app=&#39;mnist_classifier&#39;).
-2024-12-13 08:35:16,151	INFO handle.py:126 -- Created DeploymentHandle &#39;vbcp62l0&#39; for Deployment(name=&#39;OnlineMNISTClassifier&#39;, app=&#39;mnist_classifier&#39;).
-2024-12-13 08:35:16,152	INFO handle.py:126 -- Created DeploymentHandle &#39;zeyl4zj4&#39; for Deployment(name=&#39;OnlineMNISTClassifier&#39;, app=&#39;mnist_classifier&#39;).
-2024-12-13 08:35:16,154	INFO handle.py:126 -- Created DeploymentHandle &#39;k2jf3t41&#39; for Deployment(name=&#39;OnlineMNISTClassifier&#39;, app=&#39;mnist_classifier&#39;).
-2024-12-13 08:35:16,155	INFO handle.py:126 -- Created DeploymentHandle &#39;ojiw6ruk&#39; for Deployment(name=&#39;OnlineMNISTClassifier&#39;, app=&#39;mnist_classifier&#39;).
-2024-12-13 08:35:16,157	INFO handle.py:126 -- Created DeploymentHandle &#39;s7g4mnno&#39; for Deployment(name=&#39;OnlineMNISTClassifier&#39;, app=&#39;mnist_classifier&#39;).
-2024-12-13 08:35:16,159	INFO handle.py:126 -- Created DeploymentHandle &#39;g6ge143j&#39; for Deployment(name=&#39;OnlineMNISTClassifier&#39;, app=&#39;mnist_classifier&#39;).
-2024-12-13 08:35:16,160	INFO handle.py:126 -- Created DeploymentHandle &#39;aycc3jzz&#39; for Deployment(name=&#39;OnlineMNISTClassifier&#39;, app=&#39;mnist_classifier&#39;).
-2024-12-13 08:35:16,162	INFO handle.py:126 -- Created DeploymentHandle &#39;863eil7v&#39; for Deployment(name=&#39;OnlineMNISTClassifier&#39;, app=&#39;mnist_classifier&#39;).
-2024-12-13 08:35:16,163	INFO handle.py:126 -- Created DeploymentHandle &#39;afrtkukv&#39; for Deployment(name=&#39;OnlineMNISTClassifier&#39;, app=&#39;mnist_classifier&#39;).
-2024-12-13 08:35:16,165	INFO handle.py:126 -- Created DeploymentHandle &#39;kiwiwx6w&#39; for Deployment(name=&#39;OnlineMNISTClassifier&#39;, app=&#39;mnist_classifier&#39;).
-2024-12-13 08:35:16,166	INFO handle.py:126 -- Created DeploymentHandle &#39;dmfb9o8e&#39; for Deployment(name=&#39;OnlineMNISTClassifier&#39;, app=&#39;mnist_classifier&#39;).
-2024-12-13 08:35:16,168	INFO handle.py:126 -- Created DeploymentHandle &#39;4dx69y7z&#39; for Deployment(name=&#39;OnlineMNISTClassifier&#39;, app=&#39;mnist_classifier&#39;).
-2024-12-13 08:35:16,169	INFO handle.py:126 -- Created DeploymentHandle &#39;wa49q72p&#39; for Deployment(name=&#39;OnlineMNISTClassifier&#39;, app=&#39;mnist_classifier&#39;).
-2024-12-13 08:35:16,171	INFO handle.py:126 -- Created DeploymentHandle &#39;gqosgo3x&#39; for Deployment(name=&#39;OnlineMNISTClassifier&#39;, app=&#39;mnist_classifier&#39;).
-2024-12-13 08:35:16,172	INFO handle.py:126 -- Created DeploymentHandle &#39;mq5m9qbe&#39; for Deployment(name=&#39;OnlineMNISTClassifier&#39;, app=&#39;mnist_classifier&#39;).
-2024-12-13 08:35:16,174	INFO handle.py:126 -- Created DeploymentHandle &#39;ztsj0ktj&#39; for Deployment(name=&#39;OnlineMNISTClassifier&#39;, app=&#39;mnist_classifier&#39;).
-2024-12-13 08:35:16,176	INFO handle.py:126 -- Created DeploymentHandle &#39;bj3ly8ov&#39; for Deployment(name=&#39;OnlineMNISTClassifier&#39;, app=&#39;mnist_classifier&#39;).
-2024-12-13 08:35:16,177	INFO handle.py:126 -- Created DeploymentHandle &#39;9kbp397d&#39; for Deployment(name=&#39;OnlineMNISTClassifier&#39;, app=&#39;mnist_classifier&#39;).
-2024-12-13 08:35:16,177	INFO handle.py:126 -- Created DeploymentHandle &#39;luycbjig&#39; for Deployment(name=&#39;OnlineMNISTClassifier&#39;, app=&#39;mnist_classifier&#39;).
-2024-12-13 08:35:16,179	INFO handle.py:126 -- Created DeploymentHandle &#39;fu88vbzd&#39; for Deployment(name=&#39;OnlineMNISTClassifier&#39;, app=&#39;mnist_classifier&#39;).
-2024-12-13 08:35:16,180	INFO handle.py:126 -- Created DeploymentHandle &#39;tro4yp33&#39; for Deployment(name=&#39;OnlineMNISTClassifier&#39;, app=&#39;mnist_classifier&#39;).
-2024-12-13 08:35:16,182	INFO handle.py:126 -- Created DeploymentHandle &#39;1sy9d18b&#39; for Deployment(name=&#39;OnlineMNISTClassifier&#39;, app=&#39;mnist_classifier&#39;).
-2024-12-13 08:35:16,184	INFO handle.py:126 -- Created DeploymentHandle &#39;pih9lj2h&#39; for Deployment(name=&#39;OnlineMNISTClassifier&#39;, app=&#39;mnist_classifier&#39;).
-2024-12-13 08:35:16,185	INFO handle.py:126 -- Created DeploymentHandle &#39;8bl4grcf&#39; for Deployment(name=&#39;OnlineMNISTClassifier&#39;, app=&#39;mnist_classifier&#39;).
-2024-12-13 08:35:16,188	INFO handle.py:126 -- Created DeploymentHandle &#39;4jymfgl8&#39; for Deployment(name=&#39;OnlineMNISTClassifier&#39;, app=&#39;mnist_classifier&#39;).
-2024-12-13 08:35:16,189	INFO handle.py:126 -- Created DeploymentHandle &#39;mqbbyp92&#39; for Deployment(name=&#39;OnlineMNISTClassifier&#39;, app=&#39;mnist_classifier&#39;).
-2024-12-13 08:35:16,191	INFO handle.py:126 -- Created DeploymentHandle &#39;mzk39v26&#39; for Deployment(name=&#39;OnlineMNISTClassifier&#39;, app=&#39;mnist_classifier&#39;).
-2024-12-13 08:35:16,192	INFO handle.py:126 -- Created DeploymentHandle &#39;56d20oxd&#39; for Deployment(name=&#39;OnlineMNISTClassifier&#39;, app=&#39;mnist_classifier&#39;).
-2024-12-13 08:35:16,193	INFO handle.py:126 -- Created DeploymentHandle &#39;lioyj9t2&#39; for Deployment(name=&#39;OnlineMNISTClassifier&#39;, app=&#39;mnist_classifier&#39;).
-2024-12-13 08:35:16,194	INFO handle.py:126 -- Created DeploymentHandle &#39;0lix4p8u&#39; for Deployment(name=&#39;OnlineMNISTClassifier&#39;, app=&#39;mnist_classifier&#39;).
-2024-12-13 08:35:16,196	INFO handle.py:126 -- Created DeploymentHandle &#39;km7jmcal&#39; for Deployment(name=&#39;OnlineMNISTClassifier&#39;, app=&#39;mnist_classifier&#39;).
-2024-12-13 08:35:16,198	INFO handle.py:126 -- Created DeploymentHandle &#39;mu928t8b&#39; for Deployment(name=&#39;OnlineMNISTClassifier&#39;, app=&#39;mnist_classifier&#39;).
-2024-12-13 08:35:16,200	INFO handle.py:126 -- Created DeploymentHandle &#39;ukk56jrd&#39; for Deployment(name=&#39;OnlineMNISTClassifier&#39;, app=&#39;mnist_classifier&#39;).
-2024-12-13 08:35:16,201	INFO handle.py:126 -- Created DeploymentHandle &#39;wfmj1ano&#39; for Deployment(name=&#39;OnlineMNISTClassifier&#39;, app=&#39;mnist_classifier&#39;).
-2024-12-13 08:35:16,203	INFO handle.py:126 -- Created DeploymentHandle &#39;mo8cpl2k&#39; for Deployment(name=&#39;OnlineMNISTClassifier&#39;, app=&#39;mnist_classifier&#39;).
-2024-12-13 08:35:16,205	INFO handle.py:126 -- Created DeploymentHandle &#39;x3bymtjn&#39; for Deployment(name=&#39;OnlineMNISTClassifier&#39;, app=&#39;mnist_classifier&#39;).
-2024-12-13 08:35:16,207	INFO handle.py:126 -- Created DeploymentHandle &#39;ec5048q3&#39; for Deployment(name=&#39;OnlineMNISTClassifier&#39;, app=&#39;mnist_classifier&#39;).
-2024-12-13 08:35:16,210	INFO handle.py:126 -- Created DeploymentHandle &#39;hfea8lag&#39; for Deployment(name=&#39;OnlineMNISTClassifier&#39;, app=&#39;mnist_classifier&#39;).
-2024-12-13 08:35:16,211	INFO handle.py:126 -- Created DeploymentHandle &#39;vi3u7wlw&#39; for Deployment(name=&#39;OnlineMNISTClassifier&#39;, app=&#39;mnist_classifier&#39;).
-2024-12-13 08:35:16,213	INFO handle.py:126 -- Created DeploymentHandle &#39;m2mvtxw2&#39; for Deployment(name=&#39;OnlineMNISTClassifier&#39;, app=&#39;mnist_classifier&#39;).
-2024-12-13 08:35:16,215	INFO handle.py:126 -- Created DeploymentHandle &#39;peg6kptb&#39; for Deployment(name=&#39;OnlineMNISTClassifier&#39;, app=&#39;mnist_classifier&#39;).
-2024-12-13 08:35:16,217	INFO handle.py:126 -- Created DeploymentHandle &#39;43qcvv91&#39; for Deployment(name=&#39;OnlineMNISTClassifier&#39;, app=&#39;mnist_classifier&#39;).
-2024-12-13 08:35:16,218	INFO handle.py:126 -- Created DeploymentHandle &#39;94uw2160&#39; for Deployment(name=&#39;OnlineMNISTClassifier&#39;, app=&#39;mnist_classifier&#39;).
-2024-12-13 08:35:16,220	INFO handle.py:126 -- Created DeploymentHandle &#39;hrr91nul&#39; for Deployment(name=&#39;OnlineMNISTClassifier&#39;, app=&#39;mnist_classifier&#39;).
-2024-12-13 08:35:16,221	INFO handle.py:126 -- Created DeploymentHandle &#39;p16c3312&#39; for Deployment(name=&#39;OnlineMNISTClassifier&#39;, app=&#39;mnist_classifier&#39;).
-2024-12-13 08:35:16,224	INFO handle.py:126 -- Created DeploymentHandle &#39;a8n0pbvv&#39; for Deployment(name=&#39;OnlineMNISTClassifier&#39;, app=&#39;mnist_classifier&#39;).
-2024-12-13 08:35:16,226	INFO handle.py:126 -- Created DeploymentHandle &#39;dakxt7ig&#39; for Deployment(name=&#39;OnlineMNISTClassifier&#39;, app=&#39;mnist_classifier&#39;).
-2024-12-13 08:35:16,227	INFO handle.py:126 -- Created DeploymentHandle &#39;untzastd&#39; for Deployment(name=&#39;OnlineMNISTClassifier&#39;, app=&#39;mnist_classifier&#39;).
-2024-12-13 08:35:16,230	INFO handle.py:126 -- Created DeploymentHandle &#39;lyml3p0p&#39; for Deployment(name=&#39;OnlineMNISTClassifier&#39;, app=&#39;mnist_classifier&#39;).
-2024-12-13 08:35:16,232	INFO handle.py:126 -- Created DeploymentHandle &#39;r3yam311&#39; for Deployment(name=&#39;OnlineMNISTClassifier&#39;, app=&#39;mnist_classifier&#39;).
-2024-12-13 08:35:16,234	INFO handle.py:126 -- Created DeploymentHandle &#39;73ifaw9t&#39; for Deployment(name=&#39;OnlineMNISTClassifier&#39;, app=&#39;mnist_classifier&#39;).
-2024-12-13 08:35:16,235	INFO handle.py:126 -- Created DeploymentHandle &#39;hi2v9p7y&#39; for Deployment(name=&#39;OnlineMNISTClassifier&#39;, app=&#39;mnist_classifier&#39;).
-2024-12-13 08:35:16,236	INFO handle.py:126 -- Created DeploymentHandle &#39;onz1py2d&#39; for Deployment(name=&#39;OnlineMNISTClassifier&#39;, app=&#39;mnist_classifier&#39;).
-2024-12-13 08:35:16,238	INFO handle.py:126 -- Created DeploymentHandle &#39;fiqshp4f&#39; for Deployment(name=&#39;OnlineMNISTClassifier&#39;, app=&#39;mnist_classifier&#39;).
-2024-12-13 08:35:16,240	INFO handle.py:126 -- Created DeploymentHandle &#39;q4qjjrz7&#39; for Deployment(name=&#39;OnlineMNISTClassifier&#39;, app=&#39;mnist_classifier&#39;).
-2024-12-13 08:35:16,242	INFO handle.py:126 -- Created DeploymentHandle &#39;wuum6q2j&#39; for Deployment(name=&#39;OnlineMNISTClassifier&#39;, app=&#39;mnist_classifier&#39;).
-2024-12-13 08:35:16,243	INFO handle.py:126 -- Created DeploymentHandle &#39;5kv2loip&#39; for Deployment(name=&#39;OnlineMNISTClassifier&#39;, app=&#39;mnist_classifier&#39;).
-2024-12-13 08:35:16,246	INFO handle.py:126 -- Created DeploymentHandle &#39;gbvrasl0&#39; for Deployment(name=&#39;OnlineMNISTClassifier&#39;, app=&#39;mnist_classifier&#39;).
-2024-12-13 08:35:16,247	INFO handle.py:126 -- Created DeploymentHandle &#39;8qw8viiq&#39; for Deployment(name=&#39;OnlineMNISTClassifier&#39;, app=&#39;mnist_classifier&#39;).
-2024-12-13 08:35:16,248	INFO handle.py:126 -- Created DeploymentHandle &#39;cudtvybh&#39; for Deployment(name=&#39;OnlineMNISTClassifier&#39;, app=&#39;mnist_classifier&#39;).
-2024-12-13 08:35:16,250	INFO handle.py:126 -- Created DeploymentHandle &#39;djsxax17&#39; for Deployment(name=&#39;OnlineMNISTClassifier&#39;, app=&#39;mnist_classifier&#39;).
-2024-12-13 08:35:16,252	INFO handle.py:126 -- Created DeploymentHandle &#39;0mk0c2tc&#39; for Deployment(name=&#39;OnlineMNISTClassifier&#39;, app=&#39;mnist_classifier&#39;).
-2024-12-13 08:35:16,254	INFO handle.py:126 -- Created DeploymentHandle &#39;602qn7iy&#39; for Deployment(name=&#39;OnlineMNISTClassifier&#39;, app=&#39;mnist_classifier&#39;).
-2024-12-13 08:35:16,255	INFO handle.py:126 -- Created DeploymentHandle &#39;wk73qq4z&#39; for Deployment(name=&#39;OnlineMNISTClassifier&#39;, app=&#39;mnist_classifier&#39;).
-2024-12-13 08:35:16,257	INFO handle.py:126 -- Created DeploymentHandle &#39;20d4a1xw&#39; for Deployment(name=&#39;OnlineMNISTClassifier&#39;, app=&#39;mnist_classifier&#39;).
-2024-12-13 08:35:16,258	INFO handle.py:126 -- Created DeploymentHandle &#39;wl5w157g&#39; for Deployment(name=&#39;OnlineMNISTClassifier&#39;, app=&#39;mnist_classifier&#39;).
-2024-12-13 08:35:16,259	INFO handle.py:126 -- Created DeploymentHandle &#39;fktbfghq&#39; for Deployment(name=&#39;OnlineMNISTClassifier&#39;, app=&#39;mnist_classifier&#39;).
-2024-12-13 08:35:16,261	INFO handle.py:126 -- Created DeploymentHandle &#39;c4awkjvt&#39; for Deployment(name=&#39;OnlineMNISTClassifier&#39;, app=&#39;mnist_classifier&#39;).
-2024-12-13 08:35:16,262	INFO handle.py:126 -- Created DeploymentHandle &#39;sohuw3jz&#39; for Deployment(name=&#39;OnlineMNISTClassifier&#39;, app=&#39;mnist_classifier&#39;).
-2024-12-13 08:35:16,263	INFO handle.py:126 -- Created DeploymentHandle &#39;4lznjzy6&#39; for Deployment(name=&#39;OnlineMNISTClassifier&#39;, app=&#39;mnist_classifier&#39;).
-2024-12-13 08:35:16,265	INFO handle.py:126 -- Created DeploymentHandle &#39;y5k7um6y&#39; for Deployment(name=&#39;OnlineMNISTClassifier&#39;, app=&#39;mnist_classifier&#39;).
-2024-12-13 08:35:16,267	INFO handle.py:126 -- Created DeploymentHandle &#39;9f9a4lm7&#39; for Deployment(name=&#39;OnlineMNISTClassifier&#39;, app=&#39;mnist_classifier&#39;).
-2024-12-13 08:35:16,269	INFO handle.py:126 -- Created DeploymentHandle &#39;770uxl2c&#39; for Deployment(name=&#39;OnlineMNISTClassifier&#39;, app=&#39;mnist_classifier&#39;).
-2024-12-13 08:35:16,270	INFO handle.py:126 -- Created DeploymentHandle &#39;5kwz94bm&#39; for Deployment(name=&#39;OnlineMNISTClassifier&#39;, app=&#39;mnist_classifier&#39;).
-2024-12-13 08:35:16,271	INFO handle.py:126 -- Created DeploymentHandle &#39;jwk1uhya&#39; for Deployment(name=&#39;OnlineMNISTClassifier&#39;, app=&#39;mnist_classifier&#39;).
-2024-12-13 08:35:16,273	INFO handle.py:126 -- Created DeploymentHandle &#39;9a8g91w2&#39; for Deployment(name=&#39;OnlineMNISTClassifier&#39;, app=&#39;mnist_classifier&#39;).
-2024-12-13 08:35:16,275	INFO handle.py:126 -- Created DeploymentHandle &#39;eo0il11n&#39; for Deployment(name=&#39;OnlineMNISTClassifier&#39;, app=&#39;mnist_classifier&#39;).
-2024-12-13 08:35:16,277	INFO handle.py:126 -- Created DeploymentHandle &#39;2mzh03wj&#39; for Deployment(name=&#39;OnlineMNISTClassifier&#39;, app=&#39;mnist_classifier&#39;).
-2024-12-13 08:35:16,280	INFO handle.py:126 -- Created DeploymentHandle &#39;wh9d8isv&#39; for Deployment(name=&#39;OnlineMNISTClassifier&#39;, app=&#39;mnist_classifier&#39;).
-2024-12-13 08:35:16,282	INFO handle.py:126 -- Created DeploymentHandle &#39;byana9mh&#39; for Deployment(name=&#39;OnlineMNISTClassifier&#39;, app=&#39;mnist_classifier&#39;).
-2024-12-13 08:35:16,283	INFO handle.py:126 -- Created DeploymentHandle &#39;i4tjjgln&#39; for Deployment(name=&#39;OnlineMNISTClassifier&#39;, app=&#39;mnist_classifier&#39;).
-2024-12-13 08:35:16,285	INFO handle.py:126 -- Created DeploymentHandle &#39;j93j2ayj&#39; for Deployment(name=&#39;OnlineMNISTClassifier&#39;, app=&#39;mnist_classifier&#39;).
-</pre></div>
-</div>
 <div class="output text_plain highlight-myst-ansi notranslate"><div class="highlight"><pre><span></span>[&lt;ray.serve.handle.DeploymentResponse at 0x72c6e03660d0&gt;,
  &lt;ray.serve.handle.DeploymentResponse at 0x72c6d8752290&gt;,
  &lt;ray.serve.handle.DeploymentResponse at 0x72c6d87500d0&gt;,
@@ -737,16 +599,6 @@ document.write(`
  &lt;ray.serve.handle.DeploymentResponse at 0x72c6d862c690&gt;]
 </pre></div>
 </div>
-<div class="output stderr highlight-myst-ansi notranslate"><div class="highlight"><pre><span></span>2024-12-13 08:35:21,559	WARNING pow_2_scheduler.py:501 -- Failed to get queue length from Replica(id=&#39;rxr0eh2z&#39;, deployment=&#39;OnlineMNISTClassifier&#39;, app=&#39;mnist_classifier&#39;) within 0.1s. If this happens repeatedly it&#39;s likely caused by high network latency in the cluster. You can configure the deadline using the `RAY_SERVE_QUEUE_LENGTH_RESPONSE_DEADLINE_S` environment variable.
-2024-12-13 08:35:21,560	WARNING pow_2_scheduler.py:501 -- Failed to get queue length from Replica(id=&#39;rxr0eh2z&#39;, deployment=&#39;OnlineMNISTClassifier&#39;, app=&#39;mnist_classifier&#39;) within 0.1s. If this happens repeatedly it&#39;s likely caused by high network latency in the cluster. You can configure the deadline using the `RAY_SERVE_QUEUE_LENGTH_RESPONSE_DEADLINE_S` environment variable.
-2024-12-13 08:35:21,890	WARNING pow_2_scheduler.py:501 -- Failed to get queue length from Replica(id=&#39;rxr0eh2z&#39;, deployment=&#39;OnlineMNISTClassifier&#39;, app=&#39;mnist_classifier&#39;) within 0.1s. If this happens repeatedly it&#39;s likely caused by high network latency in the cluster. You can configure the deadline using the `RAY_SERVE_QUEUE_LENGTH_RESPONSE_DEADLINE_S` environment variable.
-2024-12-13 08:35:21,892	WARNING pow_2_scheduler.py:501 -- Failed to get queue length from Replica(id=&#39;rxr0eh2z&#39;, deployment=&#39;OnlineMNISTClassifier&#39;, app=&#39;mnist_classifier&#39;) within 0.1s. If this happens repeatedly it&#39;s likely caused by high network latency in the cluster. You can configure the deadline using the `RAY_SERVE_QUEUE_LENGTH_RESPONSE_DEADLINE_S` environment variable.
-2024-12-13 08:35:22,156	WARNING pow_2_scheduler.py:501 -- Failed to get queue length from Replica(id=&#39;rxr0eh2z&#39;, deployment=&#39;OnlineMNISTClassifier&#39;, app=&#39;mnist_classifier&#39;) within 0.1s. If this happens repeatedly it&#39;s likely caused by high network latency in the cluster. You can configure the deadline using the `RAY_SERVE_QUEUE_LENGTH_RESPONSE_DEADLINE_S` environment variable.
-2024-12-13 08:35:22,157	WARNING pow_2_scheduler.py:501 -- Failed to get queue length from Replica(id=&#39;rxr0eh2z&#39;, deployment=&#39;OnlineMNISTClassifier&#39;, app=&#39;mnist_classifier&#39;) within 0.1s. If this happens repeatedly it&#39;s likely caused by high network latency in the cluster. You can configure the deadline using the `RAY_SERVE_QUEUE_LENGTH_RESPONSE_DEADLINE_S` environment variable.
-2024-12-13 08:35:22,359	WARNING pow_2_scheduler.py:501 -- Failed to get queue length from Replica(id=&#39;rxr0eh2z&#39;, deployment=&#39;OnlineMNISTClassifier&#39;, app=&#39;mnist_classifier&#39;) within 0.2s. If this happens repeatedly it&#39;s likely caused by high network latency in the cluster. You can configure the deadline using the `RAY_SERVE_QUEUE_LENGTH_RESPONSE_DEADLINE_S` environment variable.
-2024-12-13 08:35:22,360	WARNING pow_2_scheduler.py:501 -- Failed to get queue length from Replica(id=&#39;rxr0eh2z&#39;, deployment=&#39;OnlineMNISTClassifier&#39;, app=&#39;mnist_classifier&#39;) within 0.2s. If this happens repeatedly it&#39;s likely caused by high network latency in the cluster. You can configure the deadline using the `RAY_SERVE_QUEUE_LENGTH_RESPONSE_DEADLINE_S` environment variable.
-</pre></div>
-</div>
 </div>
 </div>
 <p>Looking at the Ray Serve dashboard, we can see that the number of replicas has scaled up to 10 as expected.</p>
@@ -786,10 +638,6 @@ document.write(`
 </div>
 </div>
 <div class="cell_output docutils container">
-<div class="output stderr highlight-myst-ansi notranslate"><div class="highlight"><pre><span></span>2024-12-13 08:38:36,797	WARNING api.py:346 -- The default value for `max_ongoing_requests` has changed from 100 to 5 in Ray 2.32.0.
-2024-12-13 08:38:36,797	WARNING api.py:397 -- The default value for `max_ongoing_requests` has changed from 100 to 5 in Ray 2.32.0.
-</pre></div>
-</div>
 </div>
 </div>
 <div class="cell docutils container">
@@ -799,12 +647,6 @@ document.write(`
 </div>
 </div>
 <div class="cell_output docutils container">
-<div class="output stderr highlight-myst-ansi notranslate"><div class="highlight"><pre><span></span>2024-12-13 08:38:44,236	INFO handle.py:126 -- Created DeploymentHandle &#39;8px5rnva&#39; for Deployment(name=&#39;OnlineMNISTPreprocessor&#39;, app=&#39;mnist_preprocessor&#39;).
-2024-12-13 08:38:44,237	INFO handle.py:126 -- Created DeploymentHandle &#39;l4gmboko&#39; for Deployment(name=&#39;OnlineMNISTPreprocessor&#39;, app=&#39;mnist_preprocessor&#39;).
-2024-12-13 08:38:49,254	INFO handle.py:126 -- Created DeploymentHandle &#39;gf1a4vjq&#39; for Deployment(name=&#39;OnlineMNISTPreprocessor&#39;, app=&#39;mnist_preprocessor&#39;).
-2024-12-13 08:38:49,255	INFO api.py:574 -- Deployed app &#39;mnist_preprocessor&#39; successfully.
-</pre></div>
-</div>
 </div>
 </div>
 <p>Let’s load an image and pass it to the <code class="docutils literal notranslate"><span class="pre">OnlineMNISTPreprocessor</span></code></p>
@@ -818,10 +660,6 @@ document.write(`
 </div>
 </div>
 <div class="cell_output docutils container">
-<div class="output stderr highlight-myst-ansi notranslate"><div class="highlight"><pre><span></span>2024-12-13 08:39:23,784	INFO streaming_executor.py:108 -- Starting execution of Dataset. Full logs are in /tmp/ray/session_2024-12-13_08-07-01_151483_2430/logs/ray-data
-2024-12-13 08:39:23,785	INFO streaming_executor.py:109 -- Execution plan of Dataset: InputDataBuffer[Input] -&gt; TaskPoolMapOperator[ExpandPaths] -&gt; TaskPoolMapOperator[ReadFiles] -&gt; LimitOperator[limit=10]
-</pre></div>
-</div>
 <script type="application/vnd.jupyter.widget-view+json">{"model_id": "03c9a18054ef422094517b401e8a431c", "version_major": 2, "version_minor": 0}</script><script type="application/vnd.jupyter.widget-view+json">{"model_id": "2944020331594577909f9e7b33042ab4", "version_major": 2, "version_minor": 0}</script><script type="application/vnd.jupyter.widget-view+json">{"model_id": "2deffdd695634713a03cfa9f74b8c676", "version_major": 2, "version_minor": 0}</script><script type="application/vnd.jupyter.widget-view+json">{"model_id": "6121fc146c3d4f798de2af378bc6f181", "version_major": 2, "version_minor": 0}</script></div>
 </div>
 <div class="cell docutils container">
@@ -850,9 +688,6 @@ document.write(`
 </div>
 </div>
 <div class="cell_output docutils container">
-<div class="output stderr highlight-myst-ansi notranslate"><div class="highlight"><pre><span></span>2024-12-13 08:39:56,494	INFO handle.py:126 -- Created DeploymentHandle &#39;oy7ram11&#39; for Deployment(name=&#39;OnlineMNISTPreprocessor&#39;, app=&#39;mnist_preprocessor&#39;).
-</pre></div>
-</div>
 </div>
 </div>
 <p>We will proceed to shutdown the preprocessor application to prove it will be automatically recreated later.</p>
@@ -880,10 +715,6 @@ document.write(`
 </div>
 </div>
 <div class="cell_output docutils container">
-<div class="output stderr highlight-myst-ansi notranslate"><div class="highlight"><pre><span></span>2024-12-13 08:42:47,216	WARNING api.py:346 -- The default value for `max_ongoing_requests` has changed from 100 to 5 in Ray 2.32.0.
-2024-12-13 08:42:47,217	WARNING api.py:397 -- The default value for `max_ongoing_requests` has changed from 100 to 5 in Ray 2.32.0.
-</pre></div>
-</div>
 </div>
 </div>
 <div class="cell docutils container">
@@ -901,18 +732,6 @@ document.write(`
 </div>
 </div>
 <div class="cell_output docutils container">
-<div class="output stderr highlight-myst-ansi notranslate"><div class="highlight"><pre><span></span>2024-12-13 08:44:19,957	INFO handle.py:126 -- Created DeploymentHandle &#39;fsqpub6j&#39; for Deployment(name=&#39;OnlineMNISTPreprocessor&#39;, app=&#39;image_classifier&#39;).
-2024-12-13 08:44:19,963	INFO handle.py:126 -- Created DeploymentHandle &#39;o631o8sp&#39; for Deployment(name=&#39;OnlineMNISTClassifier&#39;, app=&#39;image_classifier&#39;).
-2024-12-13 08:44:19,964	INFO handle.py:126 -- Created DeploymentHandle &#39;s082atuf&#39; for Deployment(name=&#39;OnlineMNISTPreprocessor&#39;, app=&#39;image_classifier&#39;).
-2024-12-13 08:44:19,964	INFO handle.py:126 -- Created DeploymentHandle &#39;l8s57gz6&#39; for Deployment(name=&#39;OnlineMNISTClassifier&#39;, app=&#39;image_classifier&#39;).
-2024-12-13 08:44:19,971	INFO handle.py:126 -- Created DeploymentHandle &#39;3mpn24fn&#39; for Deployment(name=&#39;ImageServiceIngress&#39;, app=&#39;image_classifier&#39;).
-2024-12-13 08:44:19,972	INFO handle.py:126 -- Created DeploymentHandle &#39;lwk6vdl4&#39; for Deployment(name=&#39;OnlineMNISTPreprocessor&#39;, app=&#39;image_classifier&#39;).
-2024-12-13 08:44:19,972	INFO handle.py:126 -- Created DeploymentHandle &#39;hsxt2a9i&#39; for Deployment(name=&#39;OnlineMNISTClassifier&#39;, app=&#39;image_classifier&#39;).
-2024-12-13 08:44:19,973	INFO handle.py:126 -- Created DeploymentHandle &#39;lrxdx3jo&#39; for Deployment(name=&#39;ImageServiceIngress&#39;, app=&#39;image_classifier&#39;).
-2024-12-13 08:44:25,003	INFO handle.py:126 -- Created DeploymentHandle &#39;kdnf0qjt&#39; for Deployment(name=&#39;ImageServiceIngress&#39;, app=&#39;image_classifier&#39;).
-2024-12-13 08:44:25,004	INFO api.py:574 -- Deployed app &#39;image_classifier&#39; successfully.
-</pre></div>
-</div>
 </div>
 </div>
 <p>Let’s test the application by sending a sample HTTP request to our ingress endpoint.</p>
@@ -964,10 +783,6 @@ document.write(`
 </div>
 </div>
 <div class="cell_output docutils container">
-<div class="output stderr highlight-myst-ansi notranslate"><div class="highlight"><pre><span></span>2024-12-13 08:48:29,697	WARNING api.py:346 -- The default value for `max_ongoing_requests` has changed from 100 to 5 in Ray 2.32.0.
-2024-12-13 08:48:29,698	WARNING api.py:397 -- The default value for `max_ongoing_requests` has changed from 100 to 5 in Ray 2.32.0.
-</pre></div>
-</div>
 </div>
 </div>
 <p>We now can build the application and run it.</p>
@@ -986,17 +801,6 @@ document.write(`
 </div>
 </div>
 <div class="cell_output docutils container">
-<div class="output stderr highlight-myst-ansi notranslate"><div class="highlight"><pre><span></span>2024-12-13 08:49:02,196	INFO handle.py:126 -- Created DeploymentHandle &#39;zs9xlv6l&#39; for Deployment(name=&#39;OnlineMNISTPreprocessor&#39;, app=&#39;image_classifier&#39;).
-2024-12-13 08:49:02,201	INFO handle.py:126 -- Created DeploymentHandle &#39;e6czhw0i&#39; for Deployment(name=&#39;OnlineMNISTClassifier&#39;, app=&#39;image_classifier&#39;).
-2024-12-13 08:49:02,201	INFO handle.py:126 -- Created DeploymentHandle &#39;s26zdw7w&#39; for Deployment(name=&#39;OnlineMNISTPreprocessor&#39;, app=&#39;image_classifier&#39;).
-2024-12-13 08:49:02,202	INFO handle.py:126 -- Created DeploymentHandle &#39;73tfa712&#39; for Deployment(name=&#39;OnlineMNISTClassifier&#39;, app=&#39;image_classifier&#39;).
-2024-12-13 08:49:02,212	INFO handle.py:126 -- Created DeploymentHandle &#39;8ywfb0i5&#39; for Deployment(name=&#39;ImageServiceIngress&#39;, app=&#39;image_classifier&#39;).
-2024-12-13 08:49:02,212	INFO handle.py:126 -- Created DeploymentHandle &#39;2fvhvuyy&#39; for Deployment(name=&#39;OnlineMNISTPreprocessor&#39;, app=&#39;image_classifier&#39;).
-2024-12-13 08:49:02,213	INFO handle.py:126 -- Created DeploymentHandle &#39;500czr1l&#39; for Deployment(name=&#39;OnlineMNISTClassifier&#39;, app=&#39;image_classifier&#39;).
-2024-12-13 08:49:02,213	INFO handle.py:126 -- Created DeploymentHandle &#39;6vbdxtpb&#39; for Deployment(name=&#39;ImageServiceIngress&#39;, app=&#39;image_classifier&#39;).
-2024-12-13 08:49:07,243	INFO api.py:574 -- Deployed app &#39;image_classifier&#39; successfully.
-</pre></div>
-</div>
 </div>
 </div>
 <p>After running the application, we can get test it as an HTTP endpoint programmatically.</p>
