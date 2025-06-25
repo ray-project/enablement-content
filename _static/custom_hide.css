@@ -32,15 +32,24 @@
 .bd-main .bd-content {
   margin-left: 0 !important;
   max-width: 100% !important;
-  background: #ffe4e1 !important; /* light pink */
 }
 
 /* Hide the footer */
-#jb-footer, .footer, .bd-footer {
+#jb-footer, .footer, .bd-footer .bd-footer-content {
   display: none !important;
 }
 
 /* Hide the theme switcher button */
 .theme-switch-button, .toggle-switch {
+  display: none !important;
+}
+
+/* Hide the next/previous navigation buttons */
+.bd-article__nav, /* Main next/prev nav at bottom */
+.bd-article__header .bd-article__header-nav, /* Top nav if present */
+.prev-next-bottom, /* Legacy class, just in case */
+.prev-next-area,   /* Legacy class, just in case */
+#prev-link, #next-link, /* IDs sometimes used */
+.nav-buttons {     /* Some themes use this */
   display: none !important;
 } 
