@@ -1,7 +1,33 @@
 format: jb-book
-root: courses/ray-101/1_AI_Libs_Intro
+root: courses/ray-101/output/1_AI_Libs_Intro_01.ipynb
 chapters:
-    - file: courses/ray-101/2_Intro_Train
-    - file: courses/ray-101/3_Intro_Tune
-    - file: courses/ray-101/4_Intro_Data
-    - file: courses/ray-101/5_Intro_Serve
+  - file: courses/ray-101/output/1_AI_Libs_Intro_02.ipynb
+  - file: courses/ray-101/output/1_AI_Libs_Intro_03.ipynb
+  - file: courses/ray-101/output/1_AI_Libs_Intro_04.ipynb
+  - file: courses/ray-101/output/2_Intro_Train_01.ipynb
+  - file: courses/ray-101/output/2_Intro_Train_02.ipynb
+  - file: courses/ray-101/output/2_Intro_Train_03.ipynb
+  - file: courses/ray-101/output/2_Intro_Train_04.ipynb
+  - file: courses/ray-101/output/2_Intro_Train_05.ipynb
+  - file: courses/ray-101/output/2_Intro_Train_06.ipynb
+  - file: courses/ray-101/output/2_Intro_Train_07.ipynb
+  - file: courses/ray-101/output/2_Intro_Train_08.ipynb
+  - file: courses/ray-101/output/2_Intro_Train_09.ipynb
+  - file: courses/ray-101/output/3_Intro_Tune_01.ipynb
+  - file: courses/ray-101/output/3_Intro_Tune_02.ipynb
+  - file: courses/ray-101/output/3_Intro_Tune_03.ipynb
+  - file: courses/ray-101/output/3_Intro_Tune_04.ipynb
+  - file: courses/ray-101/output/3_Intro_Tune_05.ipynb
+  - file: courses/ray-101/output/3_Intro_Tune_06.ipynb
+  - file: courses/ray-101/output/4_Intro_Data_01.ipynb
+  - file: courses/ray-101/output/4_Intro_Data_02.ipynb
+  - file: courses/ray-101/output/4_Intro_Data_03.ipynb
+  - file: courses/ray-101/output/4_Intro_Data_04.ipynb
+  - file: courses/ray-101/output/4_Intro_Data_05.ipynb
+  - file: courses/ray-101/output/4_Intro_Data_06.ipynb
+  - file: courses/ray-101/output/5_Intro_Serve_01.ipynb
+  - file: courses/ray-101/output/5_Intro_Serve_02.ipynb
+  - file: courses/ray-101/output/5_Intro_Serve_03.ipynb
+  - file: courses/ray-101/output/5_Intro_Serve_04.ipynb
+  - file: courses/ray-101/output/5_Intro_Serve_05.ipynb
+  - file: courses/ray-101/output/5_Intro_Serve_06.ipynb
