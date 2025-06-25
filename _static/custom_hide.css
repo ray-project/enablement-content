@@ -39,6 +39,10 @@
   display: none !important;
 }
 
+/* Hide the theme switcher button */
+.bd-header-article {
+  display: none !important;
+}
 
 /* Hide the next/previous navigation buttons */
 .bd-article__nav, /* Main next/prev nav at bottom */

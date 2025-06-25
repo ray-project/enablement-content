@@ -20,9 +20,4 @@ window.addEventListener("DOMContentLoaded", function () {
       document.documentElement.classList.remove("theme-dark");
       document.documentElement.classList.add("theme-light");
     }
-    // Remove theme switcher if you want (optional)
-    // var switcher = document.querySelector('.theme-switch-button, .toggle-switch');
-    // if (switcher) {
-    //   switcher.style.display = "none";
-    // }
   });
