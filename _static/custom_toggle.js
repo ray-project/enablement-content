@@ -11,3 +11,18 @@ window.addEventListener("DOMContentLoaded", function () {
         }
     }
 });
+
+// Force Jupyter Book to always use light mode
+window.addEventListener("DOMContentLoaded", function () {
+    if (document.documentElement.getAttribute("data-theme") !== "light") {
+      document.documentElement.setAttribute("data-theme", "light");
+      // Remove dark mode class if present
+      document.documentElement.classList.remove("theme-dark");
+      document.documentElement.classList.add("theme-light");
+    }
+    // Remove theme switcher if you want (optional)
+    // var switcher = document.querySelector('.theme-switch-button, .toggle-switch');
+    // if (switcher) {
+    //   switcher.style.display = "none";
+    // }
+  });
