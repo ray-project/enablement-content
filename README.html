@@ -8,7 +8,7 @@
     <meta charset="utf-8" />
     <meta name="viewport" content="width=device-width, initial-scale=1.0" /><meta name="viewport" content="width=device-width, initial-scale=1" />
 
-    <title>Ray Enablement Content &#8212; Course Notebooks Test</title>
+    <title>Ray Enablement Content: Jupyter Book Publishing &#8212; Course Notebooks Test</title>
   
   
   
@@ -332,7 +332,9 @@ document.write(`
   </button>
 `);
 </script>
-
+<button class="sidebar-toggle secondary-toggle btn btn-sm" title="Toggle secondary sidebar" data-bs-placement="bottom" data-bs-toggle="tooltip">
+    <span class="fa-solid fa-list"></span>
+</button>
 </div></div>
       
     </div>
@@ -343,11 +345,32 @@ document.write(`
               
 
 <div id="jb-print-docs-body" class="onlyprint">
-    <h1>Ray Enablement Content</h1>
+    <h1>Ray Enablement Content: Jupyter Book Publishing</h1>
     <!-- Table of contents -->
     <div id="print-main-content">
         <div id="jb-print-toc">
             
+            <div>
+                <h2> Contents </h2>
+            </div>
+            <nav aria-label="Page">
+                <ul class="visible nav section-nav flex-column">
+<li class="toc-h2 nav-item toc-entry"><a class="reference internal nav-link" href="#features">Features</a></li>
+<li class="toc-h2 nav-item toc-entry"><a class="reference internal nav-link" href="#installation">Installation</a></li>
+<li class="toc-h2 nav-item toc-entry"><a class="reference internal nav-link" href="#usage">Usage</a><ul class="nav section-nav flex-column">
+<li class="toc-h3 nav-item toc-entry"><a class="reference internal nav-link" href="#split-notebooks-and-generate-navigation">1. Split Notebooks and Generate Navigation</a></li>
+<li class="toc-h3 nav-item toc-entry"><a class="reference internal nav-link" href="#build-the-book">2. Build the Book</a></li>
+<li class="toc-h3 nav-item toc-entry"><a class="reference internal nav-link" href="#serve-locally-for-testing">3. Serve Locally for Testing</a></li>
+</ul>
+</li>
+<li class="toc-h2 nav-item toc-entry"><a class="reference internal nav-link" href="#customization">Customization</a></li>
+<li class="toc-h2 nav-item toc-entry"><a class="reference internal nav-link" href="#disabling-notebook-execution-and-outputs">Disabling Notebook Execution and Outputs</a></li>
+<li class="toc-h2 nav-item toc-entry"><a class="reference internal nav-link" href="#adding-new-notebooks-or-courses">Adding New Notebooks or Courses</a></li>
+<li class="toc-h2 nav-item toc-entry"><a class="reference internal nav-link" href="#how-navigation-works">How Navigation Works</a></li>
+<li class="toc-h2 nav-item toc-entry"><a class="reference internal nav-link" href="#publishing">Publishing</a></li>
+<li class="toc-h2 nav-item toc-entry"><a class="reference internal nav-link" href="#example-workflow">Example Workflow</a></li>
+</ul>
+            </nav>
         </div>
     </div>
 </div>
@@ -357,8 +380,133 @@ document.write(`
 <div id="searchbox"></div>
                 <article class="bd-article">
                   
-  <section class="tex2jax_ignore mathjax_ignore" id="ray-enablement-content">
-<h1>Ray Enablement Content<a class="headerlink" href="#ray-enablement-content" title="Link to this heading">#</a></h1>
+  <section class="tex2jax_ignore mathjax_ignore" id="ray-enablement-content-jupyter-book-publishing">
+<h1>Ray Enablement Content: Jupyter Book Publishing<a class="headerlink" href="#ray-enablement-content-jupyter-book-publishing" title="Link to this heading">#</a></h1>
+<p>This project provides a robust workflow for publishing Jupyter notebooks as a clean, embeddable Jupyter Book website. It automatically splits large notebooks into smaller sections, generates a navigation index, and applies a minimalist, content-focused style suitable for embedding or sharing.</p>
+<section id="features">
+<h2>Features<a class="headerlink" href="#features" title="Link to this heading">#</a></h2>
+<ul class="simple">
+<li><p><strong>Automatic notebook splitting</strong>: Each notebook is split into parts at every second-level markdown header (<code class="docutils literal notranslate"><span class="pre">##</span></code>).</p></li>
+<li><p><strong>Navigation index</strong>: An <code class="docutils literal notranslate"><span class="pre">index.md</span></code> is generated with links to all notebook parts, serving as the landing page.</p></li>
+<li><p><strong>Minimalist UI</strong>: All navigation, sidebars, footers, and theme switchers are hidden by default. Light mode is always enforced.</p></li>
+<li><p><strong>No code execution</strong>: Notebooks are never executed during build, and all outputs are cleared in the published site.</p></li>
+<li><p><strong>Easy local preview</strong>: Build and serve the book locally for testing.</p></li>
+<li><p><strong>GitHub Pages deployment</strong>: The book is automatically published to GitHub Pages.</p></li>
+</ul>
+</section>
+<section id="installation">
+<h2>Installation<a class="headerlink" href="#installation" title="Link to this heading">#</a></h2>
+<ol class="arabic simple">
+<li><p><strong>Clone the repository</strong></p></li>
+</ol>
+<div class="highlight-bash notranslate"><div class="highlight"><pre><span></span><span class="c1"># Clone your fork or the main repo</span>
+git<span class="w"> </span>clone<span class="w"> </span>https://github.com/maxpumperla/enablement-content.git
+<span class="nb">cd</span><span class="w"> </span>enablement-content
+</pre></div>
+</div>
+<ol class="arabic simple" start="2">
+<li><p><strong>Set up a virtual environment (recommended)</strong></p></li>
+</ol>
+<div class="highlight-bash notranslate"><div class="highlight"><pre><span></span>python3<span class="w"> </span>-m<span class="w"> </span>venv<span class="w"> </span>venv
+<span class="nb">source</span><span class="w"> </span>venv/bin/activate
+</pre></div>
+</div>
+<ol class="arabic simple" start="3">
+<li><p><strong>Install dependencies</strong></p></li>
+</ol>
+<div class="highlight-bash notranslate"><div class="highlight"><pre><span></span>pip<span class="w"> </span>install<span class="w"> </span>-r<span class="w"> </span>requirements.txt
+<span class="c1"># Or, if you want to build/serve locally:</span>
+pip<span class="w"> </span>install<span class="w"> </span>jupyter-book<span class="w"> </span>pyyaml
+</pre></div>
+</div>
+</section>
+<section id="usage">
+<h2>Usage<a class="headerlink" href="#usage" title="Link to this heading">#</a></h2>
+<section id="split-notebooks-and-generate-navigation">
+<h3>1. Split Notebooks and Generate Navigation<a class="headerlink" href="#split-notebooks-and-generate-navigation" title="Link to this heading">#</a></h3>
+<p>Run the split script to:</p>
+<ul class="simple">
+<li><p>Split all notebooks in <code class="docutils literal notranslate"><span class="pre">courses/</span></code> into parts (by <code class="docutils literal notranslate"><span class="pre">##</span></code> header)</p></li>
+<li><p>Update <code class="docutils literal notranslate"><span class="pre">_toc.yml</span></code> and generate <code class="docutils literal notranslate"><span class="pre">index.md</span></code> with links to all parts</p></li>
+</ul>
+<div class="highlight-bash notranslate"><div class="highlight"><pre><span></span>python<span class="w"> </span>split_notebooks.py
+</pre></div>
+</div>
+</section>
+<section id="build-the-book">
+<h3>2. Build the Book<a class="headerlink" href="#build-the-book" title="Link to this heading">#</a></h3>
+<div class="highlight-bash notranslate"><div class="highlight"><pre><span></span>jupyter-book<span class="w"> </span>build<span class="w"> </span>.
+</pre></div>
+</div>
+</section>
+<section id="serve-locally-for-testing">
+<h3>3. Serve Locally for Testing<a class="headerlink" href="#serve-locally-for-testing" title="Link to this heading">#</a></h3>
+<div class="highlight-bash notranslate"><div class="highlight"><pre><span></span><span class="nb">cd</span><span class="w"> </span>_build/html
+python<span class="w"> </span>-m<span class="w"> </span>http.server<span class="w"> </span><span class="m">8000</span>
+</pre></div>
+</div>
+<p>Then open <a class="reference external" href="http://localhost:8000/">http://localhost:8000/</a> in your browser.</p>
+</section>
+</section>
+<section id="customization">
+<h2>Customization<a class="headerlink" href="#customization" title="Link to this heading">#</a></h2>
+<ul class="simple">
+<li><p><strong>Styling</strong>: Place custom CSS/JS in the <code class="docutils literal notranslate"><span class="pre">_static/</span></code> directory (e.g., <code class="docutils literal notranslate"><span class="pre">_static/custom_hide.css</span></code>, <code class="docutils literal notranslate"><span class="pre">_static/custom_light.js</span></code>). These files are automatically included in the built site.</p></li>
+<li><p><strong>Light mode</strong>: Enforced via custom JS in <code class="docutils literal notranslate"><span class="pre">_static/custom_light.js</span></code>.</p></li>
+<li><p><strong>Navigation</strong>: All navigation, sidebars, and footers are hidden via custom CSS.</p></li>
+</ul>
+</section>
+<section id="disabling-notebook-execution-and-outputs">
+<h2>Disabling Notebook Execution and Outputs<a class="headerlink" href="#disabling-notebook-execution-and-outputs" title="Link to this heading">#</a></h2>
+<p>Notebook execution is disabled and all outputs are cleared in the built site via <code class="docutils literal notranslate"><span class="pre">_config.yml</span></code>:</p>
+<div class="highlight-yaml notranslate"><div class="highlight"><pre><span></span><span class="nt">jupyter_execute_notebooks</span><span class="p">:</span><span class="w"> </span><span class="s">&quot;off&quot;</span>
+<span class="nt">execute</span><span class="p">:</span>
+<span class="w">  </span><span class="nt">execute_notebooks</span><span class="p">:</span><span class="w"> </span><span class="s">&quot;off&quot;</span>
+<span class="w">  </span><span class="nt">remove_code_outputs</span><span class="p">:</span><span class="w"> </span><span class="l l-Scalar l-Scalar-Plain">true</span>
+</pre></div>
+</div>
+</section>
+<section id="adding-new-notebooks-or-courses">
+<h2>Adding New Notebooks or Courses<a class="headerlink" href="#adding-new-notebooks-or-courses" title="Link to this heading">#</a></h2>
+<ul class="simple">
+<li><p>Place new notebooks in a subdirectory of <code class="docutils literal notranslate"><span class="pre">courses/</span></code> (e.g., <code class="docutils literal notranslate"><span class="pre">courses/my-course/</span></code>).</p></li>
+<li><p>Run <code class="docutils literal notranslate"><span class="pre">python</span> <span class="pre">split_notebooks.py</span></code> to split and index them.</p></li>
+<li><p>Rebuild the book.</p></li>
+</ul>
+</section>
+<section id="how-navigation-works">
+<h2>How Navigation Works<a class="headerlink" href="#how-navigation-works" title="Link to this heading">#</a></h2>
+<ul class="simple">
+<li><p>The <code class="docutils literal notranslate"><span class="pre">split_notebooks.py</span></code> script updates <code class="docutils literal notranslate"><span class="pre">_toc.yml</span></code> and generates <code class="docutils literal notranslate"><span class="pre">index.md</span></code>.</p></li>
+<li><p><code class="docutils literal notranslate"><span class="pre">index.md</span></code> is the landing page and contains links to all notebook parts.</p></li>
+<li><p>All links are relative, so the site works both locally and on GitHub Pages.</p></li>
+</ul>
+</section>
+<section id="publishing">
+<h2>Publishing<a class="headerlink" href="#publishing" title="Link to this heading">#</a></h2>
+<ul class="simple">
+<li><p>The book is automatically published to GitHub Pages at:</p>
+<ul>
+<li><p><code class="docutils literal notranslate"><span class="pre">https://&lt;your-username&gt;.github.io/&lt;your-repo&gt;/</span></code></p></li>
+</ul>
+</li>
+<li><p>Make sure GitHub Pages is enabled in your repo settings (source: <code class="docutils literal notranslate"><span class="pre">gh-pages</span></code> branch).</p></li>
+</ul>
+</section>
+<section id="example-workflow">
+<h2>Example Workflow<a class="headerlink" href="#example-workflow" title="Link to this heading">#</a></h2>
+<div class="highlight-bash notranslate"><div class="highlight"><pre><span></span><span class="c1"># 1. Split and index notebooks</span>
+python<span class="w"> </span>split_notebooks.py
+
+<span class="c1"># 2. Build the book</span>
+jupyter-book<span class="w"> </span>build<span class="w"> </span>.
+
+<span class="c1"># 3. Serve locally</span>
+<span class="nb">cd</span><span class="w"> </span>_build/html
+python<span class="w"> </span>-m<span class="w"> </span>http.server<span class="w"> </span><span class="m">8000</span>
+</pre></div>
+</div>
+</section>
 </section>
 
     <script type="text/x-thebe-config">
@@ -397,6 +545,34 @@ document.write(`
             </div>
             
             
+              
+                <div class="bd-sidebar-secondary bd-toc"><div class="sidebar-secondary-items sidebar-secondary__inner">
+
+
+  <div class="sidebar-secondary-item">
+  <div class="page-toc tocsection onthispage">
+    <i class="fa-solid fa-list"></i> Contents
+  </div>
+  <nav class="bd-toc-nav page-toc">
+    <ul class="visible nav section-nav flex-column">
+<li class="toc-h2 nav-item toc-entry"><a class="reference internal nav-link" href="#features">Features</a></li>
+<li class="toc-h2 nav-item toc-entry"><a class="reference internal nav-link" href="#installation">Installation</a></li>
+<li class="toc-h2 nav-item toc-entry"><a class="reference internal nav-link" href="#usage">Usage</a><ul class="nav section-nav flex-column">
+<li class="toc-h3 nav-item toc-entry"><a class="reference internal nav-link" href="#split-notebooks-and-generate-navigation">1. Split Notebooks and Generate Navigation</a></li>
+<li class="toc-h3 nav-item toc-entry"><a class="reference internal nav-link" href="#build-the-book">2. Build the Book</a></li>
+<li class="toc-h3 nav-item toc-entry"><a class="reference internal nav-link" href="#serve-locally-for-testing">3. Serve Locally for Testing</a></li>
+</ul>
+</li>
+<li class="toc-h2 nav-item toc-entry"><a class="reference internal nav-link" href="#customization">Customization</a></li>
+<li class="toc-h2 nav-item toc-entry"><a class="reference internal nav-link" href="#disabling-notebook-execution-and-outputs">Disabling Notebook Execution and Outputs</a></li>
+<li class="toc-h2 nav-item toc-entry"><a class="reference internal nav-link" href="#adding-new-notebooks-or-courses">Adding New Notebooks or Courses</a></li>
+<li class="toc-h2 nav-item toc-entry"><a class="reference internal nav-link" href="#how-navigation-works">How Navigation Works</a></li>
+<li class="toc-h2 nav-item toc-entry"><a class="reference internal nav-link" href="#publishing">Publishing</a></li>
+<li class="toc-h2 nav-item toc-entry"><a class="reference internal nav-link" href="#example-workflow">Example Workflow</a></li>
+</ul>
+  </nav></div>
+
+</div></div>
               
             
           </div>
