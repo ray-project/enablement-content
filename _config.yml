@@ -12,3 +12,12 @@ html:
 sphinx:
     config:
         html_show_copyright: false
+jupyter_execute_notebooks: "off"
+execute:
+    execute_notebooks: "off"
+    allow_errors: false
+    exclude_patterns: []
+    timeout: 30
+    stderr_output: remove
+    stdout_output: remove
+    remove_code_outputs: true
