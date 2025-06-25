@@ -1,0 +1,46 @@
+/* Hide all sidebar elements, including the toggle button and search */
+#site-navigation,
+.bd-sidebar-primary,
+.bd-toc,
+.bd-sidebar,
+#left-sidebar,
+#site-navigation,
+#site-navigation-scroll,
+#site-navigation .sidebar-header,
+#site-navigation .sidebar-search,
+#site-navigation .sidebar-content,
+#site-navigation .sidebar-footer,
+#site-navigation .sidebar-toggle,
+.sidebar-toggle,
+.bd-sidebar-primary-toggle,
+#site-navigation .search-button,
+#site-navigation .search-container,
+#site-navigation .search-input,
+#site-navigation .search-results,
+#site-navigation .search-clear,
+#site-navigation .search-icon {
+  display: none !important;
+}
+
+/* Hide the hamburger menu (sidebar toggle) in the top bar */
+.sidebar-toggle,
+.bd-sidebar-primary-toggle {
+  display: none !important;
+}
+
+/* Expand main content to full width */
+.bd-main .bd-content {
+  margin-left: 0 !important;
+  max-width: 100% !important;
+  background: #ffe4e1 !important; /* light pink */
+}
+
+/* Hide the footer */
+#jb-footer, .footer, .bd-footer {
+  display: none !important;
+}
+
+/* Hide the theme switcher button */
+.theme-switch-button, .toggle-switch {
+  display: none !important;
+} 
