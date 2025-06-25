@@ -1,0 +1,20 @@
+/* Hide the left sidebar (TOC) */
+#site-navigation, .bd-sidebar-primary, .bd-toc {
+  display: none !important;
+}
+
+/* Expand main content to full width */
+.bd-main .bd-content {
+  margin-left: 0 !important;
+  max-width: 100% !important;
+}
+
+/* Hide the footer */
+#jb-footer, .footer, .bd-footer {
+  display: none !important;
+}
+
+/* Hide the theme switcher button */
+.theme-switch-button, .toggle-switch {
+  display: none !important;
+} 

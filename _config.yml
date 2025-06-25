@@ -1,1 +1,9 @@
 title: Course Notebooks
+html:
+    theme:
+        name: "sphinx_book_theme"
+        options:
+            default_mode: "light"
+            theme_switcher: false
+    extra_css:
+        - custom_hide.css
