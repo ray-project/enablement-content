@@ -9,3 +9,6 @@ html:
         - custom_hide.css
     extra_js:
         - custom_toggle.js
+sphinx:
+    config:
+        html_show_copyright: false
