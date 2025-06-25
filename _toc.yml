@@ -1,6 +1,7 @@
 format: jb-book
-root: courses/ray-101/output/1_AI_Libs_Intro_01.ipynb
+root: index.md
 chapters:
+  - file: courses/ray-101/output/1_AI_Libs_Intro_01.ipynb
   - file: courses/ray-101/output/1_AI_Libs_Intro_02.ipynb
   - file: courses/ray-101/output/1_AI_Libs_Intro_03.ipynb
   - file: courses/ray-101/output/1_AI_Libs_Intro_04.ipynb
