@@ -1,0 +1,7 @@
+format: jb-book
+root: courses/ray-101/1_AI_Libs_Intro
+chapters:
+    - file: courses/ray-101/2_Intro_Train
+    - file: courses/ray-101/3_Intro_Tune
+    - file: courses/ray-101/4_Intro_Data
+    - file: courses/ray-101/5_Intro_Serve
