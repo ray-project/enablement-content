@@ -94,7 +94,7 @@ execute:
 ## Publishing
 
 - The book is automatically published to GitHub Pages at:
-  - `https://<your-username>.github.io/<your-repo>/`
+  - `https://ray-project.github.io/enablement-content/`
 - Make sure GitHub Pages is enabled in your repo settings (source: `gh-pages` branch).
 
 ## Example Workflow
