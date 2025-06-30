@@ -1,0 +1,1266 @@
+
+<!DOCTYPE html>
+
+
+<html lang="en" data-content_root="../../" >
+
+  <head>
+    <meta charset="utf-8" />
+    <meta name="viewport" content="width=device-width, initial-scale=1.0" /><meta name="viewport" content="width=device-width, initial-scale=1" />
+
+    <title>Introduction to Ray Core (Advancement): Object store, Tasks, Actors &#8212; Course Notebooks Test</title>
+  
+  
+  
+  <script data-cfasync="false">
+    document.documentElement.dataset.mode = localStorage.getItem("mode") || "";
+    document.documentElement.dataset.theme = localStorage.getItem("theme") || "";
+  </script>
+  
+  <!-- Loaded before other Sphinx assets -->
+  <link href="../../_static/styles/theme.css?digest=dfe6caa3a7d634c4db9b" rel="stylesheet" />
+<link href="../../_static/styles/bootstrap.css?digest=dfe6caa3a7d634c4db9b" rel="stylesheet" />
+<link href="../../_static/styles/pydata-sphinx-theme.css?digest=dfe6caa3a7d634c4db9b" rel="stylesheet" />
+
+  
+  <link href="../../_static/vendor/fontawesome/6.5.2/css/all.min.css?digest=dfe6caa3a7d634c4db9b" rel="stylesheet" />
+  <link rel="preload" as="font" type="font/woff2" crossorigin href="../../_static/vendor/fontawesome/6.5.2/webfonts/fa-solid-900.woff2" />
+<link rel="preload" as="font" type="font/woff2" crossorigin href="../../_static/vendor/fontawesome/6.5.2/webfonts/fa-brands-400.woff2" />
+<link rel="preload" as="font" type="font/woff2" crossorigin href="../../_static/vendor/fontawesome/6.5.2/webfonts/fa-regular-400.woff2" />
+
+    <link rel="stylesheet" type="text/css" href="../../_static/pygments.css?v=03e43079" />
+    <link rel="stylesheet" type="text/css" href="../../_static/styles/sphinx-book-theme.css?v=eba8b062" />
+    <link rel="stylesheet" type="text/css" href="../../_static/togglebutton.css?v=13237357" />
+    <link rel="stylesheet" type="text/css" href="../../_static/copybutton.css?v=76b2166b" />
+    <link rel="stylesheet" type="text/css" href="../../_static/mystnb.4510f1fc1dee50b3e5859aac5469c37c29e427902b24a333a5f9fcb2f0b3ac41.css" />
+    <link rel="stylesheet" type="text/css" href="../../_static/sphinx-thebe.css?v=4fa983c6" />
+    <link rel="stylesheet" type="text/css" href="../../_static/sphinx-design.min.css?v=95c83b7e" />
+    <link rel="stylesheet" type="text/css" href="../../_static/custom_hide.css?v=af9667c8" />
+  
+  <!-- Pre-loaded scripts that we'll load fully later -->
+  <link rel="preload" as="script" href="../../_static/scripts/bootstrap.js?digest=dfe6caa3a7d634c4db9b" />
+<link rel="preload" as="script" href="../../_static/scripts/pydata-sphinx-theme.js?digest=dfe6caa3a7d634c4db9b" />
+  <script src="../../_static/vendor/fontawesome/6.5.2/js/all.min.js?digest=dfe6caa3a7d634c4db9b"></script>
+
+    <script src="../../_static/documentation_options.js?v=9eb32ce0"></script>
+    <script src="../../_static/doctools.js?v=9a2dae69"></script>
+    <script src="../../_static/sphinx_highlight.js?v=dc90522c"></script>
+    <script src="../../_static/clipboard.min.js?v=a7894cd8"></script>
+    <script src="../../_static/copybutton.js?v=f281be69"></script>
+    <script src="../../_static/scripts/sphinx-book-theme.js?v=887ef09a"></script>
+    <script>let toggleHintShow = 'Click to show';</script>
+    <script>let toggleHintHide = 'Click to hide';</script>
+    <script>let toggleOpenOnPrint = 'true';</script>
+    <script src="../../_static/togglebutton.js?v=4a39c7ea"></script>
+    <script>var togglebuttonSelector = '.toggle, .admonition.dropdown';</script>
+    <script src="../../_static/design-tabs.js?v=f930bc37"></script>
+    <script>const THEBE_JS_URL = "https://unpkg.com/thebe@0.8.2/lib/index.js"; const thebe_selector = ".thebe,.cell"; const thebe_selector_input = "pre"; const thebe_selector_output = ".output, .cell_output"</script>
+    <script async="async" src="../../_static/sphinx-thebe.js?v=c100c467"></script>
+    <script>var togglebuttonSelector = '.toggle, .admonition.dropdown';</script>
+    <script>const THEBE_JS_URL = "https://unpkg.com/thebe@0.8.2/lib/index.js"; const thebe_selector = ".thebe,.cell"; const thebe_selector_input = "pre"; const thebe_selector_output = ".output, .cell_output"</script>
+    <script>DOCUMENTATION_OPTIONS.pagename = 'courses/00_Developer_Intro_to_Ray/00a_Intro_Ray_Core_Advancement';</script>
+    <script src="../../_static/custom_toggle.js?v=1235ef5b"></script>
+    <link rel="index" title="Index" href="../../genindex.html" />
+    <link rel="search" title="Search" href="../../search.html" />
+  <meta name="viewport" content="width=device-width, initial-scale=1"/>
+  <meta name="docsearch:language" content="en"/>
+  </head>
+  
+  
+  <body data-bs-spy="scroll" data-bs-target=".bd-toc-nav" data-offset="180" data-bs-root-margin="0px 0px -60%" data-default-mode="">
+
+  
+  
+  <div id="pst-skip-link" class="skip-link d-print-none"><a href="#main-content">Skip to main content</a></div>
+  
+  <div id="pst-scroll-pixel-helper"></div>
+  
+  <button type="button" class="btn rounded-pill" id="pst-back-to-top">
+    <i class="fa-solid fa-arrow-up"></i>Back to top</button>
+
+  
+  <input type="checkbox"
+          class="sidebar-toggle"
+          id="pst-primary-sidebar-checkbox"/>
+  <label class="overlay overlay-primary" for="pst-primary-sidebar-checkbox"></label>
+  
+  <input type="checkbox"
+          class="sidebar-toggle"
+          id="pst-secondary-sidebar-checkbox"/>
+  <label class="overlay overlay-secondary" for="pst-secondary-sidebar-checkbox"></label>
+  
+  <div class="search-button__wrapper">
+    <div class="search-button__overlay"></div>
+    <div class="search-button__search-container">
+<form class="bd-search d-flex align-items-center"
+      action="../../search.html"
+      method="get">
+  <i class="fa-solid fa-magnifying-glass"></i>
+  <input type="search"
+         class="form-control"
+         name="q"
+         id="search-input"
+         placeholder="Search this book..."
+         aria-label="Search this book..."
+         autocomplete="off"
+         autocorrect="off"
+         autocapitalize="off"
+         spellcheck="false"/>
+  <span class="search-button__kbd-shortcut"><kbd class="kbd-shortcut__modifier">Ctrl</kbd>+<kbd>K</kbd></span>
+</form></div>
+  </div>
+
+  <div class="pst-async-banner-revealer d-none">
+  <aside id="bd-header-version-warning" class="d-none d-print-none" aria-label="Version warning"></aside>
+</div>
+
+  
+    <header class="bd-header navbar navbar-expand-lg bd-navbar d-print-none">
+    </header>
+  
+
+  <div class="bd-container">
+    <div class="bd-container__inner bd-page-width">
+      
+      
+      
+        
+      
+      <div class="bd-sidebar-primary bd-sidebar">
+        
+
+  
+  <div class="sidebar-header-items sidebar-primary__section">
+    
+    
+    
+    
+  </div>
+  
+    <div class="sidebar-primary-items__start sidebar-primary__section">
+        <div class="sidebar-primary-item">
+
+  
+    
+  
+
+<a class="navbar-brand logo" href="../../index.html">
+  
+  
+  
+  
+  
+  
+    <p class="title logo__title">Course Notebooks Test</p>
+  
+</a></div>
+        <div class="sidebar-primary-item">
+
+ <script>
+ document.write(`
+   <button class="btn search-button-field search-button__button" title="Search" aria-label="Search" data-bs-placement="bottom" data-bs-toggle="tooltip">
+    <i class="fa-solid fa-magnifying-glass"></i>
+    <span class="search-button__default-text">Search</span>
+    <span class="search-button__kbd-shortcut"><kbd class="kbd-shortcut__modifier">Ctrl</kbd>+<kbd class="kbd-shortcut__modifier">K</kbd></span>
+   </button>
+ `);
+ </script></div>
+        <div class="sidebar-primary-item"><nav class="bd-links bd-docs-nav" aria-label="Main">
+    <div class="bd-toc-item navbar-nav active">
+        
+        <ul class="nav bd-sidenav bd-sidenav__home-link">
+            <li class="toctree-l1">
+                <a class="reference internal" href="../../index.html">
+                    Ray Enablement Content
+                </a>
+            </li>
+        </ul>
+        <p aria-level="2" class="caption" role="heading"><span class="caption-text">Developer Intro to Ray</span></p>
+<ul class="nav bd-sidenav">
+<li class="toctree-l1"><a class="reference internal" href="output/00_Intro_Ray_Core_Basics_01.html">Introduction to Ray Core: Getting Started</a></li>
+<li class="toctree-l1"><a class="reference internal" href="output/00_Intro_Ray_Core_Basics_02.html">0. Overview</a></li>
+<li class="toctree-l1"><a class="reference internal" href="output/00_Intro_Ray_Core_Basics_03.html">1. Creating Remote Functions</a></li>
+<li class="toctree-l1"><a class="reference internal" href="output/00_Intro_Ray_Core_Basics_04.html">2. Executing Remote Functions</a></li>
+<li class="toctree-l1"><a class="reference internal" href="output/00_Intro_Ray_Core_Basics_05.html">3. Getting Results</a></li>
+<li class="toctree-l1"><a class="reference internal" href="output/00_Intro_Ray_Core_Basics_06.html">4. Putting It All Together</a></li>
+<li class="toctree-l1"><a class="reference internal" href="output/00a_Intro_Ray_Core_Advancement_01.html">Introduction to Ray Core (Advancement): Object store, Tasks, Actors</a></li>
+<li class="toctree-l1"><a class="reference internal" href="output/00a_Intro_Ray_Core_Advancement_02.html">1. Object store</a></li>
+<li class="toctree-l1"><a class="reference internal" href="output/00a_Intro_Ray_Core_Advancement_03.html">2. Chaining Tasks and Passing Data</a></li>
+<li class="toctree-l1"><a class="reference internal" href="output/00a_Intro_Ray_Core_Advancement_04.html">3. Task retries</a></li>
+<li class="toctree-l1"><a class="reference internal" href="output/00a_Intro_Ray_Core_Advancement_05.html">4. Task Runtime Environments</a></li>
+<li class="toctree-l1"><a class="reference internal" href="output/00a_Intro_Ray_Core_Advancement_06.html">5. Resource allocation and management</a></li>
+<li class="toctree-l1"><a class="reference internal" href="output/00a_Intro_Ray_Core_Advancement_07.html">6. Nested Tasks</a></li>
+<li class="toctree-l1"><a class="reference internal" href="output/00a_Intro_Ray_Core_Advancement_08.html">7. Pattern: Pipeline data processing and waiting for results</a></li>
+<li class="toctree-l1"><a class="reference internal" href="output/00a_Intro_Ray_Core_Advancement_09.html">8. Ray Actors</a></li>
+<li class="toctree-l1"><a class="reference internal" href="output/01_Intro_Ray_AI_Libs_Overview_01.html">Introduction to the Ray AI Libraries: An example of using Ray data, Ray Train, Ray Tune, Ray Serve to implement a XGBoost regression model</a></li>
+<li class="toctree-l1"><a class="reference internal" href="output/01_Intro_Ray_AI_Libs_Overview_02.html">1. Overview of the Ray AI Libraries</a></li>
+<li class="toctree-l1"><a class="reference internal" href="output/01_Intro_Ray_AI_Libs_Overview_03.html">2. Quick end-to-end example</a></li>
+<li class="toctree-l1"><a class="reference internal" href="output/02a_Intro_Ray_Train_with_PyTorch_01.html">Introduction to Ray Train + PyTorch</a></li>
+<li class="toctree-l1"><a class="reference internal" href="output/02a_Intro_Ray_Train_with_PyTorch_02.html">1. When to use Ray Train</a></li>
+<li class="toctree-l1"><a class="reference internal" href="output/02a_Intro_Ray_Train_with_PyTorch_03.html">2. Single GPU Training with PyTorch</a></li>
+<li class="toctree-l1"><a class="reference internal" href="output/02a_Intro_Ray_Train_with_PyTorch_04.html">3. Distributed Data Parallel Training with Ray Train and PyTorch</a></li>
+<li class="toctree-l1"><a class="reference internal" href="output/02a_Intro_Ray_Train_with_PyTorch_05.html">4. Ray Train in Production</a></li>
+<li class="toctree-l1"><a class="reference internal" href="output/02b_Intro_Ray_Train_with_PyTorch_Lightning_01.html">Introduction to Ray Train: Ray Train + PyTorch Lightning</a></li>
+<li class="toctree-l1"><a class="reference internal" href="output/02b_Intro_Ray_Train_with_PyTorch_Lightning_02.html">1. When to use Ray Train</a></li>
+<li class="toctree-l1"><a class="reference internal" href="output/02b_Intro_Ray_Train_with_PyTorch_Lightning_03.html">2. Single GPU Training with PyTorch Lightning</a></li>
+<li class="toctree-l1"><a class="reference internal" href="output/02b_Intro_Ray_Train_with_PyTorch_Lightning_04.html">3. Distributed Training with Ray Train and PyTorch Lightning</a></li>
+<li class="toctree-l1"><a class="reference internal" href="output/02b_Intro_Ray_Train_with_PyTorch_Lightning_05.html">4. Ray Train in Production</a></li>
+<li class="toctree-l1"><a class="reference internal" href="output/03_Intro_Ray_Tune_01.html">Introduction to Ray Tune</a></li>
+<li class="toctree-l1"><a class="reference internal" href="output/03_Intro_Ray_Tune_02.html">1. Loading the data</a></li>
+<li class="toctree-l1"><a class="reference internal" href="output/03_Intro_Ray_Tune_03.html">2. Starting out with vanilla PyTorch</a></li>
+<li class="toctree-l1"><a class="reference internal" href="output/03_Intro_Ray_Tune_04.html">3. Hyperparameter tuning with Ray Tune</a></li>
+<li class="toctree-l1"><a class="reference internal" href="output/03_Intro_Ray_Tune_05.html">4. Ray Tune in Production</a></li>
+<li class="toctree-l1"><a class="reference internal" href="output/04a_Intro_Ray_Data_Industry_Landscape_01.html">Introduction to Ray Data: Industry Landscape</a></li>
+
+<li class="toctree-l1"><a class="reference internal" href="output/04a_Intro_Ray_Data_Industry_Landscape_02.html">The Compute Layer</a></li>
+<li class="toctree-l1"><a class="reference internal" href="output/04a_Intro_Ray_Data_Industry_Landscape_03.html">The Orchestration Layer</a></li>
+<li class="toctree-l1"><a class="reference internal" href="output/04a_Intro_Ray_Data_Industry_Landscape_04.html">Distributed Computing Frameworks</a></li>
+<li class="toctree-l1"><a class="reference internal" href="output/04a_Intro_Ray_Data_Industry_Landscape_05.html">Data Processing with Ray Data</a></li>
+<li class="toctree-l1"><a class="reference internal" href="output/04a_Intro_Ray_Data_Industry_Landscape_06.html">Ray Serve</a></li>
+<li class="toctree-l1"><a class="reference internal" href="output/04b_Intro_Ray_Data_Structured_01.html">Introduction to Ray Data: Ray Data + Structured Data</a></li>
+<li class="toctree-l1"><a class="reference internal" href="output/04b_Intro_Ray_Data_Structured_02.html">0. What is Ray Data?</a></li>
+<li class="toctree-l1"><a class="reference internal" href="output/04b_Intro_Ray_Data_Structured_03.html">1. How to Use Ray Data?</a></li>
+<li class="toctree-l1"><a class="reference internal" href="output/04b_Intro_Ray_Data_Structured_04.html">2. Loading Data</a></li>
+<li class="toctree-l1"><a class="reference internal" href="output/04b_Intro_Ray_Data_Structured_05.html">3. Transforming Data</a></li>
+<li class="toctree-l1"><a class="reference internal" href="output/04b_Intro_Ray_Data_Structured_06.html">4. Writing Data</a></li>
+<li class="toctree-l1"><a class="reference internal" href="output/04b_Intro_Ray_Data_Structured_07.html">5. Data Operations: Shuffling, Grouping and Aggregation</a></li>
+<li class="toctree-l1"><a class="reference internal" href="output/04b_Intro_Ray_Data_Structured_08.html">6. When to use Ray Data</a></li>
+<li class="toctree-l1"><a class="reference internal" href="output/04b_Intro_Ray_Data_Structured_09.html">7. Ray Data in Production</a></li>
+<li class="toctree-l1"><a class="reference internal" href="output/04b_Intro_Ray_Data_Structured_10.html">8. Upcoming Features in Ray Data</a></li>
+<li class="toctree-l1"><a class="reference internal" href="output/04c_Intro_Ray_Data_Unstructured_01.html">Intro to Ray Data:  Ray Data + Unstructed Data</a></li>
+<li class="toctree-l1"><a class="reference internal" href="output/04c_Intro_Ray_Data_Unstructured_02.html">1. When to Consider Ray Data</a></li>
+<li class="toctree-l1"><a class="reference internal" href="output/04c_Intro_Ray_Data_Unstructured_03.html">2. How to work with Ray Data</a></li>
+<li class="toctree-l1"><a class="reference internal" href="output/04c_Intro_Ray_Data_Unstructured_04.html">3. Loading data</a></li>
+<li class="toctree-l1"><a class="reference internal" href="output/04c_Intro_Ray_Data_Unstructured_05.html">3. Lazy execution mode</a></li>
+<li class="toctree-l1"><a class="reference internal" href="output/04c_Intro_Ray_Data_Unstructured_06.html">4. Transforming data</a></li>
+<li class="toctree-l1"><a class="reference internal" href="output/04c_Intro_Ray_Data_Unstructured_07.html">5. Stateful transformations with Ray Actors</a></li>
+<li class="toctree-l1"><a class="reference internal" href="output/04c_Intro_Ray_Data_Unstructured_08.html">6. Materializing data</a></li>
+<li class="toctree-l1"><a class="reference internal" href="output/04c_Intro_Ray_Data_Unstructured_09.html">7. Data Operations: grouping, aggregation, and shuffling</a></li>
+<li class="toctree-l1"><a class="reference internal" href="output/04c_Intro_Ray_Data_Unstructured_10.html">8. Persisting data</a></li>
+<li class="toctree-l1"><a class="reference internal" href="output/04c_Intro_Ray_Data_Unstructured_11.html">9. Ray Data in production</a></li>
+<li class="toctree-l1"><a class="reference internal" href="output/05_Intro_Ray_Serve_PyTorch_01.html">Introduction to Ray Serve with PyTorch</a></li>
+<li class="toctree-l1"><a class="reference internal" href="output/05_Intro_Ray_Serve_PyTorch_02.html">1. When to Consider Ray Serve</a></li>
+<li class="toctree-l1"><a class="reference internal" href="output/05_Intro_Ray_Serve_PyTorch_03.html">2. Overview of Ray Serve</a></li>
+<li class="toctree-l1"><a class="reference internal" href="output/05_Intro_Ray_Serve_PyTorch_04.html">3. Implement an image classification service</a></li>
+<li class="toctree-l1"><a class="reference internal" href="output/05_Intro_Ray_Serve_PyTorch_05.html">4. Development workflow</a></li>
+</ul>
+<p aria-level="2" class="caption" role="heading"><span class="caption-text">Anyscale 101</span></p>
+<ul class="nav bd-sidenav">
+<li class="toctree-l1"><a class="reference internal" href="../anyscale_101/output/101_anyscale_intro_jobs_01.html">Content Used</a></li>
+
+<li class="toctree-l1"><a class="reference internal" href="../anyscale_101/output/101_anyscale_intro_jobs_02.html">Part 1. Creating and Submitting your first job</a></li>
+<li class="toctree-l1"><a class="reference internal" href="../anyscale_101/output/101_anyscale_intro_jobs_03.html">Part 2. Automation and Scheduling</a></li>
+<li class="toctree-l1"><a class="reference internal" href="../anyscale_101/output/101_anyscale_intro_services_01.html">Sources</a></li>
+
+<li class="toctree-l1"><a class="reference internal" href="../anyscale_101/output/101_anyscale_intro_services_02.html">Part 1: Starting your first Anyscale Service</a></li>
+</ul>
+<p aria-level="2" class="caption" role="heading"><span class="caption-text">Ray 101</span></p>
+<ul class="nav bd-sidenav">
+<li class="toctree-l1"><a class="reference internal" href="../ray-101/output/1_AI_Libs_Intro_01.html">Introduction to the Ray AI Libraries</a></li>
+<li class="toctree-l1"><a class="reference internal" href="../ray-101/output/1_AI_Libs_Intro_02.html">1. Overview of the Ray AI Libraries</a></li>
+<li class="toctree-l1"><a class="reference internal" href="../ray-101/output/1_AI_Libs_Intro_03.html">2. End-to-end example: predicting taxi tips in New York</a></li>
+<li class="toctree-l1"><a class="reference internal" href="../ray-101/output/1_AI_Libs_Intro_04.html">3. Running an experiment with Ray AI libraries</a></li>
+<li class="toctree-l1"><a class="reference internal" href="../ray-101/output/2_Intro_Train_01.html">Introduction to Ray Train</a></li>
+<li class="toctree-l1"><a class="reference internal" href="../ray-101/output/2_Intro_Train_02.html">1. PyTorch introductory example (single GPU)</a></li>
+<li class="toctree-l1"><a class="reference internal" href="../ray-101/output/2_Intro_Train_03.html">2. Distributed Data Parallel Training with Ray Train and PyTorch (multiple GPUs)</a></li>
+<li class="toctree-l1"><a class="reference internal" href="../ray-101/output/2_Intro_Train_04.html">3. Overview of the training loop in Ray Train</a></li>
+<li class="toctree-l1"><a class="reference internal" href="../ray-101/output/2_Intro_Train_05.html">4. Migrating the model and dataset to Ray Train</a></li>
+<li class="toctree-l1"><a class="reference internal" href="../ray-101/output/2_Intro_Train_06.html">5. Reporting checkpoints and metrics</a></li>
+<li class="toctree-l1"><a class="reference internal" href="../ray-101/output/2_Intro_Train_07.html">6. Launching the distributed training job</a></li>
+<li class="toctree-l1"><a class="reference internal" href="../ray-101/output/2_Intro_Train_08.html">7. Accessing the training results</a></li>
+<li class="toctree-l1"><a class="reference internal" href="../ray-101/output/2_Intro_Train_09.html">8. Ray Train in Production</a></li>
+<li class="toctree-l1"><a class="reference internal" href="../ray-101/output/3_Intro_Tune_01.html">Intro to Ray Tune</a></li>
+<li class="toctree-l1"><a class="reference internal" href="../ray-101/output/3_Intro_Tune_02.html">1. Loading and visualizing data</a></li>
+<li class="toctree-l1"><a class="reference internal" href="../ray-101/output/3_Intro_Tune_03.html">2. Setting up a PyTorch model</a></li>
+<li class="toctree-l1"><a class="reference internal" href="../ray-101/output/3_Intro_Tune_04.html">3. Introduction to Ray Tune</a></li>
+<li class="toctree-l1"><a class="reference internal" href="../ray-101/output/3_Intro_Tune_05.html">4. Diving deeper into Ray Tune concepts</a></li>
+<li class="toctree-l1"><a class="reference internal" href="../ray-101/output/3_Intro_Tune_06.html">5. Hyperparameter tuning the PyTorch model using Ray Tune</a></li>
+<li class="toctree-l1"><a class="reference internal" href="../ray-101/output/4_Intro_Data_01.html">Intro to Ray Data</a></li>
+<li class="toctree-l1"><a class="reference internal" href="../ray-101/output/4_Intro_Data_02.html">1. When to use Ray Data</a></li>
+<li class="toctree-l1"><a class="reference internal" href="../ray-101/output/4_Intro_Data_03.html">2. Loading Data</a></li>
+<li class="toctree-l1"><a class="reference internal" href="../ray-101/output/4_Intro_Data_04.html">3. Transforming Data</a></li>
+<li class="toctree-l1"><a class="reference internal" href="../ray-101/output/4_Intro_Data_05.html">4. Data Operations: Grouping, Aggregation, and Shuffling</a></li>
+<li class="toctree-l1"><a class="reference internal" href="../ray-101/output/4_Intro_Data_06.html">5. Persisting Data</a></li>
+<li class="toctree-l1"><a class="reference internal" href="../ray-101/output/5_Intro_Serve_01.html">Intro to Ray Serve</a></li>
+<li class="toctree-l1"><a class="reference internal" href="../ray-101/output/5_Intro_Serve_02.html">1. Overview of Ray Serve</a></li>
+<li class="toctree-l1"><a class="reference internal" href="../ray-101/output/5_Intro_Serve_03.html">2. Implement an Classifier service</a></li>
+<li class="toctree-l1"><a class="reference internal" href="../ray-101/output/5_Intro_Serve_04.html">3. Advanced features of Ray Serve</a></li>
+<li class="toctree-l1"><a class="reference internal" href="../ray-101/output/5_Intro_Serve_05.html">4. Ray Serve in Production</a></li>
+<li class="toctree-l1"><a class="reference internal" href="../ray-101/output/5_Intro_Serve_06.html">Clean up</a></li>
+</ul>
+
+    </div>
+</nav></div>
+    </div>
+  
+  
+  <div class="sidebar-primary-items__end sidebar-primary__section">
+  </div>
+  
+  <div id="rtd-footer-container"></div>
+
+
+      </div>
+      
+      <main id="main-content" class="bd-main" role="main">
+        
+        
+
+<div class="sbt-scroll-pixel-helper"></div>
+
+          <div class="bd-content">
+            <div class="bd-article-container">
+              
+              <div class="bd-header-article d-print-none">
+<div class="header-article-items header-article__inner">
+  
+    <div class="header-article-items__start">
+      
+        <div class="header-article-item"><button class="sidebar-toggle primary-toggle btn btn-sm" title="Toggle primary sidebar" data-bs-placement="bottom" data-bs-toggle="tooltip">
+  <span class="fa-solid fa-bars"></span>
+</button></div>
+      
+    </div>
+  
+  
+    <div class="header-article-items__end">
+      
+        <div class="header-article-item">
+
+<div class="article-header-buttons">
+
+
+
+
+
+<div class="dropdown dropdown-download-buttons">
+  <button class="btn dropdown-toggle" type="button" data-bs-toggle="dropdown" aria-expanded="false" aria-label="Download this page">
+    <i class="fas fa-download"></i>
+  </button>
+  <ul class="dropdown-menu">
+      
+      
+      
+      <li><a href="../../_sources/courses/00_Developer_Intro_to_Ray/00a_Intro_Ray_Core_Advancement.ipynb" target="_blank"
+   class="btn btn-sm btn-download-source-button dropdown-item"
+   title="Download source file"
+   data-bs-placement="left" data-bs-toggle="tooltip"
+>
+  
+
+<span class="btn__icon-container">
+  <i class="fas fa-file"></i>
+  </span>
+<span class="btn__text-container">.ipynb</span>
+</a>
+</li>
+      
+      
+      
+      
+      <li>
+<button onclick="window.print()"
+  class="btn btn-sm btn-download-pdf-button dropdown-item"
+  title="Print to PDF"
+  data-bs-placement="left" data-bs-toggle="tooltip"
+>
+  
+
+<span class="btn__icon-container">
+  <i class="fas fa-file-pdf"></i>
+  </span>
+<span class="btn__text-container">.pdf</span>
+</button>
+</li>
+      
+  </ul>
+</div>
+
+
+
+
+<button onclick="toggleFullScreen()"
+  class="btn btn-sm btn-fullscreen-button"
+  title="Fullscreen mode"
+  data-bs-placement="bottom" data-bs-toggle="tooltip"
+>
+  
+
+<span class="btn__icon-container">
+  <i class="fas fa-expand"></i>
+  </span>
+
+</button>
+
+
+
+<script>
+document.write(`
+  <button class="btn btn-sm nav-link pst-navbar-icon theme-switch-button" title="light/dark" aria-label="light/dark" data-bs-placement="bottom" data-bs-toggle="tooltip">
+    <i class="theme-switch fa-solid fa-sun fa-lg" data-mode="light"></i>
+    <i class="theme-switch fa-solid fa-moon fa-lg" data-mode="dark"></i>
+    <i class="theme-switch fa-solid fa-circle-half-stroke fa-lg" data-mode="auto"></i>
+  </button>
+`);
+</script>
+
+
+<script>
+document.write(`
+  <button class="btn btn-sm pst-navbar-icon search-button search-button__button" title="Search" aria-label="Search" data-bs-placement="bottom" data-bs-toggle="tooltip">
+    <i class="fa-solid fa-magnifying-glass fa-lg"></i>
+  </button>
+`);
+</script>
+<button class="sidebar-toggle secondary-toggle btn btn-sm" title="Toggle secondary sidebar" data-bs-placement="bottom" data-bs-toggle="tooltip">
+    <span class="fa-solid fa-list"></span>
+</button>
+</div></div>
+      
+    </div>
+  
+</div>
+</div>
+              
+              
+
+<div id="jb-print-docs-body" class="onlyprint">
+    <h1>Introduction to Ray Core (Advancement): Object store, Tasks, Actors</h1>
+    <!-- Table of contents -->
+    <div id="print-main-content">
+        <div id="jb-print-toc">
+            
+            <div>
+                <h2> Contents </h2>
+            </div>
+            <nav aria-label="Page">
+                <ul class="visible nav section-nav flex-column">
+<li class="toc-h2 nav-item toc-entry"><a class="reference internal nav-link" href="#object-store">1. Object store</a><ul class="nav section-nav flex-column">
+<li class="toc-h3 nav-item toc-entry"><a class="reference internal nav-link" href="#pattern-pass-an-object-as-a-top-level-argument">1.1. Pattern: pass an object as a top-level argument</a></li>
+</ul>
+</li>
+<li class="toc-h2 nav-item toc-entry"><a class="reference internal nav-link" href="#chaining-tasks-and-passing-data">2. Chaining Tasks and Passing Data</a></li>
+<li class="toc-h2 nav-item toc-entry"><a class="reference internal nav-link" href="#task-retries">3. Task retries</a></li>
+<li class="toc-h2 nav-item toc-entry"><a class="reference internal nav-link" href="#task-runtime-environments">4. Task Runtime Environments</a><ul class="nav section-nav flex-column">
+<li class="toc-h3 nav-item toc-entry"><a class="reference internal nav-link" href="#note-about-pip-dependencies">4.1. Note about pip dependencies</a></li>
+</ul>
+</li>
+<li class="toc-h2 nav-item toc-entry"><a class="reference internal nav-link" href="#resource-allocation-and-management">5. Resource allocation and management</a><ul class="nav section-nav flex-column">
+<li class="toc-h3 nav-item toc-entry"><a class="reference internal nav-link" href="#note-on-resources-requests-available-resources-configuring-large-clusters">5.1. Note on resources requests, available resources, configuring large clusters</a></li>
+<li class="toc-h3 nav-item toc-entry"><a class="reference internal nav-link" href="#fractional-resources">5.2. Fractional resources</a></li>
+<li class="toc-h3 nav-item toc-entry"><a class="reference internal nav-link" href="#io-bound-tasks-and-fractional-resources">5.3. IO bound tasks and fractional resources</a></li>
+</ul>
+</li>
+<li class="toc-h2 nav-item toc-entry"><a class="reference internal nav-link" href="#nested-tasks">6. Nested Tasks</a></li>
+<li class="toc-h2 nav-item toc-entry"><a class="reference internal nav-link" href="#pattern-pipeline-data-processing-and-waiting-for-results">7. Pattern: Pipeline data processing and waiting for results</a><ul class="nav section-nav flex-column">
+<li class="toc-h3 nav-item toc-entry"><a class="reference internal nav-link" href="#batch-processing-pattern">7.1 Batch Processing Pattern</a></li>
+<li class="toc-h3 nav-item toc-entry"><a class="reference internal nav-link" href="#note-on-fetching-too-many-objects-at-once-with-ray-get-causes-failure">7.2 Note on fetching too many objects at once with ray.get causes failure</a></li>
+</ul>
+</li>
+<li class="toc-h2 nav-item toc-entry"><a class="reference internal nav-link" href="#ray-actors">8. Ray Actors</a></li>
+</ul>
+            </nav>
+        </div>
+    </div>
+</div>
+
+              
+                
+<div id="searchbox"></div>
+                <article class="bd-article">
+                  
+  <section class="tex2jax_ignore mathjax_ignore" id="introduction-to-ray-core-advancement-object-store-tasks-actors">
+<h1>Introduction to Ray Core (Advancement): Object store, Tasks, Actors<a class="headerlink" href="#introduction-to-ray-core-advancement-object-store-tasks-actors" title="Link to this heading">#</a></h1>
+<p>© 2025, Anyscale. All Rights Reserved</p>
+<p>💻 <strong>Launch Locally</strong>: You can run this notebook locally.</p>
+<p>🚀 <strong>Launch on Cloud</strong>: Think about running this notebook on a Ray Cluster (Click <a class="reference external" href="http://console.anyscale.com/register">here</a> to easily start a Ray cluster on Anyscale)</p>
+<p>This notebook provides a step-by-step introduction to Object store, Tasks, and Actors, which all are the fundamental building blocks of Ray that enables distributed computing.</p>
+<div class="alert alert-block alert-info">
+<p><b> Here is the roadmap for this notebook </b></p>
+<ol>
+  <li>Object store
+    <ul>
+      <li>Pattern: pass an object as a top-level argument</li>
+    </ul>
+  </li>
+  <li>Chaining Tasks and Passing Data</li>
+  <li>Task retries</li>
+  <li>Task Runtime Environments
+    <ul>
+      <li>Note about pip dependencies</li>
+    </ul>
+  </li>
+  <li>Resource allocation and management
+    <ul>
+      <li>Note on resources requests, available resources, configuring large clusters</li>
+      <li>Fractional resources</li>
+      <li>IO bound tasks and fractional resources</li>
+    </ul>
+  </li>
+  <li>Nested Tasks</li>
+  <li>Pattern: Pipeline data processing and waiting for results
+    <ul>
+      <li>Batch Processing Pattern</li>
+      <li>Note on fetching too many objects at once with ray.get causes failure</li>
+    </ul>
+  </li>
+  <li>Ray Actors</li>
+</ol>
+</div><p><strong>Imports</strong></p>
+<div class="cell docutils container">
+<div class="cell_input docutils container">
+<div class="highlight-ipython3 notranslate"><div class="highlight"><pre><span></span><span class="kn">import</span><span class="w"> </span><span class="nn">os</span>
+<span class="kn">import</span><span class="w"> </span><span class="nn">random</span>
+<span class="kn">import</span><span class="w"> </span><span class="nn">sys</span>
+<span class="kn">import</span><span class="w"> </span><span class="nn">time</span>
+
+<span class="kn">import</span><span class="w"> </span><span class="nn">numpy</span><span class="w"> </span><span class="k">as</span><span class="w"> </span><span class="nn">np</span>
+<span class="kn">import</span><span class="w"> </span><span class="nn">ray</span>
+</pre></div>
+</div>
+</div>
+</div>
+<section id="object-store">
+<h2>1. Object store<a class="headerlink" href="#object-store" title="Link to this heading">#</a></h2>
+<p>Each worker node has its own object store, and collectively, these form a shared object store across the cluster.</p>
+<p>Remote objects are immutable. That is, their values cannot be changed after creation. This allows remote objects to be replicated in multiple object stores without needing to synchronize the copies.</p>
+<div class="pst-scrollable-table-container"><table class="table">
+<thead>
+<tr class="row-odd"><th class="head text-left"><p><img src="https://assets-training.s3.us-west-2.amazonaws.com/ray-core/ray-core/ray-cluster.png" width="70%" loading="lazy"></p></th>
+</tr>
+</thead>
+<tbody>
+<tr class="row-even"><td class="text-left"><p>A Ray cluster with a head node and two worker nodes. Highlighted in orange is distributed object store.</p></td>
+</tr>
+</tbody>
+</table>
+</div>
+<div class="alert alert-info">
+  <strong><a href="https://docs.ray.io/en/latest/ray-core/key-concepts.html#objects" target="_blank">Object</a></strong> - tasks and actors create and work with remote objects, which can be stored anywhere in a cluster. These objects are accessed using <strong>ObjectRef</strong> and are cached in a distributed shared-memory <strong>object store</strong>.
+</div><p>Let’s consider following example:</p>
+<div class="cell docutils container">
+<div class="cell_input docutils container">
+<div class="highlight-ipython3 notranslate"><div class="highlight"><pre><span></span><span class="n">large_matrix</span> <span class="o">=</span> <span class="n">np</span><span class="o">.</span><span class="n">random</span><span class="o">.</span><span class="n">rand</span><span class="p">(</span><span class="mi">1024</span><span class="p">,</span> <span class="mi">1024</span><span class="p">,</span> <span class="mi">1024</span><span class="o">//</span><span class="mi">8</span><span class="p">)</span> <span class="c1"># approx. 1 GB</span>
+<span class="n">size_in_bytes</span> <span class="o">=</span> <span class="n">sys</span><span class="o">.</span><span class="n">getsizeof</span><span class="p">(</span><span class="n">large_matrix</span><span class="p">)</span>
+
+<span class="nb">print</span><span class="p">(</span><span class="sa">f</span><span class="s2">&quot;large_matrix has: </span><span class="si">{</span><span class="n">size_in_bytes</span><span class="o">/</span><span class="mi">1024</span><span class="o">/</span><span class="mi">1024</span><span class="o">/</span><span class="mi">1024</span><span class="si">:</span><span class="s2">.2f</span><span class="si">}</span><span class="s2"> GB&quot;</span><span class="p">)</span>
+</pre></div>
+</div>
+</div>
+</div>
+<p>Add an object to the object store using <code class="docutils literal notranslate"><span class="pre">ray.put()</span></code></p>
+<div class="cell docutils container">
+<div class="cell_input docutils container">
+<div class="highlight-ipython3 notranslate"><div class="highlight"><pre><span></span><span class="n">obj_ref</span> <span class="o">=</span> <span class="n">ray</span><span class="o">.</span><span class="n">put</span><span class="p">(</span><span class="n">large_matrix</span><span class="p">)</span>
+<span class="n">obj_ref</span>
+</pre></div>
+</div>
+</div>
+</div>
+<p>Use the <code class="docutils literal notranslate"><span class="pre">ray.get()</span></code> method to fetch the result of a remote object from an object ref</p>
+<div class="cell docutils container">
+<div class="cell_input docutils container">
+<div class="highlight-ipython3 notranslate"><div class="highlight"><pre><span></span><span class="n">large_mat_from_object_store</span> <span class="o">=</span> <span class="n">ray</span><span class="o">.</span><span class="n">get</span><span class="p">(</span><span class="n">obj_ref</span><span class="p">)</span>
+</pre></div>
+</div>
+</div>
+</div>
+<div class="cell docutils container">
+<div class="cell_input docutils container">
+<div class="highlight-ipython3 notranslate"><div class="highlight"><pre><span></span><span class="n">np</span><span class="o">.</span><span class="n">array_equal</span><span class="p">(</span><span class="n">large_mat_from_object_store</span><span class="p">,</span> <span class="n">large_matrix</span><span class="p">)</span>
+</pre></div>
+</div>
+</div>
+</div>
+<div class="cell docutils container">
+<div class="cell_input docutils container">
+<div class="highlight-ipython3 notranslate"><div class="highlight"><pre><span></span><span class="n">large_mat_from_object_store</span> <span class="ow">is</span> <span class="n">large_matrix</span>
+</pre></div>
+</div>
+</div>
+</div>
+<section id="pattern-pass-an-object-as-a-top-level-argument">
+<h3>1.1. Pattern: pass an object as a top-level argument<a class="headerlink" href="#pattern-pass-an-object-as-a-top-level-argument" title="Link to this heading">#</a></h3>
+<p>When an object is passed directly as a top-level argument to a task, Ray will de-reference the object. This means that Ray will fetch the underlying data for all top-level object reference arguments, not executing the task until the object data becomes fully available.</p>
+<div class="alert alert-info">
+This patterns assumes that two conditions are satisftied:
+<ol>
+<li> the object is large</li>
+<li> user wants to reuse the object multiple times</li>
+</ol>
+</div><div class="cell docutils container">
+<div class="cell_input docutils container">
+<div class="highlight-ipython3 notranslate"><div class="highlight"><pre><span></span><span class="nd">@ray</span><span class="o">.</span><span class="n">remote</span>
+<span class="k">def</span><span class="w"> </span><span class="nf">compute</span><span class="p">(</span><span class="n">x</span><span class="p">,</span> <span class="n">y</span><span class="p">):</span>
+    <span class="k">return</span> <span class="nb">int</span><span class="p">(</span><span class="n">np</span><span class="o">.</span><span class="n">matmul</span><span class="p">(</span><span class="n">x</span><span class="p">,</span> <span class="n">y</span><span class="p">)</span><span class="o">.</span><span class="n">sum</span><span class="p">())</span>
+</pre></div>
+</div>
+</div>
+</div>
+<div class="cell docutils container">
+<div class="cell_input docutils container">
+<div class="highlight-ipython3 notranslate"><div class="highlight"><pre><span></span><span class="n">mat1_ref</span> <span class="o">=</span> <span class="n">ray</span><span class="o">.</span><span class="n">put</span><span class="p">(</span><span class="n">np</span><span class="o">.</span><span class="n">random</span><span class="o">.</span><span class="n">rand</span><span class="p">(</span><span class="mi">32</span><span class="p">,</span> <span class="mi">32</span><span class="p">))</span>
+<span class="n">mat2_ref</span> <span class="o">=</span> <span class="n">ray</span><span class="o">.</span><span class="n">put</span><span class="p">(</span><span class="n">np</span><span class="o">.</span><span class="n">random</span><span class="o">.</span><span class="n">rand</span><span class="p">(</span><span class="mi">32</span><span class="p">,</span> <span class="mi">32</span><span class="p">))</span>
+</pre></div>
+</div>
+</div>
+</div>
+<div class="cell docutils container">
+<div class="cell_input docutils container">
+<div class="highlight-ipython3 notranslate"><div class="highlight"><pre><span></span><span class="n">collection</span> <span class="o">=</span> <span class="p">[]</span>
+<span class="k">for</span> <span class="n">i</span> <span class="ow">in</span> <span class="nb">range</span><span class="p">(</span><span class="mi">10</span><span class="p">):</span>
+    <span class="n">collection</span><span class="o">.</span><span class="n">append</span><span class="p">(</span><span class="n">compute</span><span class="o">.</span><span class="n">remote</span><span class="p">(</span><span class="n">mat1_ref</span><span class="p">,</span> <span class="n">mat2_ref</span><span class="p">))</span>
+
+<span class="n">results</span> <span class="o">=</span> <span class="n">ray</span><span class="o">.</span><span class="n">get</span><span class="p">(</span><span class="n">collection</span><span class="p">)</span>
+<span class="n">results</span>
+</pre></div>
+</div>
+</div>
+</div>
+</section>
+</section>
+<section id="chaining-tasks-and-passing-data">
+<h2>2. Chaining Tasks and Passing Data<a class="headerlink" href="#chaining-tasks-and-passing-data" title="Link to this heading">#</a></h2>
+<p>Let’s say we now want to execute a graph of two tasks:</p>
+<ol class="arabic simple">
+<li><p>Square a value using <code class="docutils literal notranslate"><span class="pre">expensive_square</span></code></p></li>
+<li><p>Add 1 to the <code class="docutils literal notranslate"><span class="pre">expensive_square</span></code> result, by using <code class="docutils literal notranslate"><span class="pre">remote_add</span></code></p></li>
+</ol>
+<p>This can be achieved without fetching an intermediate result.</p>
+<p>Anti-pattern:</p>
+<div class="cell docutils container">
+<div class="cell_input docutils container">
+<div class="highlight-ipython3 notranslate"><div class="highlight"><pre><span></span><span class="c1"># 1st task</span>
+<span class="n">square_ref</span> <span class="o">=</span> <span class="n">expensive_square</span><span class="o">.</span><span class="n">remote</span><span class="p">(</span><span class="mi">2</span><span class="p">)</span>
+<span class="n">square_value</span> <span class="o">=</span> <span class="n">ray</span><span class="o">.</span><span class="n">get</span><span class="p">(</span><span class="n">square_ref</span><span class="p">)</span>
+
+<span class="c1"># 2nd task</span>
+<span class="n">sum_ref</span> <span class="o">=</span> <span class="n">remote_add</span><span class="o">.</span><span class="n">remote</span><span class="p">(</span><span class="mi">1</span><span class="p">,</span> <span class="n">square_value</span><span class="p">)</span>
+<span class="n">sum_value</span> <span class="o">=</span> <span class="n">ray</span><span class="o">.</span><span class="n">get</span><span class="p">(</span><span class="n">sum_ref</span><span class="p">)</span>
+</pre></div>
+</div>
+</div>
+</div>
+<p>Chain the tasks by passing the <code class="docutils literal notranslate"><span class="pre">ObjectRef</span></code> directly to the second task:</p>
+<div class="cell docutils container">
+<div class="cell_input docutils container">
+<div class="highlight-ipython3 notranslate"><div class="highlight"><pre><span></span><span class="n">square_ref</span> <span class="o">=</span> <span class="n">expensive_square</span><span class="o">.</span><span class="n">remote</span><span class="p">(</span><span class="mi">2</span><span class="p">)</span>
+<span class="n">sum_ref</span> <span class="o">=</span> <span class="n">remote_add</span><span class="o">.</span><span class="n">remote</span><span class="p">(</span><span class="mi">1</span><span class="p">,</span> <span class="n">square_ref</span><span class="p">)</span>
+<span class="n">sum_value</span> <span class="o">=</span> <span class="n">ray</span><span class="o">.</span><span class="n">get</span><span class="p">(</span><span class="n">sum_ref</span><span class="p">)</span>
+</pre></div>
+</div>
+</div>
+</div>
+<p>In this way Ray doesn’t fetch data to the “driver” process, <em>especially</em> if the returned object is large.</p>
+<p>The term “driver” refers to the process that initiated the connection to the cluster which in this case is the Python process running this notebook.</p>
+<p>Under the hood, Ray will still call <code class="docutils literal notranslate"><span class="pre">ray.get</span></code> on the first task</p>
+<p>i.e. effectively, Ray will do something like this to make the argument available to the second task:</p>
+<div class="highlight-python notranslate"><div class="highlight"><pre><span></span><span class="k">def</span><span class="w"> </span><span class="nf">expensive_square</span><span class="p">(</span><span class="n">x</span><span class="p">):</span>
+    <span class="k">if</span> <span class="nb">isinstance</span><span class="p">(</span><span class="n">x</span><span class="p">,</span> <span class="n">ObjectRef</span><span class="p">):</span>
+        <span class="n">x</span> <span class="o">=</span> <span class="n">ray</span><span class="o">.</span><span class="n">get</span><span class="p">(</span><span class="n">x</span><span class="p">)</span>
+    <span class="n">time</span><span class="o">.</span><span class="n">sleep</span><span class="p">(</span><span class="mi">5</span><span class="p">)</span>
+    <span class="k">return</span> <span class="n">x</span><span class="o">**</span><span class="mi">2</span>
+</pre></div>
+</div>
+<p>The benefit of this approach is that data at most needs to be transferred once between the first and second task. Instead of going through the driver process. To read more about this, see <a class="reference external" href="https://docs.ray.io/en/latest/ray-core/objects.html#passing-object-arguments">Passing object arguments</a>.</p>
+<p>Also note, you can bypass this behavior by wrapping/nesting the object ref in a container object (e.g., a tuple, list, or dict):</p>
+<div class="cell docutils container">
+<div class="cell_input docutils container">
+<div class="highlight-ipython3 notranslate"><div class="highlight"><pre><span></span><span class="n">ref</span> <span class="o">=</span> <span class="n">expensive_square</span><span class="o">.</span><span class="n">remote</span><span class="p">(</span><span class="mi">1</span><span class="p">)</span>
+<span class="n">out_ref</span> <span class="o">=</span> <span class="n">remote_add</span><span class="o">.</span><span class="n">remote</span><span class="p">([</span><span class="n">ref</span><span class="p">],</span> <span class="p">[</span><span class="n">ref</span><span class="p">])</span>
+<span class="n">ray</span><span class="o">.</span><span class="n">get</span><span class="p">(</span><span class="n">out_ref</span><span class="p">)</span> 
+</pre></div>
+</div>
+</div>
+</div>
+</section>
+<section id="task-retries">
+<h2>3. Task retries<a class="headerlink" href="#task-retries" title="Link to this heading">#</a></h2>
+<p>Let’s consider two types of exceptions:</p>
+<ol class="arabic simple">
+<li><p><strong>system errors</strong> (e.g., Python-level exceptions)</p></li>
+<li><p><strong>application-level errors</strong> (e.g., a machine fails)</p></li>
+</ol>
+<p>Ray will automatically <strong>retry a task up to 3 times</strong>, if it fails due to a system error (e.g., a worker node dies).</p>
+<p>Below task won’t be retried by default because it’s an application failure</p>
+<div class="cell docutils container">
+<div class="cell_input docutils container">
+<div class="highlight-ipython3 notranslate"><div class="highlight"><pre><span></span><span class="nd">@ray</span><span class="o">.</span><span class="n">remote</span>
+<span class="k">def</span><span class="w"> </span><span class="nf">incorrect_square</span><span class="p">(</span><span class="n">x</span><span class="p">:</span> <span class="nb">int</span><span class="p">,</span> <span class="n">prob</span><span class="p">:</span> <span class="nb">float</span><span class="p">)</span> <span class="o">-&gt;</span> <span class="nb">int</span><span class="p">:</span>
+    <span class="c1"># Simulate potential failures</span>
+    <span class="k">if</span> <span class="n">random</span><span class="o">.</span><span class="n">random</span><span class="p">()</span> <span class="o">&lt;</span> <span class="n">prob</span><span class="p">:</span>  <span class="c1"># % chance of failure</span>
+        <span class="k">raise</span> <span class="ne">ValueError</span><span class="p">(</span><span class="s2">&quot;Random failure&quot;</span><span class="p">)</span>
+    <span class="k">return</span> <span class="n">x</span><span class="o">**</span><span class="mi">2</span>
+</pre></div>
+</div>
+</div>
+</div>
+<div class="cell docutils container">
+<div class="cell_input docutils container">
+<div class="highlight-ipython3 notranslate"><div class="highlight"><pre><span></span><span class="k">try</span><span class="p">:</span>
+    <span class="n">ray</span><span class="o">.</span><span class="n">get</span><span class="p">([</span><span class="n">incorrect_square</span><span class="o">.</span><span class="n">remote</span><span class="p">(</span><span class="n">x</span><span class="o">=</span><span class="mi">4</span><span class="p">,</span> <span class="n">prob</span><span class="o">=</span><span class="mf">0.5</span><span class="p">)</span> <span class="k">for</span> <span class="n">_</span> <span class="ow">in</span> <span class="nb">range</span><span class="p">(</span><span class="mi">10</span><span class="p">)])</span>
+<span class="k">except</span> <span class="n">ray</span><span class="o">.</span><span class="n">exceptions</span><span class="o">.</span><span class="n">RayTaskError</span><span class="p">:</span>
+    <span class="nb">print</span><span class="p">(</span><span class="s2">&quot;At least one of the tasks failed&quot;</span><span class="p">,</span> <span class="n">flush</span><span class="o">=</span><span class="kc">True</span><span class="p">)</span>
+</pre></div>
+</div>
+</div>
+</div>
+<p>Ray let’s you specify how to handle retries when an exception is encountered.</p>
+<p>Let’s retry on <code class="docutils literal notranslate"><span class="pre">ValueError</span></code>, like below:</p>
+<div class="cell docutils container">
+<div class="cell_input docutils container">
+<div class="highlight-ipython3 notranslate"><div class="highlight"><pre><span></span><span class="nd">@ray</span><span class="o">.</span><span class="n">remote</span><span class="p">(</span><span class="n">retry_exceptions</span><span class="o">=</span><span class="p">[</span><span class="ne">ValueError</span><span class="p">])</span>
+<span class="k">def</span><span class="w"> </span><span class="nf">correct_square</span><span class="p">(</span><span class="n">x</span><span class="p">:</span> <span class="nb">int</span><span class="p">,</span> <span class="n">prob</span><span class="p">:</span> <span class="nb">float</span><span class="p">)</span> <span class="o">-&gt;</span> <span class="nb">int</span><span class="p">:</span>
+    <span class="c1"># Simulate potential failures</span>
+    <span class="k">if</span> <span class="n">random</span><span class="o">.</span><span class="n">random</span><span class="p">()</span> <span class="o">&lt;</span> <span class="n">prob</span><span class="p">:</span>  <span class="c1"># % chance of failure</span>
+        <span class="k">raise</span> <span class="ne">ValueError</span><span class="p">(</span><span class="s2">&quot;Random failure&quot;</span><span class="p">)</span>
+
+    <span class="k">return</span> <span class="n">x</span><span class="o">**</span><span class="mi">2</span>
+</pre></div>
+</div>
+</div>
+</div>
+<p>Note we did not have to re-define the remote function, instead we can an update version using <code class="docutils literal notranslate"><span class="pre">.options</span></code></p>
+<div class="cell docutils container">
+<div class="cell_input docutils container">
+<div class="highlight-ipython3 notranslate"><div class="highlight"><pre><span></span><span class="n">correct_square_mod</span> <span class="o">=</span> <span class="n">correct_square</span><span class="o">.</span><span class="n">options</span><span class="p">(</span>
+    <span class="n">retry_exceptions</span><span class="o">=</span><span class="p">[</span><span class="ne">ValueError</span><span class="p">],</span> <span class="n">max_retries</span><span class="o">=</span><span class="mi">10</span><span class="p">,</span>
+<span class="p">)</span>
+</pre></div>
+</div>
+</div>
+</div>
+<p>Let’s try it out:</p>
+<div class="cell docutils container">
+<div class="cell_input docutils container">
+<div class="highlight-ipython3 notranslate"><div class="highlight"><pre><span></span><span class="k">try</span><span class="p">:</span>
+    <span class="n">outputs</span> <span class="o">=</span> <span class="n">ray</span><span class="o">.</span><span class="n">get</span><span class="p">([</span><span class="n">correct_square_mod</span><span class="o">.</span><span class="n">remote</span><span class="p">(</span><span class="n">x</span><span class="o">=</span><span class="mi">4</span><span class="p">,</span> <span class="n">prob</span><span class="o">=</span><span class="mf">0.5</span><span class="p">)</span> <span class="k">for</span> <span class="n">_</span> <span class="ow">in</span> <span class="nb">range</span><span class="p">(</span><span class="mi">10</span><span class="p">)])</span>
+<span class="k">except</span> <span class="n">ray</span><span class="o">.</span><span class="n">exceptions</span><span class="o">.</span><span class="n">RayTaskError</span><span class="p">:</span>
+    <span class="nb">print</span><span class="p">(</span><span class="s2">&quot;At least one of the tasks failed&quot;</span><span class="p">,</span> <span class="n">flush</span><span class="o">=</span><span class="kc">True</span><span class="p">)</span>
+
+<span class="n">outputs</span>
+</pre></div>
+</div>
+</div>
+</div>
+<div class="alert alert-info">
+Refer to the <strong><a href="https://docs.ray.io/en/latest/ray-core/tasks/retries.html" target="_blank">retries</a></strong> to learn more.
+</div></section>
+<section id="task-runtime-environments">
+<h2>4. Task Runtime Environments<a class="headerlink" href="#task-runtime-environments" title="Link to this heading">#</a></h2>
+<p>Runtime environments can be used on top of the prepared environment from the Ray Cluster to customize the execution of tasks.</p>
+<p>When setting up a worker process to run a task, Ray will first prepare the environment for the task.</p>
+<p>This includes things like:</p>
+<ul class="simple">
+<li><p>installing dependencies</p></li>
+<li><p>setting environment variables</p></li>
+</ul>
+<p>For example, we can set an environment variable:</p>
+<div class="cell docutils container">
+<div class="cell_input docutils container">
+<div class="highlight-ipython3 notranslate"><div class="highlight"><pre><span></span><span class="nd">@ray</span><span class="o">.</span><span class="n">remote</span><span class="p">(</span><span class="n">runtime_env</span><span class="o">=</span><span class="p">{</span><span class="s2">&quot;env_vars&quot;</span><span class="p">:</span> <span class="p">{</span><span class="s2">&quot;my_custom_env&quot;</span><span class="p">:</span> <span class="s2">&quot;prod&quot;</span><span class="p">}})</span>
+<span class="k">def</span><span class="w"> </span><span class="nf">f</span><span class="p">():</span>
+    <span class="n">env</span> <span class="o">=</span> <span class="n">os</span><span class="o">.</span><span class="n">environ</span><span class="p">[</span><span class="s2">&quot;my_custom_env&quot;</span><span class="p">]</span>
+    <span class="k">return</span> <span class="sa">f</span><span class="s2">&quot;My custom env is </span><span class="si">{</span><span class="n">env</span><span class="si">}</span><span class="s2">&quot;</span>
+</pre></div>
+</div>
+</div>
+</div>
+<div class="cell docutils container">
+<div class="cell_input docutils container">
+<div class="highlight-ipython3 notranslate"><div class="highlight"><pre><span></span><span class="n">ray</span><span class="o">.</span><span class="n">get</span><span class="p">(</span><span class="n">f</span><span class="o">.</span><span class="n">remote</span><span class="p">())</span>
+</pre></div>
+</div>
+</div>
+</div>
+<section id="note-about-pip-dependencies">
+<h3>4.1. Note about pip dependencies<a class="headerlink" href="#note-about-pip-dependencies" title="Link to this heading">#</a></h3>
+<p>pip dependencies in task runtime environments don’t come for free. They add to the startup time of the worker process.</p>
+<p>If you find yourself needing to install the same dependencies across many tasks, consider baking them into the image you use to start your Ray cluster.</p>
+</section>
+</section>
+<section id="resource-allocation-and-management">
+<h2>5. Resource allocation and management<a class="headerlink" href="#resource-allocation-and-management" title="Link to this heading">#</a></h2>
+<p>By default, Ray will schedule a task as long as there is at least one CPU available.</p>
+<p>In code this can be specified in the <code class="docutils literal notranslate"><span class="pre">ray.remote</span></code>, like this:</p>
+<div class="cell docutils container">
+<div class="cell_input docutils container">
+<div class="highlight-ipython3 notranslate"><div class="highlight"><pre><span></span><span class="nd">@ray</span><span class="o">.</span><span class="n">remote</span><span class="p">(</span><span class="n">num_cpus</span><span class="o">=</span><span class="mi">1</span><span class="p">)</span>
+<span class="k">def</span><span class="w"> </span><span class="nf">remote_add</span><span class="p">(</span><span class="n">a</span><span class="p">,</span> <span class="n">b</span><span class="p">):</span>
+    <span class="k">return</span> <span class="n">a</span> <span class="o">+</span> <span class="n">b</span>
+</pre></div>
+</div>
+</div>
+</div>
+<p>However, these resource specifications are not enforced - i.e. they are entirely <a class="reference external" href="https://docs.ray.io/en/latest/ray-core/scheduling/resources.html#physical-resources-vs-logical-resources">logical and not physical</a>.</p>
+<p>This means that you can for instance perform multiprocessing ormultithreading within a task and oversubscribe to resources.</p>
+<div class="cell docutils container">
+<div class="cell_input docutils container">
+<div class="highlight-ipython3 notranslate"><div class="highlight"><pre><span></span><span class="nd">@ray</span><span class="o">.</span><span class="n">remote</span><span class="p">(</span><span class="n">num_cpus</span><span class="o">=</span><span class="mi">1</span><span class="p">)</span>
+<span class="k">def</span><span class="w"> </span><span class="nf">mm</span><span class="p">(</span><span class="n">n</span><span class="p">:</span> <span class="nb">int</span> <span class="o">=</span> <span class="mi">4000</span><span class="p">):</span>
+    <span class="n">A</span> <span class="o">=</span> <span class="n">np</span><span class="o">.</span><span class="n">random</span><span class="o">.</span><span class="n">rand</span><span class="p">(</span><span class="n">n</span><span class="p">,</span> <span class="n">n</span><span class="p">)</span>
+    <span class="n">B</span> <span class="o">=</span> <span class="n">np</span><span class="o">.</span><span class="n">random</span><span class="o">.</span><span class="n">rand</span><span class="p">(</span><span class="n">n</span><span class="p">,</span> <span class="n">n</span><span class="p">)</span>
+
+    <span class="c1"># Time the dot product</span>
+    <span class="n">start</span> <span class="o">=</span> <span class="n">time</span><span class="o">.</span><span class="n">time</span><span class="p">()</span>
+    <span class="n">C</span> <span class="o">=</span> <span class="n">np</span><span class="o">.</span><span class="n">dot</span><span class="p">(</span><span class="n">A</span><span class="p">,</span> <span class="n">B</span><span class="p">)</span>
+    <span class="n">end</span> <span class="o">=</span> <span class="n">time</span><span class="o">.</span><span class="n">time</span><span class="p">()</span>
+    <span class="nb">print</span><span class="p">(</span><span class="sa">f</span><span class="s2">&quot;Took </span><span class="si">{</span><span class="n">end</span><span class="w"> </span><span class="o">-</span><span class="w"> </span><span class="n">start</span><span class="si">}</span><span class="s2">s&quot;</span><span class="p">)</span>
+    
+<span class="n">ray</span><span class="o">.</span><span class="n">get</span><span class="p">(</span><span class="n">mm</span><span class="o">.</span><span class="n">options</span><span class="p">(</span><span class="n">runtime_env</span><span class="o">=</span><span class="p">{</span><span class="s2">&quot;env_vars&quot;</span><span class="p">:</span> <span class="p">{</span><span class="s2">&quot;OMP_NUM_THREADS&quot;</span><span class="p">:</span> <span class="s2">&quot;1&quot;</span><span class="p">}})</span><span class="o">.</span><span class="n">remote</span><span class="p">())</span>
+<span class="n">ray</span><span class="o">.</span><span class="n">get</span><span class="p">(</span><span class="n">mm</span><span class="o">.</span><span class="n">options</span><span class="p">(</span><span class="n">runtime_env</span><span class="o">=</span><span class="p">{</span><span class="s2">&quot;env_vars&quot;</span><span class="p">:</span> <span class="p">{</span><span class="s2">&quot;OMP_NUM_THREADS&quot;</span><span class="p">:</span> <span class="s2">&quot;8&quot;</span><span class="p">}})</span><span class="o">.</span><span class="n">remote</span><span class="p">())</span>
+</pre></div>
+</div>
+</div>
+</div>
+<div class="alert alert-info">
+<p>Note by default, Ray will set the <code class="docutils literal notranslate"><span class="pre">OMP_NUM_THREADS</span></code> environment variable to the number of CPUs in the cluster.</p>
+<p>Learn more about <strong><a href="https://docs.ray.io/en/latest/ray-core/scheduling/resources.html#physical-resources-and-logical-resources" target="_blank">physical resources and logical resources</a></strong>.</p>
+</div><section id="note-on-resources-requests-available-resources-configuring-large-clusters">
+<h3>5.1. Note on resources requests, available resources, configuring large clusters<a class="headerlink" href="#note-on-resources-requests-available-resources-configuring-large-clusters" title="Link to this heading">#</a></h3>
+<p>During the <em>scheduling stage</em>, Ray evaluates the <strong>resource requirements</strong> specified via the <code>@ray.remote</code> decorator or within the <code>resources={...}</code> argument. These requirements may include:</p>
+<ul>
+    <li><strong>CPU</strong> e.g., <code>@ray.remote(num_cpus=2)</code>)</li>
+    <li><strong>GPU</strong> e.g., <code>@ray.remote(num_gpus=1)</code>)</li>
+    <li><strong>Custom resources</strong>: User-defined custom resources like <code>"TPU"</code></li>
+    <li><strong>Memory</strong></li>
+</ul>
+<p>Ray's scheduler checks the <strong>resource specification</strong> (sometimes referred to as <strong>resource shape</strong>) to match tasks and actors with available resources in the cluster. If the exact resource combination is unavailable, Ray may autoscaler the cluster.</p>
+<p>You can inspect the current resource availability using:</p>
+<pre><code>
+ray.available_resources()
+</code></pre>
+<p>This returns a dictionary showing the currently available CPUs, GPUs, memory, and any custom resources, for example:</p>
+<pre><code>{'CPU': 24.0, 'GPU': 1.0, 'memory': 2147483648.0}</code></pre><div class="cell docutils container">
+<div class="cell_input docutils container">
+<div class="highlight-ipython3 notranslate"><div class="highlight"><pre><span></span><span class="n">ray</span><span class="o">.</span><span class="n">available_resources</span><span class="p">()</span>
+</pre></div>
+</div>
+</div>
+</div>
+<div class="alert alert-info">
+<p><strong>Pattern:</strong> configure the head node to be unavailable for compute tasks.</p>
+<p>When scaling to large clusters, it’s important to ensure that the <strong>head node</strong> does not handle any compute tasks. Users can indicate that the head node is unavailable for compute by setting its resources:</p>
+<p><code class="docutils literal notranslate"><span class="pre">resources:</span> <span class="pre">{&quot;CPU&quot;:</span> <span class="pre">0}</span></code></p>
+<p>Learn more about <strong><a href="https://docs.ray.io/en/latest/cluster/vms/user-guides/large-cluster-best-practices.html#configuring-the-head-node" target="_blank">configuring the head node</a></strong>.</p>
+</div></section>
+<section id="fractional-resources">
+<h3>5.2. Fractional resources<a class="headerlink" href="#fractional-resources" title="Link to this heading">#</a></h3>
+<p>Fractional resources allow Ray Tasks to request a fraction of a CPU or GPU (e.g., 0.5), enabling finer-grained resource allocation.</p>
+<p>Let’s consider the above example again:</p>
+<div class="cell docutils container">
+<div class="cell_input docutils container">
+<div class="highlight-ipython3 notranslate"><div class="highlight"><pre><span></span><span class="nd">@ray</span><span class="o">.</span><span class="n">remote</span><span class="p">(</span><span class="n">num_cpus</span><span class="o">=</span><span class="mf">0.5</span><span class="p">)</span>
+<span class="k">def</span><span class="w"> </span><span class="nf">remote_add</span><span class="p">(</span><span class="n">a</span><span class="p">,</span> <span class="n">b</span><span class="p">):</span>
+    <span class="k">return</span> <span class="n">a</span> <span class="o">+</span> <span class="n">b</span>
+</pre></div>
+</div>
+</div>
+</div>
+<div class="cell docutils container">
+<div class="cell_input docutils container">
+<div class="highlight-ipython3 notranslate"><div class="highlight"><pre><span></span><span class="n">ref</span> <span class="o">=</span> <span class="n">remote_add</span><span class="o">.</span><span class="n">remote</span><span class="p">(</span><span class="mi">2</span><span class="p">,</span> <span class="mi">3</span><span class="p">)</span>
+<span class="n">ref</span>
+</pre></div>
+</div>
+</div>
+</div>
+<div class="cell docutils container">
+<div class="cell_input docutils container">
+<div class="highlight-ipython3 notranslate"><div class="highlight"><pre><span></span><span class="n">ray</span><span class="o">.</span><span class="n">get</span><span class="p">(</span><span class="n">ref</span><span class="p">)</span>
+</pre></div>
+</div>
+</div>
+</div>
+<div class="alert alert-info">
+    Fractional resources include support for <strong><a href="https://docs.ray.io/en/latest/ray-core/scheduling/accelerators.html#fractional-accelerators" target="_blank">multiple accelerators</a></strong>, allowing users to load multiple smaller models onto a single GPU. This is especially useful for scenarios like batch inference. Learn more about <strong><a href="https://docs.ray.io/en/latest/ray-core/scheduling/resources.html#fractional-resource-requirements" target="_blank">fractional resource requirements</a></strong>.
+</div></section>
+<section id="io-bound-tasks-and-fractional-resources">
+<h3>5.3. IO bound tasks and fractional resources<a class="headerlink" href="#io-bound-tasks-and-fractional-resources" title="Link to this heading">#</a></h3>
+<p>Setting fractional cpus or even <code class="docutils literal notranslate"><span class="pre">num_cpus=0</span></code> is a pattern for <strong>I/O-bound tasks</strong> that do not require CPU-intensive computation.</p>
+<p>This allows Ray to oversubscribe CPUs, scheduling many such tasks concurrently without reserving CPU cores. Since <code>num_cpus=0</code> always passes the scheduler’s resource check, these tasks get scheduled immediately.</p>
+<p>This can lead to <strong>resource savings</strong> and better utilization in workloads with high I/O.</p>
+<p>More details about <a href="https://docs.ray.io/en/latest/ray-core/scheduling/resources.html#fractional-resource-requirements" target="_blank">
+fractional resource requirements</a>.</p></section>
+</section>
+<section id="nested-tasks">
+<h2>6. Nested Tasks<a class="headerlink" href="#nested-tasks" title="Link to this heading">#</a></h2>
+<p>Ray <strong>does not</strong> require that all of your tasks and their dependencies be arranged from one “driver” process.</p>
+<p>For example, you can have a main task that schedules other tasks and then waits for them to complete.</p>
+<div class="cell docutils container">
+<div class="cell_input docutils container">
+<div class="highlight-ipython3 notranslate"><div class="highlight"><pre><span></span><span class="nd">@ray</span><span class="o">.</span><span class="n">remote</span>
+<span class="k">def</span><span class="w"> </span><span class="nf">main</span><span class="p">():</span>
+    <span class="n">square_ref_1</span> <span class="o">=</span> <span class="n">expensive_square</span><span class="o">.</span><span class="n">remote</span><span class="p">(</span><span class="mi">1</span><span class="p">)</span>
+    <span class="n">square_ref_2</span> <span class="o">=</span> <span class="n">expensive_square</span><span class="o">.</span><span class="n">remote</span><span class="p">(</span><span class="mi">2</span><span class="p">)</span>
+    <span class="n">add_ref</span> <span class="o">=</span> <span class="n">remote_add</span><span class="o">.</span><span class="n">remote</span><span class="p">(</span><span class="n">square_ref_1</span><span class="p">,</span> <span class="n">square_ref_2</span><span class="p">)</span>
+    <span class="k">return</span> <span class="n">ray</span><span class="o">.</span><span class="n">get</span><span class="p">(</span><span class="n">add_ref</span><span class="p">)</span>
+</pre></div>
+</div>
+</div>
+</div>
+<div class="cell docutils container">
+<div class="cell_input docutils container">
+<div class="highlight-ipython3 notranslate"><div class="highlight"><pre><span></span><span class="n">ray</span><span class="o">.</span><span class="n">get</span><span class="p">(</span><span class="n">main</span><span class="o">.</span><span class="n">remote</span><span class="p">())</span>
+</pre></div>
+</div>
+</div>
+</div>
+<p>In this example:</p>
+<ol class="arabic simple">
+<li><p>Our local process requests Ray to schedule a <code class="docutils literal notranslate"><span class="pre">main</span></code> task in the cluster</p></li>
+<li><p>Ray executes the <code class="docutils literal notranslate"><span class="pre">main</span></code> task in a separate worker process</p></li>
+<li><p>Inside <code class="docutils literal notranslate"><span class="pre">main</span></code>, we invoke multiple <code class="docutils literal notranslate"><span class="pre">expensive_square</span></code> tasks, which Ray distributes across available worker processes</p></li>
+<li><p>Once all “sub tasks” complete, <code class="docutils literal notranslate"><span class="pre">main</span></code> returns the final value</p></li>
+</ol>
+<p>This ability for tasks to schedule other tasks using uniform semantics makes Ray particularly powerful and flexible.</p>
+<div class="alert alert-info">
+To avoid deadlocks, Ray yields CPU resources while blocked waiting for a task to complete. Read more about <strong><a href="https://docs.ray.io/en/latest/ray-core/tasks/nested-tasks.html#yielding-resources-while-blocked" target="_blank">yielding resources while blocked</a></strong>.
+</div></section>
+<section id="pattern-pipeline-data-processing-and-waiting-for-results">
+<h2>7. Pattern: Pipeline data processing and waiting for results<a class="headerlink" href="#pattern-pipeline-data-processing-and-waiting-for-results" title="Link to this heading">#</a></h2>
+<p>After launching a number of tasks, you may want to know which ones have finished executing without blocking on all of them. This could be achieved by <code class="docutils literal notranslate"><span class="pre">ray.wait()</span></code></p>
+<div class="pst-scrollable-table-container"><table class="table">
+<thead>
+<tr class="row-odd"><th class="head text-left"><p><img src="https://assets-training.s3.us-west-2.amazonaws.com/ray-core/ray-core/pipeline-data-processing.png" width="50%" loading="lazy"></p></th>
+</tr>
+</thead>
+<tbody>
+<tr class="row-even"><td class="text-left"><p>(top panel) Execution timeline when using ray.get() to wait for all results before calling process results. (bottom panel) Execution timeline when using ray.wait() to process results as soon as they become available.</p></td>
+</tr>
+</tbody>
+</table>
+</div>
+<p>Let’s modify <code class="docutils literal notranslate"><span class="pre">expensive_square</span></code> a bit:</p>
+<div class="cell docutils container">
+<div class="cell_input docutils container">
+<div class="highlight-ipython3 notranslate"><div class="highlight"><pre><span></span><span class="nd">@ray</span><span class="o">.</span><span class="n">remote</span>
+<span class="k">def</span><span class="w"> </span><span class="nf">expensive_square</span><span class="p">(</span><span class="n">x</span><span class="p">):</span>
+    <span class="n">time</span><span class="o">.</span><span class="n">sleep</span><span class="p">(</span><span class="n">np</span><span class="o">.</span><span class="n">random</span><span class="o">.</span><span class="n">randint</span><span class="p">(</span><span class="mi">1</span><span class="p">,</span> <span class="mi">10</span><span class="p">))</span>
+    <span class="k">return</span> <span class="n">x</span><span class="o">**</span><span class="mi">2</span>
+</pre></div>
+</div>
+</div>
+</div>
+<div class="cell docutils container">
+<div class="cell_input docutils container">
+<div class="highlight-ipython3 notranslate"><div class="highlight"><pre><span></span><span class="n">expensive_compute</span> <span class="o">=</span> <span class="p">[]</span>
+
+<span class="k">for</span> <span class="n">i</span> <span class="ow">in</span> <span class="nb">range</span><span class="p">(</span><span class="mi">15</span><span class="p">):</span>
+    <span class="n">expensive_compute</span><span class="o">.</span><span class="n">append</span><span class="p">(</span><span class="n">expensive_square</span><span class="o">.</span><span class="n">remote</span><span class="p">(</span><span class="n">i</span><span class="p">))</span>
+
+<span class="n">expensive_compute</span>
+</pre></div>
+</div>
+</div>
+</div>
+<p>Process items as soon as they become available</p>
+<div class="cell docutils container">
+<div class="cell_input docutils container">
+<div class="highlight-ipython3 notranslate"><div class="highlight"><pre><span></span><span class="n">ready_refs</span><span class="p">,</span> <span class="n">not_ready_refs</span> <span class="o">=</span> <span class="n">ray</span><span class="o">.</span><span class="n">wait</span><span class="p">(</span><span class="n">expensive_compute</span><span class="p">)</span> <span class="c1"># wait for next object ref that is ready</span>
+
+<span class="c1"># process new item as soon as it becomes available</span>
+<span class="k">while</span> <span class="n">not_ready_refs</span><span class="p">:</span>
+    <span class="nb">print</span><span class="p">(</span><span class="sa">f</span><span class="s2">&quot;</span><span class="si">{</span><span class="n">ready_refs</span><span class="p">[</span><span class="mi">0</span><span class="p">]</span><span class="si">}</span><span class="s2"> is ready; result: </span><span class="si">{</span><span class="n">ray</span><span class="o">.</span><span class="n">get</span><span class="p">(</span><span class="n">ready_refs</span><span class="p">[</span><span class="mi">0</span><span class="p">])</span><span class="si">}</span><span class="s2">&quot;</span><span class="p">)</span>
+    <span class="nb">print</span><span class="p">(</span><span class="sa">f</span><span class="s2">&quot;</span><span class="si">{</span><span class="nb">len</span><span class="p">(</span><span class="n">not_ready_refs</span><span class="p">)</span><span class="si">}</span><span class="s2"> items not ready... </span><span class="se">\n</span><span class="s2">&quot;</span><span class="p">)</span>
+
+    <span class="n">ready_refs</span><span class="p">,</span> <span class="n">not_ready_refs</span> <span class="o">=</span> <span class="n">ray</span><span class="o">.</span><span class="n">wait</span><span class="p">(</span><span class="n">not_ready_refs</span><span class="p">)</span> <span class="c1"># wait for next item</span>
+
+    <span class="k">assert</span> <span class="nb">len</span><span class="p">(</span><span class="n">ready_refs</span><span class="p">)</span> <span class="o">==</span> <span class="mi">1</span><span class="p">,</span> <span class="sa">f</span><span class="s2">&quot;len(ready_refs) should be 1, got </span><span class="si">{</span><span class="nb">len</span><span class="p">(</span><span class="n">ready_refs</span><span class="p">)</span><span class="si">}</span><span class="s2"> instead&quot;</span>
+
+<span class="nb">print</span><span class="p">(</span><span class="sa">f</span><span class="s2">&quot;I&#39;m the last item: </span><span class="si">{</span><span class="n">ready_refs</span><span class="p">[</span><span class="mi">0</span><span class="p">]</span><span class="si">}</span><span class="s2">; result: </span><span class="si">{</span><span class="n">ray</span><span class="o">.</span><span class="n">get</span><span class="p">(</span><span class="n">ready_refs</span><span class="p">[</span><span class="mi">0</span><span class="p">])</span><span class="si">}</span><span class="s2">&quot;</span><span class="p">)</span>
+</pre></div>
+</div>
+</div>
+</div>
+<div class="alert alert-info">
+Read more about the <strong><a href="https://docs.ray.io/en/latest/ray-core/tips-for-first-time.html#tip-4-pipeline-data-processing" target="_blank">pipeline data processing</a></strong>
+</div><section id="batch-processing-pattern">
+<h3>7.1 Batch Processing Pattern<a class="headerlink" href="#batch-processing-pattern" title="Link to this heading">#</a></h3>
+<p>Program can wait for a batch of <code class="docutils literal notranslate"><span class="pre">ObjectRef</span></code>, before returning. Let’s consider this scenario:</p>
+<div class="cell docutils container">
+<div class="cell_input docutils container">
+<div class="highlight-ipython3 notranslate"><div class="highlight"><pre><span></span><span class="n">expensive_compute</span> <span class="o">=</span> <span class="p">[]</span>
+
+<span class="k">for</span> <span class="n">i</span> <span class="ow">in</span> <span class="nb">range</span><span class="p">(</span><span class="mi">15</span><span class="p">):</span>
+    <span class="n">expensive_compute</span><span class="o">.</span><span class="n">append</span><span class="p">(</span><span class="n">expensive_square</span><span class="o">.</span><span class="n">remote</span><span class="p">(</span><span class="n">i</span><span class="p">))</span>
+
+<span class="n">expensive_compute</span>
+</pre></div>
+</div>
+</div>
+</div>
+<div class="cell docutils container">
+<div class="cell_input docutils container">
+<div class="highlight-ipython3 notranslate"><div class="highlight"><pre><span></span><span class="n">BATCH_SIZE</span> <span class="o">=</span> <span class="mi">3</span>
+
+<span class="n">ready_refs</span><span class="p">,</span> <span class="n">not_ready_refs</span> <span class="o">=</span> <span class="n">ray</span><span class="o">.</span><span class="n">wait</span><span class="p">(</span><span class="n">expensive_compute</span><span class="p">,</span> <span class="n">num_returns</span><span class="o">=</span><span class="n">BATCH_SIZE</span><span class="p">)</span>  <span class="c1"># wait for BATCH_SIZE object refs</span>
+
+<span class="c1"># process new item as soon as it becomes available</span>
+<span class="k">while</span> <span class="n">not_ready_refs</span><span class="p">:</span>
+    <span class="nb">print</span><span class="p">(</span><span class="sa">f</span><span class="s2">&quot;</span><span class="si">{</span><span class="n">ready_refs</span><span class="si">}</span><span class="s2"> are ready; results: </span><span class="si">{</span><span class="n">ray</span><span class="o">.</span><span class="n">get</span><span class="p">(</span><span class="n">ready_refs</span><span class="p">)</span><span class="si">}</span><span class="s2">&quot;</span><span class="p">)</span>
+    <span class="nb">print</span><span class="p">(</span><span class="sa">f</span><span class="s2">&quot;</span><span class="si">{</span><span class="nb">len</span><span class="p">(</span><span class="n">not_ready_refs</span><span class="p">)</span><span class="si">}</span><span class="s2"> items not ready... </span><span class="se">\n</span><span class="s2">&quot;</span><span class="p">)</span>
+    <span class="n">ready_refs</span><span class="p">,</span> <span class="n">not_ready_refs</span> <span class="o">=</span> <span class="n">ray</span><span class="o">.</span><span class="n">wait</span><span class="p">(</span><span class="n">not_ready_refs</span><span class="p">,</span> <span class="n">num_returns</span><span class="o">=</span><span class="n">BATCH_SIZE</span><span class="p">)</span>  <span class="c1"># wait for BATCH_SIZE object refs</span>
+
+<span class="nb">print</span><span class="p">(</span><span class="sa">f</span><span class="s2">&quot;Last batch </span><span class="si">{</span><span class="n">ready_refs</span><span class="si">}</span><span class="s2">; result: </span><span class="si">{</span><span class="n">ray</span><span class="o">.</span><span class="n">get</span><span class="p">(</span><span class="n">ready_refs</span><span class="p">)</span><span class="si">}</span><span class="s2">&quot;</span><span class="p">)</span>
+</pre></div>
+</div>
+</div>
+</div>
+</section>
+<section id="note-on-fetching-too-many-objects-at-once-with-ray-get-causes-failure">
+<h3>7.2 Note on fetching too many objects at once with ray.get causes failure<a class="headerlink" href="#note-on-fetching-too-many-objects-at-once-with-ray-get-causes-failure" title="Link to this heading">#</a></h3>
+<p>Calling <code class="docutils literal notranslate"><span class="pre">ray.get()</span></code> on too many objects will lead to <strong>heap out-of-memory</strong> or <strong>object store out-of-space</strong>.</p>
+<div class="highlight-python notranslate"><div class="highlight"><pre><span></span><span class="n">object_refs</span> <span class="o">=</span> <span class="p">[</span><span class="n">expensive_square</span><span class="o">.</span><span class="n">remote</span><span class="p">(</span><span class="n">i</span><span class="p">)</span> <span class="k">for</span> <span class="n">i</span> <span class="ow">in</span> <span class="nb">range</span><span class="p">(</span><span class="mi">1_000_000</span><span class="p">)]</span>
+
+<span class="n">all_results_at_once</span> <span class="o">=</span> <span class="n">ray</span><span class="o">.</span><span class="n">get</span><span class="p">(</span><span class="n">object_refs</span><span class="p">)</span>
+<span class="n">all_results_at_once</span>
+</pre></div>
+</div>
+<p>Instead fetch and process one batch at a time.</p>
+<div class="alert alert-info">
+Read more about this <strong><a href="https://docs.ray.io/en/latest/ray-core/patterns/ray-get-too-many-objects.html#anti-pattern-fetching-too-many-objects-at-once-with-ray-get-causes-failure" target="_blank">anti-pattern</a></strong>.
+</div></section>
+</section>
+<section id="ray-actors">
+<h2>8. Ray Actors<a class="headerlink" href="#ray-actors" title="Link to this heading">#</a></h2>
+<p>Actors extend the Ray API from functions (tasks) to classes.</p>
+<p>An actor is a stateful worker. When a new actor is instantiated, a new worker is created, and methods of the actor are scheduled on that specific worker and can access and mutate the state of that worker. Similarly to Ray Tasks, actors support CPU and GPU compute as well as fractional resources.</p>
+<p>Let’s look at an example of an actor which maintains a running balance.</p>
+<div class="cell docutils container">
+<div class="cell_input docutils container">
+<div class="highlight-ipython3 notranslate"><div class="highlight"><pre><span></span><span class="nd">@ray</span><span class="o">.</span><span class="n">remote</span>
+<span class="k">class</span><span class="w"> </span><span class="nc">Accounting</span><span class="p">:</span>
+    <span class="k">def</span><span class="w"> </span><span class="fm">__init__</span><span class="p">(</span><span class="bp">self</span><span class="p">):</span>
+        <span class="bp">self</span><span class="o">.</span><span class="n">total</span> <span class="o">=</span> <span class="mi">0</span>
+    
+    <span class="k">def</span><span class="w"> </span><span class="nf">add</span><span class="p">(</span><span class="bp">self</span><span class="p">,</span> <span class="n">amount</span><span class="p">):</span>
+        <span class="bp">self</span><span class="o">.</span><span class="n">total</span> <span class="o">+=</span> <span class="n">amount</span>
+        
+    <span class="k">def</span><span class="w"> </span><span class="nf">remove</span><span class="p">(</span><span class="bp">self</span><span class="p">,</span> <span class="n">amount</span><span class="p">):</span>
+        <span class="bp">self</span><span class="o">.</span><span class="n">total</span> <span class="o">-=</span> <span class="n">amount</span>
+        
+    <span class="k">def</span><span class="w"> </span><span class="nf">total</span><span class="p">(</span><span class="bp">self</span><span class="p">):</span>
+        <span class="k">return</span> <span class="bp">self</span><span class="o">.</span><span class="n">total</span>
+</pre></div>
+</div>
+</div>
+</div>
+<div class="alert alert-info">
+  <strong><a href="https://docs.ray.io/en/latest/ray-core/key-concepts.html#actors" target="_blank">Actor</a></strong> is a remote, stateful Python class.
+</div><div class="alert alert-info">
+<p>The most common use case for actors is with state that is not mutated but is large enough that we may want to load it only once and ensure we can route calls to it over time, such as a large AI model.</p>
+</div><p>Define an actor with the <code class="docutils literal notranslate"><span class="pre">&#64;ray.remote</span></code> decorator and then use <code class="docutils literal notranslate"><span class="pre">&lt;class_name&gt;.remote()</span></code> ask Ray to construct and instance of this actor somewhere in the cluster.</p>
+<p>We get an actor handle which we can use to communicate with that actor, pass to other code, tasks, or actors, etc.</p>
+<div class="cell docutils container">
+<div class="cell_input docutils container">
+<div class="highlight-ipython3 notranslate"><div class="highlight"><pre><span></span><span class="n">acc</span> <span class="o">=</span> <span class="n">Accounting</span><span class="o">.</span><span class="n">remote</span><span class="p">()</span>
+</pre></div>
+</div>
+</div>
+</div>
+<p>We can send a message to an actor – with RPC semantics – by using <code class="docutils literal notranslate"><span class="pre">&lt;handle&gt;.&lt;method_name&gt;.remote()</span></code></p>
+<div class="cell docutils container">
+<div class="cell_input docutils container">
+<div class="highlight-ipython3 notranslate"><div class="highlight"><pre><span></span><span class="n">acc</span><span class="o">.</span><span class="n">total</span><span class="o">.</span><span class="n">remote</span><span class="p">()</span>
+</pre></div>
+</div>
+</div>
+</div>
+<p>Not surprisingly, we get an object ref back</p>
+<div class="cell docutils container">
+<div class="cell_input docutils container">
+<div class="highlight-ipython3 notranslate"><div class="highlight"><pre><span></span><span class="n">ray</span><span class="o">.</span><span class="n">get</span><span class="p">(</span><span class="n">acc</span><span class="o">.</span><span class="n">total</span><span class="o">.</span><span class="n">remote</span><span class="p">())</span>
+</pre></div>
+</div>
+</div>
+</div>
+<p>We can mutate the state inside this actor instance</p>
+<div class="cell docutils container">
+<div class="cell_input docutils container">
+<div class="highlight-ipython3 notranslate"><div class="highlight"><pre><span></span><span class="n">acc</span><span class="o">.</span><span class="n">add</span><span class="o">.</span><span class="n">remote</span><span class="p">(</span><span class="mi">100</span><span class="p">)</span>
+</pre></div>
+</div>
+</div>
+</div>
+<div class="cell docutils container">
+<div class="cell_input docutils container">
+<div class="highlight-ipython3 notranslate"><div class="highlight"><pre><span></span><span class="n">acc</span><span class="o">.</span><span class="n">remove</span><span class="o">.</span><span class="n">remote</span><span class="p">(</span><span class="mi">10</span><span class="p">)</span>
+</pre></div>
+</div>
+</div>
+</div>
+<div class="cell docutils container">
+<div class="cell_input docutils container">
+<div class="highlight-ipython3 notranslate"><div class="highlight"><pre><span></span><span class="n">ray</span><span class="o">.</span><span class="n">get</span><span class="p">(</span><span class="n">acc</span><span class="o">.</span><span class="n">total</span><span class="o">.</span><span class="n">remote</span><span class="p">())</span>
+</pre></div>
+</div>
+</div>
+</div>
+<div class="alert alert-block alert-info">
+<p><strong>Activity: linear model inference</strong></p>
+<ul class="simple">
+<li><p>Create an actor which applies a model to convert Celsius temperatures to Fahrenheit</p></li>
+<li><p>The constructor should take model weights (w1 and w0) and store them as instance state</p></li>
+<li><p>A convert method should take a scalar, multiply it by w1 then add w0 (weights retrieved from instance state) and then return the result</p></li>
+</ul>
+<div class="highlight-python notranslate"><div class="highlight"><pre><span></span>
+<span class="c1"># Hint: define the below as a remote actor</span>
+<span class="k">class</span><span class="w"> </span><span class="nc">LinearModel</span><span class="p">:</span>
+    <span class="k">def</span><span class="w"> </span><span class="fm">__init__</span><span class="p">(</span><span class="bp">self</span><span class="p">,</span> <span class="n">w0</span><span class="p">,</span> <span class="n">w1</span><span class="p">):</span>
+        <span class="c1"># Hint: store the weights</span>
+
+    <span class="k">def</span><span class="w"> </span><span class="nf">convert</span><span class="p">(</span><span class="bp">self</span><span class="p">,</span> <span class="n">celsius</span><span class="p">):</span>
+        <span class="c1"># Hint: convert the celsius temperature to Fahrenheit</span>
+
+<span class="c1"># Hint: create an instance of the LinearModel actor</span>
+
+<span class="c1"># Hint: convert 100 Celsius to Fahrenheit</span>
+</pre></div>
+</div>
+</div><div class="cell docutils container">
+<div class="cell_input docutils container">
+<div class="highlight-ipython3 notranslate"><div class="highlight"><pre><span></span><span class="c1"># Write your solution here</span>
+</pre></div>
+</div>
+</div>
+</div>
+<div class="alert alert-block alert-info">
+<details>
+<summary> Click to see solution </summary>
+<div class="highlight-python notranslate"><div class="highlight"><pre><span></span><span class="nd">@ray</span><span class="o">.</span><span class="n">remote</span>
+<span class="k">class</span><span class="w"> </span><span class="nc">LinearModel</span><span class="p">:</span>
+    <span class="k">def</span><span class="w"> </span><span class="fm">__init__</span><span class="p">(</span><span class="bp">self</span><span class="p">,</span> <span class="n">w0</span><span class="p">,</span> <span class="n">w1</span><span class="p">):</span>
+        <span class="bp">self</span><span class="o">.</span><span class="n">w0</span> <span class="o">=</span> <span class="n">w0</span>
+        <span class="bp">self</span><span class="o">.</span><span class="n">w1</span> <span class="o">=</span> <span class="n">w1</span>
+
+    <span class="k">def</span><span class="w"> </span><span class="nf">convert</span><span class="p">(</span><span class="bp">self</span><span class="p">,</span> <span class="n">celsius</span><span class="p">):</span>
+        <span class="k">return</span> <span class="bp">self</span><span class="o">.</span><span class="n">w1</span> <span class="o">*</span> <span class="n">celsius</span> <span class="o">+</span> <span class="bp">self</span><span class="o">.</span><span class="n">w0</span>
+
+<span class="n">model</span> <span class="o">=</span> <span class="n">LinearModel</span><span class="o">.</span><span class="n">remote</span><span class="p">(</span><span class="n">w1</span><span class="o">=</span><span class="mi">9</span><span class="o">/</span><span class="mi">5</span><span class="p">,</span> <span class="n">w0</span><span class="o">=</span><span class="mi">32</span><span class="p">)</span>
+<span class="n">ray</span><span class="o">.</span><span class="n">get</span><span class="p">(</span><span class="n">model</span><span class="o">.</span><span class="n">convert</span><span class="o">.</span><span class="n">remote</span><span class="p">(</span><span class="mi">100</span><span class="p">))</span>
+</pre></div>
+</div>
+</details>
+</div>
+<!-- TODO: add Patterns/antipatterns based on above learnings-->
+</section>
+</section>
+
+    <script type="text/x-thebe-config">
+    {
+        requestKernel: true,
+        binderOptions: {
+            repo: "binder-examples/jupyter-stacks-datascience",
+            ref: "master",
+        },
+        codeMirrorConfig: {
+            theme: "abcdef",
+            mode: "xing-ray-jupyter"
+        },
+        kernelOptions: {
+            name: "xing-ray-jupyter",
+            path: "./courses/00_Developer_Intro_to_Ray"
+        },
+        predefinedOutput: true
+    }
+    </script>
+    <script>kernelName = 'xing-ray-jupyter'</script>
+
+                </article>
+              
+
+              
+              
+              
+              
+                <footer class="prev-next-footer d-print-none">
+                  
+<div class="prev-next-area">
+</div>
+                </footer>
+              
+            </div>
+            
+            
+              
+                <div class="bd-sidebar-secondary bd-toc"><div class="sidebar-secondary-items sidebar-secondary__inner">
+
+
+  <div class="sidebar-secondary-item">
+  <div class="page-toc tocsection onthispage">
+    <i class="fa-solid fa-list"></i> Contents
+  </div>
+  <nav class="bd-toc-nav page-toc">
+    <ul class="visible nav section-nav flex-column">
+<li class="toc-h2 nav-item toc-entry"><a class="reference internal nav-link" href="#object-store">1. Object store</a><ul class="nav section-nav flex-column">
+<li class="toc-h3 nav-item toc-entry"><a class="reference internal nav-link" href="#pattern-pass-an-object-as-a-top-level-argument">1.1. Pattern: pass an object as a top-level argument</a></li>
+</ul>
+</li>
+<li class="toc-h2 nav-item toc-entry"><a class="reference internal nav-link" href="#chaining-tasks-and-passing-data">2. Chaining Tasks and Passing Data</a></li>
+<li class="toc-h2 nav-item toc-entry"><a class="reference internal nav-link" href="#task-retries">3. Task retries</a></li>
+<li class="toc-h2 nav-item toc-entry"><a class="reference internal nav-link" href="#task-runtime-environments">4. Task Runtime Environments</a><ul class="nav section-nav flex-column">
+<li class="toc-h3 nav-item toc-entry"><a class="reference internal nav-link" href="#note-about-pip-dependencies">4.1. Note about pip dependencies</a></li>
+</ul>
+</li>
+<li class="toc-h2 nav-item toc-entry"><a class="reference internal nav-link" href="#resource-allocation-and-management">5. Resource allocation and management</a><ul class="nav section-nav flex-column">
+<li class="toc-h3 nav-item toc-entry"><a class="reference internal nav-link" href="#note-on-resources-requests-available-resources-configuring-large-clusters">5.1. Note on resources requests, available resources, configuring large clusters</a></li>
+<li class="toc-h3 nav-item toc-entry"><a class="reference internal nav-link" href="#fractional-resources">5.2. Fractional resources</a></li>
+<li class="toc-h3 nav-item toc-entry"><a class="reference internal nav-link" href="#io-bound-tasks-and-fractional-resources">5.3. IO bound tasks and fractional resources</a></li>
+</ul>
+</li>
+<li class="toc-h2 nav-item toc-entry"><a class="reference internal nav-link" href="#nested-tasks">6. Nested Tasks</a></li>
+<li class="toc-h2 nav-item toc-entry"><a class="reference internal nav-link" href="#pattern-pipeline-data-processing-and-waiting-for-results">7. Pattern: Pipeline data processing and waiting for results</a><ul class="nav section-nav flex-column">
+<li class="toc-h3 nav-item toc-entry"><a class="reference internal nav-link" href="#batch-processing-pattern">7.1 Batch Processing Pattern</a></li>
+<li class="toc-h3 nav-item toc-entry"><a class="reference internal nav-link" href="#note-on-fetching-too-many-objects-at-once-with-ray-get-causes-failure">7.2 Note on fetching too many objects at once with ray.get causes failure</a></li>
+</ul>
+</li>
+<li class="toc-h2 nav-item toc-entry"><a class="reference internal nav-link" href="#ray-actors">8. Ray Actors</a></li>
+</ul>
+  </nav></div>
+
+</div></div>
+              
+            
+          </div>
+          <footer class="bd-footer-content">
+            
+<div class="bd-footer-content__inner container">
+  
+  <div class="footer-item">
+    
+<p class="component-author">
+By The Jupyter Book community
+</p>
+
+  </div>
+  
+  <div class="footer-item">
+    
+
+  </div>
+  
+  <div class="footer-item">
+    
+  </div>
+  
+  <div class="footer-item">
+    
+  </div>
+  
+</div>
+          </footer>
+        
+
+      </main>
+    </div>
+  </div>
+  
+  <!-- Scripts loaded after <body> so the DOM is not blocked -->
+  <script src="../../_static/scripts/bootstrap.js?digest=dfe6caa3a7d634c4db9b"></script>
+<script src="../../_static/scripts/pydata-sphinx-theme.js?digest=dfe6caa3a7d634c4db9b"></script>
+
+  <footer class="bd-footer">
+  </footer>
+  </body>
+</html>
