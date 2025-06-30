@@ -3,6 +3,56 @@ import glob
 import json
 from pathlib import Path
 import yaml
+import re
+
+def fix_image_paths_in_cell(cell, notebook_path):
+    """
+    Fix relative image paths in markdown cells to use GitHub raw content URLs.
+    """
+    if cell.get('cell_type') != 'markdown':
+        return cell
+    
+    # Extract course folder from notebook path
+    # e.g., "courses/anyscale_101/101_anyscale_intro_jobs.ipynb" -> "anyscale_101"
+    path_parts = notebook_path.split(os.sep)
+    if len(path_parts) >= 2 and path_parts[0] == 'courses':
+        course_folder = path_parts[1]
+    else:
+        return cell  # Can't determine course folder, return unchanged
+    
+    # Process source content
+    source = cell.get('source', [])
+    if isinstance(source, list):
+        source_str = ''.join(source)
+    else:
+        source_str = source
+    
+    # GitHub raw content base URL
+    github_base = "https://raw.githubusercontent.com/ray-project/enablement-content/refs/heads/main"
+    
+    # Pattern to match relative image paths in markdown
+    # Matches: ![alt](./images/file.png), ![alt](images/file.png), <img src="./images/file.png", etc.
+    patterns = [
+        (r'!\[([^\]]*)\]\(\./images/([^)]+)\)', rf'![\1]({github_base}/courses/{course_folder}/images/\2)'),
+        (r'!\[([^\]]*)\]\(images/([^)]+)\)', rf'![\1]({github_base}/courses/{course_folder}/images/\2)'),
+        (r'<img\s+src="\.\/images\/([^"]+)"', rf'<img src="{github_base}/courses/{course_folder}/images/\1"'),
+        (r'<img\s+src="images\/([^"]+)"', rf'<img src="{github_base}/courses/{course_folder}/images/\1"'),
+    ]
+    
+    # Apply all patterns
+    modified_source = source_str
+    for pattern, replacement in patterns:
+        modified_source = re.sub(pattern, replacement, modified_source)
+    
+    # Update the cell if changes were made
+    if modified_source != source_str:
+        if isinstance(source, list):
+            # Split back into list format if original was a list
+            cell['source'] = [modified_source]
+        else:
+            cell['source'] = modified_source
+    
+    return cell
 
 def split_notebook_by_h2(notebook_path, output_dir):
     """
@@ -16,6 +66,9 @@ def split_notebook_by_h2(notebook_path, output_dir):
     parts = []
     current_part = []
     for i, cell in enumerate(cells):
+        # Fix image paths in the cell
+        cell = fix_image_paths_in_cell(cell, notebook_path)
+        
         if cell.get('cell_type') == 'markdown':
             # Check if this is a second-level header
             src = cell.get('source', [])
