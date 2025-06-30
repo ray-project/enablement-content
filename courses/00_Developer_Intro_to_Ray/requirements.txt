@@ -1,0 +1,15 @@
+pandas
+notebook
+ray[default]==2.46.0
+ipywidgets
+numpy
+torch
+lightning
+fastapi
+xgboost
+scikit-learn
+pyarrow
+ray[tune]==2.46.0
+ray[serve]==2.46.0
+torchvision
+matplotlib

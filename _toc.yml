@@ -1,6 +1,82 @@
 format: jb-book
 root: index.md
-chapters:
+parts:
+- caption: Developer Intro to Ray
+  chapters:
+  - file: courses/00_Developer_Intro_to_Ray/output/00_Intro_Ray_Core_Basics_01.ipynb
+  - file: courses/00_Developer_Intro_to_Ray/output/00_Intro_Ray_Core_Basics_02.ipynb
+  - file: courses/00_Developer_Intro_to_Ray/output/00_Intro_Ray_Core_Basics_03.ipynb
+  - file: courses/00_Developer_Intro_to_Ray/output/00_Intro_Ray_Core_Basics_04.ipynb
+  - file: courses/00_Developer_Intro_to_Ray/output/00_Intro_Ray_Core_Basics_05.ipynb
+  - file: courses/00_Developer_Intro_to_Ray/output/00_Intro_Ray_Core_Basics_06.ipynb
+  - file: courses/00_Developer_Intro_to_Ray/output/00a_Intro_Ray_Core_Advancement_01.ipynb
+  - file: courses/00_Developer_Intro_to_Ray/output/00a_Intro_Ray_Core_Advancement_02.ipynb
+  - file: courses/00_Developer_Intro_to_Ray/output/00a_Intro_Ray_Core_Advancement_03.ipynb
+  - file: courses/00_Developer_Intro_to_Ray/output/00a_Intro_Ray_Core_Advancement_04.ipynb
+  - file: courses/00_Developer_Intro_to_Ray/output/00a_Intro_Ray_Core_Advancement_05.ipynb
+  - file: courses/00_Developer_Intro_to_Ray/output/00a_Intro_Ray_Core_Advancement_06.ipynb
+  - file: courses/00_Developer_Intro_to_Ray/output/00a_Intro_Ray_Core_Advancement_07.ipynb
+  - file: courses/00_Developer_Intro_to_Ray/output/00a_Intro_Ray_Core_Advancement_08.ipynb
+  - file: courses/00_Developer_Intro_to_Ray/output/00a_Intro_Ray_Core_Advancement_09.ipynb
+  - file: courses/00_Developer_Intro_to_Ray/output/01_Intro_Ray_AI_Libs_Overview_01.ipynb
+  - file: courses/00_Developer_Intro_to_Ray/output/01_Intro_Ray_AI_Libs_Overview_02.ipynb
+  - file: courses/00_Developer_Intro_to_Ray/output/01_Intro_Ray_AI_Libs_Overview_03.ipynb
+  - file: courses/00_Developer_Intro_to_Ray/output/02a_Intro_Ray_Train_with_PyTorch_01.ipynb
+  - file: courses/00_Developer_Intro_to_Ray/output/02a_Intro_Ray_Train_with_PyTorch_02.ipynb
+  - file: courses/00_Developer_Intro_to_Ray/output/02a_Intro_Ray_Train_with_PyTorch_03.ipynb
+  - file: courses/00_Developer_Intro_to_Ray/output/02a_Intro_Ray_Train_with_PyTorch_04.ipynb
+  - file: courses/00_Developer_Intro_to_Ray/output/02a_Intro_Ray_Train_with_PyTorch_05.ipynb
+  - file: courses/00_Developer_Intro_to_Ray/output/02b_Intro_Ray_Train_with_PyTorch_Lightning_01.ipynb
+  - file: courses/00_Developer_Intro_to_Ray/output/02b_Intro_Ray_Train_with_PyTorch_Lightning_02.ipynb
+  - file: courses/00_Developer_Intro_to_Ray/output/02b_Intro_Ray_Train_with_PyTorch_Lightning_03.ipynb
+  - file: courses/00_Developer_Intro_to_Ray/output/02b_Intro_Ray_Train_with_PyTorch_Lightning_04.ipynb
+  - file: courses/00_Developer_Intro_to_Ray/output/02b_Intro_Ray_Train_with_PyTorch_Lightning_05.ipynb
+  - file: courses/00_Developer_Intro_to_Ray/output/03_Intro_Ray_Tune_01.ipynb
+  - file: courses/00_Developer_Intro_to_Ray/output/03_Intro_Ray_Tune_02.ipynb
+  - file: courses/00_Developer_Intro_to_Ray/output/03_Intro_Ray_Tune_03.ipynb
+  - file: courses/00_Developer_Intro_to_Ray/output/03_Intro_Ray_Tune_04.ipynb
+  - file: courses/00_Developer_Intro_to_Ray/output/03_Intro_Ray_Tune_05.ipynb
+  - file: courses/00_Developer_Intro_to_Ray/output/04a_Intro_Ray_Data_Industry_Landscape_01.ipynb
+  - file: courses/00_Developer_Intro_to_Ray/output/04a_Intro_Ray_Data_Industry_Landscape_02.ipynb
+  - file: courses/00_Developer_Intro_to_Ray/output/04a_Intro_Ray_Data_Industry_Landscape_03.ipynb
+  - file: courses/00_Developer_Intro_to_Ray/output/04a_Intro_Ray_Data_Industry_Landscape_04.ipynb
+  - file: courses/00_Developer_Intro_to_Ray/output/04a_Intro_Ray_Data_Industry_Landscape_05.ipynb
+  - file: courses/00_Developer_Intro_to_Ray/output/04a_Intro_Ray_Data_Industry_Landscape_06.ipynb
+  - file: courses/00_Developer_Intro_to_Ray/output/04b_Intro_Ray_Data_Structured_01.ipynb
+  - file: courses/00_Developer_Intro_to_Ray/output/04b_Intro_Ray_Data_Structured_02.ipynb
+  - file: courses/00_Developer_Intro_to_Ray/output/04b_Intro_Ray_Data_Structured_03.ipynb
+  - file: courses/00_Developer_Intro_to_Ray/output/04b_Intro_Ray_Data_Structured_04.ipynb
+  - file: courses/00_Developer_Intro_to_Ray/output/04b_Intro_Ray_Data_Structured_05.ipynb
+  - file: courses/00_Developer_Intro_to_Ray/output/04b_Intro_Ray_Data_Structured_06.ipynb
+  - file: courses/00_Developer_Intro_to_Ray/output/04b_Intro_Ray_Data_Structured_07.ipynb
+  - file: courses/00_Developer_Intro_to_Ray/output/04b_Intro_Ray_Data_Structured_08.ipynb
+  - file: courses/00_Developer_Intro_to_Ray/output/04b_Intro_Ray_Data_Structured_09.ipynb
+  - file: courses/00_Developer_Intro_to_Ray/output/04b_Intro_Ray_Data_Structured_10.ipynb
+  - file: courses/00_Developer_Intro_to_Ray/output/04c_Intro_Ray_Data_Unstructured_01.ipynb
+  - file: courses/00_Developer_Intro_to_Ray/output/04c_Intro_Ray_Data_Unstructured_02.ipynb
+  - file: courses/00_Developer_Intro_to_Ray/output/04c_Intro_Ray_Data_Unstructured_03.ipynb
+  - file: courses/00_Developer_Intro_to_Ray/output/04c_Intro_Ray_Data_Unstructured_04.ipynb
+  - file: courses/00_Developer_Intro_to_Ray/output/04c_Intro_Ray_Data_Unstructured_05.ipynb
+  - file: courses/00_Developer_Intro_to_Ray/output/04c_Intro_Ray_Data_Unstructured_06.ipynb
+  - file: courses/00_Developer_Intro_to_Ray/output/04c_Intro_Ray_Data_Unstructured_07.ipynb
+  - file: courses/00_Developer_Intro_to_Ray/output/04c_Intro_Ray_Data_Unstructured_08.ipynb
+  - file: courses/00_Developer_Intro_to_Ray/output/04c_Intro_Ray_Data_Unstructured_09.ipynb
+  - file: courses/00_Developer_Intro_to_Ray/output/04c_Intro_Ray_Data_Unstructured_10.ipynb
+  - file: courses/00_Developer_Intro_to_Ray/output/04c_Intro_Ray_Data_Unstructured_11.ipynb
+  - file: courses/00_Developer_Intro_to_Ray/output/05_Intro_Ray_Serve_PyTorch_01.ipynb
+  - file: courses/00_Developer_Intro_to_Ray/output/05_Intro_Ray_Serve_PyTorch_02.ipynb
+  - file: courses/00_Developer_Intro_to_Ray/output/05_Intro_Ray_Serve_PyTorch_03.ipynb
+  - file: courses/00_Developer_Intro_to_Ray/output/05_Intro_Ray_Serve_PyTorch_04.ipynb
+  - file: courses/00_Developer_Intro_to_Ray/output/05_Intro_Ray_Serve_PyTorch_05.ipynb
+- caption: Anyscale 101
+  chapters:
+  - file: courses/anyscale_101/output/101_anyscale_intro_jobs_01.ipynb
+  - file: courses/anyscale_101/output/101_anyscale_intro_jobs_02.ipynb
+  - file: courses/anyscale_101/output/101_anyscale_intro_jobs_03.ipynb
+  - file: courses/anyscale_101/output/101_anyscale_intro_services_01.ipynb
+  - file: courses/anyscale_101/output/101_anyscale_intro_services_02.ipynb
+- caption: Ray 101
+  chapters:
   - file: courses/ray-101/output/1_AI_Libs_Intro_01.ipynb
   - file: courses/ray-101/output/1_AI_Libs_Intro_02.ipynb
   - file: courses/ray-101/output/1_AI_Libs_Intro_03.ipynb

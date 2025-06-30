@@ -21,3 +21,9 @@ execute:
     stderr_output: remove
     stdout_output: remove
     remove_code_outputs: true
+
+# Course display name mappings
+course_display_names:
+    "ray-101": "Ray 101"
+    "anyscale_101": "Anyscale 101"
+    "00_Developer_Intro_to_Ray": "Developer Intro to Ray"

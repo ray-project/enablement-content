@@ -51,69 +51,112 @@ def split_notebook_by_h2(notebook_path, output_dir):
         output_paths.append(rel_path)
     return output_paths
 
-def find_all_notebooks(root="courses"):
-    """Recursively find all .ipynb files under root, ignoring output/ dirs."""
-    notebooks = []
-    for dirpath, dirnames, filenames in os.walk(root):
-        # Skip output directories
-        dirnames[:] = [d for d in dirnames if d != 'output']
-        for fname in filenames:
-            if fname.endswith('.ipynb'):
-                notebooks.append(os.path.join(dirpath, fname))
-    return sorted(notebooks)
+def find_notebooks_by_course(root="courses"):
+    """Find all .ipynb files organized by course folder, ignoring output/ dirs."""
+    courses = {}
+    for item in os.listdir(root):
+        course_path = os.path.join(root, item)
+        if os.path.isdir(course_path):
+            notebooks = []
+            for dirpath, dirnames, filenames in os.walk(course_path):
+                # Skip output directories
+                dirnames[:] = [d for d in dirnames if d != 'output']
+                for fname in filenames:
+                    if fname.endswith('.ipynb'):
+                        notebooks.append(os.path.join(dirpath, fname))
+            if notebooks:
+                courses[item] = sorted(notebooks)
+    return courses
 
-def write_index_md_from_toc(toc_path="_toc.yml", index_path="index.md"):
-    """Generate an index.md file with links to all notebook parts from _toc.yml."""
-    with open(toc_path, "r", encoding="utf-8") as f:
-        toc = yaml.safe_load(f)
-    links = []
-    # Add the root file first
-    if "root" in toc:
-        root_file = toc["root"]
-        links.append(f"- [Index (this page)]({root_file})")
-    # Add all chapters
-    for entry in toc.get("chapters", []):
-        file_path = entry["file"]
-        # Use the filename (without extension) as the link text
-        name = os.path.splitext(os.path.basename(file_path))[0].replace("_", " ")
-        links.append(f"- [{name}]({file_path})")
-    index_md = "# Index of All Notebooks\n\n" + "\n".join(links) + "\n"
+def load_course_display_names(config_path="_config.yml"):
+    """Load course display name mappings from config file."""
+    try:
+        with open(config_path, 'r', encoding='utf-8') as f:
+            config = yaml.safe_load(f)
+        return config.get('course_display_names', {})
+    except (FileNotFoundError, yaml.YAMLError):
+        # Fallback to empty dict if config file is missing or invalid
+        return {}
+
+def get_course_display_name(course_folder, display_names):
+    """Get display name for course folder from config, with fallback logic."""
+    if course_folder in display_names:
+        return display_names[course_folder]
+    else:
+        # Fallback: Convert underscores to spaces and title case
+        return course_folder.replace("_", " ").replace("-", " ").title()
+
+def write_index_md_from_courses(courses_data, display_names, index_path="index.md"):
+    """Generate an index.md file with links organized by course."""
+    lines = ["# Ray Enablement Content", "", "This collection contains multiple courses on Ray and Anyscale:", ""]
+    
+    for course_folder, notebook_parts in courses_data.items():
+        course_name = get_course_display_name(course_folder, display_names)
+        lines.append(f"## {course_name}")
+        lines.append("")
+        for part in notebook_parts:
+            # Use the filename (without extension) as the link text
+            name = os.path.splitext(os.path.basename(part))[0].replace("_", " ")
+            lines.append(f"- [{name}]({part})")
+        lines.append("")
+    
     with open(index_path, "w", encoding="utf-8") as f:
-        f.write(index_md)
+        f.write("\n".join(lines))
 
 def main():
-    all_notebooks = find_all_notebooks()
-    toc_entries = []
-    root_file = None
-    for nb_path in all_notebooks:
-        nb_dir = os.path.dirname(nb_path)
-        output_dir = os.path.join(nb_dir, 'output')
-        split_paths = split_notebook_by_h2(nb_path, output_dir)
-        if not split_paths:
-            continue
-        if root_file is None:
-            root_file = split_paths[0]
-        # Add all parts to TOC
-        for i, part in enumerate(split_paths):
-            if part == root_file:
-                continue  # root will be set separately
-            toc_entries.append({'file': part})
+    # Load course display names from config
+    display_names = load_course_display_names()
+    
+    courses_notebooks = find_notebooks_by_course()
+    courses_data = {}
+    first_notebook = None
+    
+    # Process each course
+    for course_folder, notebooks in courses_notebooks.items():
+        course_parts = []
+        for nb_path in notebooks:
+            nb_dir = os.path.dirname(nb_path)
+            output_dir = os.path.join(nb_dir, 'output')
+            split_paths = split_notebook_by_h2(nb_path, output_dir)
+            if split_paths:
+                course_parts.extend(split_paths)
+                if first_notebook is None:
+                    first_notebook = split_paths[0]
+        
+        if course_parts:
+            courses_data[course_folder] = course_parts
 
-    # Write new _toc.yml
-    toc_lines = ["format: jb-book"]
-    if root_file:
-        toc_lines.append(f"root: index.md")
-    if toc_entries or root_file:
-        toc_lines.append("chapters:")
-        if root_file:
-            toc_lines.append(f"  - file: {root_file}")
-        for entry in toc_entries:
-            toc_lines.append(f"  - file: {entry['file']}")
+    # Write new _toc.yml organized by course using 'parts' format
+    toc_data = {
+        'format': 'jb-book',
+        'root': 'index.md',
+        'parts': []
+    }
+    
+    # Sort courses for consistent ordering
+    sorted_courses = sorted(courses_data.keys())
+    
+    for course_folder in sorted_courses:
+        course_parts = courses_data[course_folder]
+        course_name = get_course_display_name(course_folder, display_names)
+        
+        # Add course part with chapters
+        course_part = {
+            'caption': course_name,
+            'chapters': []
+        }
+        
+        for part in course_parts:
+            course_part['chapters'].append({'file': part})
+        
+        toc_data['parts'].append(course_part)
+    
+    # Write _toc.yml
     with open("_toc.yml", "w", encoding="utf-8") as f:
-        f.write("\n".join(toc_lines) + "\n")
+        yaml.dump(toc_data, f, default_flow_style=False, sort_keys=False)
 
-    # Generate index.md with links to all notebook parts
-    write_index_md_from_toc("_toc.yml", "index.md")
+    # Generate index.md with links organized by course
+    write_index_md_from_courses(courses_data, display_names, "index.md")
 
 if __name__ == "__main__":
     main() 
