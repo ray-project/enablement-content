@@ -442,7 +442,6 @@ document.write(`
 </li>
 <li class="toc-h2 nav-item toc-entry"><a class="reference internal nav-link" href="#transforming-data">3. Transforming Data</a><ul class="nav section-nav flex-column">
 <li class="toc-h3 nav-item toc-entry"><a class="reference internal nav-link" href="#execution-mode">Execution mode</a></li>
-<li class="toc-h3 nav-item toc-entry"><a class="reference internal nav-link" href="#activity-add-the-ground-truth-label-using-the-image-path">Activity: Add the ground truth label using the image path.</a></li>
 <li class="toc-h3 nav-item toc-entry"><a class="reference internal nav-link" href="#stateful-transformations-with-actors">Stateful transformations with actors</a></li>
 <li class="toc-h3 nav-item toc-entry"><a class="reference internal nav-link" href="#materializing-data">Materializing Data</a></li>
 </ul>
@@ -615,42 +614,7 @@ document.write(`
 <div class="cell_output docutils container">
 <script type="application/vnd.jupyter.widget-view+json">{"model_id": "f81c5672e9e349eb8982271fae7bd8b3", "version_major": 2, "version_minor": 0}</script><script type="application/vnd.jupyter.widget-view+json">{"model_id": "0c12997069324bc89a9c751574583951", "version_major": 2, "version_minor": 0}</script><script type="application/vnd.jupyter.widget-view+json">{"model_id": "2dd7e0ccb4c64af8b19fa1ef7985755f", "version_major": 2, "version_minor": 0}</script><script type="application/vnd.jupyter.widget-view+json">{"model_id": "bd832f487d884d23b5a32a4643b4474f", "version_major": 2, "version_minor": 0}</script><script type="application/vnd.jupyter.widget-view+json">{"model_id": "1cb9aa61c98b4ecc857290ead31aa1e2", "version_major": 2, "version_minor": 0}</script></div>
 </div>
-<div class="alert alert-block alert-info">
 </section>
-<section id="activity-add-the-ground-truth-label-using-the-image-path">
-<h3>Activity: Add the ground truth label using the image path.<a class="headerlink" href="#activity-add-the-ground-truth-label-using-the-image-path" title="Link to this heading">#</a></h3>
-<p>In this activity, you will add the ground truth label using the image path.</p>
-<p>The image path is in the format of <code class="docutils literal notranslate"><span class="pre">s3://anyscale-public-materials/ray-ai-libraries/mnist/50_per_index/{label}/{image_id}.png</span></code>.</p>
-<p>See the suggested code below:</p>
-<div class="highlight-python notranslate"><div class="highlight"><pre><span></span><span class="c1"># Hint: define the add_label function</span>
-
-<span class="n">ds_labeled</span> <span class="o">=</span> <span class="n">ds_normalized</span><span class="o">.</span><span class="n">map_batches</span><span class="p">(</span><span class="n">add_label</span><span class="p">)</span>
-<span class="n">labeled_batch</span> <span class="o">=</span> <span class="n">ds_labeled</span><span class="o">.</span><span class="n">take_batch</span><span class="p">(</span><span class="mi">10</span><span class="p">)</span>
-<span class="nb">print</span><span class="p">(</span><span class="n">labeled_batch</span><span class="p">[</span><span class="s2">&quot;ground_truth_label&quot;</span><span class="p">])</span>
-</pre></div>
-</div>
-</div>
-<div class="cell docutils container">
-<div class="cell_input docutils container">
-<div class="highlight-ipython3 notranslate"><div class="highlight"><pre><span></span><span class="c1"># Write your solution here</span>
-</pre></div>
-</div>
-</div>
-</div>
-<div class="alert alert-block alert-info">
-<details>
-<summary>Click to view solution</summary>
-<div class="highlight-python notranslate"><div class="highlight"><pre><span></span><span class="k">def</span><span class="w"> </span><span class="nf">add_label</span><span class="p">(</span><span class="n">batch</span><span class="p">:</span> <span class="nb">dict</span><span class="p">[</span><span class="nb">str</span><span class="p">,</span> <span class="n">np</span><span class="o">.</span><span class="n">ndarray</span><span class="p">])</span> <span class="o">-&gt;</span> <span class="nb">dict</span><span class="p">[</span><span class="nb">str</span><span class="p">,</span> <span class="n">np</span><span class="o">.</span><span class="n">ndarray</span><span class="p">]:</span>
-    <span class="n">batch</span><span class="p">[</span><span class="s2">&quot;ground_truth_label&quot;</span><span class="p">]</span> <span class="o">=</span> <span class="p">[</span><span class="nb">int</span><span class="p">(</span><span class="n">path</span><span class="o">.</span><span class="n">split</span><span class="p">(</span><span class="s2">&quot;/&quot;</span><span class="p">)[</span><span class="o">-</span><span class="mi">2</span><span class="p">])</span> <span class="k">for</span> <span class="n">path</span> <span class="ow">in</span> <span class="n">batch</span><span class="p">[</span><span class="s2">&quot;path&quot;</span><span class="p">]]</span>
-    <span class="k">return</span> <span class="n">batch</span>
-
-<span class="n">ds_labeled</span> <span class="o">=</span> <span class="n">ds_normalized</span><span class="o">.</span><span class="n">map_batches</span><span class="p">(</span><span class="n">add_label</span><span class="p">)</span>
-<span class="n">labeled_batch</span> <span class="o">=</span> <span class="n">ds_labeled</span><span class="o">.</span><span class="n">take_batch</span><span class="p">(</span><span class="mi">10</span><span class="p">)</span>
-<span class="nb">print</span><span class="p">(</span><span class="n">labeled_batch</span><span class="p">[</span><span class="s2">&quot;ground_truth_label&quot;</span><span class="p">])</span>
-</pre></div>
-</div>
-</details>  
-</div></section>
 <section id="stateful-transformations-with-actors">
 <h3>Stateful transformations with actors<a class="headerlink" href="#stateful-transformations-with-actors" title="Link to this heading">#</a></h3>
 <p>In cases like <strong>batch inference</strong>, you want to spin up a number of <strong>actor processes</strong> that are initialized once with your model and reused to process multiple batches.</p>
@@ -1024,7 +988,6 @@ document.write(`
 </li>
 <li class="toc-h2 nav-item toc-entry"><a class="reference internal nav-link" href="#transforming-data">3. Transforming Data</a><ul class="nav section-nav flex-column">
 <li class="toc-h3 nav-item toc-entry"><a class="reference internal nav-link" href="#execution-mode">Execution mode</a></li>
-<li class="toc-h3 nav-item toc-entry"><a class="reference internal nav-link" href="#activity-add-the-ground-truth-label-using-the-image-path">Activity: Add the ground truth label using the image path.</a></li>
 <li class="toc-h3 nav-item toc-entry"><a class="reference internal nav-link" href="#stateful-transformations-with-actors">Stateful transformations with actors</a></li>
 <li class="toc-h3 nav-item toc-entry"><a class="reference internal nav-link" href="#materializing-data">Materializing Data</a></li>
 </ul>
