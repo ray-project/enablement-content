@@ -24,7 +24,6 @@ parts:
   - file: courses/00_Developer_Intro_to_Ray/output/02a_Intro_Ray_Train_with_PyTorch_02.ipynb
   - file: courses/00_Developer_Intro_to_Ray/output/02a_Intro_Ray_Train_with_PyTorch_03.ipynb
   - file: courses/00_Developer_Intro_to_Ray/output/02a_Intro_Ray_Train_with_PyTorch_04.ipynb
-  - file: courses/00_Developer_Intro_to_Ray/output/02a_Intro_Ray_Train_with_PyTorch_05.ipynb
   - file: courses/00_Developer_Intro_to_Ray/output/02b_Intro_Ray_Train_with_PyTorch_Lightning_01.ipynb
   - file: courses/00_Developer_Intro_to_Ray/output/02b_Intro_Ray_Train_with_PyTorch_Lightning_02.ipynb
   - file: courses/00_Developer_Intro_to_Ray/output/02b_Intro_Ray_Train_with_PyTorch_Lightning_03.ipynb
