@@ -9,7 +9,6 @@ This collection contains multiple courses on Ray and Anyscale:
 - [00 Intro Ray Core Basics 03](courses/00_Developer_Intro_to_Ray/output/00_Intro_Ray_Core_Basics_03.ipynb)
 - [00 Intro Ray Core Basics 04](courses/00_Developer_Intro_to_Ray/output/00_Intro_Ray_Core_Basics_04.ipynb)
 - [00 Intro Ray Core Basics 05](courses/00_Developer_Intro_to_Ray/output/00_Intro_Ray_Core_Basics_05.ipynb)
-- [00 Intro Ray Core Basics 06](courses/00_Developer_Intro_to_Ray/output/00_Intro_Ray_Core_Basics_06.ipynb)
 - [00a Intro Ray Core Advancement 01](courses/00_Developer_Intro_to_Ray/output/00a_Intro_Ray_Core_Advancement_01.ipynb)
 - [00a Intro Ray Core Advancement 02](courses/00_Developer_Intro_to_Ray/output/00a_Intro_Ray_Core_Advancement_02.ipynb)
 - [00a Intro Ray Core Advancement 03](courses/00_Developer_Intro_to_Ray/output/00a_Intro_Ray_Core_Advancement_03.ipynb)

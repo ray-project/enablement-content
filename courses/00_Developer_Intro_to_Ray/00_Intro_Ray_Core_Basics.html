@@ -181,8 +181,7 @@
 <li class="toctree-l1"><a class="reference internal" href="output/00_Intro_Ray_Core_Basics_02.html">0. Overview</a></li>
 <li class="toctree-l1"><a class="reference internal" href="output/00_Intro_Ray_Core_Basics_03.html">1. Creating Remote Functions</a></li>
 <li class="toctree-l1"><a class="reference internal" href="output/00_Intro_Ray_Core_Basics_04.html">2. Executing Remote Functions</a></li>
-<li class="toctree-l1"><a class="reference internal" href="output/00_Intro_Ray_Core_Basics_05.html">3. Getting Results</a></li>
-<li class="toctree-l1"><a class="reference internal" href="output/00_Intro_Ray_Core_Basics_06.html">4. Putting It All Together</a></li>
+<li class="toctree-l1"><a class="reference internal" href="output/00_Intro_Ray_Core_Basics_05.html">4. Putting It All Together</a></li>
 <li class="toctree-l1"><a class="reference internal" href="output/00a_Intro_Ray_Core_Advancement_01.html">Introduction to Ray Core (Advancement): Object store, Tasks, Actors</a></li>
 <li class="toctree-l1"><a class="reference internal" href="output/00a_Intro_Ray_Core_Advancement_02.html">1. Object store</a></li>
 <li class="toctree-l1"><a class="reference internal" href="output/00a_Intro_Ray_Core_Advancement_03.html">2. Chaining Tasks and Passing Data</a></li>
@@ -438,8 +437,10 @@ document.write(`
                 <ul class="visible nav section-nav flex-column">
 <li class="toc-h2 nav-item toc-entry"><a class="reference internal nav-link" href="#overview">0. Overview</a></li>
 <li class="toc-h2 nav-item toc-entry"><a class="reference internal nav-link" href="#creating-remote-functions">1. Creating Remote Functions</a></li>
-<li class="toc-h2 nav-item toc-entry"><a class="reference internal nav-link" href="#executing-remote-functions">2. Executing Remote Functions</a></li>
-<li class="toc-h2 nav-item toc-entry"><a class="reference internal nav-link" href="#getting-results">3. Getting Results</a></li>
+<li class="toc-h2 nav-item toc-entry"><a class="reference internal nav-link" href="#executing-remote-functions">2. Executing Remote Functions</a><ul class="nav section-nav flex-column">
+<li class="toc-h3 nav-item toc-entry"><a class="reference internal nav-link" href="#getting-results">3. Getting Results</a></li>
+</ul>
+</li>
 <li class="toc-h2 nav-item toc-entry"><a class="reference internal nav-link" href="#putting-it-all-together">4. Putting It All Together</a><ul class="nav section-nav flex-column">
 <li class="toc-h3 nav-item toc-entry"><a class="reference internal nav-link" href="#note-about-ray-id-specification">4.1. Note about Ray ID Specification</a></li>
 <li class="toc-h3 nav-item toc-entry"><a class="reference internal nav-link" href="#anti-pattern-calling-ray-get-in-a-loop-harms-parallelism">4.2. Anti-pattern: Calling ray.get in a loop harms parallelism</a></li>
@@ -586,9 +587,8 @@ document.write(`
 </div>
 </div>
 </div>
-</section>
 <section id="getting-results">
-<h2>3. Getting Results<a class="headerlink" href="#getting-results" title="Link to this heading">#</a></h2>
+<h3>3. Getting Results<a class="headerlink" href="#getting-results" title="Link to this heading">#</a></h3>
 <p>If we want to wait (block) and retrieve the corresponding object, we can use <code class="docutils literal notranslate"><span class="pre">ray.get</span></code></p>
 <div class="cell docutils container">
 <div class="cell_input docutils container">
@@ -597,6 +597,7 @@ document.write(`
 </div>
 </div>
 </div>
+</section>
 </section>
 <section id="putting-it-all-together">
 <h2>4. Putting It All Together<a class="headerlink" href="#putting-it-all-together" title="Link to this heading">#</a></h2>
@@ -750,8 +751,10 @@ Read more about this <strong><a href="https://docs.ray.io/en/latest/ray-core/pat
     <ul class="visible nav section-nav flex-column">
 <li class="toc-h2 nav-item toc-entry"><a class="reference internal nav-link" href="#overview">0. Overview</a></li>
 <li class="toc-h2 nav-item toc-entry"><a class="reference internal nav-link" href="#creating-remote-functions">1. Creating Remote Functions</a></li>
-<li class="toc-h2 nav-item toc-entry"><a class="reference internal nav-link" href="#executing-remote-functions">2. Executing Remote Functions</a></li>
-<li class="toc-h2 nav-item toc-entry"><a class="reference internal nav-link" href="#getting-results">3. Getting Results</a></li>
+<li class="toc-h2 nav-item toc-entry"><a class="reference internal nav-link" href="#executing-remote-functions">2. Executing Remote Functions</a><ul class="nav section-nav flex-column">
+<li class="toc-h3 nav-item toc-entry"><a class="reference internal nav-link" href="#getting-results">3. Getting Results</a></li>
+</ul>
+</li>
 <li class="toc-h2 nav-item toc-entry"><a class="reference internal nav-link" href="#putting-it-all-together">4. Putting It All Together</a><ul class="nav section-nav flex-column">
 <li class="toc-h3 nav-item toc-entry"><a class="reference internal nav-link" href="#note-about-ray-id-specification">4.1. Note about Ray ID Specification</a></li>
 <li class="toc-h3 nav-item toc-entry"><a class="reference internal nav-link" href="#anti-pattern-calling-ray-get-in-a-loop-harms-parallelism">4.2. Anti-pattern: Calling ray.get in a loop harms parallelism</a></li>
