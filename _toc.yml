@@ -68,6 +68,7 @@ parts:
   - file: courses/00_Developer_Intro_to_Ray/output/05_Intro_Ray_Serve_PyTorch_03.ipynb
   - file: courses/00_Developer_Intro_to_Ray/output/05_Intro_Ray_Serve_PyTorch_04.ipynb
   - file: courses/00_Developer_Intro_to_Ray/output/05_Intro_Ray_Serve_PyTorch_05.ipynb
+  - file: courses/00_Developer_Intro_to_Ray/output/README_01.ipynb
 - caption: Anyscale 101
   chapters:
   - file: courses/anyscale_101/output/101_anyscale_intro_jobs_01.ipynb
