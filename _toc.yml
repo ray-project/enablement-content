@@ -47,9 +47,6 @@ parts:
   - file: courses/00_Developer_Intro_to_Ray/output/04b_Intro_Ray_Data_Structured_05.ipynb
   - file: courses/00_Developer_Intro_to_Ray/output/04b_Intro_Ray_Data_Structured_06.ipynb
   - file: courses/00_Developer_Intro_to_Ray/output/04b_Intro_Ray_Data_Structured_07.ipynb
-  - file: courses/00_Developer_Intro_to_Ray/output/04b_Intro_Ray_Data_Structured_08.ipynb
-  - file: courses/00_Developer_Intro_to_Ray/output/04b_Intro_Ray_Data_Structured_09.ipynb
-  - file: courses/00_Developer_Intro_to_Ray/output/04b_Intro_Ray_Data_Structured_10.ipynb
   - file: courses/00_Developer_Intro_to_Ray/output/04c_Intro_Ray_Data_Unstructured_01.ipynb
   - file: courses/00_Developer_Intro_to_Ray/output/04c_Intro_Ray_Data_Unstructured_02.ipynb
   - file: courses/00_Developer_Intro_to_Ray/output/04c_Intro_Ray_Data_Unstructured_03.ipynb
