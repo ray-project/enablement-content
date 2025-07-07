@@ -8,7 +8,6 @@ parts:
   - file: courses/00_Developer_Intro_to_Ray/output/00_Intro_Ray_Core_Basics_03.ipynb
   - file: courses/00_Developer_Intro_to_Ray/output/00_Intro_Ray_Core_Basics_04.ipynb
   - file: courses/00_Developer_Intro_to_Ray/output/00_Intro_Ray_Core_Basics_05.ipynb
-  - file: courses/00_Developer_Intro_to_Ray/output/00_Intro_Ray_Core_Basics_06.ipynb
   - file: courses/00_Developer_Intro_to_Ray/output/00a_Intro_Ray_Core_Advancement_01.ipynb
   - file: courses/00_Developer_Intro_to_Ray/output/00a_Intro_Ray_Core_Advancement_02.ipynb
   - file: courses/00_Developer_Intro_to_Ray/output/00a_Intro_Ray_Core_Advancement_03.ipynb
