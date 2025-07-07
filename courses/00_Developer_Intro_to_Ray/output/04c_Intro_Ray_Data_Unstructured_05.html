@@ -227,7 +227,7 @@
 <li class="toctree-l1"><a class="reference internal" href="04b_Intro_Ray_Data_Structured_08.html">6. When to use Ray Data</a></li>
 <li class="toctree-l1"><a class="reference internal" href="04b_Intro_Ray_Data_Structured_09.html">7. Ray Data in Production</a></li>
 <li class="toctree-l1"><a class="reference internal" href="04b_Intro_Ray_Data_Structured_10.html">8. Upcoming Features in Ray Data</a></li>
-<li class="toctree-l1"><a class="reference internal" href="04c_Intro_Ray_Data_Unstructured_01.html">Intro to Ray Data:  Ray Data + Unstructed Data</a></li>
+<li class="toctree-l1"><a class="reference internal" href="04c_Intro_Ray_Data_Unstructured_01.html">Intro to Ray Data:  Ray Data + Unstructured Data</a></li>
 <li class="toctree-l1"><a class="reference internal" href="04c_Intro_Ray_Data_Unstructured_02.html">1. When to Consider Ray Data</a></li>
 <li class="toctree-l1"><a class="reference internal" href="04c_Intro_Ray_Data_Unstructured_03.html">2. How to work with Ray Data</a></li>
 <li class="toctree-l1"><a class="reference internal" href="04c_Intro_Ray_Data_Unstructured_04.html">3. Loading data</a></li>
@@ -243,6 +243,7 @@
 <li class="toctree-l1"><a class="reference internal" href="05_Intro_Ray_Serve_PyTorch_03.html">2. Overview of Ray Serve</a></li>
 <li class="toctree-l1"><a class="reference internal" href="05_Intro_Ray_Serve_PyTorch_04.html">3. Implement an image classification service</a></li>
 <li class="toctree-l1"><a class="reference internal" href="05_Intro_Ray_Serve_PyTorch_05.html">4. Development workflow</a></li>
+<li class="toctree-l1"><a class="reference internal" href="README_01.html">Introduction to Ray: Developer</a></li>
 </ul>
 <p aria-level="2" class="caption" role="heading"><span class="caption-text">Anyscale 101</span></p>
 <ul class="nav bd-sidenav">
@@ -465,7 +466,7 @@ document.write(`
 </div>
 <div class="alert alert-block alert-info">
 <p><b>Note on execution triggering methods in Ray Dataset</b></p>
-<p>To determinte if an operation will trigger execution, look for the methods with the <code class="docutils literal notranslate"><span class="pre">ConsumptionAPI</span></code> decorator in the <a class="reference external" href="https://github.com/ray-project/ray/blob/master/python/ray/data/dataset.py"><code class="docutils literal notranslate"><span class="pre">Dataset.py</span></code></a>.</p>
+<p>To determine if an operation will trigger execution, look for the methods with the <code class="docutils literal notranslate"><span class="pre">ConsumptionAPI</span></code> decorator in the <a class="reference external" href="https://github.com/ray-project/ray/blob/master/python/ray/data/dataset.py"><code class="docutils literal notranslate"><span class="pre">Dataset.py</span></code></a>.</p>
 <p>These categories of operations trigger execution (with some examples):</p>
 <ul class="simple">
 <li><p>Method designed to consume Datasets for <strong>writing</strong>:</p>
@@ -503,16 +504,16 @@ document.write(`
         },
         codeMirrorConfig: {
             theme: "abcdef",
-            mode: "xing-ray-jupyter"
+            mode: "python"
         },
         kernelOptions: {
-            name: "xing-ray-jupyter",
+            name: "python3",
             path: "./courses/00_Developer_Intro_to_Ray/output"
         },
         predefinedOutput: true
     }
     </script>
-    <script>kernelName = 'xing-ray-jupyter'</script>
+    <script>kernelName = 'python3'</script>
 
                 </article>
               

@@ -227,7 +227,7 @@
 <li class="toctree-l1"><a class="reference internal" href="output/04b_Intro_Ray_Data_Structured_08.html">6. When to use Ray Data</a></li>
 <li class="toctree-l1"><a class="reference internal" href="output/04b_Intro_Ray_Data_Structured_09.html">7. Ray Data in Production</a></li>
 <li class="toctree-l1"><a class="reference internal" href="output/04b_Intro_Ray_Data_Structured_10.html">8. Upcoming Features in Ray Data</a></li>
-<li class="toctree-l1"><a class="reference internal" href="output/04c_Intro_Ray_Data_Unstructured_01.html">Intro to Ray Data:  Ray Data + Unstructed Data</a></li>
+<li class="toctree-l1"><a class="reference internal" href="output/04c_Intro_Ray_Data_Unstructured_01.html">Intro to Ray Data:  Ray Data + Unstructured Data</a></li>
 <li class="toctree-l1"><a class="reference internal" href="output/04c_Intro_Ray_Data_Unstructured_02.html">1. When to Consider Ray Data</a></li>
 <li class="toctree-l1"><a class="reference internal" href="output/04c_Intro_Ray_Data_Unstructured_03.html">2. How to work with Ray Data</a></li>
 <li class="toctree-l1"><a class="reference internal" href="output/04c_Intro_Ray_Data_Unstructured_04.html">3. Loading data</a></li>
@@ -243,6 +243,7 @@
 <li class="toctree-l1"><a class="reference internal" href="output/05_Intro_Ray_Serve_PyTorch_03.html">2. Overview of Ray Serve</a></li>
 <li class="toctree-l1"><a class="reference internal" href="output/05_Intro_Ray_Serve_PyTorch_04.html">3. Implement an image classification service</a></li>
 <li class="toctree-l1"><a class="reference internal" href="output/05_Intro_Ray_Serve_PyTorch_05.html">4. Development workflow</a></li>
+<li class="toctree-l1"><a class="reference internal" href="output/README_01.html">Introduction to Ray: Developer</a></li>
 </ul>
 <p aria-level="2" class="caption" role="heading"><span class="caption-text">Anyscale 101</span></p>
 <ul class="nav bd-sidenav">
@@ -501,7 +502,7 @@ document.write(`
     <li> The Data Layer </li>
     <li> The Compute Layer </li>
     <li> The Orchestration Layer </li>
-    <li> Commerical Distributed Computing Platforms </li>
+    <li> Commercial Distributed Computing Platforms </li>
     <li> Distributed Computing execution models </li>
 </ul></section>
 <section class="tex2jax_ignore mathjax_ignore" id="the-data-layer">
@@ -741,7 +742,7 @@ document.write(`
 <ol class="arabic simple">
 <li><p><strong>Painful local development UX</strong>:<br />
 Getting a local development environment setup is difficult given the complexity of the dependencies.</p></li>
-<li><p><strong>Inscurtable error traces between Python and JVM</strong>:<br />
+<li><p><strong>Inscrutable error traces between Python and JVM</strong>:<br />
 Some tracebacks are not helpful in debugging given failures can occur across the language boundary (e.g. socket errors, JVM crashes vs Python application crashes).</p></li>
 <li><p><strong>Data/Memory Overhead</strong>:<br />
 The onus is on the user to properly type and design their UDFs and to minimize the data/memory overhead in serializing and deserializing data between Python and JVM.</p></li>
@@ -794,7 +795,7 @@ The onus is on the user to properly type and design their UDFs and to minimize t
 <p>On the positive side:</p>
 <ul class="simple">
 <li><p>It handles running on heterogeneous compute much nicer than Spark where GPU support has been patched in.</p></li>
-<li><p>Its python-native API and integration with the end-to-end Ray and ML ecosystem is a big win.</p></li>
+<li><p>Its Python-native API and integration with the end-to-end Ray and ML ecosystem is a big win.</p></li>
 </ul>
 <p>On the negative side:</p>
 <ul class="simple">
@@ -836,7 +837,7 @@ The onus is on the user to properly type and design their UDFs and to minimize t
 <h3>Ray Serve vs Ray Data<a class="headerlink" href="#ray-serve-vs-ray-data" title="Link to this heading">#</a></h3>
 <p>Rules of thumb:</p>
 <ul class="simple">
-<li><p>When dealing with continouos/streaming applications where low-latency is critical, Ray Serve is a good choice.</p></li>
+<li><p>When dealing with continuous/streaming applications where low-latency is critical, Ray Serve is a good choice.</p></li>
 <li><p>Otherwise, if data can be batched, processed at longer time intervals, Ray Data is a good choice to maximize throughput.</p></li>
 </ul>
 <p>In terms of implementation:</p>

@@ -69,6 +69,7 @@ This collection contains multiple courses on Ray and Anyscale:
 - [05 Intro Ray Serve PyTorch 03](courses/00_Developer_Intro_to_Ray/output/05_Intro_Ray_Serve_PyTorch_03.ipynb)
 - [05 Intro Ray Serve PyTorch 04](courses/00_Developer_Intro_to_Ray/output/05_Intro_Ray_Serve_PyTorch_04.ipynb)
 - [05 Intro Ray Serve PyTorch 05](courses/00_Developer_Intro_to_Ray/output/05_Intro_Ray_Serve_PyTorch_05.ipynb)
+- [README 01](courses/00_Developer_Intro_to_Ray/output/README_01.ipynb)
 
 ## Ray 101
 

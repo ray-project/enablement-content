@@ -227,7 +227,7 @@
 <li class="toctree-l1"><a class="reference internal" href="output/04b_Intro_Ray_Data_Structured_08.html">6. When to use Ray Data</a></li>
 <li class="toctree-l1"><a class="reference internal" href="output/04b_Intro_Ray_Data_Structured_09.html">7. Ray Data in Production</a></li>
 <li class="toctree-l1"><a class="reference internal" href="output/04b_Intro_Ray_Data_Structured_10.html">8. Upcoming Features in Ray Data</a></li>
-<li class="toctree-l1"><a class="reference internal" href="output/04c_Intro_Ray_Data_Unstructured_01.html">Intro to Ray Data:  Ray Data + Unstructed Data</a></li>
+<li class="toctree-l1"><a class="reference internal" href="output/04c_Intro_Ray_Data_Unstructured_01.html">Intro to Ray Data:  Ray Data + Unstructured Data</a></li>
 <li class="toctree-l1"><a class="reference internal" href="output/04c_Intro_Ray_Data_Unstructured_02.html">1. When to Consider Ray Data</a></li>
 <li class="toctree-l1"><a class="reference internal" href="output/04c_Intro_Ray_Data_Unstructured_03.html">2. How to work with Ray Data</a></li>
 <li class="toctree-l1"><a class="reference internal" href="output/04c_Intro_Ray_Data_Unstructured_04.html">3. Loading data</a></li>
@@ -243,6 +243,7 @@
 <li class="toctree-l1"><a class="reference internal" href="output/05_Intro_Ray_Serve_PyTorch_03.html">2. Overview of Ray Serve</a></li>
 <li class="toctree-l1"><a class="reference internal" href="output/05_Intro_Ray_Serve_PyTorch_04.html">3. Implement an image classification service</a></li>
 <li class="toctree-l1"><a class="reference internal" href="output/05_Intro_Ray_Serve_PyTorch_05.html">4. Development workflow</a></li>
+<li class="toctree-l1"><a class="reference internal" href="output/README_01.html">Introduction to Ray: Developer</a></li>
 </ul>
 <p aria-level="2" class="caption" role="heading"><span class="caption-text">Anyscale 101</span></p>
 <ul class="nav bd-sidenav">
@@ -458,7 +459,7 @@ document.write(`
   <section class="tex2jax_ignore mathjax_ignore" id="introduction-to-ray-serve-with-pytorch">
 <h1>Introduction to Ray Serve with PyTorch<a class="headerlink" href="#introduction-to-ray-serve-with-pytorch" title="Link to this heading">#</a></h1>
 <p>💻 <strong>Launch Locally</strong>: You can run this notebook locally, but performance will be reduced.</p>
-<p>🚀 <strong>Launch on Cloud</strong>: A Ray Cluster (Click <a class="reference external" href="http://console.anyscale.com/register">here</a> to easily start a Ray cluster on Anyscale) is recommanded to run this notebook.</p>
+<p>🚀 <strong>Launch on Cloud</strong>: A Ray Cluster (Click <a class="reference external" href="http://console.anyscale.com/register">here</a> to easily start a Ray cluster on Anyscale) is recommended to run this notebook.</p>
 <p>This notebook will introduce you to Ray Serve with PyTorch, a framework for building and deploying scalable ML applications.</p>
 <div class="alert alert-block alert-info">
 <p><b>Here is the roadmap for this notebook:</b></p>
@@ -583,7 +584,8 @@ document.write(`
 <p>First we need to load the classifier model</p>
 <div class="cell docutils container">
 <div class="cell_input docutils container">
-<div class="highlight-ipython3 notranslate"><div class="highlight"><pre><span></span><span class="n">model_path</span> <span class="o">=</span> <span class="s2">&quot;/mnt/cluster_storage/model.pt&quot;</span> <span class="c1"># Use your local path</span>
+<div class="highlight-ipython3 notranslate"><div class="highlight"><pre><span></span><span class="n">storage_folder</span> <span class="o">=</span> <span class="s1">&#39;/mnt/cluster_storage&#39;</span>  <span class="c1"># Modify this path to your local folder if it runs on your local environment</span>
+<span class="n">model_path</span> <span class="o">=</span> <span class="sa">f</span><span class="s2">&quot;</span><span class="si">{</span><span class="n">storage_folder</span><span class="si">}</span><span class="s2">/model.pt&quot;</span> <span class="c1"># Use your local path</span>
 <span class="n">classifier</span> <span class="o">=</span> <span class="n">MNISTClassifier</span><span class="p">(</span><span class="n">remote_path</span><span class="o">=</span><span class="s2">&quot;s3://anyscale-public-materials/ray-ai-libraries/mnist/model/model.pt&quot;</span><span class="p">,</span> <span class="n">local_path</span><span class="o">=</span><span class="n">model_path</span><span class="p">,</span> <span class="n">device</span><span class="o">=</span><span class="s2">&quot;cpu&quot;</span><span class="p">)</span>
 </pre></div>
 </div>
@@ -598,7 +600,7 @@ document.write(`
 </div>
 </div>
 </div>
-<p>Now, if want to migrate to an online inference setting, we can transform this into a Ray Serve Deployment by applying the <code class="docutils literal notranslate"><span class="pre">&#64;serve.deployment</span></code> decorator</p>
+<p>Now, if we want to migrate to an online inference setting, we can transform this into a Ray Serve Deployment by applying the <code class="docutils literal notranslate"><span class="pre">&#64;serve.deployment</span></code> decorator</p>
 <div class="cell docutils container">
 <div class="cell_input docutils container">
 <div class="highlight-ipython3 notranslate"><div class="highlight"><pre><span></span><span class="nd">@serve</span><span class="o">.</span><span class="n">deployment</span><span class="p">()</span> <span class="c1"># this is the decorator to add</span>
@@ -638,7 +640,7 @@ document.write(`
 <p>We can now build an Application using <code class="docutils literal notranslate"><span class="pre">OnlineMNISTClassifier</span></code> deployment</p>
 <div class="cell docutils container">
 <div class="cell_input docutils container">
-<div class="highlight-ipython3 notranslate"><div class="highlight"><pre><span></span><span class="n">model_path</span> <span class="o">=</span> <span class="s2">&quot;/mnt/cluster_storage/model.pt&quot;</span> <span class="c1"># Use your local path</span>
+<div class="highlight-ipython3 notranslate"><div class="highlight"><pre><span></span><span class="n">model_path</span> <span class="o">=</span> <span class="sa">f</span><span class="s2">&quot;</span><span class="si">{</span><span class="n">storage_folder</span><span class="si">}</span><span class="s2">/model.pt&quot;</span> <span class="c1"># Use your local path</span>
 <span class="n">mnist_app</span> <span class="o">=</span> <span class="n">OnlineMNISTClassifier</span><span class="o">.</span><span class="n">bind</span><span class="p">(</span><span class="n">remote_path</span><span class="o">=</span><span class="s2">&quot;s3://anyscale-public-materials/ray-ai-libraries/mnist/model/model.pt&quot;</span><span class="p">,</span> <span class="n">local_path</span><span class="o">=</span><span class="n">model_path</span><span class="p">,</span> <span class="n">device</span><span class="o">=</span><span class="s2">&quot;cpu&quot;</span><span class="p">)</span>
 <span class="n">mnist_app</span>
 </pre></div>
@@ -732,6 +734,14 @@ document.write(`
 </div>
 <p>For more details on the recommended development workflow, read the <a class="reference external" href="https://docs.ray.io/en/latest/serve/advanced-guides/dev-workflow.html#development-workflow">docs here</a></p>
 <p>For unit testing and debugging, Ray Serve provides a local testing mode. For more details, see the <a class="reference external" href="https://docs.ray.io/en/latest/serve/advanced-guides/dev-workflow.html#local-testing-mode">docs here</a></p>
+<div class="cell docutils container">
+<div class="cell_input docutils container">
+<div class="highlight-ipython3 notranslate"><div class="highlight"><pre><span></span><span class="c1"># Run this cell for file cleanup </span>
+<span class="o">!</span>rm<span class="w"> </span><span class="o">{</span>storage_folder<span class="o">}</span>/model.pt
+</pre></div>
+</div>
+</div>
+</div>
 </section>
 </section>
 
@@ -744,16 +754,16 @@ document.write(`
         },
         codeMirrorConfig: {
             theme: "abcdef",
-            mode: "ray-jupyter"
+            mode: "python"
         },
         kernelOptions: {
-            name: "ray-jupyter",
+            name: "python3",
             path: "./courses/00_Developer_Intro_to_Ray"
         },
         predefinedOutput: true
     }
     </script>
-    <script>kernelName = 'ray-jupyter'</script>
+    <script>kernelName = 'python3'</script>
 
                 </article>
               

@@ -227,7 +227,7 @@
 <li class="toctree-l1"><a class="reference internal" href="output/04b_Intro_Ray_Data_Structured_08.html">6. When to use Ray Data</a></li>
 <li class="toctree-l1"><a class="reference internal" href="output/04b_Intro_Ray_Data_Structured_09.html">7. Ray Data in Production</a></li>
 <li class="toctree-l1"><a class="reference internal" href="output/04b_Intro_Ray_Data_Structured_10.html">8. Upcoming Features in Ray Data</a></li>
-<li class="toctree-l1"><a class="reference internal" href="output/04c_Intro_Ray_Data_Unstructured_01.html">Intro to Ray Data:  Ray Data + Unstructed Data</a></li>
+<li class="toctree-l1"><a class="reference internal" href="output/04c_Intro_Ray_Data_Unstructured_01.html">Intro to Ray Data:  Ray Data + Unstructured Data</a></li>
 <li class="toctree-l1"><a class="reference internal" href="output/04c_Intro_Ray_Data_Unstructured_02.html">1. When to Consider Ray Data</a></li>
 <li class="toctree-l1"><a class="reference internal" href="output/04c_Intro_Ray_Data_Unstructured_03.html">2. How to work with Ray Data</a></li>
 <li class="toctree-l1"><a class="reference internal" href="output/04c_Intro_Ray_Data_Unstructured_04.html">3. Loading data</a></li>
@@ -243,6 +243,7 @@
 <li class="toctree-l1"><a class="reference internal" href="output/05_Intro_Ray_Serve_PyTorch_03.html">2. Overview of Ray Serve</a></li>
 <li class="toctree-l1"><a class="reference internal" href="output/05_Intro_Ray_Serve_PyTorch_04.html">3. Implement an image classification service</a></li>
 <li class="toctree-l1"><a class="reference internal" href="output/05_Intro_Ray_Serve_PyTorch_05.html">4. Development workflow</a></li>
+<li class="toctree-l1"><a class="reference internal" href="output/README_01.html">Introduction to Ray: Developer</a></li>
 </ul>
 <p aria-level="2" class="caption" role="heading"><span class="caption-text">Anyscale 101</span></p>
 <ul class="nav bd-sidenav">
@@ -442,6 +443,7 @@ document.write(`
 <li class="toc-h3 nav-item toc-entry"><a class="reference internal nav-link" href="#distributed-training-with-ray-train">2.3. Distributed training with Ray Train</a></li>
 <li class="toc-h3 nav-item toc-entry"><a class="reference internal nav-link" href="#serving-an-ensemble-model-with-ray-serve">2.4 Serving an ensemble model with Ray Serve</a></li>
 <li class="toc-h3 nav-item toc-entry"><a class="reference internal nav-link" href="#batch-inference-with-ray-data">2.5 Batch inference with Ray Data</a></li>
+<li class="toc-h3 nav-item toc-entry"><a class="reference internal nav-link" href="#clean-up">2.6 Clean up</a></li>
 </ul>
 </li>
 </ul>
@@ -459,7 +461,7 @@ document.write(`
 <h1>Introduction to the Ray AI Libraries: An example of using Ray data, Ray Train, Ray Tune, Ray Serve to implement a XGBoost regression model<a class="headerlink" href="#introduction-to-the-ray-ai-libraries-an-example-of-using-ray-data-ray-train-ray-tune-ray-serve-to-implement-a-xgboost-regression-model" title="Link to this heading">#</a></h1>
 <p>© 2025, Anyscale. All Rights Reserved</p>
 <p>💻 <strong>Launch Locally</strong>: You can run this notebook locally, but performance will be reduced.</p>
-<p>🚀 <strong>Launch on Cloud</strong>: A Ray Cluster with 4 GPUs (Click <a class="reference external" href="http://console.anyscale.com/register">here</a> to easily start a Ray cluster on Anyscale) is recommanded to run this notebook.</p>
+<p>🚀 <strong>Launch on Cloud</strong>: A Ray Cluster with 4 GPUs (Click <a class="reference external" href="http://console.anyscale.com/register">here</a> to easily start a Ray cluster on Anyscale) is recommended to run this notebook.</p>
 <p>Let’s start with a quick end-to-end example to get a sense of what the Ray AI Libraries can do.</p>
 <div class="alert alert-block alert-info">
 <b> Here is the roadmap for this notebook:</b>
@@ -477,10 +479,19 @@ document.write(`
 </div><p><strong>Imports</strong></p>
 <div class="cell docutils container">
 <div class="cell_input docutils container">
+<div class="highlight-ipython3 notranslate"><div class="highlight"><pre><span></span><span class="c1"># (Optional): If you get an XGBoostError at import, you might have to `brew install libomp` before importing xgboost again</span>
+<span class="o">!</span>brew<span class="w"> </span>install<span class="w"> </span>libomp
+</pre></div>
+</div>
+</div>
+</div>
+<div class="cell docutils container">
+<div class="cell_input docutils container">
 <div class="highlight-ipython3 notranslate"><div class="highlight"><pre><span></span><span class="kn">import</span><span class="w"> </span><span class="nn">asyncio</span>
 <span class="kn">import</span><span class="w"> </span><span class="nn">fastapi</span>
 <span class="kn">import</span><span class="w"> </span><span class="nn">pandas</span><span class="w"> </span><span class="k">as</span><span class="w"> </span><span class="nn">pd</span>
 <span class="kn">import</span><span class="w"> </span><span class="nn">requests</span>
+<span class="c1"># macos: If you get an XGBoostError at import, you might have to `brew install libomp` before importing xgboost again</span>
 <span class="kn">import</span><span class="w"> </span><span class="nn">xgboost</span>
 <span class="kn">from</span><span class="w"> </span><span class="nn">pydantic</span><span class="w"> </span><span class="kn">import</span> <span class="n">BaseModel</span>
 <span class="kn">from</span><span class="w"> </span><span class="nn">sklearn.model_selection</span><span class="w"> </span><span class="kn">import</span> <span class="n">train_test_split</span>
@@ -489,6 +500,7 @@ document.write(`
 <span class="kn">import</span><span class="w"> </span><span class="nn">ray.tune</span>
 <span class="kn">import</span><span class="w"> </span><span class="nn">ray.train</span>
 <span class="kn">from</span><span class="w"> </span><span class="nn">ray.train.xgboost</span><span class="w"> </span><span class="kn">import</span> <span class="n">XGBoostTrainer</span> <span class="k">as</span> <span class="n">RayTrainXGBoostTrainer</span>
+<span class="kn">from</span><span class="w"> </span><span class="nn">ray.train</span><span class="w"> </span><span class="kn">import</span> <span class="n">RunConfig</span>
 <span class="kn">import</span><span class="w"> </span><span class="nn">ray.data</span>
 <span class="kn">import</span><span class="w"> </span><span class="nn">ray.serve</span>
 </pre></div>
@@ -506,7 +518,7 @@ document.write(`
 </tr>
 </thead>
 <tbody>
-<tr class="row-even"><td class="text-center"><p>Ray AI Libraries enable end-to-end ML development and provides multiple options for integrating with other tools and libraries form the MLOps ecosystem.</p></td>
+<tr class="row-even"><td class="text-center"><p>Ray AI Libraries enable end-to-end ML development and provides multiple options for integrating with other tools and libraries from the MLOps ecosystem.</p></td>
 </tr>
 </tbody>
 </table>
@@ -535,7 +547,7 @@ document.write(`
 </li>
 <li><p><strong><code class="docutils literal notranslate"><span class="pre">tolls_amount</span></code></strong></p>
 <ul>
-<li><p>Float represnting the total paid on tolls if any.</p></li>
+<li><p>Float representing the total paid on tolls if any.</p></li>
 </ul>
 </li>
 </ul>
@@ -583,14 +595,17 @@ document.write(`
 <p>Define a function to run <code class="docutils literal notranslate"><span class="pre">xgboost.train</span></code> given some hyperparameter dictionary <code class="docutils literal notranslate"><span class="pre">params</span></code></p>
 <div class="cell docutils container">
 <div class="cell_input docutils container">
-<div class="highlight-ipython3 notranslate"><div class="highlight"><pre><span></span><span class="n">model_path</span> <span class="o">=</span> <span class="s2">&quot;/mnt/cluster_storage/model.ubj&quot;</span> <span class="c1"># Modify this path to your local folder if it runs on your local environment</span>
+<div class="highlight-ipython3 notranslate"><div class="highlight"><pre><span></span><span class="n">storage_folder</span> <span class="o">=</span> <span class="s2">&quot;/mnt/cluster_storage/&quot;</span> <span class="c1"># Modify this path to your local folder if it runs on your local environment</span>
 </pre></div>
 </div>
 </div>
 </div>
 <div class="cell docutils container">
 <div class="cell_input docutils container">
-<div class="highlight-ipython3 notranslate"><div class="highlight"><pre><span></span><span class="k">def</span><span class="w"> </span><span class="nf">my_xgboost_func</span><span class="p">(</span><span class="n">params</span><span class="p">):</span>    
+<div class="highlight-ipython3 notranslate"><div class="highlight"><pre><span></span><span class="kn">from</span><span class="w"> </span><span class="nn">pathlib</span><span class="w"> </span><span class="kn">import</span> <span class="n">Path</span>
+<span class="n">model_path</span> <span class="o">=</span> <span class="n">Path</span><span class="p">(</span><span class="n">storage_folder</span><span class="p">)</span> <span class="o">/</span> <span class="s2">&quot;model.ubj&quot;</span>
+
+<span class="k">def</span><span class="w"> </span><span class="nf">my_xgboost_func</span><span class="p">(</span><span class="n">params</span><span class="p">):</span>    
     <span class="n">evals_result</span> <span class="o">=</span> <span class="p">{}</span>
     <span class="n">dtrain</span><span class="p">,</span> <span class="n">dtest</span> <span class="o">=</span> <span class="n">load_data</span><span class="p">()</span>
     <span class="n">bst</span> <span class="o">=</span> <span class="n">xgboost</span><span class="o">.</span><span class="n">train</span><span class="p">(</span>
@@ -600,6 +615,7 @@ document.write(`
         <span class="n">evals</span><span class="o">=</span><span class="p">[(</span><span class="n">dtest</span><span class="p">,</span> <span class="s2">&quot;eval&quot;</span><span class="p">)],</span> 
         <span class="n">evals_result</span><span class="o">=</span><span class="n">evals_result</span><span class="p">,</span>
     <span class="p">)</span>
+    <span class="c1"># Use Path</span>
     <span class="n">bst</span><span class="o">.</span><span class="n">save_model</span><span class="p">(</span><span class="n">model_path</span><span class="p">)</span>
     <span class="nb">print</span><span class="p">(</span><span class="sa">f</span><span class="s2">&quot;</span><span class="si">{</span><span class="n">evals_result</span><span class="p">[</span><span class="s1">&#39;eval&#39;</span><span class="p">]</span><span class="si">}</span><span class="s2">&quot;</span><span class="p">)</span>
     <span class="k">return</span> <span class="p">{</span><span class="s2">&quot;eval-rmse&quot;</span><span class="p">:</span> <span class="n">evals_result</span><span class="p">[</span><span class="s2">&quot;eval&quot;</span><span class="p">][</span><span class="s2">&quot;rmse&quot;</span><span class="p">][</span><span class="o">-</span><span class="mi">1</span><span class="p">]}</span>
@@ -631,6 +647,7 @@ document.write(`
         <span class="s2">&quot;max_depth&quot;</span><span class="p">:</span> <span class="mi">6</span><span class="p">,</span>
         <span class="s2">&quot;eta&quot;</span><span class="p">:</span> <span class="n">ray</span><span class="o">.</span><span class="n">tune</span><span class="o">.</span><span class="n">uniform</span><span class="p">(</span><span class="mf">0.01</span><span class="p">,</span> <span class="mf">0.3</span><span class="p">),</span>
     <span class="p">},</span>
+    <span class="n">run_config</span><span class="o">=</span><span class="n">RunConfig</span><span class="p">(</span><span class="n">storage_path</span><span class="o">=</span><span class="n">storage_folder</span><span class="p">),</span>
     <span class="n">tune_config</span><span class="o">=</span><span class="n">ray</span><span class="o">.</span><span class="n">tune</span><span class="o">.</span><span class="n">TuneConfig</span><span class="p">(</span>  <span class="c1"># Tell it which metric to tune</span>
         <span class="n">metric</span><span class="o">=</span><span class="s2">&quot;eval-rmse&quot;</span><span class="p">,</span>
         <span class="n">mode</span><span class="o">=</span><span class="s2">&quot;min&quot;</span><span class="p">,</span>
@@ -650,7 +667,7 @@ document.write(`
 <section id="distributed-training-with-ray-train">
 <h3>2.3. Distributed training with Ray Train<a class="headerlink" href="#distributed-training-with-ray-train" title="Link to this heading">#</a></h3>
 <p>In case your training data is too large, your training might take a long time to complete.</p>
-<p>To speed it up, shard the dataset across training workers and perform distributed XBoost training.</p>
+<p>To speed it up, shard the dataset across training workers and perform distributed XGBoost training.</p>
 <p>Let’s redefine <code class="docutils literal notranslate"><span class="pre">load_data</span></code> to now load a different slice of the data given the worker index/rank.</p>
 <div class="cell docutils container">
 <div class="cell_input docutils container">
@@ -811,7 +828,7 @@ document.write(`
 <p>After defining the pipeline, we can execute it in a distributed manner by writing the output to a sink</p>
 <div class="cell docutils container">
 <div class="cell_input docutils container">
-<div class="highlight-ipython3 notranslate"><div class="highlight"><pre><span></span><span class="n">prediction_pipeline</span><span class="o">.</span><span class="n">write_parquet</span><span class="p">(</span><span class="s2">&quot;/mnt/cluster_storage/xgboost_predictions&quot;</span><span class="p">)</span> <span class="c1">#update this to your local path if runs on your local</span>
+<div class="highlight-ipython3 notranslate"><div class="highlight"><pre><span></span><span class="n">prediction_pipeline</span><span class="o">.</span><span class="n">write_parquet</span><span class="p">(</span><span class="s2">&quot;./xgboost_predictions&quot;</span><span class="p">)</span> <span class="c1">#update this to your local path if runs on your local</span>
 </pre></div>
 </div>
 </div>
@@ -819,7 +836,19 @@ document.write(`
 <p>Let’s inspect the produced predictions.</p>
 <div class="cell docutils container">
 <div class="cell_input docutils container">
-<div class="highlight-ipython3 notranslate"><div class="highlight"><pre><span></span><span class="o">!</span>ls<span class="w"> </span>/mnt/cluster_storage/xgboost_predictions/<span class="w"> </span>#update<span class="w"> </span>this<span class="w"> </span>to<span class="w"> </span>your<span class="w"> </span><span class="nb">local</span><span class="w"> </span>path<span class="w"> </span><span class="k">if</span><span class="w"> </span>runs<span class="w"> </span>on<span class="w"> </span>your<span class="w"> </span>local
+<div class="highlight-ipython3 notranslate"><div class="highlight"><pre><span></span><span class="o">!</span>ls<span class="w"> </span><span class="o">{</span>storage_folder<span class="o">}</span>/xgboost_predictions/
+</pre></div>
+</div>
+</div>
+</div>
+</section>
+<section id="clean-up">
+<h3>2.6 Clean up<a class="headerlink" href="#clean-up" title="Link to this heading">#</a></h3>
+<div class="cell docutils container">
+<div class="cell_input docutils container">
+<div class="highlight-ipython3 notranslate"><div class="highlight"><pre><span></span><span class="c1"># Run this cell for file cleanup </span>
+<span class="o">!</span>rm<span class="w"> </span>-rf<span class="w"> </span><span class="o">{</span>storage_folder<span class="o">}</span>/xgboost_predictions/
+<span class="o">!</span>rm<span class="w"> </span><span class="o">{</span>model_path<span class="o">}</span>
 </pre></div>
 </div>
 </div>
@@ -837,16 +866,16 @@ document.write(`
         },
         codeMirrorConfig: {
             theme: "abcdef",
-            mode: "xing-ray-jupyter"
+            mode: "python"
         },
         kernelOptions: {
-            name: "xing-ray-jupyter",
+            name: "python3",
             path: "./courses/00_Developer_Intro_to_Ray"
         },
         predefinedOutput: true
     }
     </script>
-    <script>kernelName = 'xing-ray-jupyter'</script>
+    <script>kernelName = 'python3'</script>
 
                 </article>
               
@@ -881,6 +910,7 @@ document.write(`
 <li class="toc-h3 nav-item toc-entry"><a class="reference internal nav-link" href="#distributed-training-with-ray-train">2.3. Distributed training with Ray Train</a></li>
 <li class="toc-h3 nav-item toc-entry"><a class="reference internal nav-link" href="#serving-an-ensemble-model-with-ray-serve">2.4 Serving an ensemble model with Ray Serve</a></li>
 <li class="toc-h3 nav-item toc-entry"><a class="reference internal nav-link" href="#batch-inference-with-ray-data">2.5 Batch inference with Ray Data</a></li>
+<li class="toc-h3 nav-item toc-entry"><a class="reference internal nav-link" href="#clean-up">2.6 Clean up</a></li>
 </ul>
 </li>
 </ul>

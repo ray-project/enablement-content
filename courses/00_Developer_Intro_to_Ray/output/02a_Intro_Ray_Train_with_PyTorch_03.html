@@ -227,7 +227,7 @@
 <li class="toctree-l1"><a class="reference internal" href="04b_Intro_Ray_Data_Structured_08.html">6. When to use Ray Data</a></li>
 <li class="toctree-l1"><a class="reference internal" href="04b_Intro_Ray_Data_Structured_09.html">7. Ray Data in Production</a></li>
 <li class="toctree-l1"><a class="reference internal" href="04b_Intro_Ray_Data_Structured_10.html">8. Upcoming Features in Ray Data</a></li>
-<li class="toctree-l1"><a class="reference internal" href="04c_Intro_Ray_Data_Unstructured_01.html">Intro to Ray Data:  Ray Data + Unstructed Data</a></li>
+<li class="toctree-l1"><a class="reference internal" href="04c_Intro_Ray_Data_Unstructured_01.html">Intro to Ray Data:  Ray Data + Unstructured Data</a></li>
 <li class="toctree-l1"><a class="reference internal" href="04c_Intro_Ray_Data_Unstructured_02.html">1. When to Consider Ray Data</a></li>
 <li class="toctree-l1"><a class="reference internal" href="04c_Intro_Ray_Data_Unstructured_03.html">2. How to work with Ray Data</a></li>
 <li class="toctree-l1"><a class="reference internal" href="04c_Intro_Ray_Data_Unstructured_04.html">3. Loading data</a></li>
@@ -243,6 +243,7 @@
 <li class="toctree-l1"><a class="reference internal" href="05_Intro_Ray_Serve_PyTorch_03.html">2. Overview of Ray Serve</a></li>
 <li class="toctree-l1"><a class="reference internal" href="05_Intro_Ray_Serve_PyTorch_04.html">3. Implement an image classification service</a></li>
 <li class="toctree-l1"><a class="reference internal" href="05_Intro_Ray_Serve_PyTorch_05.html">4. Development workflow</a></li>
+<li class="toctree-l1"><a class="reference internal" href="README_01.html">Introduction to Ray: Developer</a></li>
 </ul>
 <p aria-level="2" class="caption" role="heading"><span class="caption-text">Anyscale 101</span></p>
 <ul class="nav bd-sidenav">
@@ -470,44 +471,38 @@ document.write(`
 </div>
 <div class="cell docutils container">
 <div class="cell_input docutils container">
-<div class="highlight-ipython3 notranslate"><div class="highlight"><pre><span></span><span class="k">def</span><span class="w"> </span><span class="nf">train_loop_torch</span><span class="p">(</span><span class="n">num_epochs</span><span class="p">:</span> <span class="nb">int</span> <span class="o">=</span> <span class="mi">2</span><span class="p">,</span> <span class="n">batch_size</span><span class="p">:</span> <span class="nb">int</span> <span class="o">=</span> <span class="mi">128</span><span class="p">,</span> <span class="n">local_path</span><span class="p">:</span> <span class="nb">str</span> <span class="o">=</span> <span class="s2">&quot;./checkpoints&quot;</span><span class="p">):</span>
+<div class="highlight-ipython3 notranslate"><div class="highlight"><pre><span></span><span class="kn">from</span><span class="w"> </span><span class="nn">tqdm.notebook</span><span class="w"> </span><span class="kn">import</span> <span class="n">tqdm</span>
+<span class="kn">from</span><span class="w"> </span><span class="nn">pathlib</span><span class="w"> </span><span class="kn">import</span> <span class="n">Path</span>
+<span class="kn">import</span><span class="w"> </span><span class="nn">torch</span>
+<span class="kn">from</span><span class="w"> </span><span class="nn">torch.nn</span><span class="w"> </span><span class="kn">import</span> <span class="n">CrossEntropyLoss</span>
+<span class="kn">from</span><span class="w"> </span><span class="nn">torch.optim</span><span class="w"> </span><span class="kn">import</span> <span class="n">Adam</span>
 
-    <span class="c1"># Determine device</span>
+<span class="k">def</span><span class="w"> </span><span class="nf">train_loop_torch</span><span class="p">(</span><span class="n">num_epochs</span><span class="p">:</span> <span class="nb">int</span> <span class="o">=</span> <span class="mi">2</span><span class="p">,</span> <span class="n">batch_size</span><span class="p">:</span> <span class="nb">int</span> <span class="o">=</span> <span class="mi">128</span><span class="p">,</span> <span class="n">local_path</span><span class="p">:</span> <span class="nb">str</span> <span class="o">=</span> <span class="s2">&quot;./checkpoints&quot;</span><span class="p">):</span>
     <span class="n">device</span> <span class="o">=</span> <span class="s2">&quot;cuda&quot;</span> <span class="k">if</span> <span class="n">torch</span><span class="o">.</span><span class="n">cuda</span><span class="o">.</span><span class="n">is_available</span><span class="p">()</span> <span class="k">else</span> <span class="s2">&quot;cpu&quot;</span>
     <span class="nb">print</span><span class="p">(</span><span class="sa">f</span><span class="s2">&quot;Using device: </span><span class="si">{</span><span class="n">device</span><span class="si">}</span><span class="s2">&quot;</span><span class="p">)</span>
 
-    <span class="c1"># Model, Loss, Optimizer</span>
     <span class="n">criterion</span> <span class="o">=</span> <span class="n">CrossEntropyLoss</span><span class="p">()</span>
-    <span class="n">model</span> <span class="o">=</span> <span class="n">load_model_torch</span><span class="p">()</span>
+    <span class="n">model</span> <span class="o">=</span> <span class="n">load_model_torch</span><span class="p">()</span><span class="o">.</span><span class="n">to</span><span class="p">(</span><span class="n">device</span><span class="p">)</span>
     <span class="n">optimizer</span> <span class="o">=</span> <span class="n">Adam</span><span class="p">(</span><span class="n">model</span><span class="o">.</span><span class="n">parameters</span><span class="p">(),</span> <span class="n">lr</span><span class="o">=</span><span class="mf">1e-5</span><span class="p">)</span>
-
-    <span class="c1"># Load the data loader</span>
     <span class="n">data_loader</span> <span class="o">=</span> <span class="n">build_data_loader_torch</span><span class="p">(</span><span class="n">batch_size</span><span class="o">=</span><span class="n">batch_size</span><span class="p">)</span>
 
-    <span class="c1"># Training loop</span>
-    <span class="k">for</span> <span class="n">epoch</span> <span class="ow">in</span> <span class="nb">range</span><span class="p">(</span><span class="n">num_epochs</span><span class="p">):</span>
-        <span class="k">for</span> <span class="n">images</span><span class="p">,</span> <span class="n">labels</span> <span class="ow">in</span> <span class="n">data_loader</span><span class="p">:</span>
+    <span class="k">for</span> <span class="n">epoch</span> <span class="ow">in</span> <span class="n">tqdm</span><span class="p">(</span><span class="nb">range</span><span class="p">(</span><span class="n">num_epochs</span><span class="p">),</span> <span class="n">desc</span><span class="o">=</span><span class="s2">&quot;Epochs&quot;</span><span class="p">):</span>
+        <span class="n">epoch_loss</span> <span class="o">=</span> <span class="mf">0.0</span>
 
-            <span class="c1"># Move the data to the correct device</span>
+        <span class="k">for</span> <span class="n">images</span><span class="p">,</span> <span class="n">labels</span> <span class="ow">in</span> <span class="n">tqdm</span><span class="p">(</span><span class="n">data_loader</span><span class="p">,</span> <span class="n">desc</span><span class="o">=</span><span class="sa">f</span><span class="s2">&quot;Epoch </span><span class="si">{</span><span class="n">epoch</span><span class="o">+</span><span class="mi">1</span><span class="si">}</span><span class="s2">/</span><span class="si">{</span><span class="n">num_epochs</span><span class="si">}</span><span class="s2">&quot;</span><span class="p">,</span> <span class="n">leave</span><span class="o">=</span><span class="kc">False</span><span class="p">):</span>
             <span class="n">images</span><span class="p">,</span> <span class="n">labels</span> <span class="o">=</span> <span class="n">images</span><span class="o">.</span><span class="n">to</span><span class="p">(</span><span class="n">device</span><span class="p">),</span> <span class="n">labels</span><span class="o">.</span><span class="n">to</span><span class="p">(</span><span class="n">device</span><span class="p">)</span>
-
-            <span class="c1"># Forward pass</span>
             <span class="n">outputs</span> <span class="o">=</span> <span class="n">model</span><span class="p">(</span><span class="n">images</span><span class="p">)</span>
-
-            <span class="c1"># Compute the loss</span>
             <span class="n">loss</span> <span class="o">=</span> <span class="n">criterion</span><span class="p">(</span><span class="n">outputs</span><span class="p">,</span> <span class="n">labels</span><span class="p">)</span>
-            
-            <span class="c1"># Backward pass</span>
+
             <span class="n">optimizer</span><span class="o">.</span><span class="n">zero_grad</span><span class="p">()</span>
             <span class="n">loss</span><span class="o">.</span><span class="n">backward</span><span class="p">()</span>
-
-            <span class="c1"># Update the weights</span>
             <span class="n">optimizer</span><span class="o">.</span><span class="n">step</span><span class="p">()</span>
 
-        <span class="c1"># Report the metrics</span>
-        <span class="n">metrics</span> <span class="o">=</span> <span class="n">report_metrics_torch</span><span class="p">(</span><span class="n">loss</span><span class="o">=</span><span class="n">loss</span><span class="p">,</span> <span class="n">epoch</span><span class="o">=</span><span class="n">epoch</span><span class="p">)</span>
-        
-        <span class="c1"># Save the checkpoint and metrics</span>
+            <span class="n">epoch_loss</span> <span class="o">+=</span> <span class="n">loss</span><span class="o">.</span><span class="n">item</span><span class="p">()</span>
+
+        <span class="n">avg_loss</span> <span class="o">=</span> <span class="n">epoch_loss</span> <span class="o">/</span> <span class="nb">len</span><span class="p">(</span><span class="n">data_loader</span><span class="p">)</span>
+
+        <span class="n">metrics</span> <span class="o">=</span> <span class="n">report_metrics_torch</span><span class="p">(</span><span class="n">loss</span><span class="o">=</span><span class="n">avg_loss</span><span class="p">,</span> <span class="n">epoch</span><span class="o">=</span><span class="n">epoch</span><span class="p">)</span>
         <span class="n">Path</span><span class="p">(</span><span class="n">local_path</span><span class="p">)</span><span class="o">.</span><span class="n">mkdir</span><span class="p">(</span><span class="n">parents</span><span class="o">=</span><span class="kc">True</span><span class="p">,</span> <span class="n">exist_ok</span><span class="o">=</span><span class="kc">True</span><span class="p">)</span>
         <span class="n">save_checkpoint_and_metrics_torch</span><span class="p">(</span><span class="n">metrics</span><span class="o">=</span><span class="n">metrics</span><span class="p">,</span> <span class="n">model</span><span class="o">=</span><span class="n">model</span><span class="p">,</span> <span class="n">local_path</span><span class="o">=</span><span class="n">local_path</span><span class="p">)</span>
 </pre></div>
@@ -617,7 +612,7 @@ document.write(`
 <div class="cell docutils container">
 <div class="cell_input docutils container">
 <div class="highlight-ipython3 notranslate"><div class="highlight"><pre><span></span><span class="k">def</span><span class="w"> </span><span class="nf">report_metrics_torch</span><span class="p">(</span><span class="n">loss</span><span class="p">:</span> <span class="n">torch</span><span class="o">.</span><span class="n">Tensor</span><span class="p">,</span> <span class="n">epoch</span><span class="p">:</span> <span class="nb">int</span><span class="p">)</span> <span class="o">-&gt;</span> <span class="kc">None</span><span class="p">:</span>
-    <span class="n">metrics</span> <span class="o">=</span> <span class="p">{</span><span class="s2">&quot;loss&quot;</span><span class="p">:</span> <span class="n">loss</span><span class="o">.</span><span class="n">item</span><span class="p">(),</span> <span class="s2">&quot;epoch&quot;</span><span class="p">:</span> <span class="n">epoch</span><span class="p">}</span>
+    <span class="n">metrics</span> <span class="o">=</span> <span class="p">{</span><span class="s2">&quot;loss&quot;</span><span class="p">:</span> <span class="n">loss</span><span class="p">,</span> <span class="s2">&quot;epoch&quot;</span><span class="p">:</span> <span class="n">epoch</span><span class="p">}</span>
     <span class="nb">print</span><span class="p">(</span><span class="n">metrics</span><span class="p">)</span>
     <span class="k">return</span> <span class="n">metrics</span>
 </pre></div>
@@ -647,8 +642,9 @@ document.write(`
 <p>Schedule the training loop on a single GPU</p>
 <div class="cell docutils container">
 <div class="cell_input docutils container">
-<div class="highlight-ipython3 notranslate"><div class="highlight"><pre><span></span><span class="n">timestamp</span> <span class="o">=</span> <span class="n">datetime</span><span class="o">.</span><span class="n">datetime</span><span class="o">.</span><span class="n">now</span><span class="p">(</span><span class="n">datetime</span><span class="o">.</span><span class="n">UTC</span><span class="p">)</span><span class="o">.</span><span class="n">strftime</span><span class="p">(</span><span class="s2">&quot;%Y-%m-</span><span class="si">%d</span><span class="s2">_%H-%M-%S&quot;</span><span class="p">)</span>
-<span class="n">local_path</span> <span class="o">=</span> <span class="sa">f</span><span class="s2">&quot;/mnt/local_storage/single_gpu_mnist/torch_</span><span class="si">{</span><span class="n">timestamp</span><span class="si">}</span><span class="s2">/&quot;</span> <span class="c1"># Use local path if it runs on local</span>
+<div class="highlight-ipython3 notranslate"><div class="highlight"><pre><span></span><span class="n">timestamp</span> <span class="o">=</span> <span class="n">datetime</span><span class="o">.</span><span class="n">datetime</span><span class="o">.</span><span class="n">now</span><span class="p">()</span><span class="o">.</span><span class="n">strftime</span><span class="p">(</span><span class="s2">&quot;%Y-%m-</span><span class="si">%d</span><span class="s2">_%H-%M-%S&quot;</span><span class="p">)</span>
+<span class="n">storage_folder</span> <span class="o">=</span> <span class="s2">&quot;/mnt/cluster_storage&quot;</span>  <span class="c1"># Modify this path to your local folder if it runs on your local environment</span>
+<span class="n">local_path</span> <span class="o">=</span> <span class="sa">f</span><span class="s2">&quot;</span><span class="si">{</span><span class="n">storage_folder</span><span class="si">}</span><span class="s2">/torch_</span><span class="si">{</span><span class="n">timestamp</span><span class="si">}</span><span class="s2">/&quot;</span>
 </pre></div>
 </div>
 </div>
@@ -659,7 +655,7 @@ document.write(`
 <ul class="simple">
 <li><p>Anyscale provides each node with its own volume and disk and doesn’t share them with other nodes.</p></li>
 <li><p>Local storage is very fast - Anyscale supports the Non-Volatile Memory Express (NVMe) interface.</p></li>
-<li><p>This is not a persisent storage, Anyscale deletes data in the local storage after instances are terminated.</p></li>
+<li><p>This is not a persistent storage, Anyscale deletes data in the local storage after instances are terminated.</p></li>
 </ul>
 <p>Read more about available <a href="https://docs.anyscale.com/configuration/storage" target="_blank">storage</a> options.</p>
 </div><p>Start the training:
@@ -699,7 +695,7 @@ If you run it on your local, it can take up to 15 minutes.</p>
 <section id="use-checkpointed-model-to-generate-predictions">
 <h2>2.6. Use checkpointed model to generate predictions<a class="headerlink" href="#use-checkpointed-model-to-generate-predictions" title="Link to this heading">#</a></h2>
 <p>Load model checkpoint to the device</p>
-<p>Generate predictions on randomly selected 9 images rom the MNIST dataset.</p>
+<p>Generate predictions on randomly selected 9 images from the MNIST dataset.</p>
 <div class="cell docutils container">
 <div class="cell_input docutils container">
 <div class="highlight-ipython3 notranslate"><div class="highlight"><pre><span></span><span class="n">device</span> <span class="o">=</span> <span class="s2">&quot;cuda&quot;</span> <span class="k">if</span> <span class="n">torch</span><span class="o">.</span><span class="n">cuda</span><span class="o">.</span><span class="n">is_available</span><span class="p">()</span> <span class="k">else</span> <span class="s2">&quot;cpu&quot;</span>
@@ -746,16 +742,16 @@ If you run it on your local, it can take up to 15 minutes.</p>
         },
         codeMirrorConfig: {
             theme: "abcdef",
-            mode: "xing-ray-jupyter"
+            mode: "python"
         },
         kernelOptions: {
-            name: "xing-ray-jupyter",
+            name: "python3",
             path: "./courses/00_Developer_Intro_to_Ray/output"
         },
         predefinedOutput: true
     }
     </script>
-    <script>kernelName = 'xing-ray-jupyter'</script>
+    <script>kernelName = 'python3'</script>
 
                 </article>
               

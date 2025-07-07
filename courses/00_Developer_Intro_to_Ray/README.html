@@ -227,7 +227,7 @@
 <li class="toctree-l1"><a class="reference internal" href="output/04b_Intro_Ray_Data_Structured_08.html">6. When to use Ray Data</a></li>
 <li class="toctree-l1"><a class="reference internal" href="output/04b_Intro_Ray_Data_Structured_09.html">7. Ray Data in Production</a></li>
 <li class="toctree-l1"><a class="reference internal" href="output/04b_Intro_Ray_Data_Structured_10.html">8. Upcoming Features in Ray Data</a></li>
-<li class="toctree-l1"><a class="reference internal" href="output/04c_Intro_Ray_Data_Unstructured_01.html">Intro to Ray Data:  Ray Data + Unstructed Data</a></li>
+<li class="toctree-l1"><a class="reference internal" href="output/04c_Intro_Ray_Data_Unstructured_01.html">Intro to Ray Data:  Ray Data + Unstructured Data</a></li>
 <li class="toctree-l1"><a class="reference internal" href="output/04c_Intro_Ray_Data_Unstructured_02.html">1. When to Consider Ray Data</a></li>
 <li class="toctree-l1"><a class="reference internal" href="output/04c_Intro_Ray_Data_Unstructured_03.html">2. How to work with Ray Data</a></li>
 <li class="toctree-l1"><a class="reference internal" href="output/04c_Intro_Ray_Data_Unstructured_04.html">3. Loading data</a></li>
@@ -243,6 +243,7 @@
 <li class="toctree-l1"><a class="reference internal" href="output/05_Intro_Ray_Serve_PyTorch_03.html">2. Overview of Ray Serve</a></li>
 <li class="toctree-l1"><a class="reference internal" href="output/05_Intro_Ray_Serve_PyTorch_04.html">3. Implement an image classification service</a></li>
 <li class="toctree-l1"><a class="reference internal" href="output/05_Intro_Ray_Serve_PyTorch_05.html">4. Development workflow</a></li>
+<li class="toctree-l1"><a class="reference internal" href="output/README_01.html">Introduction to Ray: Developer</a></li>
 </ul>
 <p aria-level="2" class="caption" role="heading"><span class="caption-text">Anyscale 101</span></p>
 <ul class="nav bd-sidenav">
@@ -341,7 +342,7 @@
       
       
       
-      <li><a href="../../_sources/courses/00_Developer_Intro_to_Ray/README.md" target="_blank"
+      <li><a href="../../_sources/courses/00_Developer_Intro_to_Ray/README.ipynb" target="_blank"
    class="btn btn-sm btn-download-source-button dropdown-item"
    title="Download source file"
    data-bs-placement="left" data-bs-toggle="tooltip"
@@ -351,7 +352,7 @@
 <span class="btn__icon-container">
   <i class="fas fa-file"></i>
   </span>
-<span class="btn__text-container">.md</span>
+<span class="btn__text-container">.ipynb</span>
 </a>
 </li>
       
@@ -440,22 +441,18 @@ document.write(`
 <li class="toc-h2 nav-item toc-entry"><a class="reference internal nav-link" href="#why-ray">Why Ray?</a></li>
 <li class="toc-h2 nav-item toc-entry"><a class="reference internal nav-link" href="#setting-up-a-local-ray-server-using-jupyter-notebook">Setting Up a Local Ray server using Jupyter Notebook</a><ul class="nav section-nav flex-column">
 <li class="toc-h3 nav-item toc-entry"><a class="reference internal nav-link" href="#prerequisites">Prerequisites</a></li>
-</ul>
-</li>
-<li class="toc-h2 nav-item toc-entry"><a class="reference internal nav-link" href="#install-conda">✅ 1. Install Conda</a><ul class="nav section-nav flex-column">
+<li class="toc-h3 nav-item toc-entry"><a class="reference internal nav-link" href="#install-conda">✅ 1. Install Conda</a></li>
 <li class="toc-h3 nav-item toc-entry"><a class="reference internal nav-link" href="#miniforge-installation-it-depends-on-your-os-in-this-case-we-use-arm-macs">🧩 Miniforge Installation (It depends on your OS. In this case, we use ARM Macs)</a></li>
-</ul>
-</li>
-<li class="toc-h2 nav-item toc-entry"><a class="reference internal nav-link" href="#create-a-new-conda-environment">🛠️ 2. Create a New Conda Environment</a></li>
-<li class="toc-h2 nav-item toc-entry"><a class="reference internal nav-link" href="#activate-the-environment">▶️ 3. Activate the Environment</a></li>
-<li class="toc-h2 nav-item toc-entry"><a class="reference internal nav-link" href="#install-uv-and-dependencies">📦 4. Install UV and Dependencies</a><ul class="nav section-nav flex-column">
+<li class="toc-h3 nav-item toc-entry"><a class="reference internal nav-link" href="#create-a-new-conda-environment">🛠️ 2. Create a New Conda Environment</a></li>
+<li class="toc-h3 nav-item toc-entry"><a class="reference internal nav-link" href="#activate-the-environment">▶️ 3. Activate the Environment</a></li>
+<li class="toc-h3 nav-item toc-entry"><a class="reference internal nav-link" href="#install-uv-and-dependencies">📦 4. Install UV and Dependencies</a></li>
 <li class="toc-h3 nav-item toc-entry"><a class="reference internal nav-link" href="#managing-dependencies">Managing Dependencies</a></li>
+<li class="toc-h3 nav-item toc-entry"><a class="reference internal nav-link" href="#optional-but-recommended-add-your-conda-environment-to-jupyter">🖥️ 5. (Optional but Recommended) Add Your Conda Environment to Jupyter</a></li>
+<li class="toc-h3 nav-item toc-entry"><a class="reference internal nav-link" href="#launch-jupyter-notebook">🚀 6. Launch Jupyter Notebook</a></li>
+<li class="toc-h3 nav-item toc-entry"><a class="reference internal nav-link" href="#verify-ray-installation-with-a-simple-example">✅ 7. Verify Ray Installation with a Simple Example</a></li>
+<li class="toc-h3 nav-item toc-entry"><a class="reference internal nav-link" href="#shut-down-and-clean-up">🧹 8. Shut Down and Clean Up</a></li>
 </ul>
 </li>
-<li class="toc-h2 nav-item toc-entry"><a class="reference internal nav-link" href="#optional-but-recommended-add-your-conda-environment-to-jupyter">🖥️ 5. (Optional but Recommended) Add Your Conda Environment to Jupyter</a></li>
-<li class="toc-h2 nav-item toc-entry"><a class="reference internal nav-link" href="#launch-jupyter-notebook">🚀 6. Launch Jupyter Notebook</a></li>
-<li class="toc-h2 nav-item toc-entry"><a class="reference internal nav-link" href="#verify-ray-installation-with-a-simple-example">✅ 7. Verify Ray Installation with a Simple Example</a></li>
-<li class="toc-h2 nav-item toc-entry"><a class="reference internal nav-link" href="#shut-down-and-clean-up">🧹 8. Shut Down and Clean Up</a></li>
 </ul>
             </nav>
         </div>
@@ -509,26 +506,38 @@ document.write(`
 <h3>Prerequisites<a class="headerlink" href="#prerequisites" title="Link to this heading">#</a></h3>
 <p>This guide helps you set up a local Jupyter Notebook environment using <strong>Conda</strong> and install <strong>Ray</strong> for parallel and distributed computing.</p>
 </section>
-</section>
 <hr class="docutils" />
 <section id="install-conda">
-<h2>✅ 1. Install Conda<a class="headerlink" href="#install-conda" title="Link to this heading">#</a></h2>
+<h3>✅ 1. Install Conda<a class="headerlink" href="#install-conda" title="Link to this heading">#</a></h3>
 <p>If you don’t already have Conda, you can install <strong>Miniforge</strong> or <strong>Miniconda</strong> on macOS with Apple Silicon (ARM-based M1/M2/M3 chips):</p>
+</section>
 <section id="miniforge-installation-it-depends-on-your-os-in-this-case-we-use-arm-macs">
 <h3>🧩 Miniforge Installation (It depends on your OS. In this case, we use ARM Macs)<a class="headerlink" href="#miniforge-installation-it-depends-on-your-os-in-this-case-we-use-arm-macs" title="Link to this heading">#</a></h3>
 <p>Open your terminal and run:</p>
-<div class="highlight-bash notranslate"><div class="highlight"><pre><span></span>curl<span class="w"> </span>-LO<span class="w"> </span>https://github.com/conda-forge/miniforge/releases/latest/download/Miniforge3-MacOSX-arm64.sh
-bash<span class="w"> </span>Miniforge3-MacOSX-arm64.sh
+<div class="cell docutils container">
+<div class="cell_input docutils container">
+<div class="highlight-python notranslate"><div class="highlight"><pre><span></span><span class="n">curl</span> <span class="o">-</span><span class="n">LO</span> <span class="n">https</span><span class="p">:</span><span class="o">//</span><span class="n">github</span><span class="o">.</span><span class="n">com</span><span class="o">/</span><span class="n">conda</span><span class="o">-</span><span class="n">forge</span><span class="o">/</span><span class="n">miniforge</span><span class="o">/</span><span class="n">releases</span><span class="o">/</span><span class="n">latest</span><span class="o">/</span><span class="n">download</span><span class="o">/</span><span class="n">Miniforge3</span><span class="o">-</span><span class="n">MacOSX</span><span class="o">-</span><span class="n">arm64</span><span class="o">.</span><span class="n">sh</span>
+<span class="n">bash</span> <span class="n">Miniforge3</span><span class="o">-</span><span class="n">MacOSX</span><span class="o">-</span><span class="n">arm64</span><span class="o">.</span><span class="n">sh</span>
 </pre></div>
+</div>
+</div>
 </div>
 <p>Follow the prompts to accept the license, choose the install location, and initialize Miniforge.</p>
 <p>Then restart your terminal or run:</p>
-<div class="highlight-bash notranslate"><div class="highlight"><pre><span></span><span class="nb">source</span><span class="w"> </span>~/.zprofile<span class="w">  </span><span class="c1"># or ~/.bash_profile if you&#39;re using bash</span>
+<div class="cell docutils container">
+<div class="cell_input docutils container">
+<div class="highlight-python notranslate"><div class="highlight"><pre><span></span><span class="n">source</span> <span class="o">~/.</span><span class="n">zprofile</span>  <span class="c1"># or ~/.bash_profile if you&#39;re using bash</span>
 </pre></div>
 </div>
+</div>
+</div>
 <p>Verify installation:</p>
-<div class="highlight-bash notranslate"><div class="highlight"><pre><span></span>conda<span class="w"> </span>--version
+<div class="cell docutils container">
+<div class="cell_input docutils container">
+<div class="highlight-python notranslate"><div class="highlight"><pre><span></span><span class="n">conda</span> <span class="o">--</span><span class="n">version</span>
 </pre></div>
+</div>
+</div>
 </div>
 <p>Alternatively, download from:</p>
 <ul class="simple">
@@ -536,12 +545,15 @@ bash<span class="w"> </span>Miniforge3-MacOSX-arm64.sh
 <li><p>Miniconda (ARM builds available): <a class="reference external" href="https://docs.conda.io/en/latest/miniconda.html">https://docs.conda.io/en/latest/miniconda.html</a></p></li>
 </ul>
 </section>
-</section>
 <hr class="docutils" />
 <section id="create-a-new-conda-environment">
-<h2>🛠️ 2. Create a New Conda Environment<a class="headerlink" href="#create-a-new-conda-environment" title="Link to this heading">#</a></h2>
-<div class="highlight-bash notranslate"><div class="highlight"><pre><span></span>conda<span class="w"> </span>create<span class="w"> </span>-n<span class="w"> </span>ray-jupyter<span class="w"> </span><span class="nv">python</span><span class="o">=</span><span class="m">3</span>.11<span class="w"> </span>-y
+<h3>🛠️ 2. Create a New Conda Environment<a class="headerlink" href="#create-a-new-conda-environment" title="Link to this heading">#</a></h3>
+<div class="cell docutils container">
+<div class="cell_input docutils container">
+<div class="highlight-python notranslate"><div class="highlight"><pre><span></span><span class="n">conda</span> <span class="n">create</span> <span class="o">-</span><span class="n">n</span> <span class="n">ray</span><span class="o">-</span><span class="n">jupyter</span> <span class="n">python</span><span class="o">=</span><span class="mf">3.11</span> <span class="o">-</span><span class="n">y</span>
 </pre></div>
+</div>
+</div>
 </div>
 <blockquote>
 <div><p>Ray supports Python 3.7 to 3.11 (Python 3.12 is not supported as of Ray 2.20).</p>
@@ -549,23 +561,36 @@ bash<span class="w"> </span>Miniforge3-MacOSX-arm64.sh
 </section>
 <hr class="docutils" />
 <section id="activate-the-environment">
-<h2>▶️ 3. Activate the Environment<a class="headerlink" href="#activate-the-environment" title="Link to this heading">#</a></h2>
-<div class="highlight-bash notranslate"><div class="highlight"><pre><span></span>conda<span class="w"> </span>activate<span class="w"> </span>ray-jupyter
+<h3>▶️ 3. Activate the Environment<a class="headerlink" href="#activate-the-environment" title="Link to this heading">#</a></h3>
+<div class="cell docutils container">
+<div class="cell_input docutils container">
+<div class="highlight-python notranslate"><div class="highlight"><pre><span></span><span class="n">conda</span> <span class="n">activate</span> <span class="n">ray</span><span class="o">-</span><span class="n">jupyter</span>
 </pre></div>
+</div>
+</div>
 </div>
 </section>
 <hr class="docutils" />
 <section id="install-uv-and-dependencies">
-<h2>📦 4. Install UV and Dependencies<a class="headerlink" href="#install-uv-and-dependencies" title="Link to this heading">#</a></h2>
+<h3>📦 4. Install UV and Dependencies<a class="headerlink" href="#install-uv-and-dependencies" title="Link to this heading">#</a></h3>
 <p>First, install UV:</p>
-<div class="highlight-bash notranslate"><div class="highlight"><pre><span></span>curl<span class="w"> </span>-LsSf<span class="w"> </span>https://astral.sh/uv/install.sh<span class="w"> </span><span class="p">|</span><span class="w"> </span>sh
+<div class="cell docutils container">
+<div class="cell_input docutils container">
+<div class="highlight-python notranslate"><div class="highlight"><pre><span></span><span class="n">curl</span> <span class="o">-</span><span class="n">LsSf</span> <span class="n">https</span><span class="p">:</span><span class="o">//</span><span class="n">astral</span><span class="o">.</span><span class="n">sh</span><span class="o">/</span><span class="n">uv</span><span class="o">/</span><span class="n">install</span><span class="o">.</span><span class="n">sh</span> <span class="o">|</span> <span class="n">sh</span>
 </pre></div>
+</div>
+</div>
 </div>
 <p>Install the dependencies using the lock file:</p>
-<div class="highlight-bash notranslate"><div class="highlight"><pre><span></span>uv<span class="w"> </span>pip<span class="w"> </span>install<span class="w"> </span>-r<span class="w"> </span>requirements.lock
+<div class="cell docutils container">
+<div class="cell_input docutils container">
+<div class="highlight-python notranslate"><div class="highlight"><pre><span></span><span class="n">uv</span> <span class="n">pip</span> <span class="n">install</span> <span class="o">-</span><span class="n">r</span> <span class="n">requirements</span><span class="o">.</span><span class="n">lock</span>
 </pre></div>
 </div>
+</div>
+</div>
 <p>This will install all dependencies with their exact versions as specified in the lock file, ensuring reproducible builds across different environments.</p>
+</section>
 <section id="managing-dependencies">
 <h3>Managing Dependencies<a class="headerlink" href="#managing-dependencies" title="Link to this heading">#</a></h3>
 <p>When you need to add new dependencies:</p>
@@ -584,30 +609,40 @@ bash<span class="w"> </span>Miniforge3-MacOSX-arm64.sh
 </ol>
 <p>This workflow ensures that all dependencies are properly tracked and versions are locked for reproducibility.</p>
 </section>
-</section>
 <hr class="docutils" />
 <section id="optional-but-recommended-add-your-conda-environment-to-jupyter">
-<h2>🖥️ 5. (Optional but Recommended) Add Your Conda Environment to Jupyter<a class="headerlink" href="#optional-but-recommended-add-your-conda-environment-to-jupyter" title="Link to this heading">#</a></h2>
+<h3>🖥️ 5. (Optional but Recommended) Add Your Conda Environment to Jupyter<a class="headerlink" href="#optional-but-recommended-add-your-conda-environment-to-jupyter" title="Link to this heading">#</a></h3>
 <p>To use your <code class="docutils literal notranslate"><span class="pre">ray-jupyter</span></code> environment as a kernel in Jupyter Notebook, run:</p>
-<div class="highlight-bash notranslate"><div class="highlight"><pre><span></span>pip<span class="w"> </span>install<span class="w"> </span>ipykernel
-python<span class="w"> </span>-m<span class="w"> </span>ipykernel<span class="w"> </span>install<span class="w"> </span>--user<span class="w"> </span>--name<span class="w"> </span>ray-jupyter<span class="w"> </span>--display-name<span class="w"> </span><span class="s2">&quot;Python (ray-jupyter)&quot;</span>
+<div class="cell docutils container">
+<div class="cell_input docutils container">
+<div class="highlight-python notranslate"><div class="highlight"><pre><span></span><span class="n">pip</span> <span class="n">install</span> <span class="n">ipykernel</span>
+<span class="n">python</span> <span class="o">-</span><span class="n">m</span> <span class="n">ipykernel</span> <span class="n">install</span> <span class="o">--</span><span class="n">user</span> <span class="o">--</span><span class="n">name</span> <span class="n">ray</span><span class="o">-</span><span class="n">jupyter</span> <span class="o">--</span><span class="n">display</span><span class="o">-</span><span class="n">name</span> <span class="s2">&quot;Python (ray-jupyter)&quot;</span>
 </pre></div>
+</div>
+</div>
 </div>
 <p>This will make your environment available as a selectable kernel in Jupyter.</p>
 </section>
 <hr class="docutils" />
 <section id="launch-jupyter-notebook">
-<h2>🚀 6. Launch Jupyter Notebook<a class="headerlink" href="#launch-jupyter-notebook" title="Link to this heading">#</a></h2>
-<div class="highlight-bash notranslate"><div class="highlight"><pre><span></span>jupyter<span class="w"> </span>notebook
+<h3>🚀 6. Launch Jupyter Notebook<a class="headerlink" href="#launch-jupyter-notebook" title="Link to this heading">#</a></h3>
+<div class="cell docutils container">
+<div class="cell_input docutils container">
+<div class="highlight-python notranslate"><div class="highlight"><pre><span></span><span class="n">jupyter</span> <span class="n">notebook</span>
 </pre></div>
+</div>
+</div>
 </div>
 <p>This will open a browser window for you to create and manage notebooks.</p>
 </section>
 <hr class="docutils" />
 <section id="verify-ray-installation-with-a-simple-example">
-<h2>✅ 7. Verify Ray Installation with a Simple Example<a class="headerlink" href="#verify-ray-installation-with-a-simple-example" title="Link to this heading">#</a></h2>
+<h3>✅ 7. Verify Ray Installation with a Simple Example<a class="headerlink" href="#verify-ray-installation-with-a-simple-example" title="Link to this heading">#</a></h3>
 <p>After launching Jupyter Notebook and selecting your <code class="docutils literal notranslate"><span class="pre">ray-jupyter</span></code> kernel, create a new notebook and run the following code to verify Ray is working:</p>
-<div class="highlight-python notranslate"><div class="highlight"><pre><span></span><span class="kn">import</span><span class="w"> </span><span class="nn">ray</span>
+<div class="cell docutils container">
+<div class="cell_input docutils container">
+<div class="highlight-python notranslate"><div class="highlight"><pre><span></span><span class="o">%%</span><span class="n">python</span>
+<span class="kn">import</span><span class="w"> </span><span class="nn">ray</span>
 <span class="n">ray</span><span class="o">.</span><span class="n">init</span><span class="p">()</span>
 
 <span class="nd">@ray</span><span class="o">.</span><span class="n">remote</span>
@@ -617,6 +652,8 @@ python<span class="w"> </span>-m<span class="w"> </span>ipykernel<span class="w"
 <span class="n">result</span> <span class="o">=</span> <span class="n">ray</span><span class="o">.</span><span class="n">get</span><span class="p">(</span><span class="n">hello_world</span><span class="o">.</span><span class="n">remote</span><span class="p">())</span>
 <span class="nb">print</span><span class="p">(</span><span class="n">result</span><span class="p">)</span>
 </pre></div>
+</div>
+</div>
 </div>
 <p>You should see the output:</p>
 <div class="highlight-default notranslate"><div class="highlight"><pre><span></span>2025-06-10 10:41:31,774	INFO worker.py:1879 -- Started a local Ray instance. View the dashboard at http://127.0.0.1:8265 
@@ -628,21 +665,30 @@ Ray is working!
 </section>
 <hr class="docutils" />
 <section id="shut-down-and-clean-up">
-<h2>🧹 8. Shut Down and Clean Up<a class="headerlink" href="#shut-down-and-clean-up" title="Link to this heading">#</a></h2>
+<h3>🧹 8. Shut Down and Clean Up<a class="headerlink" href="#shut-down-and-clean-up" title="Link to this heading">#</a></h3>
 <p>To stop the Jupyter Notebook server:</p>
 <ul class="simple">
 <li><p>Press <code class="docutils literal notranslate"><span class="pre">Ctrl+C</span></code> in the terminal</p></li>
 </ul>
 <p>To deactivate the environment:</p>
-<div class="highlight-bash notranslate"><div class="highlight"><pre><span></span>conda<span class="w"> </span>deactivate
+<div class="cell docutils container">
+<div class="cell_input docutils container">
+<div class="highlight-python notranslate"><div class="highlight"><pre><span></span><span class="n">conda</span> <span class="n">deactivate</span>
 </pre></div>
 </div>
+</div>
+</div>
 <p>To remove the environment completely:</p>
-<div class="highlight-bash notranslate"><div class="highlight"><pre><span></span>conda<span class="w"> </span>remove<span class="w"> </span>--name<span class="w"> </span>ray-jupyter<span class="w"> </span>--all
+<div class="cell docutils container">
+<div class="cell_input docutils container">
+<div class="highlight-python notranslate"><div class="highlight"><pre><span></span><span class="n">conda</span> <span class="n">remove</span> <span class="o">--</span><span class="n">name</span> <span class="n">ray</span><span class="o">-</span><span class="n">jupyter</span> <span class="o">--</span><span class="nb">all</span>
 </pre></div>
+</div>
+</div>
 </div>
 <hr class="docutils" />
 <p>You’re now ready to start developing Ray applications in a local Jupyter Notebook environment!</p>
+</section>
 </section>
 </section>
 
@@ -697,22 +743,18 @@ Ray is working!
 <li class="toc-h2 nav-item toc-entry"><a class="reference internal nav-link" href="#why-ray">Why Ray?</a></li>
 <li class="toc-h2 nav-item toc-entry"><a class="reference internal nav-link" href="#setting-up-a-local-ray-server-using-jupyter-notebook">Setting Up a Local Ray server using Jupyter Notebook</a><ul class="nav section-nav flex-column">
 <li class="toc-h3 nav-item toc-entry"><a class="reference internal nav-link" href="#prerequisites">Prerequisites</a></li>
-</ul>
-</li>
-<li class="toc-h2 nav-item toc-entry"><a class="reference internal nav-link" href="#install-conda">✅ 1. Install Conda</a><ul class="nav section-nav flex-column">
+<li class="toc-h3 nav-item toc-entry"><a class="reference internal nav-link" href="#install-conda">✅ 1. Install Conda</a></li>
 <li class="toc-h3 nav-item toc-entry"><a class="reference internal nav-link" href="#miniforge-installation-it-depends-on-your-os-in-this-case-we-use-arm-macs">🧩 Miniforge Installation (It depends on your OS. In this case, we use ARM Macs)</a></li>
-</ul>
-</li>
-<li class="toc-h2 nav-item toc-entry"><a class="reference internal nav-link" href="#create-a-new-conda-environment">🛠️ 2. Create a New Conda Environment</a></li>
-<li class="toc-h2 nav-item toc-entry"><a class="reference internal nav-link" href="#activate-the-environment">▶️ 3. Activate the Environment</a></li>
-<li class="toc-h2 nav-item toc-entry"><a class="reference internal nav-link" href="#install-uv-and-dependencies">📦 4. Install UV and Dependencies</a><ul class="nav section-nav flex-column">
+<li class="toc-h3 nav-item toc-entry"><a class="reference internal nav-link" href="#create-a-new-conda-environment">🛠️ 2. Create a New Conda Environment</a></li>
+<li class="toc-h3 nav-item toc-entry"><a class="reference internal nav-link" href="#activate-the-environment">▶️ 3. Activate the Environment</a></li>
+<li class="toc-h3 nav-item toc-entry"><a class="reference internal nav-link" href="#install-uv-and-dependencies">📦 4. Install UV and Dependencies</a></li>
 <li class="toc-h3 nav-item toc-entry"><a class="reference internal nav-link" href="#managing-dependencies">Managing Dependencies</a></li>
+<li class="toc-h3 nav-item toc-entry"><a class="reference internal nav-link" href="#optional-but-recommended-add-your-conda-environment-to-jupyter">🖥️ 5. (Optional but Recommended) Add Your Conda Environment to Jupyter</a></li>
+<li class="toc-h3 nav-item toc-entry"><a class="reference internal nav-link" href="#launch-jupyter-notebook">🚀 6. Launch Jupyter Notebook</a></li>
+<li class="toc-h3 nav-item toc-entry"><a class="reference internal nav-link" href="#verify-ray-installation-with-a-simple-example">✅ 7. Verify Ray Installation with a Simple Example</a></li>
+<li class="toc-h3 nav-item toc-entry"><a class="reference internal nav-link" href="#shut-down-and-clean-up">🧹 8. Shut Down and Clean Up</a></li>
 </ul>
 </li>
-<li class="toc-h2 nav-item toc-entry"><a class="reference internal nav-link" href="#optional-but-recommended-add-your-conda-environment-to-jupyter">🖥️ 5. (Optional but Recommended) Add Your Conda Environment to Jupyter</a></li>
-<li class="toc-h2 nav-item toc-entry"><a class="reference internal nav-link" href="#launch-jupyter-notebook">🚀 6. Launch Jupyter Notebook</a></li>
-<li class="toc-h2 nav-item toc-entry"><a class="reference internal nav-link" href="#verify-ray-installation-with-a-simple-example">✅ 7. Verify Ray Installation with a Simple Example</a></li>
-<li class="toc-h2 nav-item toc-entry"><a class="reference internal nav-link" href="#shut-down-and-clean-up">🧹 8. Shut Down and Clean Up</a></li>
 </ul>
   </nav></div>
 

@@ -227,7 +227,7 @@
 <li class="toctree-l1"><a class="reference internal" href="04b_Intro_Ray_Data_Structured_08.html">6. When to use Ray Data</a></li>
 <li class="toctree-l1"><a class="reference internal" href="04b_Intro_Ray_Data_Structured_09.html">7. Ray Data in Production</a></li>
 <li class="toctree-l1"><a class="reference internal" href="04b_Intro_Ray_Data_Structured_10.html">8. Upcoming Features in Ray Data</a></li>
-<li class="toctree-l1"><a class="reference internal" href="04c_Intro_Ray_Data_Unstructured_01.html">Intro to Ray Data:  Ray Data + Unstructed Data</a></li>
+<li class="toctree-l1"><a class="reference internal" href="04c_Intro_Ray_Data_Unstructured_01.html">Intro to Ray Data:  Ray Data + Unstructured Data</a></li>
 <li class="toctree-l1"><a class="reference internal" href="04c_Intro_Ray_Data_Unstructured_02.html">1. When to Consider Ray Data</a></li>
 <li class="toctree-l1"><a class="reference internal" href="04c_Intro_Ray_Data_Unstructured_03.html">2. How to work with Ray Data</a></li>
 <li class="toctree-l1"><a class="reference internal" href="04c_Intro_Ray_Data_Unstructured_04.html">3. Loading data</a></li>
@@ -243,6 +243,7 @@
 <li class="toctree-l1"><a class="reference internal" href="05_Intro_Ray_Serve_PyTorch_03.html">2. Overview of Ray Serve</a></li>
 <li class="toctree-l1"><a class="reference internal" href="05_Intro_Ray_Serve_PyTorch_04.html">3. Implement an image classification service</a></li>
 <li class="toctree-l1"><a class="reference internal" href="05_Intro_Ray_Serve_PyTorch_05.html">4. Development workflow</a></li>
+<li class="toctree-l1"><a class="reference internal" href="README_01.html">Introduction to Ray: Developer</a></li>
 </ul>
 <p aria-level="2" class="caption" role="heading"><span class="caption-text">Anyscale 101</span></p>
 <ul class="nav bd-sidenav">
@@ -441,7 +442,7 @@ document.write(`
 <h1>Introduction to the Ray AI Libraries: An example of using Ray data, Ray Train, Ray Tune, Ray Serve to implement a XGBoost regression model<a class="headerlink" href="#introduction-to-the-ray-ai-libraries-an-example-of-using-ray-data-ray-train-ray-tune-ray-serve-to-implement-a-xgboost-regression-model" title="Link to this heading">#</a></h1>
 <p>© 2025, Anyscale. All Rights Reserved</p>
 <p>💻 <strong>Launch Locally</strong>: You can run this notebook locally, but performance will be reduced.</p>
-<p>🚀 <strong>Launch on Cloud</strong>: A Ray Cluster with 4 GPUs (Click <a class="reference external" href="http://console.anyscale.com/register">here</a> to easily start a Ray cluster on Anyscale) is recommanded to run this notebook.</p>
+<p>🚀 <strong>Launch on Cloud</strong>: A Ray Cluster with 4 GPUs (Click <a class="reference external" href="http://console.anyscale.com/register">here</a> to easily start a Ray cluster on Anyscale) is recommended to run this notebook.</p>
 <p>Let’s start with a quick end-to-end example to get a sense of what the Ray AI Libraries can do.</p>
 <div class="alert alert-block alert-info">
 <b> Here is the roadmap for this notebook:</b>
@@ -459,10 +460,19 @@ document.write(`
 </div><p><strong>Imports</strong></p>
 <div class="cell docutils container">
 <div class="cell_input docutils container">
+<div class="highlight-ipython3 notranslate"><div class="highlight"><pre><span></span><span class="c1"># (Optional): If you get an XGBoostError at import, you might have to `brew install libomp` before importing xgboost again</span>
+<span class="o">!</span>brew<span class="w"> </span>install<span class="w"> </span>libomp
+</pre></div>
+</div>
+</div>
+</div>
+<div class="cell docutils container">
+<div class="cell_input docutils container">
 <div class="highlight-ipython3 notranslate"><div class="highlight"><pre><span></span><span class="kn">import</span><span class="w"> </span><span class="nn">asyncio</span>
 <span class="kn">import</span><span class="w"> </span><span class="nn">fastapi</span>
 <span class="kn">import</span><span class="w"> </span><span class="nn">pandas</span><span class="w"> </span><span class="k">as</span><span class="w"> </span><span class="nn">pd</span>
 <span class="kn">import</span><span class="w"> </span><span class="nn">requests</span>
+<span class="c1"># macos: If you get an XGBoostError at import, you might have to `brew install libomp` before importing xgboost again</span>
 <span class="kn">import</span><span class="w"> </span><span class="nn">xgboost</span>
 <span class="kn">from</span><span class="w"> </span><span class="nn">pydantic</span><span class="w"> </span><span class="kn">import</span> <span class="n">BaseModel</span>
 <span class="kn">from</span><span class="w"> </span><span class="nn">sklearn.model_selection</span><span class="w"> </span><span class="kn">import</span> <span class="n">train_test_split</span>
@@ -471,6 +481,7 @@ document.write(`
 <span class="kn">import</span><span class="w"> </span><span class="nn">ray.tune</span>
 <span class="kn">import</span><span class="w"> </span><span class="nn">ray.train</span>
 <span class="kn">from</span><span class="w"> </span><span class="nn">ray.train.xgboost</span><span class="w"> </span><span class="kn">import</span> <span class="n">XGBoostTrainer</span> <span class="k">as</span> <span class="n">RayTrainXGBoostTrainer</span>
+<span class="kn">from</span><span class="w"> </span><span class="nn">ray.train</span><span class="w"> </span><span class="kn">import</span> <span class="n">RunConfig</span>
 <span class="kn">import</span><span class="w"> </span><span class="nn">ray.data</span>
 <span class="kn">import</span><span class="w"> </span><span class="nn">ray.serve</span>
 </pre></div>
@@ -488,16 +499,16 @@ document.write(`
         },
         codeMirrorConfig: {
             theme: "abcdef",
-            mode: "xing-ray-jupyter"
+            mode: "python"
         },
         kernelOptions: {
-            name: "xing-ray-jupyter",
+            name: "python3",
             path: "./courses/00_Developer_Intro_to_Ray/output"
         },
         predefinedOutput: true
     }
     </script>
-    <script>kernelName = 'xing-ray-jupyter'</script>
+    <script>kernelName = 'python3'</script>
 
                 </article>
               

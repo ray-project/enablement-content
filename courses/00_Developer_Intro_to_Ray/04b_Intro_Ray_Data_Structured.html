@@ -227,7 +227,7 @@
 <li class="toctree-l1"><a class="reference internal" href="output/04b_Intro_Ray_Data_Structured_08.html">6. When to use Ray Data</a></li>
 <li class="toctree-l1"><a class="reference internal" href="output/04b_Intro_Ray_Data_Structured_09.html">7. Ray Data in Production</a></li>
 <li class="toctree-l1"><a class="reference internal" href="output/04b_Intro_Ray_Data_Structured_10.html">8. Upcoming Features in Ray Data</a></li>
-<li class="toctree-l1"><a class="reference internal" href="output/04c_Intro_Ray_Data_Unstructured_01.html">Intro to Ray Data:  Ray Data + Unstructed Data</a></li>
+<li class="toctree-l1"><a class="reference internal" href="output/04c_Intro_Ray_Data_Unstructured_01.html">Intro to Ray Data:  Ray Data + Unstructured Data</a></li>
 <li class="toctree-l1"><a class="reference internal" href="output/04c_Intro_Ray_Data_Unstructured_02.html">1. When to Consider Ray Data</a></li>
 <li class="toctree-l1"><a class="reference internal" href="output/04c_Intro_Ray_Data_Unstructured_03.html">2. How to work with Ray Data</a></li>
 <li class="toctree-l1"><a class="reference internal" href="output/04c_Intro_Ray_Data_Unstructured_04.html">3. Loading data</a></li>
@@ -243,6 +243,7 @@
 <li class="toctree-l1"><a class="reference internal" href="output/05_Intro_Ray_Serve_PyTorch_03.html">2. Overview of Ray Serve</a></li>
 <li class="toctree-l1"><a class="reference internal" href="output/05_Intro_Ray_Serve_PyTorch_04.html">3. Implement an image classification service</a></li>
 <li class="toctree-l1"><a class="reference internal" href="output/05_Intro_Ray_Serve_PyTorch_05.html">4. Development workflow</a></li>
+<li class="toctree-l1"><a class="reference internal" href="output/README_01.html">Introduction to Ray: Developer</a></li>
 </ul>
 <p aria-level="2" class="caption" role="heading"><span class="caption-text">Anyscale 101</span></p>
 <ul class="nav bd-sidenav">
@@ -474,7 +475,7 @@ document.write(`
 <h1>Introduction to Ray Data: Ray Data + Structured Data<a class="headerlink" href="#introduction-to-ray-data-ray-data-structured-data" title="Link to this heading">#</a></h1>
 <p>© 2025, Anyscale. All Rights Reserved</p>
 <p>💻 <strong>Launch Locally</strong>: You can run this notebook locally, but performance will be reduced.</p>
-<p>🚀 <strong>Launch on Cloud</strong>: A Ray Cluster (Click <a class="reference external" href="http://console.anyscale.com/register">here</a> to easily start a Ray cluster on Anyscale) is recommanded to run this notebook.</p>
+<p>🚀 <strong>Launch on Cloud</strong>: A Ray Cluster (Click <a class="reference external" href="http://console.anyscale.com/register">here</a> to easily start a Ray cluster on Anyscale) is recommended to run this notebook.</p>
 <p>This notebook will provide an overview of Ray Data and how to use it to load, and transform data in a distributed manner.</p>
 <div class="alert alert-block alert-info">
 <b> Here is the roadmap for this notebook:</b>
@@ -500,7 +501,7 @@ document.write(`
 </div>
 <section id="what-is-ray-data">
 <h2>0. What is Ray Data?<a class="headerlink" href="#what-is-ray-data" title="Link to this heading">#</a></h2>
-<p>Ray Data is a distributed data processing library that provides a python API for parallel data processing.</p>
+<p>Ray Data is a distributed data processing library that provides a Python API for parallel data processing.</p>
 <p>It is built on top of Ray, a fast and simple framework for building and running distributed applications. Ray Data is designed to be easy to use, scalable, and fault-tolerant.</p>
 </section>
 <section id="how-to-use-ray-data">
@@ -589,7 +590,7 @@ document.write(`
 </div>
 </div>
 </div>
-<p>Lets check how many files there are in the dataset</p>
+<p>Let’s check how many files there are in the dataset</p>
 <div class="cell docutils container">
 <div class="cell_input docutils container">
 <div class="highlight-ipython3 notranslate"><div class="highlight"><pre><span></span><span class="o">!</span>aws<span class="w"> </span>s3<span class="w"> </span>ls<span class="w"> </span>s3://anyscale-public-materials/nyc-taxi-cab/<span class="w"> </span>--human-readable<span class="w"> </span><span class="p">|</span><span class="w"> </span>wc<span class="w"> </span>-l
@@ -706,7 +707,14 @@ document.write(`
 <p>Let’s write the adjusted data. Here is how we would do it with pandas:</p>
 <div class="cell docutils container">
 <div class="cell_input docutils container">
-<div class="highlight-ipython3 notranslate"><div class="highlight"><pre><span></span><span class="n">df</span><span class="o">.</span><span class="n">to_parquet</span><span class="p">(</span><span class="s2">&quot;/tmp/adjusted_data.parquet&quot;</span><span class="p">)</span>
+<div class="highlight-ipython3 notranslate"><div class="highlight"><pre><span></span><span class="n">storage_folder</span> <span class="o">=</span> <span class="s1">&#39;/mnt/cluster_storage&#39;</span> <span class="c1"># Modify this path to your local folder if it runs on your local environment</span>
+</pre></div>
+</div>
+</div>
+</div>
+<div class="cell docutils container">
+<div class="cell_input docutils container">
+<div class="highlight-ipython3 notranslate"><div class="highlight"><pre><span></span><span class="n">df</span><span class="o">.</span><span class="n">to_parquet</span><span class="p">(</span><span class="sa">f</span><span class="s2">&quot;</span><span class="si">{</span><span class="n">storage_folder</span><span class="si">}</span><span class="s2">/adjusted_data.parquet&quot;</span><span class="p">)</span>
 </pre></div>
 </div>
 </div>
@@ -714,7 +722,7 @@ document.write(`
 <p>Let’s check the file we just wrote:</p>
 <div class="cell docutils container">
 <div class="cell_input docutils container">
-<div class="highlight-ipython3 notranslate"><div class="highlight"><pre><span></span><span class="o">!</span>ls<span class="w"> </span>-lh<span class="w"> </span>/tmp/adjusted_data.parquet
+<div class="highlight-ipython3 notranslate"><div class="highlight"><pre><span></span><span class="o">!</span>ls<span class="w"> </span>-lh<span class="w"> </span><span class="o">{</span>storage_folder<span class="o">}</span>/adjusted_data.parquet
 </pre></div>
 </div>
 </div>
@@ -724,7 +732,7 @@ document.write(`
 <div class="cell_input docutils container">
 <div class="highlight-ipython3 notranslate"><div class="highlight"><pre><span></span><span class="o">!</span>rm<span class="w"> </span>-rf<span class="w"> </span>/mnt/cluster_storage/adjusted_data_ray/<span class="w"> </span>#<span class="w"> </span>let<span class="err">&#39;</span>s<span class="w"> </span>remove<span class="w"> </span>the<span class="w"> </span>directory<span class="w"> </span><span class="k">if</span><span class="w"> </span>it<span class="w"> </span>exists
 <span class="n">ds_limited</span> <span class="o">=</span> <span class="n">ds_adjusted</span><span class="o">.</span><span class="n">limit</span><span class="p">(</span><span class="n">df</span><span class="o">.</span><span class="n">shape</span><span class="p">[</span><span class="mi">0</span><span class="p">])</span> <span class="c1"># we limit to avoid writing too much data</span>
-<span class="n">ds_limited</span><span class="o">.</span><span class="n">write_parquet</span><span class="p">(</span><span class="s2">&quot;/mnt/cluster_storage/adjusted_data_ray/&quot;</span><span class="p">)</span>
+<span class="n">ds_limited</span><span class="o">.</span><span class="n">write_parquet</span><span class="p">(</span><span class="sa">f</span><span class="s2">&quot;</span><span class="si">{</span><span class="n">storage_folder</span><span class="si">}</span><span class="s2">/adjusted_data_ray/&quot;</span><span class="p">)</span>
 </pre></div>
 </div>
 </div>
@@ -734,7 +742,7 @@ document.write(`
 <p>Let’s check the files in the directory:</p>
 <div class="cell docutils container">
 <div class="cell_input docutils container">
-<div class="highlight-ipython3 notranslate"><div class="highlight"><pre><span></span><span class="o">!</span>ls<span class="w"> </span>-lh<span class="w"> </span>/mnt/cluster_storage/adjusted_data_ray/
+<div class="highlight-ipython3 notranslate"><div class="highlight"><pre><span></span><span class="o">!</span>ls<span class="w"> </span>-lh<span class="w"> </span><span class="o">{</span>storage_folder<span class="o">}</span>/adjusted_data_ray/
 </pre></div>
 </div>
 </div>
@@ -895,6 +903,15 @@ document.write(`
 <li><p>optimizing data connectors</p></li>
 <li><p>concurrent execution of multiple datasets</p></li>
 </ul>
+<div class="cell docutils container">
+<div class="cell_input docutils container">
+<div class="highlight-ipython3 notranslate"><div class="highlight"><pre><span></span><span class="c1"># Run this cell for file cleanup </span>
+<span class="o">!</span>rm<span class="w"> </span><span class="o">{</span>storage_folder<span class="o">}</span>/adjusted_data.parquet
+<span class="o">!</span>rm<span class="w"> </span>-rf<span class="w"> </span><span class="o">{</span>storage_folder<span class="o">}</span>/adjusted_data_ray/
+</pre></div>
+</div>
+</div>
+</div>
 </section>
 </section>
 
@@ -907,16 +924,16 @@ document.write(`
         },
         codeMirrorConfig: {
             theme: "abcdef",
-            mode: "xing-ray-jupyter"
+            mode: "python"
         },
         kernelOptions: {
-            name: "xing-ray-jupyter",
+            name: "python3",
             path: "./courses/00_Developer_Intro_to_Ray"
         },
         predefinedOutput: true
     }
     </script>
-    <script>kernelName = 'xing-ray-jupyter'</script>
+    <script>kernelName = 'python3'</script>
 
                 </article>
               

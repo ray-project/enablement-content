@@ -227,7 +227,7 @@
 <li class="toctree-l1"><a class="reference internal" href="04b_Intro_Ray_Data_Structured_08.html">6. When to use Ray Data</a></li>
 <li class="toctree-l1"><a class="reference internal" href="04b_Intro_Ray_Data_Structured_09.html">7. Ray Data in Production</a></li>
 <li class="toctree-l1"><a class="reference internal" href="04b_Intro_Ray_Data_Structured_10.html">8. Upcoming Features in Ray Data</a></li>
-<li class="toctree-l1"><a class="reference internal" href="04c_Intro_Ray_Data_Unstructured_01.html">Intro to Ray Data:  Ray Data + Unstructed Data</a></li>
+<li class="toctree-l1"><a class="reference internal" href="04c_Intro_Ray_Data_Unstructured_01.html">Intro to Ray Data:  Ray Data + Unstructured Data</a></li>
 <li class="toctree-l1"><a class="reference internal" href="04c_Intro_Ray_Data_Unstructured_02.html">1. When to Consider Ray Data</a></li>
 <li class="toctree-l1"><a class="reference internal" href="04c_Intro_Ray_Data_Unstructured_03.html">2. How to work with Ray Data</a></li>
 <li class="toctree-l1"><a class="reference internal" href="04c_Intro_Ray_Data_Unstructured_04.html">3. Loading data</a></li>
@@ -243,6 +243,7 @@
 <li class="toctree-l1"><a class="reference internal" href="05_Intro_Ray_Serve_PyTorch_03.html">2. Overview of Ray Serve</a></li>
 <li class="toctree-l1"><a class="reference internal" href="05_Intro_Ray_Serve_PyTorch_04.html">3. Implement an image classification service</a></li>
 <li class="toctree-l1"><a class="reference internal" href="05_Intro_Ray_Serve_PyTorch_05.html">4. Development workflow</a></li>
+<li class="toctree-l1"><a class="reference internal" href="README_01.html">Introduction to Ray: Developer</a></li>
 </ul>
 <p aria-level="2" class="caption" role="heading"><span class="caption-text">Anyscale 101</span></p>
 <ul class="nav bd-sidenav">
@@ -443,7 +444,7 @@ document.write(`
 <li class="toc-h2 nav-item toc-entry"><a class="reference internal nav-link" href="#migrating-the-model-to-ray-train">3.3. Migrating the model to Ray Train</a></li>
 <li class="toc-h2 nav-item toc-entry"><a class="reference internal nav-link" href="#migrating-the-dataset-to-ray-train">3.4. Migrating the dataset to Ray Train</a></li>
 <li class="toc-h2 nav-item toc-entry"><a class="reference internal nav-link" href="#reporting-checkpoints-and-metrics">3.5. Reporting checkpoints and metrics</a><ul class="nav section-nav flex-column">
-<li class="toc-h3 nav-item toc-entry"><a class="reference internal nav-link" href="#note-on-the-checkpoint-lifecycle">2.6.1. Note on the checkpoint lifecycle</a></li>
+<li class="toc-h3 nav-item toc-entry"><a class="reference internal nav-link" href="#note-on-the-checkpoint-lifecycle">3.5.1. Note on the checkpoint lifecycle</a></li>
 </ul>
 </li>
 <li class="toc-h2 nav-item toc-entry"><a class="reference internal nav-link" href="#configure-remote-storage">3.6. Configure remote storage</a></li>
@@ -569,7 +570,7 @@ document.write(`
 <p>Outside of our training function, we create a <code class="docutils literal notranslate"><span class="pre">ScalingConfig</span></code>.</p>
 <div class="cell docutils container">
 <div class="cell_input docutils container">
-<div class="highlight-ipython3 notranslate"><div class="highlight"><pre><span></span><span class="n">scaling_config</span> <span class="o">=</span> <span class="n">ScalingConfig</span><span class="p">(</span><span class="n">num_workers</span><span class="o">=</span><span class="mi">2</span><span class="p">,</span> <span class="n">use_gpu</span><span class="o">=</span><span class="kc">True</span><span class="p">)</span> <span class="c1"># Set it to False if you don&#39;t have GPU</span>
+<div class="highlight-ipython3 notranslate"><div class="highlight"><pre><span></span><span class="n">scaling_config</span> <span class="o">=</span> <span class="n">ScalingConfig</span><span class="p">(</span><span class="n">num_workers</span><span class="o">=</span><span class="mi">2</span><span class="p">,</span> <span class="n">use_gpu</span><span class="o">=</span><span class="kc">False</span><span class="p">)</span> <span class="c1"># Set it to False if you don&#39;t have GPU</span>
 </pre></div>
 </div>
 </div>
@@ -587,7 +588,7 @@ document.write(`
 <ol class="arabic simple">
 <li><p><strong>Training function</strong>: (implemented above <code class="docutils literal notranslate"><span class="pre">train_loop_ray_train</span></code>): A Python function that contains your model training logic.</p></li>
 <li><p><strong>Worker</strong>: A process that runs the training function.</p></li>
-<li><p><strong>Scaling config</strong>: specifices number of workers and compute resources (CPUs or GPUs, TPUs).</p></li>
+<li><p><strong>Scaling config</strong>: specifies number of workers and compute resources (CPUs or GPUs, TPUs).</p></li>
 <li><p><strong>Trainer</strong>: A Python class (Ray Actor) that ties together the training function, workers, and scaling configuration to execute a distributed training job.</p></li>
 </ol>
 <div class="pst-scrollable-table-container"><table class="table">
@@ -648,7 +649,6 @@ document.write(`
 <div class="highlight-ipython3 notranslate"><div class="highlight"><pre><span></span><span class="k">def</span><span class="w"> </span><span class="nf">build_data_loader_ray_train</span><span class="p">(</span><span class="n">batch_size</span><span class="p">:</span> <span class="nb">int</span><span class="p">)</span> <span class="o">-&gt;</span> <span class="n">torch</span><span class="o">.</span><span class="n">utils</span><span class="o">.</span><span class="n">data</span><span class="o">.</span><span class="n">DataLoader</span><span class="p">:</span>
     <span class="n">transform</span> <span class="o">=</span> <span class="n">Compose</span><span class="p">([</span><span class="n">ToTensor</span><span class="p">(),</span> <span class="n">Normalize</span><span class="p">((</span><span class="mf">0.5</span><span class="p">,),</span> <span class="p">(</span><span class="mf">0.5</span><span class="p">,))])</span>
     <span class="n">train_data</span> <span class="o">=</span> <span class="n">MNIST</span><span class="p">(</span><span class="n">root</span><span class="o">=</span><span class="s2">&quot;./data&quot;</span><span class="p">,</span> <span class="n">train</span><span class="o">=</span><span class="kc">True</span><span class="p">,</span> <span class="n">download</span><span class="o">=</span><span class="kc">True</span><span class="p">,</span> <span class="n">transform</span><span class="o">=</span><span class="n">transform</span><span class="p">)</span>
-
     <span class="n">train_loader</span> <span class="o">=</span> <span class="n">torch</span><span class="o">.</span><span class="n">utils</span><span class="o">.</span><span class="n">data</span><span class="o">.</span><span class="n">DataLoader</span><span class="p">(</span><span class="n">train_data</span><span class="p">,</span> <span class="n">batch_size</span><span class="o">=</span><span class="n">batch_size</span><span class="p">,</span> <span class="n">shuffle</span><span class="o">=</span><span class="kc">True</span><span class="p">,</span> <span class="n">drop_last</span><span class="o">=</span><span class="kc">True</span><span class="p">)</span>
 
     <span class="c1"># Automatically pass a DistributedSampler instance as a DataLoader sampler</span>
@@ -660,7 +660,7 @@ document.write(`
 </div>
 <div class="alert alert-block alert-warning">
 <p><b>Ray Data integration</b></p>
-<p>This step isn’t necessary if you are integrating your Ray Train workload with Ray Data. It’s especially useful if preprocessing is CPU-heavly and user wants to run preprocessing and training of separate instances.</p>
+<p>This step isn’t necessary if you are integrating your Ray Train workload with Ray Data. It’s especially useful if preprocessing is CPU-heavy and user wants to run preprocessing and training of separate instances.</p>
 </div></section>
 <section id="reporting-checkpoints-and-metrics">
 <h2>3.5. Reporting checkpoints and metrics<a class="headerlink" href="#reporting-checkpoints-and-metrics" title="Link to this heading">#</a></h2>
@@ -717,7 +717,7 @@ document.write(`
     <li>Only metrics from the rank 0 worker are reported.</li>
   </ul>
 </div><section id="note-on-the-checkpoint-lifecycle">
-<h3>2.6.1. Note on the checkpoint lifecycle<a class="headerlink" href="#note-on-the-checkpoint-lifecycle" title="Link to this heading">#</a></h3>
+<h3>3.5.1. Note on the checkpoint lifecycle<a class="headerlink" href="#note-on-the-checkpoint-lifecycle" title="Link to this heading">#</a></h3>
 <p>Here is the lifecycle of a checkpoint from being created using a local path to being uploaded to persistent storage.</p>
 <img src="https://docs.ray.io/en/latest/_images/checkpoint_lifecycle.png" width=800>
 <div class="alert alert-block alert-info">
@@ -757,6 +757,7 @@ document.write(`
 </div>
 </div>
 <p>Check our guide on <a class="reference external" href="https://docs.ray.io/en/latest/train/user-guides/checkpoints.html">saving and loading checkpoints</a> for more details and best practices.</p>
+<p>You can also configure the <a class="reference external" href="https://docs.ray.io/en/latest/train/user-guides/experiment-tracking.html">experiment tracking libraries</a> to work out-of-the-box with Ray Train.</p>
 </section>
 </section>
 <section id="configure-remote-storage">
@@ -764,7 +765,9 @@ document.write(`
 <p>Create a <code class="docutils literal notranslate"><span class="pre">RunConfig</span></code> object to specify the path where results (including checkpoints and artifacts) will be saved.</p>
 <div class="cell docutils container">
 <div class="cell_input docutils container">
-<div class="highlight-ipython3 notranslate"><div class="highlight"><pre><span></span><span class="n">storage_path</span> <span class="o">=</span> <span class="s2">&quot;/mnt/cluster_storage/training/&quot;</span> <span class="c1"># Use local path if it runs on local</span>
+<div class="highlight-ipython3 notranslate"><div class="highlight"><pre><span></span><span class="c1"># If local path is used, add the file:// prefix to the storage path, if relative path is used make sure it is absolute by resolving it</span>
+<span class="c1">#storage_path = f&quot;file://{Path(storage_folder).resolve()}/training/&quot; # Use local path if it runs on local</span>
+<span class="n">storage_path</span> <span class="o">=</span> <span class="sa">f</span><span class="s2">&quot;</span><span class="si">{</span><span class="n">storage_folder</span><span class="si">}</span><span class="s2">/training/&quot;</span> 
 <span class="n">run_config</span> <span class="o">=</span> <span class="n">RunConfig</span><span class="p">(</span><span class="n">storage_path</span><span class="o">=</span><span class="n">storage_path</span><span class="p">,</span> <span class="n">name</span><span class="o">=</span><span class="s2">&quot;distributed-mnist-resnet18&quot;</span><span class="p">)</span>
 </pre></div>
 </div>
@@ -831,7 +834,7 @@ document.write(`
 </div>
 <div class="cell docutils container">
 <div class="cell_input docutils container">
-<div class="highlight-ipython3 notranslate"><div class="highlight"><pre><span></span><span class="o">!</span>ls<span class="w"> </span>/mnt/cluster_storage/training/distributed-mnist-resnet18/
+<div class="highlight-ipython3 notranslate"><div class="highlight"><pre><span></span><span class="o">!</span>ls<span class="w"> </span><span class="o">{</span>storage_folder<span class="o">}</span>/training/distributed-mnist-resnet18/
 </pre></div>
 </div>
 </div>
@@ -873,7 +876,7 @@ document.write(`
       docs
     </a> on inspecting the training results.
   </p>
-</div><p>Generate predictions on randomly selected 9 images rom the MNIST dataset.</p>
+</div><p>Generate predictions on randomly selected 9 images from the MNIST dataset.</p>
 <div class="cell docutils container">
 <div class="cell_input docutils container">
 <div class="highlight-ipython3 notranslate"><div class="highlight"><pre><span></span><span class="n">figure</span> <span class="o">=</span> <span class="n">plt</span><span class="o">.</span><span class="n">figure</span><span class="p">(</span><span class="n">figsize</span><span class="o">=</span><span class="p">(</span><span class="mi">8</span><span class="p">,</span> <span class="mi">8</span><span class="p">))</span>
@@ -903,7 +906,7 @@ document.write(`
 <div class="alert alert-block alert-info">
 <ol class="arabic simple">
 <li><p>Update the scaling configuration to make use of 4 GPU workers</p></li>
-<li><p>Run the trainer using the same hypeparameters</p></li>
+<li><p>Run the trainer using the same hyperparameters</p></li>
 </ol>
 <p>Use the following code snippets to guide you:</p>
 <div class="highlight-python notranslate"><div class="highlight"><pre><span></span><span class="c1"># Hint: Update the scaling configuration</span>
@@ -953,16 +956,16 @@ document.write(`
         },
         codeMirrorConfig: {
             theme: "abcdef",
-            mode: "xing-ray-jupyter"
+            mode: "python"
         },
         kernelOptions: {
-            name: "xing-ray-jupyter",
+            name: "python3",
             path: "./courses/00_Developer_Intro_to_Ray/output"
         },
         predefinedOutput: true
     }
     </script>
-    <script>kernelName = 'xing-ray-jupyter'</script>
+    <script>kernelName = 'python3'</script>
 
                 </article>
               
@@ -1016,7 +1019,7 @@ document.write(`
 <li class="toc-h2 nav-item toc-entry"><a class="reference internal nav-link" href="#migrating-the-model-to-ray-train">3.3. Migrating the model to Ray Train</a></li>
 <li class="toc-h2 nav-item toc-entry"><a class="reference internal nav-link" href="#migrating-the-dataset-to-ray-train">3.4. Migrating the dataset to Ray Train</a></li>
 <li class="toc-h2 nav-item toc-entry"><a class="reference internal nav-link" href="#reporting-checkpoints-and-metrics">3.5. Reporting checkpoints and metrics</a><ul class="nav section-nav flex-column">
-<li class="toc-h3 nav-item toc-entry"><a class="reference internal nav-link" href="#note-on-the-checkpoint-lifecycle">2.6.1. Note on the checkpoint lifecycle</a></li>
+<li class="toc-h3 nav-item toc-entry"><a class="reference internal nav-link" href="#note-on-the-checkpoint-lifecycle">3.5.1. Note on the checkpoint lifecycle</a></li>
 </ul>
 </li>
 <li class="toc-h2 nav-item toc-entry"><a class="reference internal nav-link" href="#configure-remote-storage">3.6. Configure remote storage</a></li>

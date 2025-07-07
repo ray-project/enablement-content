@@ -227,7 +227,7 @@
 <li class="toctree-l1"><a class="reference internal" href="04b_Intro_Ray_Data_Structured_08.html">6. When to use Ray Data</a></li>
 <li class="toctree-l1"><a class="reference internal" href="04b_Intro_Ray_Data_Structured_09.html">7. Ray Data in Production</a></li>
 <li class="toctree-l1"><a class="reference internal" href="04b_Intro_Ray_Data_Structured_10.html">8. Upcoming Features in Ray Data</a></li>
-<li class="toctree-l1"><a class="reference internal" href="04c_Intro_Ray_Data_Unstructured_01.html">Intro to Ray Data:  Ray Data + Unstructed Data</a></li>
+<li class="toctree-l1"><a class="reference internal" href="04c_Intro_Ray_Data_Unstructured_01.html">Intro to Ray Data:  Ray Data + Unstructured Data</a></li>
 <li class="toctree-l1"><a class="reference internal" href="04c_Intro_Ray_Data_Unstructured_02.html">1. When to Consider Ray Data</a></li>
 <li class="toctree-l1"><a class="reference internal" href="04c_Intro_Ray_Data_Unstructured_03.html">2. How to work with Ray Data</a></li>
 <li class="toctree-l1"><a class="reference internal" href="04c_Intro_Ray_Data_Unstructured_04.html">3. Loading data</a></li>
@@ -243,6 +243,7 @@
 <li class="toctree-l1"><a class="reference internal" href="05_Intro_Ray_Serve_PyTorch_03.html">2. Overview of Ray Serve</a></li>
 <li class="toctree-l1"><a class="reference internal" href="05_Intro_Ray_Serve_PyTorch_04.html">3. Implement an image classification service</a></li>
 <li class="toctree-l1"><a class="reference internal" href="05_Intro_Ray_Serve_PyTorch_05.html">4. Development workflow</a></li>
+<li class="toctree-l1"><a class="reference internal" href="README_01.html">Introduction to Ray: Developer</a></li>
 </ul>
 <p aria-level="2" class="caption" role="heading"><span class="caption-text">Anyscale 101</span></p>
 <ul class="nav bd-sidenav">
@@ -482,7 +483,7 @@ document.write(`
 <div class="highlight-ipython3 notranslate"><div class="highlight"><pre><span></span><span class="k">def</span><span class="w"> </span><span class="nf">train_loop_per_worker</span><span class="p">(</span>
     <span class="n">config</span><span class="p">:</span> <span class="nb">dict</span><span class="p">,</span>  <span class="c1"># Update the function signature to comply with Ray Train</span>
 <span class="p">):</span>
-    <span class="c1"># Note lightning prepare the dataloader (adding a distriuted sampler) for us</span>
+    <span class="c1"># Note lightning prepares the dataloader (adding a distributed sampler) for us</span>
     <span class="n">train_dataloader</span> <span class="o">=</span> <span class="n">DataLoader</span><span class="p">(</span>
         <span class="n">dataset</span><span class="p">,</span>
         <span class="n">batch_size</span><span class="o">=</span><span class="n">config</span><span class="p">[</span><span class="s2">&quot;batch_size_per_worker&quot;</span><span class="p">],</span>
@@ -555,7 +556,7 @@ document.write(`
 <ol class="arabic simple">
 <li><p><strong>Training function</strong>: (implemented above <code class="docutils literal notranslate"><span class="pre">train_loop_ray_train</span></code>): A Python function that contains your model training logic.</p></li>
 <li><p><strong>Worker</strong>: A process that runs the training function.</p></li>
-<li><p><strong>Scaling config</strong>: specifices number of workers and compute resources (CPUs or GPUs, TPUs).</p></li>
+<li><p><strong>Scaling config</strong>: specifies number of workers and compute resources (CPUs or GPUs, TPUs).</p></li>
 <li><p><strong>Trainer</strong>: A Python class (Ray Actor) that ties together the training function, workers, and scaling configuration to execute a distributed training job.</p></li>
 </ol>
 <div class="pst-scrollable-table-container"><table class="table">
@@ -655,7 +656,7 @@ document.write(`
 <div class="alert alert-block alert-info">
 <ol class="arabic simple">
 <li><p>Update the scaling configuration to make use of 4 GPU workers</p></li>
-<li><p>Run the trainer using the same hypeparameters</p></li>
+<li><p>Run the trainer using the same hyperparameters</p></li>
 </ol>
 <p>Use the following code snippets to guide you:</p>
 <div class="highlight-python notranslate"><div class="highlight"><pre><span></span><span class="c1"># Hint: Update the scaling configuration</span>

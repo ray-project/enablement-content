@@ -227,7 +227,7 @@
 <li class="toctree-l1"><a class="reference internal" href="04b_Intro_Ray_Data_Structured_08.html">6. When to use Ray Data</a></li>
 <li class="toctree-l1"><a class="reference internal" href="04b_Intro_Ray_Data_Structured_09.html">7. Ray Data in Production</a></li>
 <li class="toctree-l1"><a class="reference internal" href="04b_Intro_Ray_Data_Structured_10.html">8. Upcoming Features in Ray Data</a></li>
-<li class="toctree-l1"><a class="reference internal" href="04c_Intro_Ray_Data_Unstructured_01.html">Intro to Ray Data:  Ray Data + Unstructed Data</a></li>
+<li class="toctree-l1"><a class="reference internal" href="04c_Intro_Ray_Data_Unstructured_01.html">Intro to Ray Data:  Ray Data + Unstructured Data</a></li>
 <li class="toctree-l1"><a class="reference internal" href="04c_Intro_Ray_Data_Unstructured_02.html">1. When to Consider Ray Data</a></li>
 <li class="toctree-l1"><a class="reference internal" href="04c_Intro_Ray_Data_Unstructured_03.html">2. How to work with Ray Data</a></li>
 <li class="toctree-l1"><a class="reference internal" href="04c_Intro_Ray_Data_Unstructured_04.html">3. Loading data</a></li>
@@ -243,6 +243,7 @@
 <li class="toctree-l1"><a class="reference internal" href="05_Intro_Ray_Serve_PyTorch_03.html">2. Overview of Ray Serve</a></li>
 <li class="toctree-l1"><a class="reference internal" href="05_Intro_Ray_Serve_PyTorch_04.html">3. Implement an image classification service</a></li>
 <li class="toctree-l1"><a class="reference internal" href="05_Intro_Ray_Serve_PyTorch_05.html">4. Development workflow</a></li>
+<li class="toctree-l1"><a class="reference internal" href="README_01.html">Introduction to Ray: Developer</a></li>
 </ul>
 <p aria-level="2" class="caption" role="heading"><span class="caption-text">Anyscale 101</span></p>
 <ul class="nav bd-sidenav">
@@ -466,7 +467,7 @@ document.write(`
 </section>
 <section id="create-a-torch-dataloader">
 <h2>2.2. Create a torch dataloader<a class="headerlink" href="#create-a-torch-dataloader" title="Link to this heading">#</a></h2>
-<p>Let’s start by defining a datasets we want to use.</p>
+<p>Let’s start by defining a dataset we want to use.</p>
 <p>We’ll use <code class="docutils literal notranslate"><span class="pre">parquet</span></code> data that was generated using the same preprocessing pipeline.</p>
 <div class="cell docutils container">
 <div class="cell_input docutils container">
@@ -508,8 +509,8 @@ document.write(`
 </div><p>Let’s proceed to build our custom map-style dataset.</p>
 <div class="cell docutils container">
 <div class="cell_input docutils container">
-<div class="highlight-ipython3 notranslate"><div class="highlight"><pre><span></span><span class="n">artifcat_storage_path</span> <span class="o">=</span> <span class="n">os</span><span class="o">.</span><span class="n">environ</span><span class="p">[</span><span class="s2">&quot;ANYSCALE_ARTIFACT_STORAGE&quot;</span><span class="p">]</span>
-<span class="n">s3_path</span> <span class="o">=</span> <span class="sa">f</span><span class="s2">&quot;</span><span class="si">{</span><span class="n">artifcat_storage_path</span><span class="si">}</span><span class="s2">/stable-diffusion/256/6_000108_000000.parquet&quot;</span>
+<div class="highlight-ipython3 notranslate"><div class="highlight"><pre><span></span><span class="n">artifact_storage_path</span> <span class="o">=</span> <span class="n">os</span><span class="o">.</span><span class="n">environ</span><span class="p">[</span><span class="s2">&quot;ANYSCALE_ARTIFACT_STORAGE&quot;</span><span class="p">]</span>
+<span class="n">s3_path</span> <span class="o">=</span> <span class="sa">f</span><span class="s2">&quot;</span><span class="si">{</span><span class="n">artifact_storage_path</span><span class="si">}</span><span class="s2">/stable-diffusion/256/6_000108_000000.parquet&quot;</span>
 <span class="n">dataset</span> <span class="o">=</span> <span class="n">ParquetDataset</span><span class="p">(</span><span class="n">s3_path</span><span class="p">)</span>
 </pre></div>
 </div>

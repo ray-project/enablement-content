@@ -8,7 +8,7 @@
     <meta charset="utf-8" />
     <meta name="viewport" content="width=device-width, initial-scale=1.0" /><meta name="viewport" content="width=device-width, initial-scale=1" />
 
-    <title>Intro to Ray Data: Ray Data + Unstructed Data &#8212; Course Notebooks Test</title>
+    <title>Intro to Ray Data: Ray Data + Unstructured Data &#8212; Course Notebooks Test</title>
   
   
   
@@ -227,7 +227,7 @@
 <li class="toctree-l1"><a class="reference internal" href="output/04b_Intro_Ray_Data_Structured_08.html">6. When to use Ray Data</a></li>
 <li class="toctree-l1"><a class="reference internal" href="output/04b_Intro_Ray_Data_Structured_09.html">7. Ray Data in Production</a></li>
 <li class="toctree-l1"><a class="reference internal" href="output/04b_Intro_Ray_Data_Structured_10.html">8. Upcoming Features in Ray Data</a></li>
-<li class="toctree-l1"><a class="reference internal" href="output/04c_Intro_Ray_Data_Unstructured_01.html">Intro to Ray Data:  Ray Data + Unstructed Data</a></li>
+<li class="toctree-l1"><a class="reference internal" href="output/04c_Intro_Ray_Data_Unstructured_01.html">Intro to Ray Data:  Ray Data + Unstructured Data</a></li>
 <li class="toctree-l1"><a class="reference internal" href="output/04c_Intro_Ray_Data_Unstructured_02.html">1. When to Consider Ray Data</a></li>
 <li class="toctree-l1"><a class="reference internal" href="output/04c_Intro_Ray_Data_Unstructured_03.html">2. How to work with Ray Data</a></li>
 <li class="toctree-l1"><a class="reference internal" href="output/04c_Intro_Ray_Data_Unstructured_04.html">3. Loading data</a></li>
@@ -243,6 +243,7 @@
 <li class="toctree-l1"><a class="reference internal" href="output/05_Intro_Ray_Serve_PyTorch_03.html">2. Overview of Ray Serve</a></li>
 <li class="toctree-l1"><a class="reference internal" href="output/05_Intro_Ray_Serve_PyTorch_04.html">3. Implement an image classification service</a></li>
 <li class="toctree-l1"><a class="reference internal" href="output/05_Intro_Ray_Serve_PyTorch_05.html">4. Development workflow</a></li>
+<li class="toctree-l1"><a class="reference internal" href="output/README_01.html">Introduction to Ray: Developer</a></li>
 </ul>
 <p aria-level="2" class="caption" role="heading"><span class="caption-text">Anyscale 101</span></p>
 <ul class="nav bd-sidenav">
@@ -425,7 +426,7 @@ document.write(`
               
 
 <div id="jb-print-docs-body" class="onlyprint">
-    <h1>Intro to Ray Data:  Ray Data + Unstructed Data</h1>
+    <h1>Intro to Ray Data:  Ray Data + Unstructured Data</h1>
     <!-- Table of contents -->
     <div id="print-main-content">
         <div id="jb-print-toc">
@@ -477,11 +478,11 @@ document.write(`
 <div id="searchbox"></div>
                 <article class="bd-article">
                   
-  <section class="tex2jax_ignore mathjax_ignore" id="intro-to-ray-data-ray-data-unstructed-data">
-<h1>Intro to Ray Data:  Ray Data + Unstructed Data<a class="headerlink" href="#intro-to-ray-data-ray-data-unstructed-data" title="Link to this heading">#</a></h1>
+  <section class="tex2jax_ignore mathjax_ignore" id="intro-to-ray-data-ray-data-unstructured-data">
+<h1>Intro to Ray Data:  Ray Data + Unstructured Data<a class="headerlink" href="#intro-to-ray-data-ray-data-unstructured-data" title="Link to this heading">#</a></h1>
 <p>© 2025, Anyscale. All Rights Reserved</p>
 <p>💻 <strong>Launch Locally</strong>: You can run this notebook locally, but performance will be reduced.</p>
-<p>🚀 <strong>Launch on Cloud</strong>: A Ray Cluster (Click <a class="reference external" href="http://console.anyscale.com/register">here</a> to easily start a Ray cluster on Anyscale) is recommanded to run this notebook.</p>
+<p>🚀 <strong>Launch on Cloud</strong>: A Ray Cluster (Click <a class="reference external" href="http://console.anyscale.com/register">here</a> to easily start a Ray cluster on Anyscale) is recommended to run this notebook.</p>
 <p>This notebook will provide an overview of Ray Data and how to use it to read, transform and write data in a distributed manner.</p>
 <div class="alert alert-block alert-info">
 <b> Here is the roadmap for this notebook:</b>
@@ -669,7 +670,7 @@ document.write(`
 </div>
 <div class="alert alert-block alert-info">
 <p><b>Note on execution triggering methods in Ray Dataset</b></p>
-<p>To determinte if an operation will trigger execution, look for the methods with the <code class="docutils literal notranslate"><span class="pre">ConsumptionAPI</span></code> decorator in the <a class="reference external" href="https://github.com/ray-project/ray/blob/master/python/ray/data/dataset.py"><code class="docutils literal notranslate"><span class="pre">Dataset.py</span></code></a>.</p>
+<p>To determine if an operation will trigger execution, look for the methods with the <code class="docutils literal notranslate"><span class="pre">ConsumptionAPI</span></code> decorator in the <a class="reference external" href="https://github.com/ray-project/ray/blob/master/python/ray/data/dataset.py"><code class="docutils literal notranslate"><span class="pre">Dataset.py</span></code></a>.</p>
 <p>These categories of operations trigger execution (with some examples):</p>
 <ul class="simple">
 <li><p>Method designed to consume Datasets for <strong>writing</strong>:</p>
@@ -859,15 +860,16 @@ document.write(`
 </ul>
 <div class="cell docutils container">
 <div class="cell_input docutils container">
-<div class="highlight-ipython3 notranslate"><div class="highlight"><pre><span></span><span class="k">class</span><span class="w"> </span><span class="nc">MNISTClassifier</span><span class="p">:</span>
+<div class="highlight-ipython3 notranslate"><div class="highlight"><pre><span></span><span class="n">device</span> <span class="o">=</span> <span class="s2">&quot;cpu&quot;</span> <span class="c1"># or &quot;cpu&quot; if you want to run it locally on CPU</span>
+<span class="k">class</span><span class="w"> </span><span class="nc">MNISTClassifier</span><span class="p">:</span>
     <span class="k">def</span><span class="w"> </span><span class="fm">__init__</span><span class="p">(</span><span class="bp">self</span><span class="p">,</span> <span class="n">remote_path</span><span class="p">:</span> <span class="nb">str</span><span class="p">,</span> <span class="n">local_path</span><span class="p">:</span> <span class="nb">str</span><span class="p">):</span>
         <span class="n">subprocess</span><span class="o">.</span><span class="n">run</span><span class="p">(</span><span class="sa">f</span><span class="s2">&quot;aws s3 cp --no-sign-request </span><span class="si">{</span><span class="n">remote_path</span><span class="si">}</span><span class="s2"> </span><span class="si">{</span><span class="n">local_path</span><span class="si">}</span><span class="s2">&quot;</span><span class="p">,</span> <span class="n">shell</span><span class="o">=</span><span class="kc">True</span><span class="p">,</span> <span class="n">check</span><span class="o">=</span><span class="kc">True</span><span class="p">)</span>
 
-        <span class="bp">self</span><span class="o">.</span><span class="n">model</span> <span class="o">=</span> <span class="n">torch</span><span class="o">.</span><span class="n">jit</span><span class="o">.</span><span class="n">load</span><span class="p">(</span><span class="n">local_path</span><span class="p">)</span><span class="o">.</span><span class="n">to</span><span class="p">(</span><span class="s2">&quot;cuda&quot;</span><span class="p">)</span><span class="o">.</span><span class="n">eval</span><span class="p">()</span>
+        <span class="bp">self</span><span class="o">.</span><span class="n">model</span> <span class="o">=</span> <span class="n">torch</span><span class="o">.</span><span class="n">jit</span><span class="o">.</span><span class="n">load</span><span class="p">(</span><span class="n">local_path</span><span class="p">)</span><span class="o">.</span><span class="n">to</span><span class="p">(</span><span class="n">device</span><span class="p">)</span><span class="o">.</span><span class="n">eval</span><span class="p">()</span>
 
 
     <span class="k">def</span><span class="w"> </span><span class="fm">__call__</span><span class="p">(</span><span class="bp">self</span><span class="p">,</span> <span class="n">batch</span><span class="p">:</span> <span class="nb">dict</span><span class="p">[</span><span class="nb">str</span><span class="p">,</span> <span class="n">np</span><span class="o">.</span><span class="n">ndarray</span><span class="p">])</span> <span class="o">-&gt;</span> <span class="nb">dict</span><span class="p">[</span><span class="nb">str</span><span class="p">,</span> <span class="n">np</span><span class="o">.</span><span class="n">ndarray</span><span class="p">]:</span>
-        <span class="n">images</span> <span class="o">=</span> <span class="n">torch</span><span class="o">.</span><span class="n">tensor</span><span class="p">(</span><span class="n">batch</span><span class="p">[</span><span class="s2">&quot;image&quot;</span><span class="p">])</span><span class="o">.</span><span class="n">float</span><span class="p">()</span><span class="o">.</span><span class="n">to</span><span class="p">(</span><span class="s2">&quot;cuda&quot;</span><span class="p">)</span>
+        <span class="n">images</span> <span class="o">=</span> <span class="n">torch</span><span class="o">.</span><span class="n">tensor</span><span class="p">(</span><span class="n">batch</span><span class="p">[</span><span class="s2">&quot;image&quot;</span><span class="p">])</span><span class="o">.</span><span class="n">float</span><span class="p">()</span><span class="o">.</span><span class="n">to</span><span class="p">(</span><span class="n">device</span><span class="p">)</span>
 
         <span class="k">with</span> <span class="n">torch</span><span class="o">.</span><span class="n">no_grad</span><span class="p">():</span>
             <span class="n">logits</span> <span class="o">=</span> <span class="bp">self</span><span class="o">.</span><span class="n">model</span><span class="p">(</span><span class="n">images</span><span class="p">)</span><span class="o">.</span><span class="n">cpu</span><span class="p">()</span><span class="o">.</span><span class="n">numpy</span><span class="p">()</span>
@@ -881,7 +883,8 @@ document.write(`
 <p>We can now use the <code class="docutils literal notranslate"><span class="pre">map_batches</span></code> API to apply the transformation to each batch of data.</p>
 <div class="cell docutils container">
 <div class="cell_input docutils container">
-<div class="highlight-ipython3 notranslate"><div class="highlight"><pre><span></span><span class="n">local_path</span> <span class="o">=</span> <span class="s2">&quot;/mnt/cluster_storage/model.pt&quot;</span> <span class="c1"># Change this to your local path if needed</span>
+<div class="highlight-ipython3 notranslate"><div class="highlight"><pre><span></span><span class="n">storage_folder</span> <span class="o">=</span> <span class="s1">&#39;mnt/cluster_storage&#39;</span>  <span class="c1"># Modify this path to your local folder if it runs on your local environment</span>
+<span class="n">local_path</span> <span class="o">=</span> <span class="sa">f</span><span class="s2">&quot;</span><span class="si">{</span><span class="n">storage_folder</span><span class="si">}</span><span class="s2">/model.pt&quot;</span>
 
 <span class="n">mnist_classifier_args</span> <span class="o">=</span> <span class="p">{</span>
     <span class="s2">&quot;remote_path&quot;</span><span class="p">:</span> <span class="s2">&quot;s3://anyscale-public-materials/ray-ai-libraries/mnist/model/model.pt&quot;</span><span class="p">,</span>
@@ -891,7 +894,7 @@ document.write(`
 <span class="n">ds_preds</span> <span class="o">=</span> <span class="n">ds_normalized</span><span class="o">.</span><span class="n">map_batches</span><span class="p">(</span>
     <span class="n">MNISTClassifier</span><span class="p">,</span>
     <span class="n">fn_constructor_kwargs</span><span class="o">=</span><span class="n">mnist_classifier_args</span><span class="p">,</span>
-    <span class="n">num_gpus</span><span class="o">=</span><span class="mi">1</span><span class="p">,</span>
+    <span class="n">num_gpus</span><span class="o">=</span> <span class="mi">1</span> <span class="k">if</span> <span class="n">device</span> <span class="o">==</span> <span class="s1">&#39;cuda&#39;</span> <span class="k">else</span> <span class="kc">None</span><span class="p">,</span>  <span class="c1"># Use GPU if available</span>
     <span class="n">concurrency</span><span class="o">=</span><span class="mi">3</span><span class="p">,</span>
     <span class="n">batch_size</span><span class="o">=</span><span class="mi">100</span><span class="p">,</span>
 <span class="p">)</span>
@@ -903,13 +906,13 @@ document.write(`
 <h3>5.1 Resource specification for stateful transformations<a class="headerlink" href="#resource-specification-for-stateful-transformations" title="Link to this heading">#</a></h3>
 <p>It is common when you have varying hardware types in your cluster to want to further specify which accelerators to use for each stage of your pipeline.</p>
 <p>Let’s show how to achieve this with the <code class="docutils literal notranslate"><span class="pre">resources</span></code> parameter.</p>
-<p>Since GPU is required for following examples, we suggest to run them on Anyscale Ray Cluster.</p>
+<p>To use a GPU for following examples, we suggest to run them on Anyscale Ray Cluster.</p>
 <div class="cell docutils container">
 <div class="cell_input docutils container">
 <div class="highlight-ipython3 notranslate"><div class="highlight"><pre><span></span><span class="n">ds_preds</span> <span class="o">=</span> <span class="n">ds_normalized</span><span class="o">.</span><span class="n">map_batches</span><span class="p">(</span>
     <span class="n">MNISTClassifier</span><span class="p">,</span>
     <span class="n">fn_constructor_kwargs</span><span class="o">=</span><span class="n">mnist_classifier_args</span><span class="p">,</span>
-    <span class="n">num_gpus</span><span class="o">=</span><span class="mi">1</span><span class="p">,</span>
+    <span class="n">num_gpus</span><span class="o">=</span> <span class="mi">1</span> <span class="k">if</span> <span class="n">device</span> <span class="o">==</span> <span class="s1">&#39;cuda&#39;</span> <span class="k">else</span> <span class="kc">None</span><span class="p">,</span>  <span class="c1"># Use GPU if available</span>
     <span class="n">concurrency</span><span class="o">=</span><span class="mi">3</span><span class="p">,</span>
     <span class="n">batch_size</span><span class="o">=</span><span class="mi">100</span><span class="p">,</span>
     <span class="n">resources</span><span class="o">=</span><span class="p">{</span><span class="s2">&quot;accelerator_type:T4&quot;</span><span class="p">:</span> <span class="mf">0.0001</span><span class="p">},</span>
@@ -932,10 +935,10 @@ document.write(`
 <div class="highlight-ipython3 notranslate"><div class="highlight"><pre><span></span><span class="n">ds_preds</span> <span class="o">=</span> <span class="n">ds_normalized</span><span class="o">.</span><span class="n">map_batches</span><span class="p">(</span>
     <span class="n">MNISTClassifier</span><span class="p">,</span>
     <span class="n">fn_constructor_kwargs</span><span class="o">=</span><span class="n">mnist_classifier_args</span><span class="p">,</span>
-    <span class="n">num_gpus</span><span class="o">=</span><span class="mi">1</span><span class="p">,</span>
+    <span class="n">num_gpus</span><span class="o">=</span> <span class="mi">1</span> <span class="k">if</span> <span class="n">device</span> <span class="o">==</span> <span class="s1">&#39;cuda&#39;</span> <span class="k">else</span> <span class="kc">None</span><span class="p">,</span>  <span class="c1"># Use GPU if available</span>
     <span class="n">concurrency</span><span class="o">=</span><span class="p">(</span><span class="mi">1</span><span class="p">,</span> <span class="mi">4</span><span class="p">),</span>  <span class="c1"># Autoscale pool based on blocks, resources and limits</span>
     <span class="n">batch_size</span><span class="o">=</span><span class="mi">100</span><span class="p">,</span>
-    <span class="n">resources</span><span class="o">=</span><span class="p">{</span><span class="s2">&quot;accelerator_type:T4&quot;</span><span class="p">:</span> <span class="mf">0.0001</span><span class="p">},</span> <span class="c1"># Optional if you run it locally</span>
+    <span class="c1">#resources={&quot;accelerator_type:T4&quot;: 0.0001}, # Optional if you run it locally</span>
 <span class="p">)</span>
 </pre></div>
 </div>
@@ -1070,21 +1073,13 @@ document.write(`
 <p>Lets write our predictions to a parquet dataset.</p>
 <div class="cell docutils container">
 <div class="cell_input docutils container">
-<div class="highlight-ipython3 notranslate"><div class="highlight"><pre><span></span><span class="n">local_pred_folder</span> <span class="o">=</span> <span class="s2">&quot;/mnt/cluster_storage/mnist_preds&quot;</span> <span class="c1"># Change this to your local path if needed</span>
+<div class="highlight-ipython3 notranslate"><div class="highlight"><pre><span></span><span class="n">local_pred_folder</span> <span class="o">=</span> <span class="sa">f</span><span class="s2">&quot;</span><span class="si">{</span><span class="n">storage_folder</span><span class="si">}</span><span class="s2">/mnist_preds&quot;</span> <span class="c1"># Change this to your local path if needed</span>
 <span class="n">ds_preds</span><span class="o">.</span><span class="n">write_parquet</span><span class="p">(</span><span class="n">local_pred_folder</span><span class="p">)</span>
 </pre></div>
 </div>
 </div>
 </div>
 <p>Refer to the <a class="reference external" href="https://docs.ray.io/en/latest/data/api/input_output.html">Input/Output docs</a> for a comprehensive list of write functions.</p>
-<div class="cell docutils container">
-<div class="cell_input docutils container">
-<div class="highlight-ipython3 notranslate"><div class="highlight"><pre><span></span><span class="c1"># cleanup</span>
-<span class="o">!</span>rm<span class="w"> </span>-rf<span class="w"> </span>/mnt/cluster_storage/mnist_preds
-</pre></div>
-</div>
-</div>
-</div>
 </section>
 <section id="ray-data-in-production">
 <h2>9. Ray Data in production<a class="headerlink" href="#ray-data-in-production" title="Link to this heading">#</a></h2>
@@ -1092,6 +1087,15 @@ document.write(`
 <li><p>Netflix is using Ray Data for multi-modal inference pipelines. See <a class="reference external" href="https://raysummit.anyscale.com/flow/anyscale/raysummit2024/landing/page/sessioncatalog/session/1722028596844001bCg0">this talk at the Ray Summit 2024</a> to learn more.</p></li>
 <li><p>Pinterest is using Ray Data and Ray Train for their recommendation system model training. They leverage Ray Data to improve GPU utilization and training throughput by disaggregating their compute across a heterogeneous cluster.  <a class="reference external" href="https://www.classcentral.com/course/youtube-pinterest-s-ml-evolution-distributed-training-with-ray-ray-summit-2024-353672">this talk at the Ray Summit 2024</a> to learn more.</p></li>
 </ul>
+<div class="cell docutils container">
+<div class="cell_input docutils container">
+<div class="highlight-ipython3 notranslate"><div class="highlight"><pre><span></span><span class="c1"># Run this cell for file cleanup </span>
+<span class="o">!</span>rm<span class="w"> </span>-rf<span class="w"> </span><span class="o">{</span>storage_folder<span class="o">}</span>/mnist_preds
+<span class="o">!</span>rm<span class="w"> </span><span class="o">{</span>storage_folder<span class="o">}</span>/model.pt
+</pre></div>
+</div>
+</div>
+</div>
 </section>
 </section>
 
@@ -1104,16 +1108,16 @@ document.write(`
         },
         codeMirrorConfig: {
             theme: "abcdef",
-            mode: "xing-ray-jupyter"
+            mode: "python"
         },
         kernelOptions: {
-            name: "xing-ray-jupyter",
+            name: "python3",
             path: "./courses/00_Developer_Intro_to_Ray"
         },
         predefinedOutput: true
     }
     </script>
-    <script>kernelName = 'xing-ray-jupyter'</script>
+    <script>kernelName = 'python3'</script>
 
                 </article>
               

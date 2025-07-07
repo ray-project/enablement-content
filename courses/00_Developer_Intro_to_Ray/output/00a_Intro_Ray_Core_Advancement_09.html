@@ -227,7 +227,7 @@
 <li class="toctree-l1"><a class="reference internal" href="04b_Intro_Ray_Data_Structured_08.html">6. When to use Ray Data</a></li>
 <li class="toctree-l1"><a class="reference internal" href="04b_Intro_Ray_Data_Structured_09.html">7. Ray Data in Production</a></li>
 <li class="toctree-l1"><a class="reference internal" href="04b_Intro_Ray_Data_Structured_10.html">8. Upcoming Features in Ray Data</a></li>
-<li class="toctree-l1"><a class="reference internal" href="04c_Intro_Ray_Data_Unstructured_01.html">Intro to Ray Data:  Ray Data + Unstructed Data</a></li>
+<li class="toctree-l1"><a class="reference internal" href="04c_Intro_Ray_Data_Unstructured_01.html">Intro to Ray Data:  Ray Data + Unstructured Data</a></li>
 <li class="toctree-l1"><a class="reference internal" href="04c_Intro_Ray_Data_Unstructured_02.html">1. When to Consider Ray Data</a></li>
 <li class="toctree-l1"><a class="reference internal" href="04c_Intro_Ray_Data_Unstructured_03.html">2. How to work with Ray Data</a></li>
 <li class="toctree-l1"><a class="reference internal" href="04c_Intro_Ray_Data_Unstructured_04.html">3. Loading data</a></li>
@@ -243,6 +243,7 @@
 <li class="toctree-l1"><a class="reference internal" href="05_Intro_Ray_Serve_PyTorch_03.html">2. Overview of Ray Serve</a></li>
 <li class="toctree-l1"><a class="reference internal" href="05_Intro_Ray_Serve_PyTorch_04.html">3. Implement an image classification service</a></li>
 <li class="toctree-l1"><a class="reference internal" href="05_Intro_Ray_Serve_PyTorch_05.html">4. Development workflow</a></li>
+<li class="toctree-l1"><a class="reference internal" href="README_01.html">Introduction to Ray: Developer</a></li>
 </ul>
 <p aria-level="2" class="caption" role="heading"><span class="caption-text">Anyscale 101</span></p>
 <ul class="nav bd-sidenav">
@@ -465,7 +466,7 @@ document.write(`
   <strong><a href="https://docs.ray.io/en/latest/ray-core/key-concepts.html#actors" target="_blank">Actor</a></strong> is a remote, stateful Python class.
 </div><div class="alert alert-info">
 <p>The most common use case for actors is with state that is not mutated but is large enough that we may want to load it only once and ensure we can route calls to it over time, such as a large AI model.</p>
-</div><p>Define an actor with the <code class="docutils literal notranslate"><span class="pre">&#64;ray.remote</span></code> decorator and then use <code class="docutils literal notranslate"><span class="pre">&lt;class_name&gt;.remote()</span></code> ask Ray to construct and instance of this actor somewhere in the cluster.</p>
+</div><p>Define an actor with the <code class="docutils literal notranslate"><span class="pre">&#64;ray.remote</span></code> decorator and then use <code class="docutils literal notranslate"><span class="pre">&lt;class_name&gt;.remote()</span></code> to ask Ray to construct an instance of this actor somewhere in the cluster.</p>
 <p>We get an actor handle which we can use to communicate with that actor, pass to other code, tasks, or actors, etc.</p>
 <div class="cell docutils container">
 <div class="cell_input docutils container">
@@ -570,16 +571,16 @@ document.write(`
         },
         codeMirrorConfig: {
             theme: "abcdef",
-            mode: "xing-ray-jupyter"
+            mode: "python"
         },
         kernelOptions: {
-            name: "xing-ray-jupyter",
+            name: "python3",
             path: "./courses/00_Developer_Intro_to_Ray/output"
         },
         predefinedOutput: true
     }
     </script>
-    <script>kernelName = 'xing-ray-jupyter'</script>
+    <script>kernelName = 'python3'</script>
 
                 </article>
               

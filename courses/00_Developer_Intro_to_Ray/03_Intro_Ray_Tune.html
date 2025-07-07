@@ -227,7 +227,7 @@
 <li class="toctree-l1"><a class="reference internal" href="output/04b_Intro_Ray_Data_Structured_08.html">6. When to use Ray Data</a></li>
 <li class="toctree-l1"><a class="reference internal" href="output/04b_Intro_Ray_Data_Structured_09.html">7. Ray Data in Production</a></li>
 <li class="toctree-l1"><a class="reference internal" href="output/04b_Intro_Ray_Data_Structured_10.html">8. Upcoming Features in Ray Data</a></li>
-<li class="toctree-l1"><a class="reference internal" href="output/04c_Intro_Ray_Data_Unstructured_01.html">Intro to Ray Data:  Ray Data + Unstructed Data</a></li>
+<li class="toctree-l1"><a class="reference internal" href="output/04c_Intro_Ray_Data_Unstructured_01.html">Intro to Ray Data:  Ray Data + Unstructured Data</a></li>
 <li class="toctree-l1"><a class="reference internal" href="output/04c_Intro_Ray_Data_Unstructured_02.html">1. When to Consider Ray Data</a></li>
 <li class="toctree-l1"><a class="reference internal" href="output/04c_Intro_Ray_Data_Unstructured_03.html">2. How to work with Ray Data</a></li>
 <li class="toctree-l1"><a class="reference internal" href="output/04c_Intro_Ray_Data_Unstructured_04.html">3. Loading data</a></li>
@@ -243,6 +243,7 @@
 <li class="toctree-l1"><a class="reference internal" href="output/05_Intro_Ray_Serve_PyTorch_03.html">2. Overview of Ray Serve</a></li>
 <li class="toctree-l1"><a class="reference internal" href="output/05_Intro_Ray_Serve_PyTorch_04.html">3. Implement an image classification service</a></li>
 <li class="toctree-l1"><a class="reference internal" href="output/05_Intro_Ray_Serve_PyTorch_05.html">4. Development workflow</a></li>
+<li class="toctree-l1"><a class="reference internal" href="output/README_01.html">Introduction to Ray: Developer</a></li>
 </ul>
 <p aria-level="2" class="caption" role="heading"><span class="caption-text">Anyscale 101</span></p>
 <ul class="nav bd-sidenav">
@@ -463,7 +464,7 @@ document.write(`
 <h1>Introduction to Ray Tune<a class="headerlink" href="#introduction-to-ray-tune" title="Link to this heading">#</a></h1>
 <p>© 2025, Anyscale. All Rights Reserved</p>
 <p>💻 <strong>Launch Locally</strong>: You can run this notebook locally, but performance will be reduced.</p>
-<p>🚀 <strong>Launch on Cloud</strong>: A Ray Cluster with 4 GPUs (Click <a class="reference external" href="http://console.anyscale.com/register">here</a> to easily start a Ray cluster on Anyscale) is recommanded to run this notebook.</p>
+<p>🚀 <strong>Launch on Cloud</strong>: A Ray Cluster with 4 GPUs (Click <a class="reference external" href="http://console.anyscale.com/register">here</a> to easily start a Ray cluster on Anyscale) is recommended to run this notebook.</p>
 <p>This notebook will walk you through the basics of hyperparameter tuning with Ray Tune.</p>
 <div class="alert alert-block alert-info">
 <p> Here is the roadmap for this notebook:</p>
@@ -745,7 +746,7 @@ Each image is represented as a 2D array of pixel values, where each pixel is a g
 <p>Below is a diagram showing the relationship between the different Ray Tune components we have discussed.</p>
 <img src="https://docs.ray.io/en/latest/_images/tune_flow.png" width="800" />
 <p>To learn more about the key tune concepts, you can visit the <a class="reference external" href="https://docs.ray.io/en/master/tune/key-concepts.html">Ray Tune documentation here</a>.</p>
-<p>Here is the same experiment table annotated</p>
+<p>Here is the same experiment table annotated.</p>
 <img src="https://anyscale-public-materials.s3.us-west-2.amazonaws.com/attentive-ray-101/experiment_table_annotated.png" width="800" />
 <section id="exercise">
 <h4>Exercise<a class="headerlink" href="#exercise" title="Link to this heading">#</a></h4>
@@ -837,6 +838,8 @@ Each image is represented as a 2D array of pixel values, where each pixel is a g
     <span class="n">optimizer</span> <span class="o">=</span> <span class="n">Adam</span><span class="p">(</span><span class="n">model</span><span class="o">.</span><span class="n">parameters</span><span class="p">(),</span> <span class="n">lr</span><span class="o">=</span><span class="n">config</span><span class="p">[</span><span class="s2">&quot;lr&quot;</span><span class="p">])</span>
     <span class="n">transform</span> <span class="o">=</span> <span class="n">Compose</span><span class="p">([</span><span class="n">ToTensor</span><span class="p">(),</span> <span class="n">Normalize</span><span class="p">((</span><span class="mf">0.5</span><span class="p">,),</span> <span class="p">(</span><span class="mf">0.5</span><span class="p">,))])</span>
     <span class="n">train_data</span> <span class="o">=</span> <span class="n">MNIST</span><span class="p">(</span><span class="n">root</span><span class="o">=</span><span class="s2">&quot;./data&quot;</span><span class="p">,</span> <span class="n">train</span><span class="o">=</span><span class="kc">True</span><span class="p">,</span> <span class="n">download</span><span class="o">=</span><span class="kc">True</span><span class="p">,</span> <span class="n">transform</span><span class="o">=</span><span class="n">transform</span><span class="p">)</span>
+    <span class="c1"># Limit the dataset to 500 samples for faster training</span>
+    <span class="n">train_data</span> <span class="o">=</span> <span class="n">torch</span><span class="o">.</span><span class="n">utils</span><span class="o">.</span><span class="n">data</span><span class="o">.</span><span class="n">Subset</span><span class="p">(</span><span class="n">train_data</span><span class="p">,</span> <span class="nb">range</span><span class="p">(</span><span class="mi">500</span><span class="p">))</span>
     <span class="n">data_loader</span> <span class="o">=</span> <span class="n">DataLoader</span><span class="p">(</span><span class="n">train_data</span><span class="p">,</span> <span class="n">batch_size</span><span class="o">=</span><span class="n">config</span><span class="p">[</span><span class="s2">&quot;batch_size&quot;</span><span class="p">],</span> <span class="n">shuffle</span><span class="o">=</span><span class="kc">True</span><span class="p">,</span> <span class="n">drop_last</span><span class="o">=</span><span class="kc">True</span><span class="p">)</span>
 
     <span class="k">for</span> <span class="n">epoch</span> <span class="ow">in</span> <span class="nb">range</span><span class="p">(</span><span class="n">config</span><span class="p">[</span><span class="s2">&quot;num_epochs&quot;</span><span class="p">]):</span>
@@ -858,7 +861,7 @@ Each image is represented as a 2D array of pixel values, where each pixel is a g
 <div class="cell docutils container">
 <div class="cell_input docutils container">
 <div class="highlight-ipython3 notranslate"><div class="highlight"><pre><span></span><span class="n">tuner</span> <span class="o">=</span> <span class="n">tune</span><span class="o">.</span><span class="n">Tuner</span><span class="p">(</span>
-    <span class="n">trainable</span><span class="o">=</span><span class="n">tune</span><span class="o">.</span><span class="n">with_resources</span><span class="p">(</span><span class="n">train_pytorch</span><span class="p">,</span> <span class="p">{</span><span class="s2">&quot;gpu&quot;</span><span class="p">:</span> <span class="mi">1</span><span class="p">}),</span> <span class="c1"># we will dedicate 1 GPU to each trial</span>
+    <span class="n">tune</span><span class="o">.</span><span class="n">with_resources</span><span class="p">(</span><span class="n">train_pytorch</span><span class="p">,</span> <span class="p">{</span><span class="s2">&quot;gpu&quot;</span><span class="p">:</span> <span class="mi">1</span><span class="p">}),</span> <span class="c1"># we will dedicate 1 GPU to each trial</span>
     <span class="n">param_space</span><span class="o">=</span><span class="p">{</span>
         <span class="s2">&quot;num_epochs&quot;</span><span class="p">:</span> <span class="mi">1</span><span class="p">,</span>
         <span class="s2">&quot;batch_size&quot;</span><span class="p">:</span> <span class="mi">128</span><span class="p">,</span>
@@ -896,6 +899,14 @@ Each image is represented as a 2D array of pixel values, where each pixel is a g
 <li><p>The Uber internal autotune service uses Ray Tune. See the uber blog post <a class="reference external" href="https://www.uber.com/blog/from-predictive-to-generative-ai/">here</a>.</p></li>
 <li><p>How Spotify makes use of Ray Tune for hyperparameter tuning. See the spotify blog post <a class="reference external" href="https://engineering.atspotify.com/2023/02/unleashing-ml-innovation-at-spotify-with-ray/">here</a></p></li>
 </ol>
+<div class="cell docutils container">
+<div class="cell_input docutils container">
+<div class="highlight-ipython3 notranslate"><div class="highlight"><pre><span></span><span class="c1"># Run this cell for file cleanup </span>
+<span class="o">!</span>rm<span class="w"> </span>-rf<span class="w"> </span>./data
+</pre></div>
+</div>
+</div>
+</div>
 </section>
 </section>
 
