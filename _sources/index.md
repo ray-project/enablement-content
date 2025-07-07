@@ -25,7 +25,6 @@ This collection contains multiple courses on Ray and Anyscale:
 - [02a Intro Ray Train with PyTorch 02](courses/00_Developer_Intro_to_Ray/output/02a_Intro_Ray_Train_with_PyTorch_02.ipynb)
 - [02a Intro Ray Train with PyTorch 03](courses/00_Developer_Intro_to_Ray/output/02a_Intro_Ray_Train_with_PyTorch_03.ipynb)
 - [02a Intro Ray Train with PyTorch 04](courses/00_Developer_Intro_to_Ray/output/02a_Intro_Ray_Train_with_PyTorch_04.ipynb)
-- [02a Intro Ray Train with PyTorch 05](courses/00_Developer_Intro_to_Ray/output/02a_Intro_Ray_Train_with_PyTorch_05.ipynb)
 - [02b Intro Ray Train with PyTorch Lightning 01](courses/00_Developer_Intro_to_Ray/output/02b_Intro_Ray_Train_with_PyTorch_Lightning_01.ipynb)
 - [02b Intro Ray Train with PyTorch Lightning 02](courses/00_Developer_Intro_to_Ray/output/02b_Intro_Ray_Train_with_PyTorch_Lightning_02.ipynb)
 - [02b Intro Ray Train with PyTorch Lightning 03](courses/00_Developer_Intro_to_Ray/output/02b_Intro_Ray_Train_with_PyTorch_Lightning_03.ipynb)

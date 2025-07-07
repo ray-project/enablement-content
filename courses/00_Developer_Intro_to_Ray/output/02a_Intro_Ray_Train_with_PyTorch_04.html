@@ -62,7 +62,7 @@
     <script src="../../../_static/custom_toggle.js?v=1235ef5b"></script>
     <link rel="index" title="Index" href="../../../genindex.html" />
     <link rel="search" title="Search" href="../../../search.html" />
-    <link rel="next" title="4. Ray Train in Production" href="02a_Intro_Ray_Train_with_PyTorch_05.html" />
+    <link rel="next" title="Introduction to Ray Train: Ray Train + PyTorch Lightning" href="02b_Intro_Ray_Train_with_PyTorch_Lightning_01.html" />
     <link rel="prev" title="2. Single GPU Training with PyTorch" href="02a_Intro_Ray_Train_with_PyTorch_03.html" />
   <meta name="viewport" content="width=device-width, initial-scale=1"/>
   <meta name="docsearch:language" content="en"/>
@@ -198,7 +198,6 @@
 <li class="toctree-l1"><a class="reference internal" href="02a_Intro_Ray_Train_with_PyTorch_02.html">1. When to use Ray Train</a></li>
 <li class="toctree-l1"><a class="reference internal" href="02a_Intro_Ray_Train_with_PyTorch_03.html">2. Single GPU Training with PyTorch</a></li>
 <li class="toctree-l1 current active"><a class="current reference internal" href="#">3. Distributed Data Parallel Training with Ray Train and PyTorch</a></li>
-<li class="toctree-l1"><a class="reference internal" href="02a_Intro_Ray_Train_with_PyTorch_05.html">4. Ray Train in Production</a></li>
 <li class="toctree-l1"><a class="reference internal" href="02b_Intro_Ray_Train_with_PyTorch_Lightning_01.html">Introduction to Ray Train: Ray Train + PyTorch Lightning</a></li>
 <li class="toctree-l1"><a class="reference internal" href="02b_Intro_Ray_Train_with_PyTorch_Lightning_02.html">1. When to use Ray Train</a></li>
 <li class="toctree-l1"><a class="reference internal" href="02b_Intro_Ray_Train_with_PyTorch_Lightning_03.html">2. Single GPU Training with PyTorch Lightning</a></li>
@@ -451,6 +450,7 @@ document.write(`
 <li class="toc-h2 nav-item toc-entry"><a class="reference internal nav-link" href="#access-the-training-results">3.8. Access the training results</a></li>
 <li class="toc-h2 nav-item toc-entry"><a class="reference internal nav-link" href="#use-checkpointed-model-to-generate-predictions">3.9. Use checkpointed model to generate predictions</a></li>
 <li class="toc-h2 nav-item toc-entry"><a class="reference internal nav-link" href="#activity-run-the-distributed-training-with-more-workers">3.10. Activity: Run the distributed training with more workers</a></li>
+<li class="toc-h2 nav-item toc-entry"><a class="reference internal nav-link" href="#ray-train-in-production">4. Ray Train in Production</a></li>
 </ul>
             </nav>
         </div>
@@ -944,6 +944,24 @@ document.write(`
 </pre></div>
 </div>
 </details></section>
+<section id="ray-train-in-production">
+<h2>4. Ray Train in Production<a class="headerlink" href="#ray-train-in-production" title="Link to this heading">#</a></h2>
+<p>Here are some use-cases of using Ray Train in production:</p>
+<ol class="arabic simple">
+<li><p>Canva uses Ray Train + Ray Data to cut down Stable Diffusion training costs by 3.7x. Read this <a class="reference external" href="https://www.anyscale.com/blog/scalable-and-cost-efficient-stable-diffusion-pre-training-with-ray">Anyscale blog post here</a> and the <a class="reference external" href="https://www.anyscale.com/resources/case-study/how-canva-built-a-modern-ai-platform-using-anyscale">Canva  case study here</a></p></li>
+<li><p>Anyscale uses Ray Train + Deepspeed to finetune language models. Read more <a class="reference external" href="https://github.com/ray-project/ray/tree/master/doc/source/templates/04_finetuning_llms_with_deepspeed">here</a>.</p></li>
+</ol>
+<div class="cell docutils container">
+<div class="cell_input docutils container">
+<div class="highlight-ipython3 notranslate"><div class="highlight"><pre><span></span><span class="c1"># Run this cell for file cleanup </span>
+<span class="o">!</span>rm<span class="w"> </span>-rf<span class="w"> </span><span class="o">{</span>storage_folder<span class="o">}</span>/training/
+<span class="o">!</span>rm<span class="w"> </span>-rf<span class="w"> </span><span class="o">{</span>local_path<span class="o">}</span>
+<span class="o">!</span>rm<span class="w"> </span>-rf<span class="w"> </span><span class="o">{</span>storage_folder<span class="o">}</span>/data
+</pre></div>
+</div>
+</div>
+</div>
+</section>
 </section>
 
     <script type="text/x-thebe-config">
@@ -986,11 +1004,11 @@ document.write(`
       </div>
     </a>
     <a class="right-next"
-       href="02a_Intro_Ray_Train_with_PyTorch_05.html"
+       href="02b_Intro_Ray_Train_with_PyTorch_Lightning_01.html"
        title="next page">
       <div class="prev-next-info">
         <p class="prev-next-subtitle">next</p>
-        <p class="prev-next-title">4. Ray Train in Production</p>
+        <p class="prev-next-title">Introduction to Ray Train: Ray Train + PyTorch Lightning</p>
       </div>
       <i class="fa-solid fa-angle-right"></i>
     </a>
@@ -1026,6 +1044,7 @@ document.write(`
 <li class="toc-h2 nav-item toc-entry"><a class="reference internal nav-link" href="#access-the-training-results">3.8. Access the training results</a></li>
 <li class="toc-h2 nav-item toc-entry"><a class="reference internal nav-link" href="#use-checkpointed-model-to-generate-predictions">3.9. Use checkpointed model to generate predictions</a></li>
 <li class="toc-h2 nav-item toc-entry"><a class="reference internal nav-link" href="#activity-run-the-distributed-training-with-more-workers">3.10. Activity: Run the distributed training with more workers</a></li>
+<li class="toc-h2 nav-item toc-entry"><a class="reference internal nav-link" href="#ray-train-in-production">4. Ray Train in Production</a></li>
 </ul>
   </nav></div>
 
