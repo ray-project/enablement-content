@@ -88,6 +88,24 @@ parts:
   - file: courses/01_examples/output/04_Ray_Train_distributed_training_04.ipynb
   - file: courses/01_examples/output/04_Ray_Train_distributed_training_05.ipynb
   - file: courses/01_examples/output/04_Ray_Train_distributed_training_06.ipynb
+- caption: Gettingstarted
+  chapters:
+  - file: courses/GettingStarted/output/101_01_anyscale_intro_workspace_01.ipynb
+  - file: courses/GettingStarted/output/101_02_anyscale_development_intro_01.ipynb
+  - file: courses/GettingStarted/output/101_03_anyscale_compute_runtime_intro_01.ipynb
+  - file: courses/GettingStarted/output/101_04_anyscale_storage_options_01.ipynb
+  - file: courses/GettingStarted/output/101_05_anyscale_logging_metrics_01.ipynb
+  - file: courses/GettingStarted/output/101_06_anyscale_intro_jobs_01.ipynb
+  - file: courses/GettingStarted/output/101_07_anyscale_intro_services_01.ipynb
+  - file: courses/GettingStarted/output/101_08_anyscale_collaboration_01.ipynb
+  - file: courses/GettingStarted/output/101_09_anyscale_org_setup_01.ipynb
+  - file: courses/GettingStarted/output/101_09_anyscale_org_setup_02.ipynb
+  - file: courses/GettingStarted/output/101_09_anyscale_org_setup_03.ipynb
+  - file: courses/GettingStarted/output/101_anyscale_intro_jobs_01.ipynb
+  - file: courses/GettingStarted/output/101_anyscale_intro_jobs_02.ipynb
+  - file: courses/GettingStarted/output/101_anyscale_intro_jobs_03.ipynb
+  - file: courses/GettingStarted/output/101_anyscale_intro_services_01.ipynb
+  - file: courses/GettingStarted/output/101_anyscale_intro_services_02.ipynb
 - caption: Anyscale 101
   chapters:
   - file: courses/anyscale_101/output/101_anyscale_intro_jobs_01.ipynb
