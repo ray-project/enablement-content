@@ -125,6 +125,25 @@ This collection contains multiple courses on Ray and Anyscale:
 - [5 Intro Serve 05](courses/ray-101/output/5_Intro_Serve_05.ipynb)
 - [5 Intro Serve 06](courses/ray-101/output/5_Intro_Serve_06.ipynb)
 
+## Gettingstarted
+
+- [101 01 anyscale intro workspace 01](courses/GettingStarted/output/101_01_anyscale_intro_workspace_01.ipynb)
+- [101 02 anyscale development intro 01](courses/GettingStarted/output/101_02_anyscale_development_intro_01.ipynb)
+- [101 03 anyscale compute runtime intro 01](courses/GettingStarted/output/101_03_anyscale_compute_runtime_intro_01.ipynb)
+- [101 04 anyscale storage options 01](courses/GettingStarted/output/101_04_anyscale_storage_options_01.ipynb)
+- [101 05 anyscale logging metrics 01](courses/GettingStarted/output/101_05_anyscale_logging_metrics_01.ipynb)
+- [101 06 anyscale intro jobs 01](courses/GettingStarted/output/101_06_anyscale_intro_jobs_01.ipynb)
+- [101 07 anyscale intro services 01](courses/GettingStarted/output/101_07_anyscale_intro_services_01.ipynb)
+- [101 08 anyscale collaboration 01](courses/GettingStarted/output/101_08_anyscale_collaboration_01.ipynb)
+- [101 09 anyscale org setup 01](courses/GettingStarted/output/101_09_anyscale_org_setup_01.ipynb)
+- [101 09 anyscale org setup 02](courses/GettingStarted/output/101_09_anyscale_org_setup_02.ipynb)
+- [101 09 anyscale org setup 03](courses/GettingStarted/output/101_09_anyscale_org_setup_03.ipynb)
+- [101 anyscale intro jobs 01](courses/GettingStarted/output/101_anyscale_intro_jobs_01.ipynb)
+- [101 anyscale intro jobs 02](courses/GettingStarted/output/101_anyscale_intro_jobs_02.ipynb)
+- [101 anyscale intro jobs 03](courses/GettingStarted/output/101_anyscale_intro_jobs_03.ipynb)
+- [101 anyscale intro services 01](courses/GettingStarted/output/101_anyscale_intro_services_01.ipynb)
+- [101 anyscale intro services 02](courses/GettingStarted/output/101_anyscale_intro_services_02.ipynb)
+
 ## Anyscale 101
 
 - [101 anyscale intro jobs 01](courses/anyscale_101/output/101_anyscale_intro_jobs_01.ipynb)
