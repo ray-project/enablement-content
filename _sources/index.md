@@ -66,6 +66,31 @@ This collection contains multiple courses on Ray and Anyscale:
 - [05 Intro Ray Serve PyTorch 05](courses/00_Developer_Intro_to_Ray/output/05_Intro_Ray_Serve_PyTorch_05.ipynb)
 - [README 01](courses/00_Developer_Intro_to_Ray/output/README_01.ipynb)
 
+## 01 Examples
+
+- [01 Ray Data batch inference 01](courses/01_examples/output/01_Ray_Data_batch_inference_01.ipynb)
+- [01 Ray Data batch inference 02](courses/01_examples/output/01_Ray_Data_batch_inference_02.ipynb)
+- [01 Ray Data batch inference 03](courses/01_examples/output/01_Ray_Data_batch_inference_03.ipynb)
+- [01 Ray Data batch inference 04](courses/01_examples/output/01_Ray_Data_batch_inference_04.ipynb)
+- [01 Ray Data batch inference 05](courses/01_examples/output/01_Ray_Data_batch_inference_05.ipynb)
+- [01 Ray Data batch inference 06](courses/01_examples/output/01_Ray_Data_batch_inference_06.ipynb)
+- [02 Ray Data data processing 01](courses/01_examples/output/02_Ray_Data_data_processing_01.ipynb)
+- [02 Ray Data data processing 02](courses/01_examples/output/02_Ray_Data_data_processing_02.ipynb)
+- [02 Ray Data data processing 03](courses/01_examples/output/02_Ray_Data_data_processing_03.ipynb)
+- [02 Ray Data data processing 04](courses/01_examples/output/02_Ray_Data_data_processing_04.ipynb)
+- [02 Ray Data data processing 05](courses/01_examples/output/02_Ray_Data_data_processing_05.ipynb)
+- [02 Ray Data data processing 06](courses/01_examples/output/02_Ray_Data_data_processing_06.ipynb)
+- [03 Ray Serve online serving 01](courses/01_examples/output/03_Ray_Serve_online_serving_01.ipynb)
+- [03 Ray Serve online serving 02](courses/01_examples/output/03_Ray_Serve_online_serving_02.ipynb)
+- [03 Ray Serve online serving 03](courses/01_examples/output/03_Ray_Serve_online_serving_03.ipynb)
+- [03 Ray Serve online serving 04](courses/01_examples/output/03_Ray_Serve_online_serving_04.ipynb)
+- [04 Ray Train distributed training 01](courses/01_examples/output/04_Ray_Train_distributed_training_01.ipynb)
+- [04 Ray Train distributed training 02](courses/01_examples/output/04_Ray_Train_distributed_training_02.ipynb)
+- [04 Ray Train distributed training 03](courses/01_examples/output/04_Ray_Train_distributed_training_03.ipynb)
+- [04 Ray Train distributed training 04](courses/01_examples/output/04_Ray_Train_distributed_training_04.ipynb)
+- [04 Ray Train distributed training 05](courses/01_examples/output/04_Ray_Train_distributed_training_05.ipynb)
+- [04 Ray Train distributed training 06](courses/01_examples/output/04_Ray_Train_distributed_training_06.ipynb)
+
 ## Ray 101
 
 - [1 AI Libs Intro 01](courses/ray-101/output/1_AI_Libs_Intro_01.ipynb)

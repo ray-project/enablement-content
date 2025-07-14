@@ -1,0 +1,618 @@
+
+<!DOCTYPE html>
+
+
+<html lang="en" data-content_root="../../../" >
+
+  <head>
+    <meta charset="utf-8" />
+    <meta name="viewport" content="width=device-width, initial-scale=1.0" /><meta name="viewport" content="width=device-width, initial-scale=1" />
+
+    <title>5. Main Training Function &#8212; Course Notebooks Test</title>
+  
+  
+  
+  <script data-cfasync="false">
+    document.documentElement.dataset.mode = localStorage.getItem("mode") || "";
+    document.documentElement.dataset.theme = localStorage.getItem("theme") || "";
+  </script>
+  
+  <!-- Loaded before other Sphinx assets -->
+  <link href="../../../_static/styles/theme.css?digest=dfe6caa3a7d634c4db9b" rel="stylesheet" />
+<link href="../../../_static/styles/bootstrap.css?digest=dfe6caa3a7d634c4db9b" rel="stylesheet" />
+<link href="../../../_static/styles/pydata-sphinx-theme.css?digest=dfe6caa3a7d634c4db9b" rel="stylesheet" />
+
+  
+  <link href="../../../_static/vendor/fontawesome/6.5.2/css/all.min.css?digest=dfe6caa3a7d634c4db9b" rel="stylesheet" />
+  <link rel="preload" as="font" type="font/woff2" crossorigin href="../../../_static/vendor/fontawesome/6.5.2/webfonts/fa-solid-900.woff2" />
+<link rel="preload" as="font" type="font/woff2" crossorigin href="../../../_static/vendor/fontawesome/6.5.2/webfonts/fa-brands-400.woff2" />
+<link rel="preload" as="font" type="font/woff2" crossorigin href="../../../_static/vendor/fontawesome/6.5.2/webfonts/fa-regular-400.woff2" />
+
+    <link rel="stylesheet" type="text/css" href="../../../_static/pygments.css?v=03e43079" />
+    <link rel="stylesheet" type="text/css" href="../../../_static/styles/sphinx-book-theme.css?v=eba8b062" />
+    <link rel="stylesheet" type="text/css" href="../../../_static/togglebutton.css?v=13237357" />
+    <link rel="stylesheet" type="text/css" href="../../../_static/copybutton.css?v=76b2166b" />
+    <link rel="stylesheet" type="text/css" href="../../../_static/mystnb.8ecb98da25f57f5357bf6f572d296f466b2cfe2517ffebfabe82451661e28f02.css" />
+    <link rel="stylesheet" type="text/css" href="../../../_static/sphinx-thebe.css?v=4fa983c6" />
+    <link rel="stylesheet" type="text/css" href="../../../_static/sphinx-design.min.css?v=95c83b7e" />
+    <link rel="stylesheet" type="text/css" href="../../../_static/custom_hide.css?v=af9667c8" />
+  
+  <!-- Pre-loaded scripts that we'll load fully later -->
+  <link rel="preload" as="script" href="../../../_static/scripts/bootstrap.js?digest=dfe6caa3a7d634c4db9b" />
+<link rel="preload" as="script" href="../../../_static/scripts/pydata-sphinx-theme.js?digest=dfe6caa3a7d634c4db9b" />
+  <script src="../../../_static/vendor/fontawesome/6.5.2/js/all.min.js?digest=dfe6caa3a7d634c4db9b"></script>
+
+    <script src="../../../_static/documentation_options.js?v=9eb32ce0"></script>
+    <script src="../../../_static/doctools.js?v=9a2dae69"></script>
+    <script src="../../../_static/sphinx_highlight.js?v=dc90522c"></script>
+    <script src="../../../_static/clipboard.min.js?v=a7894cd8"></script>
+    <script src="../../../_static/copybutton.js?v=f281be69"></script>
+    <script src="../../../_static/scripts/sphinx-book-theme.js?v=887ef09a"></script>
+    <script>let toggleHintShow = 'Click to show';</script>
+    <script>let toggleHintHide = 'Click to hide';</script>
+    <script>let toggleOpenOnPrint = 'true';</script>
+    <script src="../../../_static/togglebutton.js?v=4a39c7ea"></script>
+    <script>var togglebuttonSelector = '.toggle, .admonition.dropdown';</script>
+    <script src="../../../_static/design-tabs.js?v=f930bc37"></script>
+    <script>const THEBE_JS_URL = "https://unpkg.com/thebe@0.8.2/lib/index.js"; const thebe_selector = ".thebe,.cell"; const thebe_selector_input = "pre"; const thebe_selector_output = ".output, .cell_output"</script>
+    <script async="async" src="../../../_static/sphinx-thebe.js?v=c100c467"></script>
+    <script>var togglebuttonSelector = '.toggle, .admonition.dropdown';</script>
+    <script>const THEBE_JS_URL = "https://unpkg.com/thebe@0.8.2/lib/index.js"; const thebe_selector = ".thebe,.cell"; const thebe_selector_input = "pre"; const thebe_selector_output = ".output, .cell_output"</script>
+    <script>DOCUMENTATION_OPTIONS.pagename = 'courses/01_examples/output/04_Ray_Train_distributed_training_05';</script>
+    <script src="../../../_static/custom_toggle.js?v=1235ef5b"></script>
+    <link rel="index" title="Index" href="../../../genindex.html" />
+    <link rel="search" title="Search" href="../../../search.html" />
+    <link rel="next" title="6. Start Training" href="04_Ray_Train_distributed_training_06.html" />
+    <link rel="prev" title="4. Training function per worker" href="04_Ray_Train_distributed_training_04.html" />
+  <meta name="viewport" content="width=device-width, initial-scale=1"/>
+  <meta name="docsearch:language" content="en"/>
+  </head>
+  
+  
+  <body data-bs-spy="scroll" data-bs-target=".bd-toc-nav" data-offset="180" data-bs-root-margin="0px 0px -60%" data-default-mode="">
+
+  
+  
+  <div id="pst-skip-link" class="skip-link d-print-none"><a href="#main-content">Skip to main content</a></div>
+  
+  <div id="pst-scroll-pixel-helper"></div>
+  
+  <button type="button" class="btn rounded-pill" id="pst-back-to-top">
+    <i class="fa-solid fa-arrow-up"></i>Back to top</button>
+
+  
+  <input type="checkbox"
+          class="sidebar-toggle"
+          id="pst-primary-sidebar-checkbox"/>
+  <label class="overlay overlay-primary" for="pst-primary-sidebar-checkbox"></label>
+  
+  <input type="checkbox"
+          class="sidebar-toggle"
+          id="pst-secondary-sidebar-checkbox"/>
+  <label class="overlay overlay-secondary" for="pst-secondary-sidebar-checkbox"></label>
+  
+  <div class="search-button__wrapper">
+    <div class="search-button__overlay"></div>
+    <div class="search-button__search-container">
+<form class="bd-search d-flex align-items-center"
+      action="../../../search.html"
+      method="get">
+  <i class="fa-solid fa-magnifying-glass"></i>
+  <input type="search"
+         class="form-control"
+         name="q"
+         id="search-input"
+         placeholder="Search this book..."
+         aria-label="Search this book..."
+         autocomplete="off"
+         autocorrect="off"
+         autocapitalize="off"
+         spellcheck="false"/>
+  <span class="search-button__kbd-shortcut"><kbd class="kbd-shortcut__modifier">Ctrl</kbd>+<kbd>K</kbd></span>
+</form></div>
+  </div>
+
+  <div class="pst-async-banner-revealer d-none">
+  <aside id="bd-header-version-warning" class="d-none d-print-none" aria-label="Version warning"></aside>
+</div>
+
+  
+    <header class="bd-header navbar navbar-expand-lg bd-navbar d-print-none">
+    </header>
+  
+
+  <div class="bd-container">
+    <div class="bd-container__inner bd-page-width">
+      
+      
+      
+      <div class="bd-sidebar-primary bd-sidebar">
+        
+
+  
+  <div class="sidebar-header-items sidebar-primary__section">
+    
+    
+    
+    
+  </div>
+  
+    <div class="sidebar-primary-items__start sidebar-primary__section">
+        <div class="sidebar-primary-item">
+
+  
+    
+  
+
+<a class="navbar-brand logo" href="../../../index.html">
+  
+  
+  
+  
+  
+  
+    <p class="title logo__title">Course Notebooks Test</p>
+  
+</a></div>
+        <div class="sidebar-primary-item">
+
+ <script>
+ document.write(`
+   <button class="btn search-button-field search-button__button" title="Search" aria-label="Search" data-bs-placement="bottom" data-bs-toggle="tooltip">
+    <i class="fa-solid fa-magnifying-glass"></i>
+    <span class="search-button__default-text">Search</span>
+    <span class="search-button__kbd-shortcut"><kbd class="kbd-shortcut__modifier">Ctrl</kbd>+<kbd class="kbd-shortcut__modifier">K</kbd></span>
+   </button>
+ `);
+ </script></div>
+        <div class="sidebar-primary-item"><nav class="bd-links bd-docs-nav" aria-label="Main">
+    <div class="bd-toc-item navbar-nav active">
+        
+        <ul class="nav bd-sidenav bd-sidenav__home-link">
+            <li class="toctree-l1">
+                <a class="reference internal" href="../../../index.html">
+                    Ray Enablement Content
+                </a>
+            </li>
+        </ul>
+        <p aria-level="2" class="caption" role="heading"><span class="caption-text">Developer Intro to Ray</span></p>
+<ul class="nav bd-sidenav">
+<li class="toctree-l1"><a class="reference internal" href="../../00_Developer_Intro_to_Ray/output/00_Intro_Ray_Core_Basics_01.html">Introduction to Ray Core: Getting Started</a></li>
+<li class="toctree-l1"><a class="reference internal" href="../../00_Developer_Intro_to_Ray/output/00_Intro_Ray_Core_Basics_02.html">0. Overview</a></li>
+<li class="toctree-l1"><a class="reference internal" href="../../00_Developer_Intro_to_Ray/output/00_Intro_Ray_Core_Basics_03.html">1. Creating Remote Functions</a></li>
+<li class="toctree-l1"><a class="reference internal" href="../../00_Developer_Intro_to_Ray/output/00_Intro_Ray_Core_Basics_04.html">2. Executing Remote Functions</a></li>
+<li class="toctree-l1"><a class="reference internal" href="../../00_Developer_Intro_to_Ray/output/00_Intro_Ray_Core_Basics_05.html">4. Putting It All Together</a></li>
+<li class="toctree-l1"><a class="reference internal" href="../../00_Developer_Intro_to_Ray/output/00a_Intro_Ray_Core_Advancement_01.html">Introduction to Ray Core (Advancement): Object store, Tasks, Actors</a></li>
+<li class="toctree-l1"><a class="reference internal" href="../../00_Developer_Intro_to_Ray/output/00a_Intro_Ray_Core_Advancement_02.html">1. Object store</a></li>
+<li class="toctree-l1"><a class="reference internal" href="../../00_Developer_Intro_to_Ray/output/00a_Intro_Ray_Core_Advancement_03.html">2. Chaining Tasks and Passing Data</a></li>
+<li class="toctree-l1"><a class="reference internal" href="../../00_Developer_Intro_to_Ray/output/00a_Intro_Ray_Core_Advancement_04.html">3. Task retries</a></li>
+<li class="toctree-l1"><a class="reference internal" href="../../00_Developer_Intro_to_Ray/output/00a_Intro_Ray_Core_Advancement_05.html">4. Task Runtime Environments</a></li>
+<li class="toctree-l1"><a class="reference internal" href="../../00_Developer_Intro_to_Ray/output/00a_Intro_Ray_Core_Advancement_06.html">5. Resource allocation and management</a></li>
+<li class="toctree-l1"><a class="reference internal" href="../../00_Developer_Intro_to_Ray/output/00a_Intro_Ray_Core_Advancement_07.html">6. Nested Tasks</a></li>
+<li class="toctree-l1"><a class="reference internal" href="../../00_Developer_Intro_to_Ray/output/00a_Intro_Ray_Core_Advancement_08.html">7. Pattern: Pipeline data processing and waiting for results</a></li>
+<li class="toctree-l1"><a class="reference internal" href="../../00_Developer_Intro_to_Ray/output/00a_Intro_Ray_Core_Advancement_09.html">8. Ray Actors</a></li>
+<li class="toctree-l1"><a class="reference internal" href="../../00_Developer_Intro_to_Ray/output/01_Intro_Ray_AI_Libs_Overview_01.html">Introduction to the Ray AI Libraries: An example of using Ray data, Ray Train, Ray Tune, Ray Serve to implement a XGBoost regression model</a></li>
+<li class="toctree-l1"><a class="reference internal" href="../../00_Developer_Intro_to_Ray/output/01_Intro_Ray_AI_Libs_Overview_02.html">1. Overview of the Ray AI Libraries</a></li>
+<li class="toctree-l1"><a class="reference internal" href="../../00_Developer_Intro_to_Ray/output/01_Intro_Ray_AI_Libs_Overview_03.html">2. Quick end-to-end example</a></li>
+<li class="toctree-l1"><a class="reference internal" href="../../00_Developer_Intro_to_Ray/output/02a_Intro_Ray_Train_with_PyTorch_01.html">Introduction to Ray Train + PyTorch</a></li>
+<li class="toctree-l1"><a class="reference internal" href="../../00_Developer_Intro_to_Ray/output/02a_Intro_Ray_Train_with_PyTorch_02.html">1. When to use Ray Train</a></li>
+<li class="toctree-l1"><a class="reference internal" href="../../00_Developer_Intro_to_Ray/output/02a_Intro_Ray_Train_with_PyTorch_03.html">2. Single GPU Training with PyTorch</a></li>
+<li class="toctree-l1"><a class="reference internal" href="../../00_Developer_Intro_to_Ray/output/02a_Intro_Ray_Train_with_PyTorch_04.html">3. Distributed Data Parallel Training with Ray Train and PyTorch</a></li>
+<li class="toctree-l1"><a class="reference internal" href="../../00_Developer_Intro_to_Ray/output/02b_Intro_Ray_Train_with_PyTorch_Lightning_01.html">Introduction to Ray Train: Ray Train + PyTorch Lightning</a></li>
+<li class="toctree-l1"><a class="reference internal" href="../../00_Developer_Intro_to_Ray/output/02b_Intro_Ray_Train_with_PyTorch_Lightning_02.html">1. When to use Ray Train</a></li>
+<li class="toctree-l1"><a class="reference internal" href="../../00_Developer_Intro_to_Ray/output/02b_Intro_Ray_Train_with_PyTorch_Lightning_03.html">2. Single GPU Training with PyTorch Lightning</a></li>
+<li class="toctree-l1"><a class="reference internal" href="../../00_Developer_Intro_to_Ray/output/02b_Intro_Ray_Train_with_PyTorch_Lightning_04.html">3. Distributed Training with Ray Train and PyTorch Lightning</a></li>
+<li class="toctree-l1"><a class="reference internal" href="../../00_Developer_Intro_to_Ray/output/02b_Intro_Ray_Train_with_PyTorch_Lightning_05.html">4. Ray Train in Production</a></li>
+<li class="toctree-l1"><a class="reference internal" href="../../00_Developer_Intro_to_Ray/output/03_Intro_Ray_Tune_01.html">Introduction to Ray Tune</a></li>
+<li class="toctree-l1"><a class="reference internal" href="../../00_Developer_Intro_to_Ray/output/03_Intro_Ray_Tune_02.html">1. Loading the data</a></li>
+<li class="toctree-l1"><a class="reference internal" href="../../00_Developer_Intro_to_Ray/output/03_Intro_Ray_Tune_03.html">2. Starting out with vanilla PyTorch</a></li>
+<li class="toctree-l1"><a class="reference internal" href="../../00_Developer_Intro_to_Ray/output/03_Intro_Ray_Tune_04.html">3. Hyperparameter tuning with Ray Tune</a></li>
+<li class="toctree-l1"><a class="reference internal" href="../../00_Developer_Intro_to_Ray/output/03_Intro_Ray_Tune_05.html">4. Ray Tune in Production</a></li>
+<li class="toctree-l1"><a class="reference internal" href="../../00_Developer_Intro_to_Ray/output/04a_Intro_Ray_Data_Industry_Landscape_01.html">Introduction to Ray Data: Industry Landscape</a></li>
+
+<li class="toctree-l1"><a class="reference internal" href="../../00_Developer_Intro_to_Ray/output/04a_Intro_Ray_Data_Industry_Landscape_02.html">The Compute Layer</a></li>
+<li class="toctree-l1"><a class="reference internal" href="../../00_Developer_Intro_to_Ray/output/04a_Intro_Ray_Data_Industry_Landscape_03.html">The Orchestration Layer</a></li>
+<li class="toctree-l1"><a class="reference internal" href="../../00_Developer_Intro_to_Ray/output/04a_Intro_Ray_Data_Industry_Landscape_04.html">Distributed Computing Frameworks</a></li>
+<li class="toctree-l1"><a class="reference internal" href="../../00_Developer_Intro_to_Ray/output/04a_Intro_Ray_Data_Industry_Landscape_05.html">Data Processing with Ray Data</a></li>
+<li class="toctree-l1"><a class="reference internal" href="../../00_Developer_Intro_to_Ray/output/04a_Intro_Ray_Data_Industry_Landscape_06.html">Ray Serve</a></li>
+<li class="toctree-l1"><a class="reference internal" href="../../00_Developer_Intro_to_Ray/output/04b_Intro_Ray_Data_Structured_01.html">Introduction to Ray Data: Ray Data + Structured Data</a></li>
+<li class="toctree-l1"><a class="reference internal" href="../../00_Developer_Intro_to_Ray/output/04b_Intro_Ray_Data_Structured_02.html">0. What is Ray Data?</a></li>
+<li class="toctree-l1"><a class="reference internal" href="../../00_Developer_Intro_to_Ray/output/04b_Intro_Ray_Data_Structured_03.html">2. Loading Data</a></li>
+<li class="toctree-l1"><a class="reference internal" href="../../00_Developer_Intro_to_Ray/output/04b_Intro_Ray_Data_Structured_04.html">3. Transforming Data</a></li>
+<li class="toctree-l1"><a class="reference internal" href="../../00_Developer_Intro_to_Ray/output/04b_Intro_Ray_Data_Structured_05.html">4. Writing Data</a></li>
+<li class="toctree-l1"><a class="reference internal" href="../../00_Developer_Intro_to_Ray/output/04b_Intro_Ray_Data_Structured_06.html">5. Data Operations: Shuffling, Grouping and Aggregation</a></li>
+<li class="toctree-l1"><a class="reference internal" href="../../00_Developer_Intro_to_Ray/output/04b_Intro_Ray_Data_Structured_07.html">6. When to use Ray Data</a></li>
+<li class="toctree-l1"><a class="reference internal" href="../../00_Developer_Intro_to_Ray/output/04c_Intro_Ray_Data_Unstructured_01.html">Intro to Ray Data:  Ray Data + Unstructured Data</a></li>
+<li class="toctree-l1"><a class="reference internal" href="../../00_Developer_Intro_to_Ray/output/04c_Intro_Ray_Data_Unstructured_02.html">1. When to Consider Ray Data</a></li>
+<li class="toctree-l1"><a class="reference internal" href="../../00_Developer_Intro_to_Ray/output/04c_Intro_Ray_Data_Unstructured_03.html">2. How to work with Ray Data</a></li>
+<li class="toctree-l1"><a class="reference internal" href="../../00_Developer_Intro_to_Ray/output/04c_Intro_Ray_Data_Unstructured_04.html">3. Loading data</a></li>
+<li class="toctree-l1"><a class="reference internal" href="../../00_Developer_Intro_to_Ray/output/04c_Intro_Ray_Data_Unstructured_05.html">3. Lazy execution mode</a></li>
+<li class="toctree-l1"><a class="reference internal" href="../../00_Developer_Intro_to_Ray/output/04c_Intro_Ray_Data_Unstructured_06.html">4. Transforming data</a></li>
+<li class="toctree-l1"><a class="reference internal" href="../../00_Developer_Intro_to_Ray/output/04c_Intro_Ray_Data_Unstructured_07.html">5. Stateful transformations with Ray Actors</a></li>
+<li class="toctree-l1"><a class="reference internal" href="../../00_Developer_Intro_to_Ray/output/04c_Intro_Ray_Data_Unstructured_08.html">6. Materializing data</a></li>
+<li class="toctree-l1"><a class="reference internal" href="../../00_Developer_Intro_to_Ray/output/04c_Intro_Ray_Data_Unstructured_09.html">7. Data Operations: grouping, aggregation, and shuffling</a></li>
+<li class="toctree-l1"><a class="reference internal" href="../../00_Developer_Intro_to_Ray/output/04c_Intro_Ray_Data_Unstructured_10.html">8. Persisting data</a></li>
+<li class="toctree-l1"><a class="reference internal" href="../../00_Developer_Intro_to_Ray/output/04c_Intro_Ray_Data_Unstructured_11.html">9. Ray Data in production</a></li>
+<li class="toctree-l1"><a class="reference internal" href="../../00_Developer_Intro_to_Ray/output/05_Intro_Ray_Serve_PyTorch_01.html">Introduction to Ray Serve with PyTorch</a></li>
+<li class="toctree-l1"><a class="reference internal" href="../../00_Developer_Intro_to_Ray/output/05_Intro_Ray_Serve_PyTorch_02.html">1. When to Consider Ray Serve</a></li>
+<li class="toctree-l1"><a class="reference internal" href="../../00_Developer_Intro_to_Ray/output/05_Intro_Ray_Serve_PyTorch_03.html">2. Overview of Ray Serve</a></li>
+<li class="toctree-l1"><a class="reference internal" href="../../00_Developer_Intro_to_Ray/output/05_Intro_Ray_Serve_PyTorch_04.html">3. Implement an image classification service</a></li>
+<li class="toctree-l1"><a class="reference internal" href="../../00_Developer_Intro_to_Ray/output/05_Intro_Ray_Serve_PyTorch_05.html">4. Development workflow</a></li>
+<li class="toctree-l1"><a class="reference internal" href="../../00_Developer_Intro_to_Ray/output/README_01.html">Introduction to Ray: Developer</a></li>
+</ul>
+<p aria-level="2" class="caption" role="heading"><span class="caption-text">01 Examples</span></p>
+<ul class="current nav bd-sidenav">
+<li class="toctree-l1"><a class="reference internal" href="01_Ray_Data_batch_inference_01.html">Batch Inference with Ray Data</a></li>
+<li class="toctree-l1"><a class="reference internal" href="01_Ray_Data_batch_inference_02.html">Architecture</a></li>
+<li class="toctree-l1"><a class="reference internal" href="01_Ray_Data_batch_inference_03.html">Load a dataset</a></li>
+<li class="toctree-l1"><a class="reference internal" href="01_Ray_Data_batch_inference_04.html">Batch Inference Class</a></li>
+<li class="toctree-l1"><a class="reference internal" href="01_Ray_Data_batch_inference_05.html">Create a batch data and call the model</a></li>
+<li class="toctree-l1"><a class="reference internal" href="01_Ray_Data_batch_inference_06.html">Run inference on the entire dataset</a></li>
+<li class="toctree-l1"><a class="reference internal" href="02_Ray_Data_data_processing_01.html">Data Processing with Ray Data</a></li>
+<li class="toctree-l1"><a class="reference internal" href="02_Ray_Data_data_processing_02.html">Library Imports</a></li>
+<li class="toctree-l1"><a class="reference internal" href="02_Ray_Data_data_processing_03.html">Convert to Ray Dataset</a></li>
+<li class="toctree-l1"><a class="reference internal" href="02_Ray_Data_data_processing_04.html">Filter Ray Dataset</a></li>
+<li class="toctree-l1"><a class="reference internal" href="02_Ray_Data_data_processing_05.html">Join Two Ray Datasets</a></li>
+<li class="toctree-l1"><a class="reference internal" href="02_Ray_Data_data_processing_06.html">Preprocessing with a Tokenizer</a></li>
+<li class="toctree-l1"><a class="reference internal" href="03_Ray_Serve_online_serving_01.html">Online Model Serving with Ray Serve</a></li>
+<li class="toctree-l1"><a class="reference internal" href="03_Ray_Serve_online_serving_02.html">Architecture</a></li>
+<li class="toctree-l1"><a class="reference internal" href="03_Ray_Serve_online_serving_03.html">FastAPI webservice and deploy a model</a></li>
+<li class="toctree-l1"><a class="reference internal" href="03_Ray_Serve_online_serving_04.html">Simulate Client: Send test requests</a></li>
+<li class="toctree-l1"><a class="reference internal" href="04_Ray_Train_distributed_training_01.html">Distributed training with Ray Train, PyTorch and Hugging Face</a></li>
+<li class="toctree-l1"><a class="reference internal" href="04_Ray_Train_distributed_training_02.html">1. Architecture</a></li>
+<li class="toctree-l1"><a class="reference internal" href="04_Ray_Train_distributed_training_03.html">3. Metrics Setup</a></li>
+<li class="toctree-l1"><a class="reference internal" href="04_Ray_Train_distributed_training_04.html">4. Training function per worker</a></li>
+<li class="toctree-l1 current active"><a class="current reference internal" href="#">5. Main Training Function</a></li>
+<li class="toctree-l1"><a class="reference internal" href="04_Ray_Train_distributed_training_06.html">6. Start Training</a></li>
+</ul>
+<p aria-level="2" class="caption" role="heading"><span class="caption-text">Anyscale 101</span></p>
+<ul class="nav bd-sidenav">
+<li class="toctree-l1"><a class="reference internal" href="../../anyscale_101/output/101_anyscale_intro_jobs_01.html">Content Used</a></li>
+
+<li class="toctree-l1"><a class="reference internal" href="../../anyscale_101/output/101_anyscale_intro_jobs_02.html">Part 1. Creating and Submitting your first job</a></li>
+<li class="toctree-l1"><a class="reference internal" href="../../anyscale_101/output/101_anyscale_intro_jobs_03.html">Part 2. Automation and Scheduling</a></li>
+<li class="toctree-l1"><a class="reference internal" href="../../anyscale_101/output/101_anyscale_intro_services_01.html">Sources</a></li>
+
+<li class="toctree-l1"><a class="reference internal" href="../../anyscale_101/output/101_anyscale_intro_services_02.html">Part 1: Starting your first Anyscale Service</a></li>
+</ul>
+<p aria-level="2" class="caption" role="heading"><span class="caption-text">Ray 101</span></p>
+<ul class="nav bd-sidenav">
+<li class="toctree-l1"><a class="reference internal" href="../../ray-101/output/1_AI_Libs_Intro_01.html">Introduction to the Ray AI Libraries</a></li>
+<li class="toctree-l1"><a class="reference internal" href="../../ray-101/output/1_AI_Libs_Intro_02.html">1. Overview of the Ray AI Libraries</a></li>
+<li class="toctree-l1"><a class="reference internal" href="../../ray-101/output/1_AI_Libs_Intro_03.html">2. End-to-end example: predicting taxi tips in New York</a></li>
+<li class="toctree-l1"><a class="reference internal" href="../../ray-101/output/1_AI_Libs_Intro_04.html">3. Running an experiment with Ray AI libraries</a></li>
+<li class="toctree-l1"><a class="reference internal" href="../../ray-101/output/2_Intro_Train_01.html">Introduction to Ray Train</a></li>
+<li class="toctree-l1"><a class="reference internal" href="../../ray-101/output/2_Intro_Train_02.html">1. PyTorch introductory example (single GPU)</a></li>
+<li class="toctree-l1"><a class="reference internal" href="../../ray-101/output/2_Intro_Train_03.html">2. Distributed Data Parallel Training with Ray Train and PyTorch (multiple GPUs)</a></li>
+<li class="toctree-l1"><a class="reference internal" href="../../ray-101/output/2_Intro_Train_04.html">3. Overview of the training loop in Ray Train</a></li>
+<li class="toctree-l1"><a class="reference internal" href="../../ray-101/output/2_Intro_Train_05.html">4. Migrating the model and dataset to Ray Train</a></li>
+<li class="toctree-l1"><a class="reference internal" href="../../ray-101/output/2_Intro_Train_06.html">5. Reporting checkpoints and metrics</a></li>
+<li class="toctree-l1"><a class="reference internal" href="../../ray-101/output/2_Intro_Train_07.html">6. Launching the distributed training job</a></li>
+<li class="toctree-l1"><a class="reference internal" href="../../ray-101/output/2_Intro_Train_08.html">7. Accessing the training results</a></li>
+<li class="toctree-l1"><a class="reference internal" href="../../ray-101/output/2_Intro_Train_09.html">8. Ray Train in Production</a></li>
+<li class="toctree-l1"><a class="reference internal" href="../../ray-101/output/3_Intro_Tune_01.html">Intro to Ray Tune</a></li>
+<li class="toctree-l1"><a class="reference internal" href="../../ray-101/output/3_Intro_Tune_02.html">1. Loading and visualizing data</a></li>
+<li class="toctree-l1"><a class="reference internal" href="../../ray-101/output/3_Intro_Tune_03.html">2. Setting up a PyTorch model</a></li>
+<li class="toctree-l1"><a class="reference internal" href="../../ray-101/output/3_Intro_Tune_04.html">3. Introduction to Ray Tune</a></li>
+<li class="toctree-l1"><a class="reference internal" href="../../ray-101/output/3_Intro_Tune_05.html">4. Diving deeper into Ray Tune concepts</a></li>
+<li class="toctree-l1"><a class="reference internal" href="../../ray-101/output/3_Intro_Tune_06.html">5. Hyperparameter tuning the PyTorch model using Ray Tune</a></li>
+<li class="toctree-l1"><a class="reference internal" href="../../ray-101/output/4_Intro_Data_01.html">Intro to Ray Data</a></li>
+<li class="toctree-l1"><a class="reference internal" href="../../ray-101/output/4_Intro_Data_02.html">1. When to use Ray Data</a></li>
+<li class="toctree-l1"><a class="reference internal" href="../../ray-101/output/4_Intro_Data_03.html">2. Loading Data</a></li>
+<li class="toctree-l1"><a class="reference internal" href="../../ray-101/output/4_Intro_Data_04.html">3. Transforming Data</a></li>
+<li class="toctree-l1"><a class="reference internal" href="../../ray-101/output/4_Intro_Data_05.html">4. Data Operations: Grouping, Aggregation, and Shuffling</a></li>
+<li class="toctree-l1"><a class="reference internal" href="../../ray-101/output/4_Intro_Data_06.html">5. Persisting Data</a></li>
+<li class="toctree-l1"><a class="reference internal" href="../../ray-101/output/5_Intro_Serve_01.html">Intro to Ray Serve</a></li>
+<li class="toctree-l1"><a class="reference internal" href="../../ray-101/output/5_Intro_Serve_02.html">1. Overview of Ray Serve</a></li>
+<li class="toctree-l1"><a class="reference internal" href="../../ray-101/output/5_Intro_Serve_03.html">2. Implement an Classifier service</a></li>
+<li class="toctree-l1"><a class="reference internal" href="../../ray-101/output/5_Intro_Serve_04.html">3. Advanced features of Ray Serve</a></li>
+<li class="toctree-l1"><a class="reference internal" href="../../ray-101/output/5_Intro_Serve_05.html">4. Ray Serve in Production</a></li>
+<li class="toctree-l1"><a class="reference internal" href="../../ray-101/output/5_Intro_Serve_06.html">Clean up</a></li>
+</ul>
+
+    </div>
+</nav></div>
+    </div>
+  
+  
+  <div class="sidebar-primary-items__end sidebar-primary__section">
+  </div>
+  
+  <div id="rtd-footer-container"></div>
+
+
+      </div>
+      
+      <main id="main-content" class="bd-main" role="main">
+        
+        
+
+<div class="sbt-scroll-pixel-helper"></div>
+
+          <div class="bd-content">
+            <div class="bd-article-container">
+              
+              <div class="bd-header-article d-print-none">
+<div class="header-article-items header-article__inner">
+  
+    <div class="header-article-items__start">
+      
+        <div class="header-article-item"><button class="sidebar-toggle primary-toggle btn btn-sm" title="Toggle primary sidebar" data-bs-placement="bottom" data-bs-toggle="tooltip">
+  <span class="fa-solid fa-bars"></span>
+</button></div>
+      
+    </div>
+  
+  
+    <div class="header-article-items__end">
+      
+        <div class="header-article-item">
+
+<div class="article-header-buttons">
+
+
+
+
+
+<div class="dropdown dropdown-download-buttons">
+  <button class="btn dropdown-toggle" type="button" data-bs-toggle="dropdown" aria-expanded="false" aria-label="Download this page">
+    <i class="fas fa-download"></i>
+  </button>
+  <ul class="dropdown-menu">
+      
+      
+      
+      <li><a href="../../../_sources/courses/01_examples/output/04_Ray_Train_distributed_training_05.ipynb" target="_blank"
+   class="btn btn-sm btn-download-source-button dropdown-item"
+   title="Download source file"
+   data-bs-placement="left" data-bs-toggle="tooltip"
+>
+  
+
+<span class="btn__icon-container">
+  <i class="fas fa-file"></i>
+  </span>
+<span class="btn__text-container">.ipynb</span>
+</a>
+</li>
+      
+      
+      
+      
+      <li>
+<button onclick="window.print()"
+  class="btn btn-sm btn-download-pdf-button dropdown-item"
+  title="Print to PDF"
+  data-bs-placement="left" data-bs-toggle="tooltip"
+>
+  
+
+<span class="btn__icon-container">
+  <i class="fas fa-file-pdf"></i>
+  </span>
+<span class="btn__text-container">.pdf</span>
+</button>
+</li>
+      
+  </ul>
+</div>
+
+
+
+
+<button onclick="toggleFullScreen()"
+  class="btn btn-sm btn-fullscreen-button"
+  title="Fullscreen mode"
+  data-bs-placement="bottom" data-bs-toggle="tooltip"
+>
+  
+
+<span class="btn__icon-container">
+  <i class="fas fa-expand"></i>
+  </span>
+
+</button>
+
+
+
+<script>
+document.write(`
+  <button class="btn btn-sm nav-link pst-navbar-icon theme-switch-button" title="light/dark" aria-label="light/dark" data-bs-placement="bottom" data-bs-toggle="tooltip">
+    <i class="theme-switch fa-solid fa-sun fa-lg" data-mode="light"></i>
+    <i class="theme-switch fa-solid fa-moon fa-lg" data-mode="dark"></i>
+    <i class="theme-switch fa-solid fa-circle-half-stroke fa-lg" data-mode="auto"></i>
+  </button>
+`);
+</script>
+
+
+<script>
+document.write(`
+  <button class="btn btn-sm pst-navbar-icon search-button search-button__button" title="Search" aria-label="Search" data-bs-placement="bottom" data-bs-toggle="tooltip">
+    <i class="fa-solid fa-magnifying-glass fa-lg"></i>
+  </button>
+`);
+</script>
+
+</div></div>
+      
+    </div>
+  
+</div>
+</div>
+              
+              
+
+<div id="jb-print-docs-body" class="onlyprint">
+    <h1>5. Main Training Function</h1>
+    <!-- Table of contents -->
+    <div id="print-main-content">
+        <div id="jb-print-toc">
+            
+        </div>
+    </div>
+</div>
+
+              
+                
+<div id="searchbox"></div>
+                <article class="bd-article">
+                  
+  <section id="main-training-function">
+<h1>5. Main Training Function<a class="headerlink" href="#main-training-function" title="Link to this heading">#</a></h1>
+<p>The <em>train_bert</em> function sets up the distributed training environment using Ray and starts the training process. To enable training using GPU, we only need to make the following changes:</p>
+<ul class="simple">
+<li><p>Require an GPU for each worker in ScalingConfig</p></li>
+<li><p>Set backend to “nccl” in TorchConfig</p></li>
+</ul>
+<p>This function is designed to train a BERT model using Ray Train. It sets up the training configuration, scaling, and starts the Ray cluster. The function initializes the Ray Train environment, configures the trainer, and starts the training process.</p>
+<ul class="simple">
+<li><p>It is intended to be run in a distributed setting with multiple workers, allowing for efficient training of large models on large datasets by leveraging Ray’s distributed computing capabilities.</p></li>
+<li><p>The function uses the Ray Train library to manage distributed training and the TorchTrainer for PyTorch models.</p></li>
+<li><p>It supports both GPU and CPU training, making it flexible for different hardware configurations.</p></li>
+<li><p>Additionally, it can be easily adapted for different models and datasets by changing the model and dataset loading parts.</p></li>
+<li><p>This approach provides a scalable solution for training deep learning models in a distributed manner and can be used in various environments, including local machines and cloud platforms.</p></li>
+<li><p>It is a powerful tool for researchers and developers working with large-scale machine learning tasks, enabling efficient training on large datasets and easy integration into existing machine learning workflows with minimal changes.</p></li>
+</ul>
+<div class="cell docutils container">
+<div class="cell_input docutils container">
+<div class="highlight-ipython3 notranslate"><div class="highlight"><pre><span></span><span class="c1"># function to train BERT model using Ray Train</span>
+<span class="c1"># This function sets up the training configuration, scaling, and starts the Ray cluster.</span>
+<span class="c1"># It initializes the Ray Train environment, configures the trainer, and starts the training process.</span>
+<span class="k">def</span><span class="w"> </span><span class="nf">train_bert</span><span class="p">(</span><span class="n">num_workers</span><span class="o">=</span><span class="mi">2</span><span class="p">):</span>
+    <span class="n">global_batch_size</span> <span class="o">=</span> <span class="mi">8</span> <span class="c1"># This is the total batch size across all workers</span>
+
+    <span class="c1"># Define the training configuration</span>
+    <span class="c1"># This configuration includes the learning rate, number of epochs, and batch size per worker</span>
+    <span class="n">train_config</span> <span class="o">=</span> <span class="p">{</span>
+        <span class="s2">&quot;lr&quot;</span><span class="p">:</span> <span class="mf">1e-3</span><span class="p">,</span>  <span class="c1"># Learning rate</span>
+        <span class="s2">&quot;epochs&quot;</span><span class="p">:</span> <span class="mi">2</span><span class="p">,</span>  <span class="c1"># Reduced for faster testing</span>
+        <span class="s2">&quot;batch_size_per_worker&quot;</span><span class="p">:</span> <span class="n">global_batch_size</span> <span class="o">//</span> <span class="n">num_workers</span><span class="p">,</span>
+    <span class="p">}</span>
+
+    <span class="c1"># Configure computation resources</span>
+    <span class="c1"># if using CPUs or MPS</span>
+    <span class="n">scaling_config</span> <span class="o">=</span> <span class="n">ScalingConfig</span><span class="p">(</span><span class="n">num_workers</span><span class="o">=</span><span class="n">num_workers</span><span class="p">,</span> <span class="n">resources_per_worker</span><span class="o">=</span><span class="p">{</span><span class="s2">&quot;CPU&quot;</span><span class="p">:</span> <span class="mi">1</span><span class="p">,})</span>
+    
+    <span class="c1"># If using GPUs, you can specify resources_per_worker={&quot;CPU&quot;: 1, &quot;GPU&quot;: 1}</span>
+    <span class="c1"># scaling_config = ScalingConfig(num_workers=num_workers, resources_per_worker={&quot;CPU&quot;: 1, &quot;GPU&quot;: 1})</span>
+    <span class="c1"># Set backend to nccl in TorchConfig</span>
+    <span class="c1"># torch_config = TorchConfig(backend = &quot;nccl&quot;)</span>
+    
+    <span class="c1"># start your ray cluster</span>
+    <span class="n">ray</span><span class="o">.</span><span class="n">init</span><span class="p">()</span> 
+    
+    <span class="c1"># Initialize a Ray TorchTrainer</span>
+    <span class="n">trainer</span> <span class="o">=</span> <span class="n">TorchTrainer</span><span class="p">(</span>
+        <span class="n">train_loop_per_worker</span><span class="o">=</span><span class="n">train_func_per_worker</span><span class="p">,</span>
+        <span class="n">train_loop_config</span><span class="o">=</span><span class="n">train_config</span><span class="p">,</span>
+        <span class="c1"># torch_config=torch_config, # Uncomment if using nccl backend</span>
+        <span class="n">scaling_config</span><span class="o">=</span><span class="n">scaling_config</span><span class="p">,</span>
+    <span class="p">)</span>
+
+    <span class="n">result</span> <span class="o">=</span> <span class="n">trainer</span><span class="o">.</span><span class="n">fit</span><span class="p">()</span> <span class="c1"># Start the training process</span>
+    <span class="nb">print</span><span class="p">(</span><span class="sa">f</span><span class="s2">&quot;Training result: </span><span class="si">{</span><span class="n">result</span><span class="si">}</span><span class="s2">&quot;</span><span class="p">)</span> <span class="c1"># This will print the training result, which includes metrics like loss and accuracy</span>
+</pre></div>
+</div>
+</div>
+</div>
+</section>
+
+    <script type="text/x-thebe-config">
+    {
+        requestKernel: true,
+        binderOptions: {
+            repo: "binder-examples/jupyter-stacks-datascience",
+            ref: "master",
+        },
+        codeMirrorConfig: {
+            theme: "abcdef",
+            mode: "python"
+        },
+        kernelOptions: {
+            name: "python3",
+            path: "./courses/01_examples/output"
+        },
+        predefinedOutput: true
+    }
+    </script>
+    <script>kernelName = 'python3'</script>
+
+                </article>
+              
+
+              
+              
+              
+              
+                <footer class="prev-next-footer d-print-none">
+                  
+<div class="prev-next-area">
+    <a class="left-prev"
+       href="04_Ray_Train_distributed_training_04.html"
+       title="previous page">
+      <i class="fa-solid fa-angle-left"></i>
+      <div class="prev-next-info">
+        <p class="prev-next-subtitle">previous</p>
+        <p class="prev-next-title">4. Training function per worker</p>
+      </div>
+    </a>
+    <a class="right-next"
+       href="04_Ray_Train_distributed_training_06.html"
+       title="next page">
+      <div class="prev-next-info">
+        <p class="prev-next-subtitle">next</p>
+        <p class="prev-next-title">6. Start Training</p>
+      </div>
+      <i class="fa-solid fa-angle-right"></i>
+    </a>
+</div>
+                </footer>
+              
+            </div>
+            
+            
+              
+            
+          </div>
+          <footer class="bd-footer-content">
+            
+<div class="bd-footer-content__inner container">
+  
+  <div class="footer-item">
+    
+<p class="component-author">
+By The Jupyter Book community
+</p>
+
+  </div>
+  
+  <div class="footer-item">
+    
+
+  </div>
+  
+  <div class="footer-item">
+    
+  </div>
+  
+  <div class="footer-item">
+    
+  </div>
+  
+</div>
+          </footer>
+        
+
+      </main>
+    </div>
+  </div>
+  
+  <!-- Scripts loaded after <body> so the DOM is not blocked -->
+  <script src="../../../_static/scripts/bootstrap.js?digest=dfe6caa3a7d634c4db9b"></script>
+<script src="../../../_static/scripts/pydata-sphinx-theme.js?digest=dfe6caa3a7d634c4db9b"></script>
+
+  <footer class="bd-footer">
+  </footer>
+  </body>
+</html>
