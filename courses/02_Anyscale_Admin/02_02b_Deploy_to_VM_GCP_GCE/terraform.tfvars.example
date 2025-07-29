@@ -1,0 +1,17 @@
+# Copy this file to terraform.tfvars and fill in your values
+
+# Required Variables
+google_project_id = "your-gcp-project-id"
+google_region     = "us-west2"
+anyscale_cloud_id = "your-anyscale-cloud-id" # the anyscale cloud name you want to use
+common_prefix     = "my-company-anyscale" # "anyscale-compute-engine"
+aws_role_name     = "gcp_if_{YOUR_ANYSCALE_ORG_ID}" # You can get it from your Anyscale account's "Organization Settings", it is a string like "org_xxxxxxx". Add this value with prefix "gcp_if_"
+# Optional: Override only if you need different values
+# service_account_name_prefix = "anyscale-nodes"  # Default prefix
+# workload_identity_pool_prefix = "anyscale-pool"  # Default prefix
+# vpc_name = "anyscale-compute-engine-vpc"  # Default VPC name
+# subnet_name = "anyscale-subnet"  # Default subnet name
+# subnet_cidr = "10.0.0.0/20"  # Default CIDR range
+# enable_filestore = true  # Default: create filestore
+# filestore_tier = "STANDARD"  # Default tier
+# filestore_zone = "a"  # Default: us-west2-a 

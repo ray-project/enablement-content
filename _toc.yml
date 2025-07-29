@@ -88,6 +88,63 @@ parts:
   - file: courses/01_examples/output/04_Ray_Train_distributed_training_04.ipynb
   - file: courses/01_examples/output/04_Ray_Train_distributed_training_05.ipynb
   - file: courses/01_examples/output/04_Ray_Train_distributed_training_06.ipynb
+- caption: 02 Anyscale Admin
+  chapters:
+  - file: courses/02_Anyscale_Admin/02_00_Anyscale_Admin_Overview/output/anyscale_administrator_overview_01.ipynb
+  - file: courses/02_Anyscale_Admin/02_00_Anyscale_Admin_Overview/output/anyscale_administrator_overview_02.ipynb
+  - file: courses/02_Anyscale_Admin/02_00_Anyscale_Admin_Overview/output/anyscale_administrator_overview_03.ipynb
+  - file: courses/02_Anyscale_Admin/02_00_Anyscale_Admin_Overview/output/anyscale_administrator_overview_04.ipynb
+  - file: courses/02_Anyscale_Admin/02_00_Anyscale_Admin_Overview/output/anyscale_administrator_overview_05.ipynb
+  - file: courses/02_Anyscale_Admin/02_00_Anyscale_Admin_Overview/output/anyscale_administrator_overview_06.ipynb
+  - file: courses/02_Anyscale_Admin/02_01_VM_vs_K8s/output/anyscale_vm_vs_k8s_01.ipynb
+  - file: courses/02_Anyscale_Admin/02_01_VM_vs_K8s/output/anyscale_vm_vs_k8s_02.ipynb
+  - file: courses/02_Anyscale_Admin/02_01_VM_vs_K8s/output/anyscale_vm_vs_k8s_03.ipynb
+  - file: courses/02_Anyscale_Admin/02_02a_Deploy_to_VM_AWS_EC2/output/deploy_to_ec2_01.ipynb
+  - file: courses/02_Anyscale_Admin/02_02a_Deploy_to_VM_AWS_EC2/output/deploy_to_ec2_02.ipynb
+  - file: courses/02_Anyscale_Admin/02_02a_Deploy_to_VM_AWS_EC2/output/deploy_to_ec2_03.ipynb
+  - file: courses/02_Anyscale_Admin/02_02a_Deploy_to_VM_AWS_EC2/output/deploy_to_ec2_04.ipynb
+  - file: courses/02_Anyscale_Admin/02_02a_Deploy_to_VM_AWS_EC2/output/deploy_to_ec2_05.ipynb
+  - file: courses/02_Anyscale_Admin/02_02a_Deploy_to_VM_AWS_EC2/output/deploy_to_ec2_06.ipynb
+  - file: courses/02_Anyscale_Admin/02_02b_Deploy_to_VM_GCP_GCE/output/deploy_to_GCE_01.ipynb
+  - file: courses/02_Anyscale_Admin/02_02b_Deploy_to_VM_GCP_GCE/output/deploy_to_GCE_02.ipynb
+  - file: courses/02_Anyscale_Admin/02_02b_Deploy_to_VM_GCP_GCE/output/deploy_to_GCE_03.ipynb
+  - file: courses/02_Anyscale_Admin/02_02b_Deploy_to_VM_GCP_GCE/output/deploy_to_GCE_04.ipynb
+  - file: courses/02_Anyscale_Admin/02_02b_Deploy_to_VM_GCP_GCE/output/deploy_to_GCE_05.ipynb
+  - file: courses/02_Anyscale_Admin/02_02b_Deploy_to_VM_GCP_GCE/output/deploy_to_GCE_06.ipynb
+  - file: courses/02_Anyscale_Admin/02_02b_Deploy_to_VM_GCP_GCE/output/deploy_to_GCE_07.ipynb
+  - file: courses/02_Anyscale_Admin/02_03a_Deploy_to_K8s_New_AWS_EKS/output/deploy_to_a_new_EKS_01.ipynb
+  - file: courses/02_Anyscale_Admin/02_03a_Deploy_to_K8s_New_AWS_EKS/output/deploy_to_a_new_EKS_02.ipynb
+  - file: courses/02_Anyscale_Admin/02_03a_Deploy_to_K8s_New_AWS_EKS/output/deploy_to_a_new_EKS_03.ipynb
+  - file: courses/02_Anyscale_Admin/02_03a_Deploy_to_K8s_New_AWS_EKS/output/deploy_to_a_new_EKS_04.ipynb
+  - file: courses/02_Anyscale_Admin/02_03a_Deploy_to_K8s_New_AWS_EKS/output/deploy_to_a_new_EKS_05.ipynb
+  - file: courses/02_Anyscale_Admin/02_03a_Deploy_to_K8s_New_AWS_EKS/output/deploy_to_a_new_EKS_06.ipynb
+  - file: courses/02_Anyscale_Admin/02_03a_Deploy_to_K8s_New_AWS_EKS/output/deploy_to_a_new_EKS_07.ipynb
+  - file: courses/02_Anyscale_Admin/02_03a_Deploy_to_K8s_New_AWS_EKS/output/deploy_to_a_new_EKS_08.ipynb
+  - file: courses/02_Anyscale_Admin/02_03a_Deploy_to_K8s_New_AWS_EKS/output/deploy_to_a_new_EKS_09.ipynb
+  - file: courses/02_Anyscale_Admin/02_03b_Deploy_to_K8s_Existing_AWS_EKS/output/deploy_to_an_existing_EKS_01.ipynb
+  - file: courses/02_Anyscale_Admin/02_03b_Deploy_to_K8s_Existing_AWS_EKS/output/deploy_to_an_existing_EKS_02.ipynb
+  - file: courses/02_Anyscale_Admin/02_03b_Deploy_to_K8s_Existing_AWS_EKS/output/deploy_to_an_existing_EKS_03.ipynb
+  - file: courses/02_Anyscale_Admin/02_03b_Deploy_to_K8s_Existing_AWS_EKS/output/deploy_to_an_existing_EKS_04.ipynb
+  - file: courses/02_Anyscale_Admin/02_03b_Deploy_to_K8s_Existing_AWS_EKS/output/deploy_to_an_existing_EKS_05.ipynb
+  - file: courses/02_Anyscale_Admin/02_03b_Deploy_to_K8s_Existing_AWS_EKS/output/deploy_to_an_existing_EKS_06.ipynb
+  - file: courses/02_Anyscale_Admin/02_03b_Deploy_to_K8s_Existing_AWS_EKS/output/deploy_to_an_existing_EKS_07.ipynb
+  - file: courses/02_Anyscale_Admin/02_03b_Deploy_to_K8s_Existing_AWS_EKS/output/deploy_to_an_existing_EKS_08.ipynb
+  - file: courses/02_Anyscale_Admin/02_03b_Deploy_to_K8s_Existing_AWS_EKS/output/deploy_to_an_existing_EKS_09.ipynb
+  - file: courses/02_Anyscale_Admin/02_03b_Deploy_to_K8s_Existing_AWS_EKS/output/deploy_to_an_existing_EKS_10.ipynb
+  - file: courses/02_Anyscale_Admin/02_03b_Deploy_to_K8s_Existing_AWS_EKS/output/deploy_to_an_existing_EKS_11.ipynb
+  - file: courses/02_Anyscale_Admin/02_03b_Deploy_to_K8s_Existing_AWS_EKS/output/deploy_to_an_existing_EKS_12.ipynb
+  - file: courses/02_Anyscale_Admin/02_03c_Deploy_to_K8s_New_GCP_GKE/output/deploy_to_new_GKE_01.ipynb
+  - file: courses/02_Anyscale_Admin/02_03c_Deploy_to_K8s_New_GCP_GKE/output/deploy_to_new_GKE_02.ipynb
+  - file: courses/02_Anyscale_Admin/02_03c_Deploy_to_K8s_New_GCP_GKE/output/deploy_to_new_GKE_03.ipynb
+  - file: courses/02_Anyscale_Admin/02_03c_Deploy_to_K8s_New_GCP_GKE/output/deploy_to_new_GKE_04.ipynb
+  - file: courses/02_Anyscale_Admin/02_03c_Deploy_to_K8s_New_GCP_GKE/output/deploy_to_new_GKE_05.ipynb
+  - file: courses/02_Anyscale_Admin/02_03c_Deploy_to_K8s_New_GCP_GKE/output/deploy_to_new_GKE_06.ipynb
+  - file: courses/02_Anyscale_Admin/02_03c_Deploy_to_K8s_New_GCP_GKE/output/deploy_to_new_GKE_07.ipynb
+  - file: courses/02_Anyscale_Admin/02_03c_Deploy_to_K8s_New_GCP_GKE/output/deploy_to_new_GKE_08.ipynb
+  - file: courses/02_Anyscale_Admin/02_03c_Deploy_to_K8s_New_GCP_GKE/output/deploy_to_new_GKE_09.ipynb
+  - file: courses/02_Anyscale_Admin/02_03c_Deploy_to_K8s_New_GCP_GKE/output/deploy_to_new_GKE_10.ipynb
+  - file: courses/02_Anyscale_Admin/02_03c_Deploy_to_K8s_New_GCP_GKE/output/deploy_to_new_GKE_11.ipynb
+  - file: courses/02_Anyscale_Admin/02_03c_Deploy_to_K8s_New_GCP_GKE/output/deploy_to_new_GKE_12.ipynb
 - caption: Gettingstarted
   chapters:
   - file: courses/GettingStarted/output/101_01_anyscale_intro_workspace_01.ipynb

@@ -1,0 +1,10 @@
+controller:
+  service:
+    type: LoadBalancer
+    annotations:
+      cloud.google.com/load-balancer-type: "External"
+  allowSnippetAnnotations: true
+  config:
+    enable-underscores-in-headers: true
+  autoscaling:
+    enabled: true
