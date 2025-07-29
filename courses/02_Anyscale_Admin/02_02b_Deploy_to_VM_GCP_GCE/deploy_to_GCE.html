@@ -1,0 +1,920 @@
+
+<!DOCTYPE html>
+
+
+<html lang="en" data-content_root="../../../" >
+
+  <head>
+    <meta charset="utf-8" />
+    <meta name="viewport" content="width=device-width, initial-scale=1.0" /><meta name="viewport" content="width=device-width, initial-scale=1" />
+
+    <title>Introduction: Deploy Anyscale Ray on GCP Compute Engine Instances (GCE) &#8212; Course Notebooks Test</title>
+  
+  
+  
+  <script data-cfasync="false">
+    document.documentElement.dataset.mode = localStorage.getItem("mode") || "";
+    document.documentElement.dataset.theme = localStorage.getItem("theme") || "";
+  </script>
+  
+  <!-- Loaded before other Sphinx assets -->
+  <link href="../../../_static/styles/theme.css?digest=dfe6caa3a7d634c4db9b" rel="stylesheet" />
+<link href="../../../_static/styles/bootstrap.css?digest=dfe6caa3a7d634c4db9b" rel="stylesheet" />
+<link href="../../../_static/styles/pydata-sphinx-theme.css?digest=dfe6caa3a7d634c4db9b" rel="stylesheet" />
+
+  
+  <link href="../../../_static/vendor/fontawesome/6.5.2/css/all.min.css?digest=dfe6caa3a7d634c4db9b" rel="stylesheet" />
+  <link rel="preload" as="font" type="font/woff2" crossorigin href="../../../_static/vendor/fontawesome/6.5.2/webfonts/fa-solid-900.woff2" />
+<link rel="preload" as="font" type="font/woff2" crossorigin href="../../../_static/vendor/fontawesome/6.5.2/webfonts/fa-brands-400.woff2" />
+<link rel="preload" as="font" type="font/woff2" crossorigin href="../../../_static/vendor/fontawesome/6.5.2/webfonts/fa-regular-400.woff2" />
+
+    <link rel="stylesheet" type="text/css" href="../../../_static/pygments.css?v=03e43079" />
+    <link rel="stylesheet" type="text/css" href="../../../_static/styles/sphinx-book-theme.css?v=eba8b062" />
+    <link rel="stylesheet" type="text/css" href="../../../_static/togglebutton.css?v=13237357" />
+    <link rel="stylesheet" type="text/css" href="../../../_static/copybutton.css?v=76b2166b" />
+    <link rel="stylesheet" type="text/css" href="../../../_static/mystnb.8ecb98da25f57f5357bf6f572d296f466b2cfe2517ffebfabe82451661e28f02.css" />
+    <link rel="stylesheet" type="text/css" href="../../../_static/sphinx-thebe.css?v=4fa983c6" />
+    <link rel="stylesheet" type="text/css" href="../../../_static/sphinx-design.min.css?v=95c83b7e" />
+    <link rel="stylesheet" type="text/css" href="../../../_static/custom_hide.css?v=af9667c8" />
+  
+  <!-- Pre-loaded scripts that we'll load fully later -->
+  <link rel="preload" as="script" href="../../../_static/scripts/bootstrap.js?digest=dfe6caa3a7d634c4db9b" />
+<link rel="preload" as="script" href="../../../_static/scripts/pydata-sphinx-theme.js?digest=dfe6caa3a7d634c4db9b" />
+  <script src="../../../_static/vendor/fontawesome/6.5.2/js/all.min.js?digest=dfe6caa3a7d634c4db9b"></script>
+
+    <script src="../../../_static/documentation_options.js?v=9eb32ce0"></script>
+    <script src="../../../_static/doctools.js?v=9a2dae69"></script>
+    <script src="../../../_static/sphinx_highlight.js?v=dc90522c"></script>
+    <script src="../../../_static/clipboard.min.js?v=a7894cd8"></script>
+    <script src="../../../_static/copybutton.js?v=f281be69"></script>
+    <script src="../../../_static/scripts/sphinx-book-theme.js?v=887ef09a"></script>
+    <script>let toggleHintShow = 'Click to show';</script>
+    <script>let toggleHintHide = 'Click to hide';</script>
+    <script>let toggleOpenOnPrint = 'true';</script>
+    <script src="../../../_static/togglebutton.js?v=4a39c7ea"></script>
+    <script>var togglebuttonSelector = '.toggle, .admonition.dropdown';</script>
+    <script src="../../../_static/design-tabs.js?v=f930bc37"></script>
+    <script>const THEBE_JS_URL = "https://unpkg.com/thebe@0.8.2/lib/index.js"; const thebe_selector = ".thebe,.cell"; const thebe_selector_input = "pre"; const thebe_selector_output = ".output, .cell_output"</script>
+    <script async="async" src="../../../_static/sphinx-thebe.js?v=c100c467"></script>
+    <script>var togglebuttonSelector = '.toggle, .admonition.dropdown';</script>
+    <script>const THEBE_JS_URL = "https://unpkg.com/thebe@0.8.2/lib/index.js"; const thebe_selector = ".thebe,.cell"; const thebe_selector_input = "pre"; const thebe_selector_output = ".output, .cell_output"</script>
+    <script>DOCUMENTATION_OPTIONS.pagename = 'courses/02_Anyscale_Admin/02_02b_Deploy_to_VM_GCP_GCE/deploy_to_GCE';</script>
+    <script src="../../../_static/custom_toggle.js?v=1235ef5b"></script>
+    <link rel="index" title="Index" href="../../../genindex.html" />
+    <link rel="search" title="Search" href="../../../search.html" />
+  <meta name="viewport" content="width=device-width, initial-scale=1"/>
+  <meta name="docsearch:language" content="en"/>
+  </head>
+  
+  
+  <body data-bs-spy="scroll" data-bs-target=".bd-toc-nav" data-offset="180" data-bs-root-margin="0px 0px -60%" data-default-mode="">
+
+  
+  
+  <div id="pst-skip-link" class="skip-link d-print-none"><a href="#main-content">Skip to main content</a></div>
+  
+  <div id="pst-scroll-pixel-helper"></div>
+  
+  <button type="button" class="btn rounded-pill" id="pst-back-to-top">
+    <i class="fa-solid fa-arrow-up"></i>Back to top</button>
+
+  
+  <input type="checkbox"
+          class="sidebar-toggle"
+          id="pst-primary-sidebar-checkbox"/>
+  <label class="overlay overlay-primary" for="pst-primary-sidebar-checkbox"></label>
+  
+  <input type="checkbox"
+          class="sidebar-toggle"
+          id="pst-secondary-sidebar-checkbox"/>
+  <label class="overlay overlay-secondary" for="pst-secondary-sidebar-checkbox"></label>
+  
+  <div class="search-button__wrapper">
+    <div class="search-button__overlay"></div>
+    <div class="search-button__search-container">
+<form class="bd-search d-flex align-items-center"
+      action="../../../search.html"
+      method="get">
+  <i class="fa-solid fa-magnifying-glass"></i>
+  <input type="search"
+         class="form-control"
+         name="q"
+         id="search-input"
+         placeholder="Search this book..."
+         aria-label="Search this book..."
+         autocomplete="off"
+         autocorrect="off"
+         autocapitalize="off"
+         spellcheck="false"/>
+  <span class="search-button__kbd-shortcut"><kbd class="kbd-shortcut__modifier">Ctrl</kbd>+<kbd>K</kbd></span>
+</form></div>
+  </div>
+
+  <div class="pst-async-banner-revealer d-none">
+  <aside id="bd-header-version-warning" class="d-none d-print-none" aria-label="Version warning"></aside>
+</div>
+
+  
+    <header class="bd-header navbar navbar-expand-lg bd-navbar d-print-none">
+    </header>
+  
+
+  <div class="bd-container">
+    <div class="bd-container__inner bd-page-width">
+      
+      
+      
+        
+      
+      <div class="bd-sidebar-primary bd-sidebar">
+        
+
+  
+  <div class="sidebar-header-items sidebar-primary__section">
+    
+    
+    
+    
+  </div>
+  
+    <div class="sidebar-primary-items__start sidebar-primary__section">
+        <div class="sidebar-primary-item">
+
+  
+    
+  
+
+<a class="navbar-brand logo" href="../../../index.html">
+  
+  
+  
+  
+  
+  
+    <p class="title logo__title">Course Notebooks Test</p>
+  
+</a></div>
+        <div class="sidebar-primary-item">
+
+ <script>
+ document.write(`
+   <button class="btn search-button-field search-button__button" title="Search" aria-label="Search" data-bs-placement="bottom" data-bs-toggle="tooltip">
+    <i class="fa-solid fa-magnifying-glass"></i>
+    <span class="search-button__default-text">Search</span>
+    <span class="search-button__kbd-shortcut"><kbd class="kbd-shortcut__modifier">Ctrl</kbd>+<kbd class="kbd-shortcut__modifier">K</kbd></span>
+   </button>
+ `);
+ </script></div>
+        <div class="sidebar-primary-item"><nav class="bd-links bd-docs-nav" aria-label="Main">
+    <div class="bd-toc-item navbar-nav active">
+        
+        <ul class="nav bd-sidenav bd-sidenav__home-link">
+            <li class="toctree-l1">
+                <a class="reference internal" href="../../../index.html">
+                    Ray Enablement Content
+                </a>
+            </li>
+        </ul>
+        <p aria-level="2" class="caption" role="heading"><span class="caption-text">Developer Intro to Ray</span></p>
+<ul class="nav bd-sidenav">
+<li class="toctree-l1"><a class="reference internal" href="../../00_Developer_Intro_to_Ray/output/00_Intro_Ray_Core_Basics_01.html">Introduction to Ray Core: Getting Started</a></li>
+<li class="toctree-l1"><a class="reference internal" href="../../00_Developer_Intro_to_Ray/output/00_Intro_Ray_Core_Basics_02.html">0. Overview</a></li>
+<li class="toctree-l1"><a class="reference internal" href="../../00_Developer_Intro_to_Ray/output/00_Intro_Ray_Core_Basics_03.html">1. Creating Remote Functions</a></li>
+<li class="toctree-l1"><a class="reference internal" href="../../00_Developer_Intro_to_Ray/output/00_Intro_Ray_Core_Basics_04.html">2. Executing Remote Functions</a></li>
+<li class="toctree-l1"><a class="reference internal" href="../../00_Developer_Intro_to_Ray/output/00_Intro_Ray_Core_Basics_05.html">4. Putting It All Together</a></li>
+<li class="toctree-l1"><a class="reference internal" href="../../00_Developer_Intro_to_Ray/output/00a_Intro_Ray_Core_Advancement_01.html">Introduction to Ray Core (Advancement): Object store, Tasks, Actors</a></li>
+<li class="toctree-l1"><a class="reference internal" href="../../00_Developer_Intro_to_Ray/output/00a_Intro_Ray_Core_Advancement_02.html">1. Object store</a></li>
+<li class="toctree-l1"><a class="reference internal" href="../../00_Developer_Intro_to_Ray/output/00a_Intro_Ray_Core_Advancement_03.html">2. Chaining Tasks and Passing Data</a></li>
+<li class="toctree-l1"><a class="reference internal" href="../../00_Developer_Intro_to_Ray/output/00a_Intro_Ray_Core_Advancement_04.html">3. Task retries</a></li>
+<li class="toctree-l1"><a class="reference internal" href="../../00_Developer_Intro_to_Ray/output/00a_Intro_Ray_Core_Advancement_05.html">4. Task Runtime Environments</a></li>
+<li class="toctree-l1"><a class="reference internal" href="../../00_Developer_Intro_to_Ray/output/00a_Intro_Ray_Core_Advancement_06.html">5. Resource allocation and management</a></li>
+<li class="toctree-l1"><a class="reference internal" href="../../00_Developer_Intro_to_Ray/output/00a_Intro_Ray_Core_Advancement_07.html">6. Nested Tasks</a></li>
+<li class="toctree-l1"><a class="reference internal" href="../../00_Developer_Intro_to_Ray/output/00a_Intro_Ray_Core_Advancement_08.html">7. Pattern: Pipeline data processing and waiting for results</a></li>
+<li class="toctree-l1"><a class="reference internal" href="../../00_Developer_Intro_to_Ray/output/00a_Intro_Ray_Core_Advancement_09.html">8. Ray Actors</a></li>
+<li class="toctree-l1"><a class="reference internal" href="../../00_Developer_Intro_to_Ray/output/01_Intro_Ray_AI_Libs_Overview_01.html">Introduction to the Ray AI Libraries: An example of using Ray data, Ray Train, Ray Tune, Ray Serve to implement a XGBoost regression model</a></li>
+<li class="toctree-l1"><a class="reference internal" href="../../00_Developer_Intro_to_Ray/output/01_Intro_Ray_AI_Libs_Overview_02.html">1. Overview of the Ray AI Libraries</a></li>
+<li class="toctree-l1"><a class="reference internal" href="../../00_Developer_Intro_to_Ray/output/01_Intro_Ray_AI_Libs_Overview_03.html">2. Quick end-to-end example</a></li>
+<li class="toctree-l1"><a class="reference internal" href="../../00_Developer_Intro_to_Ray/output/02a_Intro_Ray_Train_with_PyTorch_01.html">Introduction to Ray Train + PyTorch</a></li>
+<li class="toctree-l1"><a class="reference internal" href="../../00_Developer_Intro_to_Ray/output/02a_Intro_Ray_Train_with_PyTorch_02.html">1. When to use Ray Train</a></li>
+<li class="toctree-l1"><a class="reference internal" href="../../00_Developer_Intro_to_Ray/output/02a_Intro_Ray_Train_with_PyTorch_03.html">2. Single GPU Training with PyTorch</a></li>
+<li class="toctree-l1"><a class="reference internal" href="../../00_Developer_Intro_to_Ray/output/02a_Intro_Ray_Train_with_PyTorch_04.html">3. Distributed Data Parallel Training with Ray Train and PyTorch</a></li>
+<li class="toctree-l1"><a class="reference internal" href="../../00_Developer_Intro_to_Ray/output/02b_Intro_Ray_Train_with_PyTorch_Lightning_01.html">Introduction to Ray Train: Ray Train + PyTorch Lightning</a></li>
+<li class="toctree-l1"><a class="reference internal" href="../../00_Developer_Intro_to_Ray/output/02b_Intro_Ray_Train_with_PyTorch_Lightning_02.html">1. When to use Ray Train</a></li>
+<li class="toctree-l1"><a class="reference internal" href="../../00_Developer_Intro_to_Ray/output/02b_Intro_Ray_Train_with_PyTorch_Lightning_03.html">2. Single GPU Training with PyTorch Lightning</a></li>
+<li class="toctree-l1"><a class="reference internal" href="../../00_Developer_Intro_to_Ray/output/02b_Intro_Ray_Train_with_PyTorch_Lightning_04.html">3. Distributed Training with Ray Train and PyTorch Lightning</a></li>
+<li class="toctree-l1"><a class="reference internal" href="../../00_Developer_Intro_to_Ray/output/02b_Intro_Ray_Train_with_PyTorch_Lightning_05.html">4. Ray Train in Production</a></li>
+<li class="toctree-l1"><a class="reference internal" href="../../00_Developer_Intro_to_Ray/output/03_Intro_Ray_Tune_01.html">Introduction to Ray Tune</a></li>
+<li class="toctree-l1"><a class="reference internal" href="../../00_Developer_Intro_to_Ray/output/03_Intro_Ray_Tune_02.html">1. Loading the data</a></li>
+<li class="toctree-l1"><a class="reference internal" href="../../00_Developer_Intro_to_Ray/output/03_Intro_Ray_Tune_03.html">2. Starting out with vanilla PyTorch</a></li>
+<li class="toctree-l1"><a class="reference internal" href="../../00_Developer_Intro_to_Ray/output/03_Intro_Ray_Tune_04.html">3. Hyperparameter tuning with Ray Tune</a></li>
+<li class="toctree-l1"><a class="reference internal" href="../../00_Developer_Intro_to_Ray/output/03_Intro_Ray_Tune_05.html">4. Ray Tune in Production</a></li>
+<li class="toctree-l1"><a class="reference internal" href="../../00_Developer_Intro_to_Ray/output/04a_Intro_Ray_Data_Industry_Landscape_01.html">Introduction to Ray Data: Industry Landscape</a></li>
+
+<li class="toctree-l1"><a class="reference internal" href="../../00_Developer_Intro_to_Ray/output/04a_Intro_Ray_Data_Industry_Landscape_02.html">The Compute Layer</a></li>
+<li class="toctree-l1"><a class="reference internal" href="../../00_Developer_Intro_to_Ray/output/04a_Intro_Ray_Data_Industry_Landscape_03.html">The Orchestration Layer</a></li>
+<li class="toctree-l1"><a class="reference internal" href="../../00_Developer_Intro_to_Ray/output/04a_Intro_Ray_Data_Industry_Landscape_04.html">Distributed Computing Frameworks</a></li>
+<li class="toctree-l1"><a class="reference internal" href="../../00_Developer_Intro_to_Ray/output/04a_Intro_Ray_Data_Industry_Landscape_05.html">Data Processing with Ray Data</a></li>
+<li class="toctree-l1"><a class="reference internal" href="../../00_Developer_Intro_to_Ray/output/04a_Intro_Ray_Data_Industry_Landscape_06.html">Ray Serve</a></li>
+<li class="toctree-l1"><a class="reference internal" href="../../00_Developer_Intro_to_Ray/output/04b_Intro_Ray_Data_Structured_01.html">Introduction to Ray Data: Ray Data + Structured Data</a></li>
+<li class="toctree-l1"><a class="reference internal" href="../../00_Developer_Intro_to_Ray/output/04b_Intro_Ray_Data_Structured_02.html">0. What is Ray Data?</a></li>
+<li class="toctree-l1"><a class="reference internal" href="../../00_Developer_Intro_to_Ray/output/04b_Intro_Ray_Data_Structured_03.html">2. Loading Data</a></li>
+<li class="toctree-l1"><a class="reference internal" href="../../00_Developer_Intro_to_Ray/output/04b_Intro_Ray_Data_Structured_04.html">3. Transforming Data</a></li>
+<li class="toctree-l1"><a class="reference internal" href="../../00_Developer_Intro_to_Ray/output/04b_Intro_Ray_Data_Structured_05.html">4. Writing Data</a></li>
+<li class="toctree-l1"><a class="reference internal" href="../../00_Developer_Intro_to_Ray/output/04b_Intro_Ray_Data_Structured_06.html">5. Data Operations: Shuffling, Grouping and Aggregation</a></li>
+<li class="toctree-l1"><a class="reference internal" href="../../00_Developer_Intro_to_Ray/output/04b_Intro_Ray_Data_Structured_07.html">6. When to use Ray Data</a></li>
+<li class="toctree-l1"><a class="reference internal" href="../../00_Developer_Intro_to_Ray/output/04c_Intro_Ray_Data_Unstructured_01.html">Intro to Ray Data:  Ray Data + Unstructured Data</a></li>
+<li class="toctree-l1"><a class="reference internal" href="../../00_Developer_Intro_to_Ray/output/04c_Intro_Ray_Data_Unstructured_02.html">1. When to Consider Ray Data</a></li>
+<li class="toctree-l1"><a class="reference internal" href="../../00_Developer_Intro_to_Ray/output/04c_Intro_Ray_Data_Unstructured_03.html">2. How to work with Ray Data</a></li>
+<li class="toctree-l1"><a class="reference internal" href="../../00_Developer_Intro_to_Ray/output/04c_Intro_Ray_Data_Unstructured_04.html">3. Loading data</a></li>
+<li class="toctree-l1"><a class="reference internal" href="../../00_Developer_Intro_to_Ray/output/04c_Intro_Ray_Data_Unstructured_05.html">3. Lazy execution mode</a></li>
+<li class="toctree-l1"><a class="reference internal" href="../../00_Developer_Intro_to_Ray/output/04c_Intro_Ray_Data_Unstructured_06.html">4. Transforming data</a></li>
+<li class="toctree-l1"><a class="reference internal" href="../../00_Developer_Intro_to_Ray/output/04c_Intro_Ray_Data_Unstructured_07.html">5. Stateful transformations with Ray Actors</a></li>
+<li class="toctree-l1"><a class="reference internal" href="../../00_Developer_Intro_to_Ray/output/04c_Intro_Ray_Data_Unstructured_08.html">6. Materializing data</a></li>
+<li class="toctree-l1"><a class="reference internal" href="../../00_Developer_Intro_to_Ray/output/04c_Intro_Ray_Data_Unstructured_09.html">7. Data Operations: grouping, aggregation, and shuffling</a></li>
+<li class="toctree-l1"><a class="reference internal" href="../../00_Developer_Intro_to_Ray/output/04c_Intro_Ray_Data_Unstructured_10.html">8. Persisting data</a></li>
+<li class="toctree-l1"><a class="reference internal" href="../../00_Developer_Intro_to_Ray/output/04c_Intro_Ray_Data_Unstructured_11.html">9. Ray Data in production</a></li>
+<li class="toctree-l1"><a class="reference internal" href="../../00_Developer_Intro_to_Ray/output/05_Intro_Ray_Serve_PyTorch_01.html">Introduction to Ray Serve with PyTorch</a></li>
+<li class="toctree-l1"><a class="reference internal" href="../../00_Developer_Intro_to_Ray/output/05_Intro_Ray_Serve_PyTorch_02.html">1. When to Consider Ray Serve</a></li>
+<li class="toctree-l1"><a class="reference internal" href="../../00_Developer_Intro_to_Ray/output/05_Intro_Ray_Serve_PyTorch_03.html">2. Overview of Ray Serve</a></li>
+<li class="toctree-l1"><a class="reference internal" href="../../00_Developer_Intro_to_Ray/output/05_Intro_Ray_Serve_PyTorch_04.html">3. Implement an image classification service</a></li>
+<li class="toctree-l1"><a class="reference internal" href="../../00_Developer_Intro_to_Ray/output/05_Intro_Ray_Serve_PyTorch_05.html">4. Development workflow</a></li>
+<li class="toctree-l1"><a class="reference internal" href="../../00_Developer_Intro_to_Ray/output/README_01.html">Introduction to Ray: Developer</a></li>
+</ul>
+<p aria-level="2" class="caption" role="heading"><span class="caption-text">01 Examples</span></p>
+<ul class="nav bd-sidenav">
+<li class="toctree-l1"><a class="reference internal" href="../../01_examples/output/01_Ray_Data_batch_inference_01.html">Batch Inference with Ray Data</a></li>
+<li class="toctree-l1"><a class="reference internal" href="../../01_examples/output/01_Ray_Data_batch_inference_02.html">Architecture</a></li>
+<li class="toctree-l1"><a class="reference internal" href="../../01_examples/output/01_Ray_Data_batch_inference_03.html">Load a dataset</a></li>
+<li class="toctree-l1"><a class="reference internal" href="../../01_examples/output/01_Ray_Data_batch_inference_04.html">Batch Inference Class</a></li>
+<li class="toctree-l1"><a class="reference internal" href="../../01_examples/output/01_Ray_Data_batch_inference_05.html">Create a batch data and call the model</a></li>
+<li class="toctree-l1"><a class="reference internal" href="../../01_examples/output/01_Ray_Data_batch_inference_06.html">Run inference on the entire dataset</a></li>
+<li class="toctree-l1"><a class="reference internal" href="../../01_examples/output/02_Ray_Data_data_processing_01.html">Data Processing with Ray Data</a></li>
+<li class="toctree-l1"><a class="reference internal" href="../../01_examples/output/02_Ray_Data_data_processing_02.html">Library Imports</a></li>
+<li class="toctree-l1"><a class="reference internal" href="../../01_examples/output/02_Ray_Data_data_processing_03.html">Convert to Ray Dataset</a></li>
+<li class="toctree-l1"><a class="reference internal" href="../../01_examples/output/02_Ray_Data_data_processing_04.html">Filter Ray Dataset</a></li>
+<li class="toctree-l1"><a class="reference internal" href="../../01_examples/output/02_Ray_Data_data_processing_05.html">Join Two Ray Datasets</a></li>
+<li class="toctree-l1"><a class="reference internal" href="../../01_examples/output/02_Ray_Data_data_processing_06.html">Preprocessing with a Tokenizer</a></li>
+<li class="toctree-l1"><a class="reference internal" href="../../01_examples/output/03_Ray_Serve_online_serving_01.html">Online Model Serving with Ray Serve</a></li>
+<li class="toctree-l1"><a class="reference internal" href="../../01_examples/output/03_Ray_Serve_online_serving_02.html">Architecture</a></li>
+<li class="toctree-l1"><a class="reference internal" href="../../01_examples/output/03_Ray_Serve_online_serving_03.html">FastAPI webservice and deploy a model</a></li>
+<li class="toctree-l1"><a class="reference internal" href="../../01_examples/output/03_Ray_Serve_online_serving_04.html">Simulate Client: Send test requests</a></li>
+<li class="toctree-l1"><a class="reference internal" href="../../01_examples/output/04_Ray_Train_distributed_training_01.html">Distributed training with Ray Train, PyTorch and Hugging Face</a></li>
+<li class="toctree-l1"><a class="reference internal" href="../../01_examples/output/04_Ray_Train_distributed_training_02.html">1. Architecture</a></li>
+<li class="toctree-l1"><a class="reference internal" href="../../01_examples/output/04_Ray_Train_distributed_training_03.html">3. Metrics Setup</a></li>
+<li class="toctree-l1"><a class="reference internal" href="../../01_examples/output/04_Ray_Train_distributed_training_04.html">4. Training function per worker</a></li>
+<li class="toctree-l1"><a class="reference internal" href="../../01_examples/output/04_Ray_Train_distributed_training_05.html">5. Main Training Function</a></li>
+<li class="toctree-l1"><a class="reference internal" href="../../01_examples/output/04_Ray_Train_distributed_training_06.html">6. Start Training</a></li>
+</ul>
+<p aria-level="2" class="caption" role="heading"><span class="caption-text">02 Anyscale Admin</span></p>
+<ul class="nav bd-sidenav">
+<li class="toctree-l1"><a class="reference internal" href="../02_00_Anyscale_Admin_Overview/output/anyscale_administrator_overview_01.html">Anyscale Administrator Overview</a></li>
+<li class="toctree-l1"><a class="reference internal" href="../02_00_Anyscale_Admin_Overview/output/anyscale_administrator_overview_02.html">1. What is an Anyscale Cloud?</a></li>
+<li class="toctree-l1"><a class="reference internal" href="../02_00_Anyscale_Admin_Overview/output/anyscale_administrator_overview_03.html">2. Cloud Deployment Types</a></li>
+<li class="toctree-l1"><a class="reference internal" href="../02_00_Anyscale_Admin_Overview/output/anyscale_administrator_overview_04.html">3. A Demonstrative Example of Resource Creation with AWS EC2</a></li>
+<li class="toctree-l1"><a class="reference internal" href="../02_00_Anyscale_Admin_Overview/output/anyscale_administrator_overview_05.html">3.1 IAM Role Definition</a></li>
+<li class="toctree-l1"><a class="reference internal" href="../02_00_Anyscale_Admin_Overview/output/anyscale_administrator_overview_06.html">4. Register Anyscale Cloud to Your Cloud Provider</a></li>
+<li class="toctree-l1"><a class="reference internal" href="../02_01_VM_vs_K8s/output/anyscale_vm_vs_k8s_01.html">Deployment Options: Virtual Machines vs. Kubernetes</a></li>
+<li class="toctree-l1"><a class="reference internal" href="../02_01_VM_vs_K8s/output/anyscale_vm_vs_k8s_02.html">2. Virtual Machines (VM) vs. Kubernetes (K8s)</a></li>
+<li class="toctree-l1"><a class="reference internal" href="../02_01_VM_vs_K8s/output/anyscale_vm_vs_k8s_03.html">3. (Optional) More Kubernetes Deployments Components</a></li>
+<li class="toctree-l1"><a class="reference internal" href="../02_02a_Deploy_to_VM_AWS_EC2/output/deploy_to_ec2_01.html">Introduction: Deploy Anyscale Ray on AWS EC2 Instances</a></li>
+<li class="toctree-l1"><a class="reference internal" href="../02_02a_Deploy_to_VM_AWS_EC2/output/deploy_to_ec2_02.html">1. Create Anyscale Resources with Terraform</a></li>
+<li class="toctree-l1"><a class="reference internal" href="../02_02a_Deploy_to_VM_AWS_EC2/output/deploy_to_ec2_03.html">2. Register the Anyscale Cloud</a></li>
+<li class="toctree-l1"><a class="reference internal" href="../02_02a_Deploy_to_VM_AWS_EC2/output/deploy_to_ec2_04.html">3. Test</a></li>
+<li class="toctree-l1"><a class="reference internal" href="../02_02a_Deploy_to_VM_AWS_EC2/output/deploy_to_ec2_05.html">4. Cleanup</a></li>
+<li class="toctree-l1"><a class="reference internal" href="../02_02a_Deploy_to_VM_AWS_EC2/output/deploy_to_ec2_06.html">5. Conclusion</a></li>
+<li class="toctree-l1"><a class="reference internal" href="output/deploy_to_GCE_01.html">Introduction: Deploy Anyscale Ray on GCP Compute Engine Instances (GCE)</a></li>
+<li class="toctree-l1"><a class="reference internal" href="output/deploy_to_GCE_02.html">Prerequisites</a></li>
+<li class="toctree-l1"><a class="reference internal" href="output/deploy_to_GCE_03.html">1. Installation</a></li>
+<li class="toctree-l1"><a class="reference internal" href="output/deploy_to_GCE_04.html">2. Create Anyscale Resources with Terraform</a></li>
+<li class="toctree-l1"><a class="reference internal" href="output/deploy_to_GCE_05.html">3. Register the Anyscale Cloud</a></li>
+<li class="toctree-l1"><a class="reference internal" href="output/deploy_to_GCE_06.html">4. Test</a></li>
+<li class="toctree-l1"><a class="reference internal" href="output/deploy_to_GCE_07.html">5. Cleanup</a></li>
+<li class="toctree-l1"><a class="reference internal" href="../02_03a_Deploy_to_K8s_New_AWS_EKS/output/deploy_to_a_new_EKS_01.html">Introduction: Deploy Anyscale Ray on A New AWS EKS Cluster</a></li>
+<li class="toctree-l1"><a class="reference internal" href="../02_03a_Deploy_to_K8s_New_AWS_EKS/output/deploy_to_a_new_EKS_02.html">1. Create Anyscale Resources with Terraform</a></li>
+<li class="toctree-l1"><a class="reference internal" href="../02_03a_Deploy_to_K8s_New_AWS_EKS/output/deploy_to_a_new_EKS_03.html">2. Install Kubernetes Components</a></li>
+<li class="toctree-l1"><a class="reference internal" href="../02_03a_Deploy_to_K8s_New_AWS_EKS/output/deploy_to_a_new_EKS_04.html">3. Register the Anyscale Cloud</a></li>
+<li class="toctree-l1"><a class="reference internal" href="../02_03a_Deploy_to_K8s_New_AWS_EKS/output/deploy_to_a_new_EKS_05.html">4. Install the Anyscale Operator</a></li>
+<li class="toctree-l1"><a class="reference internal" href="../02_03a_Deploy_to_K8s_New_AWS_EKS/output/deploy_to_a_new_EKS_06.html">5. Verify the Installation</a></li>
+<li class="toctree-l1"><a class="reference internal" href="../02_03a_Deploy_to_K8s_New_AWS_EKS/output/deploy_to_a_new_EKS_07.html">6. Test</a></li>
+<li class="toctree-l1"><a class="reference internal" href="../02_03a_Deploy_to_K8s_New_AWS_EKS/output/deploy_to_a_new_EKS_08.html">7. Clean up</a></li>
+<li class="toctree-l1"><a class="reference internal" href="../02_03a_Deploy_to_K8s_New_AWS_EKS/output/deploy_to_a_new_EKS_09.html">8. Conclusion</a></li>
+<li class="toctree-l1"><a class="reference internal" href="../02_03b_Deploy_to_K8s_Existing_AWS_EKS/output/deploy_to_an_existing_EKS_01.html">Introduction: Deploy Anyscale Ray on An Existing AWS EKS Cluster</a></li>
+<li class="toctree-l1"><a class="reference internal" href="../02_03b_Deploy_to_K8s_Existing_AWS_EKS/output/deploy_to_an_existing_EKS_02.html">Prerequisites</a></li>
+<li class="toctree-l1"><a class="reference internal" href="../02_03b_Deploy_to_K8s_Existing_AWS_EKS/output/deploy_to_an_existing_EKS_03.html">1. Create Anyscale Resources with Terraform</a></li>
+<li class="toctree-l1"><a class="reference internal" href="../02_03b_Deploy_to_K8s_Existing_AWS_EKS/output/deploy_to_an_existing_EKS_04.html">2. Attach Required IAM Policies to Your existing EKS’s Node Role</a></li>
+<li class="toctree-l1"><a class="reference internal" href="../02_03b_Deploy_to_K8s_Existing_AWS_EKS/output/deploy_to_an_existing_EKS_05.html">3. Install Kubernetes Components</a></li>
+<li class="toctree-l1"><a class="reference internal" href="../02_03b_Deploy_to_K8s_Existing_AWS_EKS/output/deploy_to_an_existing_EKS_06.html">4. Register the Anyscale Cloud</a></li>
+<li class="toctree-l1"><a class="reference internal" href="../02_03b_Deploy_to_K8s_Existing_AWS_EKS/output/deploy_to_an_existing_EKS_07.html">5. Install the Anyscale Operator</a></li>
+<li class="toctree-l1"><a class="reference internal" href="../02_03b_Deploy_to_K8s_Existing_AWS_EKS/output/deploy_to_an_existing_EKS_08.html">6. Verify the Installation</a></li>
+<li class="toctree-l1"><a class="reference internal" href="../02_03b_Deploy_to_K8s_Existing_AWS_EKS/output/deploy_to_an_existing_EKS_09.html">7. Test</a></li>
+<li class="toctree-l1"><a class="reference internal" href="../02_03b_Deploy_to_K8s_Existing_AWS_EKS/output/deploy_to_an_existing_EKS_10.html">8. Troubleshooting</a></li>
+<li class="toctree-l1"><a class="reference internal" href="../02_03b_Deploy_to_K8s_Existing_AWS_EKS/output/deploy_to_an_existing_EKS_11.html">9. Clean up</a></li>
+<li class="toctree-l1"><a class="reference internal" href="../02_03b_Deploy_to_K8s_Existing_AWS_EKS/output/deploy_to_an_existing_EKS_12.html">10. Conclusion</a></li>
+<li class="toctree-l1"><a class="reference internal" href="../02_03c_Deploy_to_K8s_New_GCP_GKE/output/deploy_to_new_GKE_01.html">Introduction: Deploy Anyscale Ray on A New Google Kubernetes Engine (GKE) Cluster</a></li>
+<li class="toctree-l1"><a class="reference internal" href="../02_03c_Deploy_to_K8s_New_GCP_GKE/output/deploy_to_new_GKE_02.html">Prerequisites</a></li>
+<li class="toctree-l1"><a class="reference internal" href="../02_03c_Deploy_to_K8s_New_GCP_GKE/output/deploy_to_new_GKE_03.html">1. Installation</a></li>
+<li class="toctree-l1"><a class="reference internal" href="../02_03c_Deploy_to_K8s_New_GCP_GKE/output/deploy_to_new_GKE_04.html">2. Create Anyscale Resources with Terraform</a></li>
+<li class="toctree-l1"><a class="reference internal" href="../02_03c_Deploy_to_K8s_New_GCP_GKE/output/deploy_to_new_GKE_05.html">3. Troubleshooting GPU Availability</a></li>
+<li class="toctree-l1"><a class="reference internal" href="../02_03c_Deploy_to_K8s_New_GCP_GKE/output/deploy_to_new_GKE_06.html">4. kubectl Configuration</a></li>
+<li class="toctree-l1"><a class="reference internal" href="../02_03c_Deploy_to_K8s_New_GCP_GKE/output/deploy_to_new_GKE_07.html">5. Install NGINX Ingress Controller</a></li>
+<li class="toctree-l1"><a class="reference internal" href="../02_03c_Deploy_to_K8s_New_GCP_GKE/output/deploy_to_new_GKE_08.html">6. (Optional) Upgrade Anyscale Dependencies</a></li>
+<li class="toctree-l1"><a class="reference internal" href="../02_03c_Deploy_to_K8s_New_GCP_GKE/output/deploy_to_new_GKE_09.html">7. Register the Anyscale Cloud</a></li>
+<li class="toctree-l1"><a class="reference internal" href="../02_03c_Deploy_to_K8s_New_GCP_GKE/output/deploy_to_new_GKE_10.html">8. Install the Anyscale Operator</a></li>
+<li class="toctree-l1"><a class="reference internal" href="../02_03c_Deploy_to_K8s_New_GCP_GKE/output/deploy_to_new_GKE_11.html">8. Test</a></li>
+<li class="toctree-l1"><a class="reference internal" href="../02_03c_Deploy_to_K8s_New_GCP_GKE/output/deploy_to_new_GKE_12.html">9. Cleanup</a></li>
+</ul>
+<p aria-level="2" class="caption" role="heading"><span class="caption-text">Gettingstarted</span></p>
+<ul class="nav bd-sidenav">
+<li class="toctree-l1"><a class="reference internal" href="../../GettingStarted/output/101_01_anyscale_intro_workspace_01.html">101 — Introduction to Anyscale Workspaces</a></li>
+<li class="toctree-l1"><a class="reference internal" href="../../GettingStarted/output/101_02_anyscale_development_intro_01.html">101 – Developing Application with Anyscale</a></li>
+<li class="toctree-l1"><a class="reference internal" href="../../GettingStarted/output/101_03_anyscale_compute_runtime_intro_01.html">101 – Compute Configs and Execution Environments in Anyscale</a></li>
+<li class="toctree-l1"><a class="reference internal" href="../../GettingStarted/output/101_04_anyscale_storage_options_01.html">101 – Storage Options in the Anyscale Platform</a></li>
+<li class="toctree-l1"><a class="reference internal" href="../../GettingStarted/output/101_05_anyscale_logging_metrics_01.html">101 – Debug and Monitor Your Anyscale Application</a></li>
+<li class="toctree-l1"><a class="reference internal" href="../../GettingStarted/output/101_06_anyscale_intro_jobs_01.html">101 – Introduction to Anyscale Jobs</a></li>
+<li class="toctree-l1"><a class="reference internal" href="../../GettingStarted/output/101_07_anyscale_intro_services_01.html">101 –  Introduction to Anyscale Services</a></li>
+<li class="toctree-l1"><a class="reference internal" href="../../GettingStarted/output/101_08_anyscale_collaboration_01.html">101 – Collaboration on Anyscale</a></li>
+<li class="toctree-l1"><a class="reference internal" href="../../GettingStarted/output/101_09_anyscale_org_setup_01.html">101 - Anyscale Organization and Cloud Setup</a></li>
+<li class="toctree-l1"><a class="reference internal" href="../../GettingStarted/output/101_09_anyscale_org_setup_02.html">📌 Overview of Structure</a></li>
+<li class="toctree-l1"><a class="reference internal" href="../../GettingStarted/output/101_09_anyscale_org_setup_03.html">🧠 Summary</a></li>
+<li class="toctree-l1"><a class="reference internal" href="../../GettingStarted/output/101_anyscale_intro_jobs_01.html">Content Used</a></li>
+
+<li class="toctree-l1"><a class="reference internal" href="../../GettingStarted/output/101_anyscale_intro_jobs_02.html">Part 1. Creating and Submitting your first job</a></li>
+<li class="toctree-l1"><a class="reference internal" href="../../GettingStarted/output/101_anyscale_intro_jobs_03.html">Part 2. Automation and Scheduling</a></li>
+<li class="toctree-l1"><a class="reference internal" href="../../GettingStarted/output/101_anyscale_intro_services_01.html">Sources</a></li>
+
+<li class="toctree-l1"><a class="reference internal" href="../../GettingStarted/output/101_anyscale_intro_services_02.html">Part 1: Starting your first Anyscale Service</a></li>
+</ul>
+<p aria-level="2" class="caption" role="heading"><span class="caption-text">Anyscale 101</span></p>
+<ul class="nav bd-sidenav">
+<li class="toctree-l1"><a class="reference internal" href="../../anyscale_101/output/101_anyscale_intro_jobs_01.html">Content Used</a></li>
+
+<li class="toctree-l1"><a class="reference internal" href="../../anyscale_101/output/101_anyscale_intro_jobs_02.html">Part 1. Creating and Submitting your first job</a></li>
+<li class="toctree-l1"><a class="reference internal" href="../../anyscale_101/output/101_anyscale_intro_jobs_03.html">Part 2. Automation and Scheduling</a></li>
+<li class="toctree-l1"><a class="reference internal" href="../../anyscale_101/output/101_anyscale_intro_services_01.html">Sources</a></li>
+
+<li class="toctree-l1"><a class="reference internal" href="../../anyscale_101/output/101_anyscale_intro_services_02.html">Part 1: Starting your first Anyscale Service</a></li>
+</ul>
+<p aria-level="2" class="caption" role="heading"><span class="caption-text">Ray 101</span></p>
+<ul class="nav bd-sidenav">
+<li class="toctree-l1"><a class="reference internal" href="../../ray-101/output/1_AI_Libs_Intro_01.html">Introduction to the Ray AI Libraries</a></li>
+<li class="toctree-l1"><a class="reference internal" href="../../ray-101/output/1_AI_Libs_Intro_02.html">1. Overview of the Ray AI Libraries</a></li>
+<li class="toctree-l1"><a class="reference internal" href="../../ray-101/output/1_AI_Libs_Intro_03.html">2. End-to-end example: predicting taxi tips in New York</a></li>
+<li class="toctree-l1"><a class="reference internal" href="../../ray-101/output/1_AI_Libs_Intro_04.html">3. Running an experiment with Ray AI libraries</a></li>
+<li class="toctree-l1"><a class="reference internal" href="../../ray-101/output/2_Intro_Train_01.html">Introduction to Ray Train</a></li>
+<li class="toctree-l1"><a class="reference internal" href="../../ray-101/output/2_Intro_Train_02.html">1. PyTorch introductory example (single GPU)</a></li>
+<li class="toctree-l1"><a class="reference internal" href="../../ray-101/output/2_Intro_Train_03.html">2. Distributed Data Parallel Training with Ray Train and PyTorch (multiple GPUs)</a></li>
+<li class="toctree-l1"><a class="reference internal" href="../../ray-101/output/2_Intro_Train_04.html">3. Overview of the training loop in Ray Train</a></li>
+<li class="toctree-l1"><a class="reference internal" href="../../ray-101/output/2_Intro_Train_05.html">4. Migrating the model and dataset to Ray Train</a></li>
+<li class="toctree-l1"><a class="reference internal" href="../../ray-101/output/2_Intro_Train_06.html">5. Reporting checkpoints and metrics</a></li>
+<li class="toctree-l1"><a class="reference internal" href="../../ray-101/output/2_Intro_Train_07.html">6. Launching the distributed training job</a></li>
+<li class="toctree-l1"><a class="reference internal" href="../../ray-101/output/2_Intro_Train_08.html">7. Accessing the training results</a></li>
+<li class="toctree-l1"><a class="reference internal" href="../../ray-101/output/2_Intro_Train_09.html">8. Ray Train in Production</a></li>
+<li class="toctree-l1"><a class="reference internal" href="../../ray-101/output/3_Intro_Tune_01.html">Intro to Ray Tune</a></li>
+<li class="toctree-l1"><a class="reference internal" href="../../ray-101/output/3_Intro_Tune_02.html">1. Loading and visualizing data</a></li>
+<li class="toctree-l1"><a class="reference internal" href="../../ray-101/output/3_Intro_Tune_03.html">2. Setting up a PyTorch model</a></li>
+<li class="toctree-l1"><a class="reference internal" href="../../ray-101/output/3_Intro_Tune_04.html">3. Introduction to Ray Tune</a></li>
+<li class="toctree-l1"><a class="reference internal" href="../../ray-101/output/3_Intro_Tune_05.html">4. Diving deeper into Ray Tune concepts</a></li>
+<li class="toctree-l1"><a class="reference internal" href="../../ray-101/output/3_Intro_Tune_06.html">5. Hyperparameter tuning the PyTorch model using Ray Tune</a></li>
+<li class="toctree-l1"><a class="reference internal" href="../../ray-101/output/4_Intro_Data_01.html">Intro to Ray Data</a></li>
+<li class="toctree-l1"><a class="reference internal" href="../../ray-101/output/4_Intro_Data_02.html">1. When to use Ray Data</a></li>
+<li class="toctree-l1"><a class="reference internal" href="../../ray-101/output/4_Intro_Data_03.html">2. Loading Data</a></li>
+<li class="toctree-l1"><a class="reference internal" href="../../ray-101/output/4_Intro_Data_04.html">3. Transforming Data</a></li>
+<li class="toctree-l1"><a class="reference internal" href="../../ray-101/output/4_Intro_Data_05.html">4. Data Operations: Grouping, Aggregation, and Shuffling</a></li>
+<li class="toctree-l1"><a class="reference internal" href="../../ray-101/output/4_Intro_Data_06.html">5. Persisting Data</a></li>
+<li class="toctree-l1"><a class="reference internal" href="../../ray-101/output/5_Intro_Serve_01.html">Intro to Ray Serve</a></li>
+<li class="toctree-l1"><a class="reference internal" href="../../ray-101/output/5_Intro_Serve_02.html">1. Overview of Ray Serve</a></li>
+<li class="toctree-l1"><a class="reference internal" href="../../ray-101/output/5_Intro_Serve_03.html">2. Implement an Classifier service</a></li>
+<li class="toctree-l1"><a class="reference internal" href="../../ray-101/output/5_Intro_Serve_04.html">3. Advanced features of Ray Serve</a></li>
+<li class="toctree-l1"><a class="reference internal" href="../../ray-101/output/5_Intro_Serve_05.html">4. Ray Serve in Production</a></li>
+<li class="toctree-l1"><a class="reference internal" href="../../ray-101/output/5_Intro_Serve_06.html">Clean up</a></li>
+</ul>
+
+    </div>
+</nav></div>
+    </div>
+  
+  
+  <div class="sidebar-primary-items__end sidebar-primary__section">
+  </div>
+  
+  <div id="rtd-footer-container"></div>
+
+
+      </div>
+      
+      <main id="main-content" class="bd-main" role="main">
+        
+        
+
+<div class="sbt-scroll-pixel-helper"></div>
+
+          <div class="bd-content">
+            <div class="bd-article-container">
+              
+              <div class="bd-header-article d-print-none">
+<div class="header-article-items header-article__inner">
+  
+    <div class="header-article-items__start">
+      
+        <div class="header-article-item"><button class="sidebar-toggle primary-toggle btn btn-sm" title="Toggle primary sidebar" data-bs-placement="bottom" data-bs-toggle="tooltip">
+  <span class="fa-solid fa-bars"></span>
+</button></div>
+      
+    </div>
+  
+  
+    <div class="header-article-items__end">
+      
+        <div class="header-article-item">
+
+<div class="article-header-buttons">
+
+
+
+
+
+<div class="dropdown dropdown-download-buttons">
+  <button class="btn dropdown-toggle" type="button" data-bs-toggle="dropdown" aria-expanded="false" aria-label="Download this page">
+    <i class="fas fa-download"></i>
+  </button>
+  <ul class="dropdown-menu">
+      
+      
+      
+      <li><a href="../../../_sources/courses/02_Anyscale_Admin/02_02b_Deploy_to_VM_GCP_GCE/deploy_to_GCE.ipynb" target="_blank"
+   class="btn btn-sm btn-download-source-button dropdown-item"
+   title="Download source file"
+   data-bs-placement="left" data-bs-toggle="tooltip"
+>
+  
+
+<span class="btn__icon-container">
+  <i class="fas fa-file"></i>
+  </span>
+<span class="btn__text-container">.ipynb</span>
+</a>
+</li>
+      
+      
+      
+      
+      <li>
+<button onclick="window.print()"
+  class="btn btn-sm btn-download-pdf-button dropdown-item"
+  title="Print to PDF"
+  data-bs-placement="left" data-bs-toggle="tooltip"
+>
+  
+
+<span class="btn__icon-container">
+  <i class="fas fa-file-pdf"></i>
+  </span>
+<span class="btn__text-container">.pdf</span>
+</button>
+</li>
+      
+  </ul>
+</div>
+
+
+
+
+<button onclick="toggleFullScreen()"
+  class="btn btn-sm btn-fullscreen-button"
+  title="Fullscreen mode"
+  data-bs-placement="bottom" data-bs-toggle="tooltip"
+>
+  
+
+<span class="btn__icon-container">
+  <i class="fas fa-expand"></i>
+  </span>
+
+</button>
+
+
+
+<script>
+document.write(`
+  <button class="btn btn-sm nav-link pst-navbar-icon theme-switch-button" title="light/dark" aria-label="light/dark" data-bs-placement="bottom" data-bs-toggle="tooltip">
+    <i class="theme-switch fa-solid fa-sun fa-lg" data-mode="light"></i>
+    <i class="theme-switch fa-solid fa-moon fa-lg" data-mode="dark"></i>
+    <i class="theme-switch fa-solid fa-circle-half-stroke fa-lg" data-mode="auto"></i>
+  </button>
+`);
+</script>
+
+
+<script>
+document.write(`
+  <button class="btn btn-sm pst-navbar-icon search-button search-button__button" title="Search" aria-label="Search" data-bs-placement="bottom" data-bs-toggle="tooltip">
+    <i class="fa-solid fa-magnifying-glass fa-lg"></i>
+  </button>
+`);
+</script>
+<button class="sidebar-toggle secondary-toggle btn btn-sm" title="Toggle secondary sidebar" data-bs-placement="bottom" data-bs-toggle="tooltip">
+    <span class="fa-solid fa-list"></span>
+</button>
+</div></div>
+      
+    </div>
+  
+</div>
+</div>
+              
+              
+
+<div id="jb-print-docs-body" class="onlyprint">
+    <h1>Introduction: Deploy Anyscale Ray on GCP Compute Engine Instances (GCE)</h1>
+    <!-- Table of contents -->
+    <div id="print-main-content">
+        <div id="jb-print-toc">
+            
+            <div>
+                <h2> Contents </h2>
+            </div>
+            <nav aria-label="Page">
+                <ul class="visible nav section-nav flex-column">
+<li class="toc-h2 nav-item toc-entry"><a class="reference internal nav-link" href="#prerequisites">Prerequisites</a></li>
+<li class="toc-h2 nav-item toc-entry"><a class="reference internal nav-link" href="#installation">1. Installation</a><ul class="nav section-nav flex-column">
+<li class="toc-h3 nav-item toc-entry"><a class="reference internal nav-link" href="#configure-google-cloud-authentication">1.1 Configure Google Cloud Authentication</a></li>
+<li class="toc-h3 nav-item toc-entry"><a class="reference internal nav-link" href="#enable-required-apis">1.2 Enable Required APIs</a></li>
+</ul>
+</li>
+<li class="toc-h2 nav-item toc-entry"><a class="reference internal nav-link" href="#create-anyscale-resources-with-terraform">2. Create Anyscale Resources with Terraform</a><ul class="nav section-nav flex-column">
+<li class="toc-h3 nav-item toc-entry"><a class="reference internal nav-link" href="#creating-anyscale-resources">Creating Anyscale Resources</a></li>
+<li class="toc-h3 nav-item toc-entry"><a class="reference internal nav-link" href="#create-terraform-tfvars">2.1 Create terraform.tfvars</a></li>
+<li class="toc-h3 nav-item toc-entry"><a class="reference internal nav-link" href="#run-terraform-commands">2.2 Run Terraform Commands</a></li>
+</ul>
+</li>
+<li class="toc-h2 nav-item toc-entry"><a class="reference internal nav-link" href="#register-the-anyscale-cloud">3. Register the Anyscale Cloud</a></li>
+<li class="toc-h2 nav-item toc-entry"><a class="reference internal nav-link" href="#test">4. Test</a></li>
+<li class="toc-h2 nav-item toc-entry"><a class="reference internal nav-link" href="#cleanup">5. Cleanup</a></li>
+</ul>
+            </nav>
+        </div>
+    </div>
+</div>
+
+              
+                
+<div id="searchbox"></div>
+                <article class="bd-article">
+                  
+  <section class="tex2jax_ignore mathjax_ignore" id="introduction-deploy-anyscale-ray-on-gcp-compute-engine-instances-gce">
+<h1>Introduction: Deploy Anyscale Ray on GCP Compute Engine Instances (GCE)<a class="headerlink" href="#introduction-deploy-anyscale-ray-on-gcp-compute-engine-instances-gce" title="Link to this heading">#</a></h1>
+<p>© 2025, Anyscale. All Rights Reserved</p>
+<p>This notebook shows how to create the infrastructure and Anyscale-specific resources needed for GCP Compute Engine (GCE) deployments using the custom <strong><code class="docutils literal notranslate"><span class="pre">anyscale</span> <span class="pre">cloud</span> <span class="pre">register</span></code></strong> method.</p>
+<p>Use it as a starting point and replace all placeholders (e.g. <code class="docutils literal notranslate"><span class="pre">{ANYSCALE_CLOUD_NAME}</span></code>) with values from your environment.</p>
+<p><strong>What this creates:</strong></p>
+<ul class="simple">
+<li><p>VPC and subnet for Anyscale resources</p></li>
+<li><p>IAM Service Account for Compute Engine nodes</p></li>
+<li><p>GCS Storage Bucket for Anyscale logs and shared resources</p></li>
+<li><p>Filestore instance for shared storage (optional)</p></li>
+</ul>
+<p><strong>Prerequisites:</strong></p>
+<ul class="simple">
+<li><p>Proper GCP permissions and authentication</p></li>
+</ul>
+<section id="prerequisites">
+<h2>Prerequisites<a class="headerlink" href="#prerequisites" title="Link to this heading">#</a></h2>
+<p>Before we begin, ensure you have the following tools installed:</p>
+<div class="highlight-bash notranslate"><div class="highlight"><pre><span></span><span class="c1"># Create Google Cloud Project</span>
+<span class="c1"># https://cloud.google.com/resource-manager/docs/creating-managing-projects</span>
+
+
+<span class="c1"># Install Google Cloud SDK/CLI</span>
+<span class="c1"># https://cloud.google.com/sdk/docs/install</span>
+
+<span class="c1"># Configure Google Cloud CLI Authentication</span>
+<span class="c1"># https://cloud.google.com/docs/authentication/gcloud</span>
+
+<span class="c1"># Install Terraform (version 1.9+)</span>
+<span class="c1"># https://developer.hashicorp.com/terraform/install</span>
+
+<span class="c1"># Install Anyscale CLI (version 0.5.86+)</span>
+<span class="c1"># https://docs.anyscale.com/reference/quickstart-cli/</span>
+</pre></div>
+</div>
+<p>You also need:</p>
+<ul class="simple">
+<li><p>A GCP Project with billing enabled</p></li>
+<li><p>Project Owner or Editor role</p></li>
+<li><p>Required APIs enabled (we’ll do this in the next step)</p></li>
+</ul>
+</section>
+<section id="installation">
+<h2>1. Installation<a class="headerlink" href="#installation" title="Link to this heading">#</a></h2>
+<section id="configure-google-cloud-authentication">
+<h3>1.1 Configure Google Cloud Authentication<a class="headerlink" href="#configure-google-cloud-authentication" title="Link to this heading">#</a></h3>
+<p>First, set up authentication and configure your GCP project:</p>
+<div class="cell docutils container">
+<div class="cell_input docutils container">
+<div class="highlight-python notranslate"><div class="highlight"><pre><span></span><span class="c1"># Set up application default credentials</span>
+<span class="c1"># This will open a browser window for authentication</span>
+<span class="err">!</span><span class="n">gcloud</span> <span class="n">auth</span> <span class="n">application</span><span class="o">-</span><span class="n">default</span> <span class="n">login</span>
+
+<span class="c1"># Set your project (replace YOUR_PROJECT_ID with your actual project ID)</span>
+<span class="c1"># Example: !gcloud config set project my-anyscale-project-123456</span>
+<span class="err">!</span><span class="n">gcloud</span> <span class="n">config</span> <span class="nb">set</span> <span class="n">project</span> <span class="p">{</span><span class="n">GCP_PROJECT_ID</span><span class="p">}</span>
+
+<span class="c1"># Set your region like us-west2</span>
+<span class="err">!</span><span class="n">gcloud</span> <span class="n">config</span> <span class="nb">set</span> <span class="n">compute</span><span class="o">/</span><span class="n">region</span> <span class="p">{</span><span class="n">GCP_REGION</span><span class="p">}</span>
+
+<span class="c1"># Verify authentication and configuration</span>
+<span class="err">!</span><span class="n">gcloud</span> <span class="n">auth</span> <span class="nb">list</span>
+<span class="err">!</span><span class="n">gcloud</span> <span class="n">config</span> <span class="nb">list</span>
+</pre></div>
+</div>
+</div>
+</div>
+</section>
+<section id="enable-required-apis">
+<h3>1.2 Enable Required APIs<a class="headerlink" href="#enable-required-apis" title="Link to this heading">#</a></h3>
+<p>Enable all the necessary Google Cloud APIs for this deployment:</p>
+<div class="cell docutils container">
+<div class="cell_input docutils container">
+<div class="highlight-python notranslate"><div class="highlight"><pre><span></span><span class="err">!</span><span class="n">gcloud</span> <span class="n">services</span> <span class="n">enable</span> \
+  <span class="n">compute</span><span class="o">.</span><span class="n">googleapis</span><span class="o">.</span><span class="n">com</span> \
+  <span class="n">storage</span><span class="o">.</span><span class="n">googleapis</span><span class="o">.</span><span class="n">com</span> \
+  <span class="n">file</span><span class="o">.</span><span class="n">googleapis</span><span class="o">.</span><span class="n">com</span> \
+  <span class="n">iam</span><span class="o">.</span><span class="n">googleapis</span><span class="o">.</span><span class="n">com</span> \
+  <span class="n">cloudresourcemanager</span><span class="o">.</span><span class="n">googleapis</span><span class="o">.</span><span class="n">com</span>
+
+<span class="c1"># Verify APIs are enabled</span>
+<span class="err">!</span><span class="n">gcloud</span> <span class="n">services</span> <span class="nb">list</span> <span class="o">--</span><span class="n">enabled</span> <span class="o">--</span><span class="nb">filter</span><span class="o">=</span><span class="s2">&quot;name:compute.googleapis.com OR name:storage.googleapis.com&quot;</span>
+</pre></div>
+</div>
+</div>
+</div>
+</section>
+</section>
+<section id="create-anyscale-resources-with-terraform">
+<h2>2. Create Anyscale Resources with Terraform<a class="headerlink" href="#create-anyscale-resources-with-terraform" title="Link to this heading">#</a></h2>
+<p>Let’s set up the necessary Terraform variables and apply the configuration:</p>
+<section id="creating-anyscale-resources">
+<h3>Creating Anyscale Resources<a class="headerlink" href="#creating-anyscale-resources" title="Link to this heading">#</a></h3>
+<p>This deployment uses the official <strong>Anyscale Terraform modules</strong> from <a class="reference external" href="https://github.com/anyscale/terraform-google-anyscale-cloudfoundation-modules">terraform-google-anyscale-cloudfoundation-modules</a>. These modules provide:</p>
+<ul class="simple">
+<li><p><strong>Pre-tested configurations</strong> for GCP resources</p></li>
+<li><p><strong>Security best practices</strong> built-in</p></li>
+<li><p><strong>Simplified resource management</strong> with fewer variables to configure</p></li>
+<li><p><strong>Automatic generation</strong> of Anyscale registration commands</p></li>
+</ul>
+<p>Steps for deploying Anyscale resources via Terraform:</p>
+<ul class="simple">
+<li><p>Review and modify <a class="reference download internal" download="" href="../../../_downloads/96809c6d7ac1f706cd728c8456358592/variables.tf"><span class="xref download myst">variables.tf</span></a> with your own configurations, and (optionally) create a <code class="docutils literal notranslate"><span class="pre">terraform.tfvars</span></code> file to override any of the defaults.</p></li>
+<li><p>You can view <a class="reference download internal" download="" href="../../../_downloads/df4f852c2e593910057947428a1cb19d/main.tf"><span class="xref download myst">main.tf</span></a> to see how the official Anyscale modules are used.</p></li>
+</ul>
+</section>
+<section id="create-terraform-tfvars">
+<h3>2.1 Create terraform.tfvars<a class="headerlink" href="#create-terraform-tfvars" title="Link to this heading">#</a></h3>
+<p>Create a <code class="docutils literal notranslate"><span class="pre">terraform.tfvars</span></code> file with your specific configuration:</p>
+<p>Create terraform.tfvars file</p>
+<p>Required variables</p>
+<div class="highlight-default notranslate"><div class="highlight"><pre><span></span><span class="n">google_project_id</span> <span class="o">=</span> <span class="p">{</span><span class="n">GCP_PROJECT_ID</span><span class="p">}</span> <span class="c1"># the name of your google project, not the project_number</span>
+<span class="n">google_region</span> <span class="o">=</span> <span class="p">{</span><span class="n">GCP_REGION</span><span class="p">}</span> <span class="c1"># the region of your google project</span>
+
+<span class="c1"># Required variables</span>
+<span class="n">anyscale_cloud_id</span> <span class="o">=</span> <span class="p">{</span><span class="n">ANYSCALE_CLOUD_NAME</span><span class="p">}</span> <span class="c1"># the anyscale cloud name you want to use</span>
+<span class="n">common_prefix</span> <span class="o">=</span> <span class="p">{</span><span class="n">PREFIX_FOR_THE_RESOURCES_ADDED</span><span class="p">}</span> <span class="c1"># like: &quot;anyscale-compute-engine&quot;</span>
+<span class="n">aws_role_name</span>     <span class="o">=</span> <span class="s2">&quot;gcp_if_</span><span class="si">{YOUR_ANYSCALE_ORG_ID}</span><span class="s2">&quot;</span> <span class="c1"># You can get it from your Anyscale account&#39;s &quot;Organization Settings&quot;, it is a string like &quot;org_xxxxxxx&quot;. Add this value with prefix &quot;gcp_if_&quot;</span>
+
+<span class="c1"># Optional variables</span>
+<span class="c1"># bucket_name = &quot;my-custom-bucket-name&quot;  # Uncomment to use custom bucket name</span>
+<span class="c1"># enable_filestore = true</span>
+<span class="c1"># filestore_capacity_gb = 1024</span>
+<span class="c1"># filestore_tier = &quot;STANDARD&quot;</span>
+</pre></div>
+</div>
+<p>Note: The VPC will be created automatically by Terraform using the configuration in <code class="docutils literal notranslate"><span class="pre">vpc.tf</span></code>.</p>
+</section>
+<section id="run-terraform-commands">
+<h3>2.2 Run Terraform Commands<a class="headerlink" href="#run-terraform-commands" title="Link to this heading">#</a></h3>
+<p>Now let’s initialize and deploy the Terraform configuration:</p>
+<div class="cell docutils container">
+<div class="cell_input docutils container">
+<div class="highlight-python notranslate"><div class="highlight"><pre><span></span><span class="c1"># Initialize Terraform</span>
+<span class="err">!</span><span class="n">terraform</span> <span class="n">init</span>
+
+<span class="c1"># Preview the changes</span>
+<span class="err">!</span><span class="n">terraform</span> <span class="n">plan</span>
+
+<span class="c1"># Apply the changes (this may take 10-15 minutes)</span>
+<span class="err">!</span><span class="n">terraform</span> <span class="n">apply</span> <span class="o">-</span><span class="n">auto</span><span class="o">-</span><span class="n">approve</span>
+</pre></div>
+</div>
+</div>
+</div>
+<div class="alert alert-block alert-info">
+<b>Take a note to the output of terraform apply! </b>You will need it when you register the Anyscale cloud to your cloud provider.
+</div>
+<details>
+<summary>Sample output</summary>
+```
+Outputs:
+<p>anyscale_registration_command = &lt;&lt;EOT
+anyscale cloud register <br />
+–name &lt;anyscale_cloud_name&gt; <br />
+–provider gcp <br />
+–region us-west2 <br />
+–compute-stack vm <br />
+–anyscale-operator-iam-identity <a class="reference external" href="mailto:anyscale-nodes-d3a9a7d0&#37;&#52;&#48;xing-compute-engine-test&#46;iam&#46;gserviceaccount&#46;com">anyscale-nodes-d3a9a7d0<span>&#64;</span>xing-compute-engine-test<span>&#46;</span>iam<span>&#46;</span>gserviceaccount<span>&#46;</span>com</a> <br />
+–cloud-storage-bucket-name anyscale-compute-engine-bucket-xxx <br />
+–project-id xxx <br />
+–vpc-name xxx <br />
+–subnet-names anyscale-subnet <br />
+–anyscale-service-account-email <a class="reference external" href="mailto:anyscale-nodes-xxx&#37;&#52;&#48;xxx&#46;iam&#46;gserviceaccount&#46;com">anyscale-nodes-xxx<span>&#64;</span>xxx<span>&#46;</span>iam<span>&#46;</span>gserviceaccount<span>&#46;</span>com</a> <br />
+–instance-service-account-email <a class="reference external" href="mailto:anyscale-nodes-xxx&#37;&#52;&#48;xxx&#46;iam&#46;gserviceaccount&#46;com">anyscale-nodes-xxx<span>&#64;</span>xxx<span>&#46;</span>iam<span>&#46;</span>gserviceaccount<span>&#46;</span>com</a> <br />
+–provider-name projects/xxx/locations/global/workloadIdentityPools/xxxx/providers/anyscale-provider <br />
+–firewall-policy-names anyscale-firewall-policy-xxxx <br />
+–file-storage-id anyscale-filestore-xxxx <br />
+–filestore-location xxxxx-a
+EOT
+compute_nodes_service_account_email =
+filestore_instance_name =
+filestore_location =
+firewall_policy_name =
+gcs_bucket_name =
+workload_identity_pool_provider =</p>
+<div class="highlight-default notranslate"><div class="highlight"><pre><span></span><span class="o">&lt;/</span><span class="n">details</span><span class="o">&gt;</span>
+</pre></div>
+</div>
+</section>
+</section>
+<section id="register-the-anyscale-cloud">
+<h2>3. Register the Anyscale Cloud<a class="headerlink" href="#register-the-anyscale-cloud" title="Link to this heading">#</a></h2>
+<p>First, ensure you’re logged into Anyscale. if you cannot run it in console, please run it in your local terminal:</p>
+<div class="cell docutils container">
+<div class="cell_input docutils container">
+<div class="highlight-python notranslate"><div class="highlight"><pre><span></span><span class="c1"># First, ensure you&#39;re logged into Anyscale</span>
+<span class="err">!</span><span class="n">anyscale</span> <span class="n">login</span>
+</pre></div>
+</div>
+</div>
+</div>
+<p>Then use the output of <code class="docutils literal notranslate"><span class="pre">terraform</span> <span class="pre">apply</span></code> to register Anyscale cloud. You only need to replace the <code class="docutils literal notranslate"><span class="pre">--name</span></code> parameter with your preferred <code class="docutils literal notranslate"><span class="pre">ANYSCALE_CLOUD_NAME</span></code>. The command looks like:</p>
+<div class="highlight-bash notranslate"><div class="highlight"><pre><span></span>anyscale<span class="w"> </span>cloud<span class="w"> </span>register<span class="w"> </span>...
+</pre></div>
+</div>
+<p>You will get output like:</p>
+<div class="highlight-text notranslate"><div class="highlight"><pre><span></span>Output
+(anyscale +18.0s) Successfully created cloud anyscale-cloud-gce-private-xxxxx, and it&#39;s ready to use.
+</pre></div>
+</div>
+</section>
+<section id="test">
+<h2>4. Test<a class="headerlink" href="#test" title="Link to this heading">#</a></h2>
+<p>Once the cloud is registered, you cOnce the cluster is created, you can test it by submitting a job:an test it by submitting a job:</p>
+<div class="cell docutils container">
+<div class="cell_input docutils container">
+<div class="highlight-python notranslate"><div class="highlight"><pre><span></span><span class="n">A_RANDOM_JOB_NAME</span> <span class="o">=</span> <span class="s2">&quot;A random job name&quot;</span>  <span class="c1"># Replace with a random job name you like</span>
+
+<span class="err">!</span><span class="n">cd</span> <span class="o">../</span><span class="n">test</span> <span class="o">&amp;&amp;</span> <span class="n">python</span> <span class="n">test_job</span><span class="o">.</span><span class="n">py</span> <span class="o">--</span><span class="n">cloud</span><span class="o">-</span><span class="n">name</span> <span class="p">{</span><span class="n">ANYSCALE_CLOUD_NAME</span><span class="p">}</span> <span class="o">--</span><span class="n">stack</span><span class="o">-</span><span class="nb">type</span> <span class="n">vm</span> <span class="o">--</span><span class="n">cloud</span><span class="o">-</span><span class="n">provider</span> <span class="n">gcp</span>
+
+<span class="c1"># You can check the job status by running:</span>
+<span class="err">!</span><span class="n">anyscale</span> <span class="n">job</span> <span class="nb">list</span> <span class="o">--</span><span class="n">cloud</span> <span class="p">{</span><span class="n">ANYSCALE_CLOUD_NAME</span><span class="p">}</span>
+</pre></div>
+</div>
+</div>
+</div>
+<p>You just start a job and you can see the logs from your Anyscale Console. You can view the running results from Anyscale console in “Jobs”.</p>
+</section>
+<section id="cleanup">
+<h2>5. Cleanup<a class="headerlink" href="#cleanup" title="Link to this heading">#</a></h2>
+<p>When you’re done, you can terminate the cluster and clean up resources:</p>
+<div class="cell docutils container">
+<div class="cell_input docutils container">
+<div class="highlight-python notranslate"><div class="highlight"><pre><span></span><span class="c1"># Step 1: Delete any running clusters</span>
+<span class="err">!</span><span class="n">anyscale</span> <span class="n">cluster</span> <span class="n">terminate</span> <span class="o">--</span><span class="n">name</span> <span class="n">gcp</span><span class="o">-</span><span class="n">compute</span><span class="o">-</span><span class="n">ray</span><span class="o">-</span><span class="n">cluster</span><span class="o">-</span><span class="n">autoscaled</span>
+
+<span class="c1"># Step 2: Delete Anyscale Cloud Registration</span>
+<span class="err">!</span><span class="n">anyscale</span> <span class="n">cloud</span> <span class="n">delete</span> <span class="p">{</span><span class="n">ANYSCALE_CLOUD_NAME</span><span class="p">}</span>
+
+<span class="c1"># Step 3: Empty GCS bucket (if it has objects)</span>
+<span class="c1"># (Optional) If you want to delete the GCS bucket, you can run the following command:</span>
+<span class="c1"># Find your GCS bucket name from the output of the terraform apply command, then run the following command:</span>
+<span class="err">!</span><span class="n">gsutil</span> <span class="n">rm</span> <span class="o">-</span><span class="n">r</span> <span class="n">gs</span><span class="p">:</span><span class="o">//</span><span class="p">{</span><span class="n">GCS_BUCKET_NAME</span><span class="p">}</span><span class="o">/*</span>
+
+
+<span class="c1"># Step 4: Destroy Terraform resources</span>
+<span class="err">!</span><span class="n">terraform</span> <span class="n">destroy</span> <span class="o">-</span><span class="n">auto</span><span class="o">-</span><span class="n">approve</span>
+
+<span class="c1"># Optional: # You may need to delete firewall policy created by terraform manually.</span>
+</pre></div>
+</div>
+</div>
+</div>
+</section>
+</section>
+
+    <script type="text/x-thebe-config">
+    {
+        requestKernel: true,
+        binderOptions: {
+            repo: "binder-examples/jupyter-stacks-datascience",
+            ref: "master",
+        },
+        codeMirrorConfig: {
+            theme: "abcdef",
+            mode: "python"
+        },
+        kernelOptions: {
+            name: "python3",
+            path: "./courses/02_Anyscale_Admin/02_02b_Deploy_to_VM_GCP_GCE"
+        },
+        predefinedOutput: true
+    }
+    </script>
+    <script>kernelName = 'python3'</script>
+
+                </article>
+              
+
+              
+              
+              
+              
+                <footer class="prev-next-footer d-print-none">
+                  
+<div class="prev-next-area">
+</div>
+                </footer>
+              
+            </div>
+            
+            
+              
+                <div class="bd-sidebar-secondary bd-toc"><div class="sidebar-secondary-items sidebar-secondary__inner">
+
+
+  <div class="sidebar-secondary-item">
+  <div class="page-toc tocsection onthispage">
+    <i class="fa-solid fa-list"></i> Contents
+  </div>
+  <nav class="bd-toc-nav page-toc">
+    <ul class="visible nav section-nav flex-column">
+<li class="toc-h2 nav-item toc-entry"><a class="reference internal nav-link" href="#prerequisites">Prerequisites</a></li>
+<li class="toc-h2 nav-item toc-entry"><a class="reference internal nav-link" href="#installation">1. Installation</a><ul class="nav section-nav flex-column">
+<li class="toc-h3 nav-item toc-entry"><a class="reference internal nav-link" href="#configure-google-cloud-authentication">1.1 Configure Google Cloud Authentication</a></li>
+<li class="toc-h3 nav-item toc-entry"><a class="reference internal nav-link" href="#enable-required-apis">1.2 Enable Required APIs</a></li>
+</ul>
+</li>
+<li class="toc-h2 nav-item toc-entry"><a class="reference internal nav-link" href="#create-anyscale-resources-with-terraform">2. Create Anyscale Resources with Terraform</a><ul class="nav section-nav flex-column">
+<li class="toc-h3 nav-item toc-entry"><a class="reference internal nav-link" href="#creating-anyscale-resources">Creating Anyscale Resources</a></li>
+<li class="toc-h3 nav-item toc-entry"><a class="reference internal nav-link" href="#create-terraform-tfvars">2.1 Create terraform.tfvars</a></li>
+<li class="toc-h3 nav-item toc-entry"><a class="reference internal nav-link" href="#run-terraform-commands">2.2 Run Terraform Commands</a></li>
+</ul>
+</li>
+<li class="toc-h2 nav-item toc-entry"><a class="reference internal nav-link" href="#register-the-anyscale-cloud">3. Register the Anyscale Cloud</a></li>
+<li class="toc-h2 nav-item toc-entry"><a class="reference internal nav-link" href="#test">4. Test</a></li>
+<li class="toc-h2 nav-item toc-entry"><a class="reference internal nav-link" href="#cleanup">5. Cleanup</a></li>
+</ul>
+  </nav></div>
+
+</div></div>
+              
+            
+          </div>
+          <footer class="bd-footer-content">
+            
+<div class="bd-footer-content__inner container">
+  
+  <div class="footer-item">
+    
+<p class="component-author">
+By The Jupyter Book community
+</p>
+
+  </div>
+  
+  <div class="footer-item">
+    
+
+  </div>
+  
+  <div class="footer-item">
+    
+  </div>
+  
+  <div class="footer-item">
+    
+  </div>
+  
+</div>
+          </footer>
+        
+
+      </main>
+    </div>
+  </div>
+  
+  <!-- Scripts loaded after <body> so the DOM is not blocked -->
+  <script src="../../../_static/scripts/bootstrap.js?digest=dfe6caa3a7d634c4db9b"></script>
+<script src="../../../_static/scripts/pydata-sphinx-theme.js?digest=dfe6caa3a7d634c4db9b"></script>
+
+  <footer class="bd-footer">
+  </footer>
+  </body>
+</html>
