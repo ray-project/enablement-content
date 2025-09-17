@@ -4,6 +4,8 @@ import json
 from pathlib import Path
 import yaml
 import re
+import subprocess
+import argparse
 
 def fix_image_paths_in_cell(cell, notebook_path):
     """
@@ -156,7 +158,69 @@ def write_index_md_from_courses(courses_data, display_names, index_path="index.m
     with open(index_path, "w", encoding="utf-8") as f:
         f.write("\n".join(lines))
 
+def convert_notebook_to_html(notebook_path):
+    """
+    Convert a notebook to HTML using jupyter nbconvert.
+    Returns True if successful, False otherwise.
+    """
+    try:
+        result = subprocess.run(
+            ['jupyter', 'nbconvert', '--to', 'html', notebook_path],
+            capture_output=True,
+            text=True,
+            check=True
+        )
+        print(f"✓ Converted {notebook_path} to HTML")
+        return True
+    except subprocess.CalledProcessError as e:
+        print(f"✗ Failed to convert {notebook_path} to HTML: {e.stderr}")
+        return False
+    except FileNotFoundError:
+        print(f"✗ jupyter command not found. Please ensure jupyter is installed and in PATH.")
+        return False
+
+def find_all_split_notebooks(root="courses"):
+    """
+    Find all split notebooks in output directories across all courses.
+    Returns a list of absolute paths to split notebooks.
+    """
+    split_notebooks = []
+    for item in os.listdir(root):
+        course_path = os.path.join(root, item)
+        if os.path.isdir(course_path):
+            output_dir = os.path.join(course_path, 'output')
+            if os.path.exists(output_dir):
+                for filename in os.listdir(output_dir):
+                    if filename.endswith('.ipynb'):
+                        split_notebooks.append(os.path.join(output_dir, filename))
+    return split_notebooks
+
+def convert_all_split_notebooks_to_html(root="courses"):
+    """
+    Convert all split notebooks in output directories to HTML.
+    Returns the number of successfully converted notebooks.
+    """
+    split_notebooks = find_all_split_notebooks(root)
+    if not split_notebooks:
+        print("No split notebooks found in output directories.")
+        return 0
+    
+    print(f"Found {len(split_notebooks)} split notebooks to convert to HTML...")
+    successful_conversions = 0
+    
+    for notebook_path in split_notebooks:
+        if convert_notebook_to_html(notebook_path):
+            successful_conversions += 1
+    
+    print(f"Successfully converted {successful_conversions}/{len(split_notebooks)} notebooks to HTML")
+    return successful_conversions
+
 def main():
+    parser = argparse.ArgumentParser(description='Split notebooks by H2 headers and optionally convert to HTML')
+    parser.add_argument('--no-html', action='store_true', 
+                       help='Skip HTML conversion of split notebooks')
+    args = parser.parse_args()
+    
     # Load course display names from config
     display_names = load_course_display_names()
     
@@ -210,6 +274,15 @@ def main():
 
     # Generate index.md with links organized by course
     write_index_md_from_courses(courses_data, display_names, "index.md")
+    
+    # Convert all split notebooks to HTML (unless disabled)
+    if not args.no_html:
+        print("\n" + "="*50)
+        print("Converting split notebooks to HTML...")
+        print("="*50)
+        convert_all_split_notebooks_to_html()
+    else:
+        print("\nSkipping HTML conversion (--no-html flag provided)")
 
 if __name__ == "__main__":
     main() 
