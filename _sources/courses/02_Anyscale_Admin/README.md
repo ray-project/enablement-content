@@ -1,4 +1,4 @@
-## Welcome to Anyscale Administration
+# Welcome to Anyscale Administration
 
 This comprehensive course series is designed for platform engineers, DevOps professionals, and cloud administrators who need to deploy and manage Anyscale infrastructure. Whether you're evaluating Anyscale for your organization or preparing to deploy Ray clusters at scale, these courses provide the practical knowledge and hands-on experience you need.
 
