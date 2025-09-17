@@ -4,6 +4,3 @@ _build/
 .DS_Store
 
 *.zip
-
-# Ignore all split notebooks and HTML files in output directories
-**/output/
