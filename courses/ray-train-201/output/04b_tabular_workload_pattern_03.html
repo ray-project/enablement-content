@@ -7517,14 +7517,19 @@ a.anchor-link {
 </div>
 <div class="jp-InputArea jp-Cell-inputArea"><div class="jp-InputPrompt jp-InputArea-prompt">
 </div><div class="jp-RenderedHTMLCommon jp-RenderedMarkdown jp-MarkdownOutput" data-mime-type="text/markdown">
-<h2 id="8-%C2%B7-Custom-per-worker-training-loop">8 · Custom per-worker training loop<a class="anchor-link" href="#8-%C2%B7-Custom-per-worker-training-loop">¶</a></h2><p>Ray Train launches one copy of <code>train_func</code> on every worker (16 CPUs in your case).<br/>
-Inside the loop you:</p>
+<h2 id="8.-Define-the-Ray-Train-worker-loop-(Arrow-based,-memory-efficient)">8. Define the Ray Train worker loop (Arrow-based, memory-efficient)<a class="anchor-link" href="#8.-Define-the-Ray-Train-worker-loop-(Arrow-based,-memory-efficient)">¶</a></h2><p>Each Ray Train worker runs its own copy of <code>train_func</code>.<br/>
+Inside the loop, the worker pulls its <strong>shard</strong> of the train and validation datasets directly as <strong>Arrow tables</strong>.</p>
+<p>You then:</p>
 <ol>
-<li>Pull the local shard of both the training and validation Ray datasets.</li>
-<li>Convert each pandas shard into an XGBoost <code>DMatrix</code> (efficient Certificate Signing Request (CSR) format).</li>
-<li>Resume from an existing checkpoint if Ray passed one in with <code>get_checkpoint()</code>.</li>
-<li>Call <code>xgb.train</code>, handing it a <code>RayTrainReportCallback</code> so that <strong>every boosting round automatically reports metrics</strong>.</li>
+<li><strong>Materialize each shard</strong> into a <code>pyarrow.Table</code> and drop any accidental index columns (like <code>__index_level_0__</code>)<br/>
+that might have been added during Parquet serialization.</li>
+<li><strong>Convert Arrow → NumPy → XGBoost DMatrix</strong> with explicit <code>feature_names</code>, ensuring consistent column order<br/>
+across all workers and splits.</li>
+<li><strong>Optionally resume</strong> from a prior checkpoint using <code>get_checkpoint()</code>.</li>
+<li><strong>Train the booster</strong> with <code>xgb.train</code>, using the built-in <code>RayTrainReportCallback()</code> to automatically stream<br/>
+per-round metrics and checkpoints back to Ray Train.</li>
 </ol>
+<p>This design keeps the data path fully distributed and avoids unnecessary copies or manual metric handling.</p>
 </div>
 </div>
 </div>
@@ -7536,30 +7541,41 @@ Inside the loop you:</p>
 <div class="jp-InputPrompt jp-InputArea-prompt">In [ ]:</div>
 <div class="jp-CodeMirrorEditor jp-Editor jp-InputArea-editor" data-type="inline">
 <div class="cm-editor cm-s-jupyter">
-<div class="highlight hl-ipython3"><pre><span></span><span class="c1"># 08. Custom Ray Train loop for XGBoost (CPU)</span>
+<div class="highlight hl-ipython3"><pre><span></span><span class="n">INDEX_COLS</span> <span class="o">=</span> <span class="p">{</span><span class="s2">"__index_level_0__"</span><span class="p">}</span>  <span class="c1"># extend if needed</span>
+
+<span class="k">def</span><span class="w"> </span><span class="nf">_arrow_table_from_shard</span><span class="p">(</span><span class="n">name</span><span class="p">:</span> <span class="nb">str</span><span class="p">)</span> <span class="o">-&gt;</span> <span class="n">pa</span><span class="o">.</span><span class="n">Table</span><span class="p">:</span>
+<span class="w">    </span><span class="sd">"""Collect this worker's Ray Dataset shard into one pyarrow. Table and</span>
+<span class="sd">    drop accidental index columns (e.g., from pandas Parquet)."""</span>
+    <span class="n">ds_iter</span> <span class="o">=</span> <span class="n">get_dataset_shard</span><span class="p">(</span><span class="n">name</span><span class="p">)</span>
+    <span class="n">arrow_refs</span> <span class="o">=</span> <span class="n">ds_iter</span><span class="o">.</span><span class="n">materialize</span><span class="p">()</span><span class="o">.</span><span class="n">to_arrow_refs</span><span class="p">()</span>
+    <span class="n">tables</span> <span class="o">=</span> <span class="p">[</span><span class="n">ray</span><span class="o">.</span><span class="n">get</span><span class="p">(</span><span class="n">r</span><span class="p">)</span> <span class="k">for</span> <span class="n">r</span> <span class="ow">in</span> <span class="n">arrow_refs</span><span class="p">]</span>
+    <span class="n">tbl</span> <span class="o">=</span> <span class="n">pa</span><span class="o">.</span><span class="n">concat_tables</span><span class="p">(</span><span class="n">tables</span><span class="p">,</span> <span class="n">promote_options</span><span class="o">=</span><span class="s2">"none"</span><span class="p">)</span> <span class="k">if</span> <span class="n">tables</span> <span class="k">else</span> <span class="n">pa</span><span class="o">.</span><span class="n">table</span><span class="p">({})</span>
+    <span class="c1"># Drop index columns if present</span>
+    <span class="n">keep</span> <span class="o">=</span> <span class="p">[</span><span class="n">c</span> <span class="k">for</span> <span class="n">c</span> <span class="ow">in</span> <span class="n">tbl</span><span class="o">.</span><span class="n">column_names</span> <span class="k">if</span> <span class="n">c</span> <span class="ow">not</span> <span class="ow">in</span> <span class="n">INDEX_COLS</span><span class="p">]</span>
+    <span class="k">if</span> <span class="nb">len</span><span class="p">(</span><span class="n">keep</span><span class="p">)</span> <span class="o">!=</span> <span class="nb">len</span><span class="p">(</span><span class="n">tbl</span><span class="o">.</span><span class="n">column_names</span><span class="p">):</span>
+        <span class="n">tbl</span> <span class="o">=</span> <span class="n">tbl</span><span class="o">.</span><span class="n">select</span><span class="p">(</span><span class="n">keep</span><span class="p">)</span>
+    <span class="k">return</span> <span class="n">tbl</span>
+
+<span class="k">def</span><span class="w"> </span><span class="nf">_dmat_from_arrow</span><span class="p">(</span><span class="n">table</span><span class="p">:</span> <span class="n">pa</span><span class="o">.</span><span class="n">Table</span><span class="p">,</span> <span class="n">feature_cols</span><span class="p">,</span> <span class="n">label_col</span><span class="p">:</span> <span class="nb">str</span><span class="p">):</span>
+<span class="w">    </span><span class="sd">"""Build XGBoost DMatrix from pyarrow.Table with explicit feature_names."""</span>
+    <span class="n">X</span> <span class="o">=</span> <span class="n">np</span><span class="o">.</span><span class="n">column_stack</span><span class="p">([</span><span class="n">table</span><span class="p">[</span><span class="n">c</span><span class="p">]</span><span class="o">.</span><span class="n">to_numpy</span><span class="p">(</span><span class="n">zero_copy_only</span><span class="o">=</span><span class="kc">False</span><span class="p">)</span> <span class="k">for</span> <span class="n">c</span> <span class="ow">in</span> <span class="n">feature_cols</span><span class="p">])</span>
+    <span class="n">y</span> <span class="o">=</span> <span class="n">table</span><span class="p">[</span><span class="n">label_col</span><span class="p">]</span><span class="o">.</span><span class="n">to_numpy</span><span class="p">(</span><span class="n">zero_copy_only</span><span class="o">=</span><span class="kc">False</span><span class="p">)</span>
+    <span class="k">return</span> <span class="n">xgb</span><span class="o">.</span><span class="n">DMatrix</span><span class="p">(</span><span class="n">X</span><span class="p">,</span> <span class="n">label</span><span class="o">=</span><span class="n">y</span><span class="p">,</span> <span class="n">feature_names</span><span class="o">=</span><span class="n">feature_cols</span><span class="p">)</span>
 
 <span class="k">def</span><span class="w"> </span><span class="nf">train_func</span><span class="p">(</span><span class="n">config</span><span class="p">):</span>
-<span class="w">    </span><span class="sd">"""Per-worker training loop executed by Ray Train."""</span>
+    <span class="n">label_col</span> <span class="o">=</span> <span class="n">config</span><span class="p">[</span><span class="s2">"label_column"</span><span class="p">]</span>
 
-    <span class="c1"># --------------------------------------------------------</span>
-    <span class="c1"># 1. Pull this worker’s data shard from Ray Datasets</span>
-    <span class="c1"># --------------------------------------------------------</span>
-    <span class="n">label_col</span>   <span class="o">=</span> <span class="n">config</span><span class="p">[</span><span class="s2">"label_column"</span><span class="p">]</span>
-    <span class="n">train_df</span>    <span class="o">=</span> <span class="n">get_dataset_shard</span><span class="p">(</span><span class="s2">"train"</span><span class="p">)</span><span class="o">.</span><span class="n">materialize</span><span class="p">()</span><span class="o">.</span><span class="n">to_pandas</span><span class="p">()</span>
-    <span class="n">eval_df</span>     <span class="o">=</span> <span class="n">get_dataset_shard</span><span class="p">(</span><span class="s2">"evaluation"</span><span class="p">)</span><span class="o">.</span><span class="n">materialize</span><span class="p">()</span><span class="o">.</span><span class="n">to_pandas</span><span class="p">()</span>
-    <span class="n">feature_cols</span> <span class="o">=</span> <span class="p">[</span><span class="n">c</span> <span class="k">for</span> <span class="n">c</span> <span class="ow">in</span> <span class="n">train_df</span><span class="o">.</span><span class="n">columns</span> <span class="k">if</span> <span class="n">c</span> <span class="o">!=</span> <span class="n">label_col</span><span class="p">]</span>
+    <span class="c1"># Arrow tables </span>
+    <span class="n">train_arrow</span> <span class="o">=</span> <span class="n">_arrow_table_from_shard</span><span class="p">(</span><span class="s2">"train"</span><span class="p">)</span>
+    <span class="n">eval_arrow</span>  <span class="o">=</span> <span class="n">_arrow_table_from_shard</span><span class="p">(</span><span class="s2">"evaluation"</span><span class="p">)</span>
 
-    <span class="c1"># Convert pandas → DMatrix (fast CSR format used by XGBoost)</span>
-    <span class="n">dtrain</span> <span class="o">=</span> <span class="n">xgb</span><span class="o">.</span><span class="n">DMatrix</span><span class="p">(</span><span class="n">train_df</span><span class="p">[</span><span class="n">feature_cols</span><span class="p">],</span> <span class="n">label</span><span class="o">=</span><span class="n">train_df</span><span class="p">[</span><span class="n">label_col</span><span class="p">])</span>
-    <span class="n">deval</span>  <span class="o">=</span> <span class="n">xgb</span><span class="o">.</span><span class="n">DMatrix</span><span class="p">(</span><span class="n">eval_df</span><span class="p">[</span><span class="n">feature_cols</span><span class="p">],</span>  <span class="n">label</span><span class="o">=</span><span class="n">eval_df</span><span class="p">[</span><span class="n">label_col</span><span class="p">])</span>
+    <span class="c1"># Use the SAME ordered feature list for both splits</span>
+    <span class="n">feature_cols</span> <span class="o">=</span> <span class="p">[</span><span class="n">c</span> <span class="k">for</span> <span class="n">c</span> <span class="ow">in</span> <span class="n">train_arrow</span><span class="o">.</span><span class="n">column_names</span> <span class="k">if</span> <span class="n">c</span> <span class="o">!=</span> <span class="n">label_col</span><span class="p">]</span>
 
-    <span class="c1"># --------------------------------------------------------</span>
-    <span class="c1"># 2. Train booster — RayTrainReportCallback handles:</span>
-    <span class="c1">#       • per-round ray.train.report(...)</span>
-    <span class="c1">#       • checkpoint upload to Ray storage</span>
-    <span class="c1"># --------------------------------------------------------</span>
+    <span class="n">dtrain</span> <span class="o">=</span> <span class="n">_dmat_from_arrow</span><span class="p">(</span><span class="n">train_arrow</span><span class="p">,</span> <span class="n">feature_cols</span><span class="p">,</span> <span class="n">label_col</span><span class="p">)</span>
+    <span class="n">deval</span>  <span class="o">=</span> <span class="n">_dmat_from_arrow</span><span class="p">(</span><span class="n">eval_arrow</span><span class="p">,</span>  <span class="n">feature_cols</span><span class="p">,</span> <span class="n">label_col</span><span class="p">)</span>
 
-    <span class="c1"># Optional resume from checkpoint (Ray sets this automatically if resuming)</span>
+    <span class="c1"># -------- 2) Optional resume from checkpoint ------------------------------</span>
     <span class="n">ckpt</span> <span class="o">=</span> <span class="n">get_checkpoint</span><span class="p">()</span>
     <span class="k">if</span> <span class="n">ckpt</span><span class="p">:</span>
         <span class="k">with</span> <span class="n">ckpt</span><span class="o">.</span><span class="n">as_directory</span><span class="p">()</span> <span class="k">as</span> <span class="n">d</span><span class="p">:</span>
@@ -7569,42 +7585,18 @@ Inside the loop you:</p>
             <span class="nb">print</span><span class="p">(</span><span class="sa">f</span><span class="s2">"[Rank </span><span class="si">{</span><span class="n">get_context</span><span class="p">()</span><span class="o">.</span><span class="n">get_world_rank</span><span class="p">()</span><span class="si">}</span><span class="s2">] Resumed from checkpoint"</span><span class="p">)</span>
     <span class="k">else</span><span class="p">:</span>
         <span class="n">booster</span> <span class="o">=</span> <span class="kc">None</span>
-    
-    <span class="n">evals_result</span> <span class="o">=</span> <span class="p">{}</span>  <span class="c1"># &lt;- XGBoost fills this with per-iteration metrics</span>
 
+    <span class="c1"># -------- 3) Train with per-round reporting &amp; checkpointing ---------------</span>
+    <span class="n">evals_result</span> <span class="o">=</span> <span class="p">{}</span>
     <span class="n">xgb</span><span class="o">.</span><span class="n">train</span><span class="p">(</span>
         <span class="n">params</span>          <span class="o">=</span> <span class="n">config</span><span class="p">[</span><span class="s2">"params"</span><span class="p">],</span>
         <span class="n">dtrain</span>          <span class="o">=</span> <span class="n">dtrain</span><span class="p">,</span>
-        <span class="n">evals</span>           <span class="o">=</span> <span class="p">[(</span><span class="n">dtrain</span><span class="p">,</span> <span class="s2">"train"</span><span class="p">),</span> <span class="p">(</span><span class="n">deval</span><span class="p">,</span> <span class="s2">"validation"</span><span class="p">)],</span>  <span class="c1"># ← CHANGED label only</span>
+        <span class="n">evals</span>           <span class="o">=</span> <span class="p">[(</span><span class="n">dtrain</span><span class="p">,</span> <span class="s2">"train"</span><span class="p">),</span> <span class="p">(</span><span class="n">deval</span><span class="p">,</span> <span class="s2">"validation"</span><span class="p">)],</span>
         <span class="n">num_boost_round</span> <span class="o">=</span> <span class="n">config</span><span class="p">[</span><span class="s2">"num_boost_round"</span><span class="p">],</span>
-        <span class="n">xgb_model</span>       <span class="o">=</span> <span class="n">booster</span><span class="p">,</span>  <span class="c1"># &lt;- resumes if booster is not None</span>
-        <span class="n">evals_result</span>    <span class="o">=</span> <span class="n">evals_result</span><span class="p">,</span>  <span class="c1"># &lt;- NEW: capture metrics per round</span>
-        <span class="n">callbacks</span><span class="o">=</span><span class="p">[</span>
-            <span class="n">RayTrainReportCallback</span><span class="p">()</span>  <span class="c1"># ← CHANGED: let it auto-collect metrics</span>
-        <span class="p">],</span>
+        <span class="n">xgb_model</span>       <span class="o">=</span> <span class="n">booster</span><span class="p">,</span>
+        <span class="n">evals_result</span>    <span class="o">=</span> <span class="n">evals_result</span><span class="p">,</span>
+        <span class="n">callbacks</span>       <span class="o">=</span> <span class="p">[</span><span class="n">RayTrainReportCallback</span><span class="p">()],</span>
     <span class="p">)</span>
-    <span class="c1"># --------------------------------------------------------</span>
-    <span class="c1"># 3. Rank-0 writes metrics JSON to the shared path</span>
-    <span class="c1"># --------------------------------------------------------</span>
-
-    <span class="k">if</span> <span class="n">get_context</span><span class="p">()</span><span class="o">.</span><span class="n">get_world_rank</span><span class="p">()</span> <span class="o">==</span> <span class="mi">0</span><span class="p">:</span>
-        <span class="n">out_json_path</span> <span class="o">=</span> <span class="n">config</span><span class="p">[</span><span class="s2">"out_json_path"</span><span class="p">]</span>
-
-        <span class="c1"># Optionally add a quick “best” summary for convenience</span>
-        <span class="n">v_hist</span> <span class="o">=</span> <span class="n">evals_result</span><span class="o">.</span><span class="n">get</span><span class="p">(</span><span class="s2">"validation"</span><span class="p">,</span> <span class="p">{})</span><span class="o">.</span><span class="n">get</span><span class="p">(</span><span class="s2">"mlogloss"</span><span class="p">,</span> <span class="p">[])</span>
-        <span class="n">best_idx</span> <span class="o">=</span> <span class="nb">int</span><span class="p">(</span><span class="n">np</span><span class="o">.</span><span class="n">argmin</span><span class="p">(</span><span class="n">v_hist</span><span class="p">))</span> <span class="k">if</span> <span class="nb">len</span><span class="p">(</span><span class="n">v_hist</span><span class="p">)</span> <span class="k">else</span> <span class="kc">None</span>
-        <span class="n">payload</span> <span class="o">=</span> <span class="p">{</span>
-            <span class="s2">"evals_result"</span><span class="p">:</span> <span class="n">evals_result</span><span class="p">,</span>
-            <span class="s2">"best"</span><span class="p">:</span> <span class="p">{</span>
-                <span class="s2">"iteration"</span><span class="p">:</span> <span class="p">(</span><span class="n">best_idx</span> <span class="o">+</span> <span class="mi">1</span><span class="p">)</span> <span class="k">if</span> <span class="n">best_idx</span> <span class="ow">is</span> <span class="ow">not</span> <span class="kc">None</span> <span class="k">else</span> <span class="kc">None</span><span class="p">,</span>
-                <span class="s2">"validation-mlogloss"</span><span class="p">:</span> <span class="p">(</span><span class="nb">float</span><span class="p">(</span><span class="n">v_hist</span><span class="p">[</span><span class="n">best_idx</span><span class="p">])</span> <span class="k">if</span> <span class="n">best_idx</span> <span class="ow">is</span> <span class="ow">not</span> <span class="kc">None</span> <span class="k">else</span> <span class="kc">None</span><span class="p">),</span>
-            <span class="p">},</span>
-        <span class="p">}</span>
-
-        <span class="n">os</span><span class="o">.</span><span class="n">makedirs</span><span class="p">(</span><span class="n">os</span><span class="o">.</span><span class="n">path</span><span class="o">.</span><span class="n">dirname</span><span class="p">(</span><span class="n">out_json_path</span><span class="p">),</span> <span class="n">exist_ok</span><span class="o">=</span><span class="kc">True</span><span class="p">)</span>
-        <span class="k">with</span> <span class="nb">open</span><span class="p">(</span><span class="n">out_json_path</span><span class="p">,</span> <span class="s2">"w"</span><span class="p">)</span> <span class="k">as</span> <span class="n">f</span><span class="p">:</span>
-            <span class="n">json</span><span class="o">.</span><span class="n">dump</span><span class="p">(</span><span class="n">payload</span><span class="p">,</span> <span class="n">f</span><span class="p">)</span>
-        <span class="nb">print</span><span class="p">(</span><span class="sa">f</span><span class="s2">"[Rank 0] Wrote metrics JSON → </span><span class="si">{</span><span class="n">out_json_path</span><span class="si">}</span><span class="s2">"</span><span class="p">)</span>
 </pre></div>
 </div>
 </div>
@@ -7617,13 +7609,18 @@ Inside the loop you:</p>
 </div>
 <div class="jp-InputArea jp-Cell-inputArea"><div class="jp-InputPrompt jp-InputArea-prompt">
 </div><div class="jp-RenderedHTMLCommon jp-RenderedMarkdown jp-MarkdownOutput" data-mime-type="text/markdown">
-<h3 id="9-%C2%B7-Configure-XGBoost-and-build-the-Trainer">9 · Configure XGBoost and build the Trainer<a class="anchor-link" href="#9-%C2%B7-Configure-XGBoost-and-build-the-Trainer">¶</a></h3><p>Here you define all model hyper-parameters (objective, number of classes, CPU tree method, etc.) and wrap <code>train_func</code> inside an <code>XGBoostTrainer</code>.</p>
+<h3 id="9.-Configure-XGBoost-and-build-the-Trainer">9. Configure XGBoost and build the Trainer<a class="anchor-link" href="#9.-Configure-XGBoost-and-build-the-Trainer">¶</a></h3><p>Next, define the XGBoost hyperparameters and wrap the <code>train_func</code> in an <code>XGBoostTrainer</code> for distributed execution.<br/>
+Each worker is assigned an entire CPU node (<code>resources_per_worker={"CPU": CPUS_PER_WORKER}</code>),<br/>
+allowing XGBoost to use all local cores efficiently through the <code>nthread</code> parameter.</p>
+<p>Key settings:</p>
 <ul>
-<li><code>ScalingConfig(num_workers=16, use_gpu=False)</code> allocates one CPU per worker.</li>
-<li><code>CheckpointConfig(checkpoint_frequency=10, num_to_keep=3)</code> keeps the three most recent checkpoints.</li>
-<li><code>FailureConfig(max_failures=1)</code> tells Ray to retry training up to one time if a worker crashes.<br/>
-Because you pass the Ray Datasets directly, Ray takes care of sharding them evenly across workers.</li>
+<li><strong><code>ScalingConfig</code></strong> — controls how many workers to launch and their CPU/GPU allocation.</li>
+<li><strong><code>CheckpointConfig</code></strong> — saves a checkpoint every 10 boosting rounds and scores each checkpoint by<br/>
+validation log-loss (<code>validation-mlogloss</code>), retaining only the best model.</li>
+<li><strong><code>FailureConfig</code></strong> — automatically retries failed workers up to one time for fault tolerance.</li>
 </ul>
+<p>By passing the Ray Datasets directly into the trainer, Ray handles dataset sharding and distributed streaming automatically,<br/>
+so each worker trains on its own slice of the data without manual coordination.</p>
 </div>
 </div>
 </div>
@@ -7635,31 +7632,44 @@ Because you pass the Ray Datasets directly, Ray takes care of sharding them even
 <div class="jp-InputPrompt jp-InputArea-prompt">In [ ]:</div>
 <div class="jp-CodeMirrorEditor jp-Editor jp-InputArea-editor" data-type="inline">
 <div class="cm-editor cm-s-jupyter">
-<div class="highlight hl-ipython3"><pre><span></span><span class="c1"># 09. XGBoost config + Trainer (uses train_func above)</span>
+<div class="highlight hl-ipython3"><pre><span></span><span class="c1"># 09. XGBoost config and Trainer (full-node CPU workers)</span>
+
+<span class="c1"># Adjust this to your node size if different (e.g., 16, 32, etc.)</span>
+<span class="n">CPUS_PER_WORKER</span> <span class="o">=</span> <span class="mi">4</span>
+
 <span class="n">xgb_params</span> <span class="o">=</span> <span class="p">{</span>
     <span class="s2">"objective"</span><span class="p">:</span> <span class="s2">"multi:softprob"</span><span class="p">,</span>
     <span class="s2">"num_class"</span><span class="p">:</span> <span class="mi">7</span><span class="p">,</span>
     <span class="s2">"eval_metric"</span><span class="p">:</span> <span class="s2">"mlogloss"</span><span class="p">,</span>
-    <span class="s2">"tree_method"</span><span class="p">:</span> <span class="s2">"hist"</span><span class="p">,</span>  <span class="c1"># CPU histogram algorithm </span>
+    <span class="s2">"tree_method"</span><span class="p">:</span> <span class="s2">"hist"</span><span class="p">,</span>
     <span class="s2">"eta"</span><span class="p">:</span> <span class="mf">0.3</span><span class="p">,</span>
     <span class="s2">"max_depth"</span><span class="p">:</span> <span class="mi">8</span><span class="p">,</span>
+    <span class="s2">"nthread"</span><span class="p">:</span> <span class="n">CPUS_PER_WORKER</span><span class="p">,</span>  
 <span class="p">}</span>
 
 <span class="n">trainer</span> <span class="o">=</span> <span class="n">XGBoostTrainer</span><span class="p">(</span>
-    <span class="n">train_func</span><span class="p">,</span>                
-    <span class="n">scaling_config</span>   <span class="o">=</span> <span class="n">ScalingConfig</span><span class="p">(</span><span class="n">num_workers</span><span class="o">=</span><span class="mi">16</span><span class="p">,</span> <span class="n">use_gpu</span><span class="o">=</span><span class="kc">False</span><span class="p">),</span>
-    <span class="n">datasets</span>         <span class="o">=</span> <span class="p">{</span><span class="s2">"train"</span><span class="p">:</span> <span class="n">train_ds</span><span class="p">,</span> <span class="s2">"evaluation"</span><span class="p">:</span> <span class="n">val_ds</span><span class="p">},</span>
+    <span class="n">train_func</span><span class="p">,</span>
+    <span class="n">scaling_config</span><span class="o">=</span><span class="n">ScalingConfig</span><span class="p">(</span>
+        <span class="n">num_workers</span><span class="o">=</span><span class="mi">2</span><span class="p">,</span>
+        <span class="n">use_gpu</span><span class="o">=</span><span class="kc">False</span><span class="p">,</span>
+        <span class="n">resources_per_worker</span><span class="o">=</span><span class="p">{</span><span class="s2">"CPU"</span><span class="p">:</span> <span class="n">CPUS_PER_WORKER</span><span class="p">},</span>
+    <span class="p">),</span>
+    <span class="n">datasets</span><span class="o">=</span><span class="p">{</span><span class="s2">"train"</span><span class="p">:</span> <span class="n">train_ds</span><span class="p">,</span> <span class="s2">"evaluation"</span><span class="p">:</span> <span class="n">val_ds</span><span class="p">},</span>
     <span class="n">train_loop_config</span><span class="o">=</span><span class="p">{</span>
         <span class="s2">"label_column"</span><span class="p">:</span> <span class="s2">"label"</span><span class="p">,</span>
         <span class="s2">"params"</span><span class="p">:</span> <span class="n">xgb_params</span><span class="p">,</span>
-        <span class="s2">"num_boost_round"</span><span class="p">:</span> <span class="mi">50</span><span class="p">,</span>  <span class="c1"># Increase or decrease to adjust training iterations</span>
-        <span class="s2">"out_json_path"</span><span class="p">:</span> <span class="s2">"/mnt/cluster_storage/covtype/results/covtype_xgb_cpu/metrics.json"</span><span class="p">,</span>
+        <span class="s2">"num_boost_round"</span><span class="p">:</span> <span class="mi">50</span><span class="p">,</span>
     <span class="p">},</span>
-    <span class="n">run_config</span>       <span class="o">=</span> <span class="n">RunConfig</span><span class="p">(</span>
+    <span class="n">run_config</span><span class="o">=</span><span class="n">RunConfig</span><span class="p">(</span>
         <span class="n">name</span><span class="o">=</span><span class="s2">"covtype_xgb_cpu"</span><span class="p">,</span>
         <span class="n">storage_path</span><span class="o">=</span><span class="s2">"/mnt/cluster_storage/covtype/results"</span><span class="p">,</span>
-        <span class="n">checkpoint_config</span><span class="o">=</span><span class="n">CheckpointConfig</span><span class="p">(</span><span class="n">checkpoint_frequency</span><span class="o">=</span><span class="mi">10</span><span class="p">,</span> <span class="n">num_to_keep</span><span class="o">=</span><span class="mi">1</span><span class="p">),</span>
-        <span class="n">failure_config</span><span class="o">=</span><span class="n">FailureConfig</span><span class="p">(</span><span class="n">max_failures</span><span class="o">=</span><span class="mi">1</span><span class="p">),</span>  <span class="c1"># resume up to 3 times</span>
+        <span class="n">checkpoint_config</span><span class="o">=</span><span class="n">CheckpointConfig</span><span class="p">(</span>
+            <span class="n">checkpoint_frequency</span><span class="o">=</span><span class="mi">10</span><span class="p">,</span>
+            <span class="n">num_to_keep</span><span class="o">=</span><span class="mi">1</span><span class="p">,</span>
+            <span class="n">checkpoint_score_attribute</span><span class="o">=</span><span class="s2">"validation-mlogloss"</span><span class="p">,</span>  <span class="c1"># score by val loss</span>
+            <span class="n">checkpoint_score_order</span><span class="o">=</span><span class="s2">"min"</span><span class="p">,</span>
+        <span class="p">),</span>
+        <span class="n">failure_config</span><span class="o">=</span><span class="n">FailureConfig</span><span class="p">(</span><span class="n">max_failures</span><span class="o">=</span><span class="mi">1</span><span class="p">),</span>
     <span class="p">),</span>
 <span class="p">)</span>
 </pre></div>
@@ -7674,7 +7684,7 @@ Because you pass the Ray Datasets directly, Ray takes care of sharding them even
 </div>
 <div class="jp-InputArea jp-Cell-inputArea"><div class="jp-InputPrompt jp-InputArea-prompt">
 </div><div class="jp-RenderedHTMLCommon jp-RenderedMarkdown jp-MarkdownOutput" data-mime-type="text/markdown">
-<h3 id="10-%C2%B7-Start-distributed-training">10 · Start distributed training<a class="anchor-link" href="#10-%C2%B7-Start-distributed-training">¶</a></h3><p><code>trainer.fit()</code> blocks until all boosting rounds finish (or until Ray exhausts retries).  The result object contains the last reported metrics and the best checkpoint found so far. Print the final validation log-loss and keep a handle to the checkpoint for inference.</p>
+<h3 id="10.-Start-distributed-training">10. Start distributed training<a class="anchor-link" href="#10.-Start-distributed-training">¶</a></h3><p><code>trainer.fit()</code> blocks until all boosting rounds finish, or until Ray exhausts retries.  The result object contains the last reported metrics and the best checkpoint found so far. Print the final validation log-loss and keep a handle to the checkpoint for inference.</p>
 </div>
 </div>
 </div>
@@ -7701,7 +7711,7 @@ Because you pass the Ray Datasets directly, Ray takes care of sharding them even
 </div>
 <div class="jp-InputArea jp-Cell-inputArea"><div class="jp-InputPrompt jp-InputArea-prompt">
 </div><div class="jp-RenderedHTMLCommon jp-RenderedMarkdown jp-MarkdownOutput" data-mime-type="text/markdown">
-<h3 id="11-%C2%B7-Plot-log-loss-over-boosting-rounds">11 · Plot log-loss over boosting rounds<a class="anchor-link" href="#11-%C2%B7-Plot-log-loss-over-boosting-rounds">¶</a></h3><p>During training you captured the full per-round evaluation history using XGBoost’s built-in <code>evals_result</code> and saved it to JSON. Reloading that JSON now gives you both training and validation log-loss values for each boosting round. Plotting these lists against their round index shows how the model converges: training loss decrease steadily, while validation loss follows, maintaining a small gap.</p>
+<h3 id="11.-Evaluate-the-trained-model">11. Evaluate the trained model<a class="anchor-link" href="#11.-Evaluate-the-trained-model">¶</a></h3><p>Pull the XGBoost <code>Booster</code> back from the checkpoint, run predictions on the entire validation set, and compute overall accuracy. Converting the Ray Dataset to pandas keeps the example short. In production you stream batches instead of materializing the whole frame.</p>
 </div>
 </div>
 </div>
@@ -7713,24 +7723,17 @@ Because you pass the Ray Datasets directly, Ray takes care of sharding them even
 <div class="jp-InputPrompt jp-InputArea-prompt">In [ ]:</div>
 <div class="jp-CodeMirrorEditor jp-Editor jp-InputArea-editor" data-type="inline">
 <div class="cm-editor cm-s-jupyter">
-<div class="highlight hl-ipython3"><pre><span></span><span class="c1"># 11. Plot evaluation history from saved JSON</span>
+<div class="highlight hl-ipython3"><pre><span></span><span class="c1"># 11. Retrieve Booster object from Ray checkpoint</span>
+<span class="n">booster</span> <span class="o">=</span> <span class="n">RayTrainReportCallback</span><span class="o">.</span><span class="n">get_model</span><span class="p">(</span><span class="n">best_ckpt</span><span class="p">)</span>
 
-<span class="k">with</span> <span class="nb">open</span><span class="p">(</span><span class="s2">"/mnt/cluster_storage/covtype/results/covtype_xgb_cpu/metrics.json"</span><span class="p">)</span> <span class="k">as</span> <span class="n">f</span><span class="p">:</span>
-    <span class="n">payload</span> <span class="o">=</span> <span class="n">json</span><span class="o">.</span><span class="n">load</span><span class="p">(</span><span class="n">f</span><span class="p">)</span>
+<span class="c1"># Convert Ray Dataset to pandas for quick local scoring</span>
+<span class="n">val_pd</span> <span class="o">=</span> <span class="n">val_ds</span><span class="o">.</span><span class="n">to_pandas</span><span class="p">()</span>
+<span class="n">dmatrix</span> <span class="o">=</span> <span class="n">xgb</span><span class="o">.</span><span class="n">DMatrix</span><span class="p">(</span><span class="n">val_pd</span><span class="p">[</span><span class="n">feature_columns</span><span class="p">])</span>
+<span class="n">pred_prob</span> <span class="o">=</span> <span class="n">booster</span><span class="o">.</span><span class="n">predict</span><span class="p">(</span><span class="n">dmatrix</span><span class="p">)</span>
+<span class="n">pred_labels</span> <span class="o">=</span> <span class="n">np</span><span class="o">.</span><span class="n">argmax</span><span class="p">(</span><span class="n">pred_prob</span><span class="p">,</span> <span class="n">axis</span><span class="o">=</span><span class="mi">1</span><span class="p">)</span>
 
-<span class="n">hist</span> <span class="o">=</span> <span class="n">payload</span><span class="p">[</span><span class="s2">"evals_result"</span><span class="p">]</span>
-<span class="n">train</span> <span class="o">=</span> <span class="n">hist</span><span class="p">[</span><span class="s2">"train"</span><span class="p">][</span><span class="s2">"mlogloss"</span><span class="p">]</span>
-<span class="n">val</span>   <span class="o">=</span> <span class="n">hist</span><span class="p">[</span><span class="s2">"validation"</span><span class="p">][</span><span class="s2">"mlogloss"</span><span class="p">]</span>
-
-<span class="n">xs</span> <span class="o">=</span> <span class="n">np</span><span class="o">.</span><span class="n">arange</span><span class="p">(</span><span class="mi">1</span><span class="p">,</span> <span class="nb">len</span><span class="p">(</span><span class="n">val</span><span class="p">)</span> <span class="o">+</span> <span class="mi">1</span><span class="p">)</span>
-<span class="n">plt</span><span class="o">.</span><span class="n">figure</span><span class="p">(</span><span class="n">figsize</span><span class="o">=</span><span class="p">(</span><span class="mi">7</span><span class="p">,</span><span class="mi">4</span><span class="p">))</span>
-<span class="n">plt</span><span class="o">.</span><span class="n">plot</span><span class="p">(</span><span class="n">xs</span><span class="p">,</span> <span class="n">train</span><span class="p">,</span> <span class="n">label</span><span class="o">=</span><span class="s2">"Train"</span><span class="p">)</span>
-<span class="n">plt</span><span class="o">.</span><span class="n">plot</span><span class="p">(</span><span class="n">xs</span><span class="p">,</span> <span class="n">val</span><span class="p">,</span>   <span class="n">label</span><span class="o">=</span><span class="s2">"Val"</span><span class="p">)</span>
-<span class="n">plt</span><span class="o">.</span><span class="n">xlabel</span><span class="p">(</span><span class="s2">"Boosting round"</span><span class="p">);</span> <span class="n">plt</span><span class="o">.</span><span class="n">ylabel</span><span class="p">(</span><span class="s2">"Log-loss"</span><span class="p">);</span> <span class="n">plt</span><span class="o">.</span><span class="n">title</span><span class="p">(</span><span class="s2">"XGBoost log-loss"</span><span class="p">)</span>
-<span class="n">plt</span><span class="o">.</span><span class="n">grid</span><span class="p">(</span><span class="kc">True</span><span class="p">);</span> <span class="n">plt</span><span class="o">.</span><span class="n">legend</span><span class="p">();</span> <span class="n">plt</span><span class="o">.</span><span class="n">tight_layout</span><span class="p">();</span> <span class="n">plt</span><span class="o">.</span><span class="n">show</span><span class="p">()</span>
-
-<span class="n">best</span> <span class="o">=</span> <span class="n">payload</span><span class="p">[</span><span class="s2">"best"</span><span class="p">][</span><span class="s2">"validation-mlogloss"</span><span class="p">]</span>
-<span class="nb">print</span><span class="p">(</span><span class="s2">"Best validation log-loss:"</span><span class="p">,</span> <span class="n">best</span><span class="p">)</span>
+<span class="n">acc</span> <span class="o">=</span> <span class="n">accuracy_score</span><span class="p">(</span><span class="n">val_pd</span><span class="o">.</span><span class="n">label</span><span class="p">,</span> <span class="n">pred_labels</span><span class="p">)</span>
+<span class="nb">print</span><span class="p">(</span><span class="sa">f</span><span class="s2">"Validation accuracy: </span><span class="si">{</span><span class="n">acc</span><span class="si">:</span><span class="s2">.3f</span><span class="si">}</span><span class="s2">"</span><span class="p">)</span>
 </pre></div>
 </div>
 </div>

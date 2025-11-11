@@ -7517,7 +7517,35 @@ a.anchor-link {
 </div>
 <div class="jp-InputArea jp-Cell-inputArea"><div class="jp-InputPrompt jp-InputArea-prompt">
 </div><div class="jp-RenderedHTMLCommon jp-RenderedMarkdown jp-MarkdownOutput" data-mime-type="text/markdown">
-<h2 id="01-%C2%B7-Imports">01 · Imports<a class="anchor-link" href="#01-%C2%B7-Imports">¶</a></h2><p>Before you start, gather every library you're going to rely on throughout this notebook. Pull in core Python utilities for file handling and plotting, PyTorch and TorchVision for deep-learning components, Ray Train for distributed orchestration, Hugging Face Datasets for quick data access, and PyArrow plus Pandas for fast Parquet IO. Importing everything up-front keeps the rest of the tutorial clean and predictable.</p>
+<h2 id="1.-Imports">1. Imports<a class="anchor-link" href="#1.-Imports">¶</a></h2><p>Before you start, gather every library you're going to rely on throughout this notebook. Pull in core Python utilities for file handling and plotting, PyTorch and TorchVision for deep-learning components, Ray Train for distributed orchestration, Hugging Face Datasets for quick data access, and PyArrow plus Pandas for fast Parquet IO. Importing everything up-front keeps the rest of the tutorial clean and predictable.</p>
+</div>
+</div>
+</div>
+</div><div class="jp-Cell jp-CodeCell jp-Notebook-cell jp-mod-noOutputs">
+<div class="jp-Cell-inputWrapper" tabindex="0">
+<div class="jp-Collapser jp-InputCollapser jp-Cell-inputCollapser">
+</div>
+<div class="jp-InputArea jp-Cell-inputArea">
+<div class="jp-InputPrompt jp-InputArea-prompt">In [ ]:</div>
+<div class="jp-CodeMirrorEditor jp-Editor jp-InputArea-editor" data-type="inline">
+<div class="cm-editor cm-s-jupyter">
+<div class="highlight hl-ipython3"><pre><span></span><span class="c1"># 00. Runtime setup </span>
+<span class="kn">import</span><span class="w"> </span><span class="nn">os</span><span class="o">,</span><span class="w"> </span><span class="nn">sys</span><span class="o">,</span><span class="w"> </span><span class="nn">subprocess</span>
+
+<span class="c1"># Non-secret env var </span>
+<span class="n">os</span><span class="o">.</span><span class="n">environ</span><span class="p">[</span><span class="s2">"RAY_TRAIN_V2_ENABLED"</span><span class="p">]</span> <span class="o">=</span> <span class="s2">"1"</span>
+
+<span class="c1"># Install Python dependencies </span>
+<span class="n">subprocess</span><span class="o">.</span><span class="n">check_call</span><span class="p">([</span>
+    <span class="n">sys</span><span class="o">.</span><span class="n">executable</span><span class="p">,</span> <span class="s2">"-m"</span><span class="p">,</span> <span class="s2">"pip"</span><span class="p">,</span> <span class="s2">"install"</span><span class="p">,</span> <span class="s2">"--no-cache-dir"</span><span class="p">,</span>
+    <span class="s2">"torch==2.8.0"</span><span class="p">,</span>
+    <span class="s2">"torchvision==0.23.0"</span><span class="p">,</span>
+    <span class="s2">"matplotlib==3.10.6"</span><span class="p">,</span>
+    <span class="s2">"pyarrow==14.0.2"</span><span class="p">,</span>
+    <span class="s2">"datasets==2.19.2"</span><span class="p">,</span>
+<span class="p">])</span>
+</pre></div>
+</div>
 </div>
 </div>
 </div>
@@ -7600,7 +7628,7 @@ a.anchor-link {
 </div>
 <div class="jp-InputArea jp-Cell-inputArea"><div class="jp-InputPrompt jp-InputArea-prompt">
 </div><div class="jp-RenderedHTMLCommon jp-RenderedMarkdown jp-MarkdownOutput" data-mime-type="text/markdown">
-<h3 id="02-%C2%B7-Load-10-%25-of-Food-101">02 · Load 10 % of Food-101<a class="anchor-link" href="#02-%C2%B7-Load-10-%25-of-Food-101">¶</a></h3><p>Next, grab roughly 7,500 images, exactly 10% of Food-101—using a single call to <code>load_dataset</code>. This trimmed subset trains quickly while still being large enough to demonstrate Ray’s scaling behavior.</p>
+<h3 id="2.-Load-10-%25-of-Food-101">2. Load 10 % of Food-101<a class="anchor-link" href="#2.-Load-10-%25-of-Food-101">¶</a></h3><p>Next, get roughly 7,500 images, exactly 10% of Food-101—using a single call to <code>load_dataset</code>. This trimmed subset trains quickly while still being large enough to demonstrate Ray’s scaling behavior.</p>
 </div>
 </div>
 </div>
@@ -7626,7 +7654,7 @@ a.anchor-link {
 </div>
 <div class="jp-InputArea jp-Cell-inputArea"><div class="jp-InputPrompt jp-InputArea-prompt">
 </div><div class="jp-RenderedHTMLCommon jp-RenderedMarkdown jp-MarkdownOutput" data-mime-type="text/markdown">
-<h3 id="03-%C2%B7-Resize-and-Encode-Images">03 · Resize and Encode Images<a class="anchor-link" href="#03-%C2%B7-Resize-and-Encode-Images">¶</a></h3><p>Here you preprocess each image: resize to 256 pixels, center-crop to 224 pixels (the size expected by most ImageNet models), and then convert the result to raw Joint Photographic Experts Group (JPEG) bytes. By storing bytes instead of full Python Imaging Library (PIL) objects, you| keep the dataset compact and Parquet-friendly.</p>
+<h3 id="3.-Resize-and-encode-images">3. Resize and encode images<a class="anchor-link" href="#3.-Resize-and-encode-images">¶</a></h3><p>Preprocess each image: resize to 256 pixels, center-crop to 224 pixels (the size expected by most ImageNet models), and then convert the result to raw Joint Photographic Experts Group (JPEG) bytes. By storing bytes instead of full Python Imaging Library (PIL) objects, you keep the dataset compact and Parquet-friendly.</p>
 </div>
 </div>
 </div>
@@ -7638,7 +7666,7 @@ a.anchor-link {
 <div class="jp-InputPrompt jp-InputArea-prompt">In [ ]:</div>
 <div class="jp-CodeMirrorEditor jp-Editor jp-InputArea-editor" data-type="inline">
 <div class="cm-editor cm-s-jupyter">
-<div class="highlight hl-ipython3"><pre><span></span><span class="c1"># 03. Resize + encode as JPEG bytes</span>
+<div class="highlight hl-ipython3"><pre><span></span><span class="c1"># 03. Resize and encode as JPEG bytes</span>
 <span class="n">transform</span> <span class="o">=</span> <span class="n">Compose</span><span class="p">([</span><span class="n">Resize</span><span class="p">(</span><span class="mi">256</span><span class="p">),</span> <span class="n">CenterCrop</span><span class="p">(</span><span class="mi">224</span><span class="p">)])</span>
 <span class="n">records</span> <span class="o">=</span> <span class="p">[]</span>
 
@@ -7665,7 +7693,7 @@ a.anchor-link {
 </div>
 <div class="jp-InputArea jp-Cell-inputArea"><div class="jp-InputPrompt jp-InputArea-prompt">
 </div><div class="jp-RenderedHTMLCommon jp-RenderedMarkdown jp-MarkdownOutput" data-mime-type="text/markdown">
-<h3 id="04-%C2%B7-Visual-Sanity-Check">04 · Visual Sanity Check<a class="anchor-link" href="#04-%C2%B7-Visual-Sanity-Check">¶</a></h3><p>Before committing to hours of training, take nine random samples and plot them with their class names. This quick inspection lets you properly align labels and confirm that images are correctly resized.</p>
+<h3 id="4.-Visual-sanity-check">4. Visual sanity check<a class="anchor-link" href="#4.-Visual-sanity-check">¶</a></h3><p>Before committing to hours of training, take nine random samples and plot them with their class names. This quick inspection lets you properly align labels and confirm that images are correctly resized.</p>
 </div>
 </div>
 </div>
@@ -7707,7 +7735,7 @@ a.anchor-link {
 </div>
 <div class="jp-InputArea jp-Cell-inputArea"><div class="jp-InputPrompt jp-InputArea-prompt">
 </div><div class="jp-RenderedHTMLCommon jp-RenderedMarkdown jp-MarkdownOutput" data-mime-type="text/markdown">
-<h3 id="05-%C2%B7-Persist-to-Parquet">05 · Persist to Parquet<a class="anchor-link" href="#05-%C2%B7-Persist-to-Parquet">¶</a></h3><p>Now write the images and labels to a Parquet file. Because Parquet is columnar, you can read just the columns you need during training, which speeds up IO---especially when multiple workers are reading in parallel under Ray.</p>
+<h3 id="5.-Persist-to-Parquet">5. Persist to Parquet<a class="anchor-link" href="#5.-Persist-to-Parquet">¶</a></h3><p>Write the images and labels to a Parquet file. Because Parquet is columnar, you can read just the columns you need during training, which speeds up IO—especially when multiple workers are reading in parallel under Ray.</p>
 </div>
 </div>
 </div>

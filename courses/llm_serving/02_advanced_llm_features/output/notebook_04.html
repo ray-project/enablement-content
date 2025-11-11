@@ -3,7 +3,7 @@
 <html lang="en">
 <head><meta charset="utf-8"/>
 <meta content="width=device-width, initial-scale=1.0" name="viewport"/>
-<title>04b_tabular_workload_pattern_06</title><script src="https://cdnjs.cloudflare.com/ajax/libs/require.js/2.1.10/require.min.js"></script>
+<title>notebook_04</title><script src="https://cdnjs.cloudflare.com/ajax/libs/require.js/2.1.10/require.min.js"></script>
 <style type="text/css">
     pre { line-height: 125%; }
 td.linenos .normal { color: inherit; background-color: transparent; padding-left: 5px; padding-right: 5px; }
@@ -7517,67 +7517,14 @@ a.anchor-link {
 </div>
 <div class="jp-InputArea jp-Cell-inputArea"><div class="jp-InputPrompt jp-InputArea-prompt">
 </div><div class="jp-RenderedHTMLCommon jp-RenderedMarkdown jp-MarkdownOutput" data-mime-type="text/markdown">
-<h2 id="%F0%9F%8E%89-Wrapping-Up-&amp;-Next-Steps">🎉 Wrapping Up &amp; Next Steps<a class="anchor-link" href="#%F0%9F%8E%89-Wrapping-Up-&amp;-Next-Steps">¶</a></h2><p>Awesome work making it to the end. You’ve built a fast and fault-tolerant XGBoost training loop that runs on real data, scales across CPUs, recovers from worker failures, and supports batch inference, all inside a single notebook.</p>
-<p>You should now feel confident:</p>
-<ul>
-<li>Using <strong>Ray Data</strong> to ingest, shuffle, and shard large tabular datasets across a cluster</li>
-<li>Defining custom <code>train_func</code>s that run on <strong>Ray Train</strong> workers and resume seamlessly from checkpoints</li>
-<li>Tracking per-round metrics and saving checkpoints with <strong>RayTrainReportCallback</strong></li>
-<li>Leveraging <strong>Ray’s distributed execution model</strong> to evaluate and monitor models without manual orchestration</li>
-<li>Launching remote CPU-powered inference tasks using <strong>Ray remote functions</strong> for scalable batch scoring</li>
+<h2 id="Example:-Getting-Structured-JSON-Output">Example: Getting Structured JSON Output<a class="anchor-link" href="#Example:-Getting-Structured-JSON-Output">¶</a></h2><p>Many applications need consistent, parseable output from LLMs. Ray Serve LLM supports structured output generation, ensuring your model returns data in the exact format you need.</p>
+<h3 id="Why-Structured-Output-Matters">Why Structured Output Matters<a class="anchor-link" href="#Why-Structured-Output-Matters">¶</a></h3><ul>
+<li><strong>Consistent Format</strong>: Guaranteed JSON structure for downstream processing</li>
+<li><strong>Integration Ready</strong>: Easy to parse and use in applications</li>
+<li><strong>Reliability</strong>: Reduces parsing errors and improves system robustness</li>
+<li><strong>Type Safety</strong>: Enforces data types and required fields</li>
 </ul>
-<hr/>
-<h3 id="%F0%9F%9A%80-Where-can-you-take-this-next?">🚀 Where can you take this next?<a class="anchor-link" href="#%F0%9F%9A%80-Where-can-you-take-this-next?">¶</a></h3><p>Below are a few directions you might explore to adapt or extend the pattern:</p>
-<ol>
-<li><p><strong>Early Stopping &amp; Best Iteration Tracking</strong></p>
-<ul>
-<li>Add <code>early_stopping_rounds=10</code> to <code>xgb.train</code> and log the best round.</li>
-<li>Track performance delta across resumed runs.</li>
-</ul>
-</li>
-<li><p><strong>Hyperparameter Sweeps</strong></p>
-<ul>
-<li>Wrap the trainer with <strong>Ray Tune</strong> and search over <code>eta</code>, <code>max_depth</code>, or <code>subsample</code>.</li>
-<li>Use Tune’s built-in checkpoint pruning and log callbacks.</li>
-</ul>
-</li>
-<li><p><strong>Feature Engineering at Scale</strong></p>
-<ul>
-<li>Create new features using <code>Ray Dataset.map_batches</code>, such as terrain interactions or log-scaled distances.</li>
-<li>Materialize multiple Parquet shards and benchmark load time.</li>
-</ul>
-</li>
-<li><p><strong>Model Interpretability</strong></p>
-<ul>
-<li>Use XGBoost’s built-in <code>Booster.get_score</code> for feature attributions.</li>
-<li>Rank features by importance and validate with domain knowledge.</li>
-</ul>
-</li>
-<li><p><strong>Serving the Model</strong></p>
-<ul>
-<li>Package the Booster as a Ray task or <strong>Ray Serve</strong> endpoint.</li>
-<li>Deploy an API that takes a feature vector and returns the predicted cover type.</li>
-</ul>
-</li>
-<li><p><strong>Real-Time Logging</strong></p>
-<ul>
-<li>Integrate with MLflow or Weights &amp; Biases to store logs, plots, and checkpoints.</li>
-<li>Use tags and metadata to track experiments over time.</li>
-</ul>
-</li>
-<li><p><strong>Alternative Objectives</strong></p>
-<ul>
-<li>Try a binary objective (For example, presence vs. absence of a species) or regression target (For example, canopy height).</li>
-<li>Fine-tune loss functions for specific ecological tasks.</li>
-</ul>
-</li>
-<li><p><strong>End-to-End MLOps</strong></p>
-<ul>
-<li>Schedule retraining with Ray Jobs or Anyscale Jobs.</li>
-<li>Upload new data snapshots and trigger daily training runs with automatic checkpoint cleanup.</li>
-</ul>
-</li>
-</ol>
+<h3 id="Example:-Car-type-description">Example: Car type description<a class="anchor-link" href="#Example:-Car-type-description">¶</a></h3><p>Let's deploy a model. It is recommended to research the performance of your model in structured output benchmarks.</p>
 </div>
 </div>
 </div>
@@ -7588,6 +7535,168 @@ a.anchor-link {
 </div>
 <div class="jp-InputArea jp-Cell-inputArea"><div class="jp-InputPrompt jp-InputArea-prompt">
 </div><div class="jp-RenderedHTMLCommon jp-RenderedMarkdown jp-MarkdownOutput" data-mime-type="text/markdown">
+<div class="highlight"><pre><span></span><span class="c1"># serve_my_qwen.yaml</span>
+<span class="nt">applications</span><span class="p">:</span>
+<span class="p p-Indicator">-</span><span class="w"> </span><span class="nt">name</span><span class="p">:</span><span class="w"> </span><span class="l l-Scalar l-Scalar-Plain">json-mode-app</span>
+<span class="w">  </span><span class="nt">route_prefix</span><span class="p">:</span><span class="w"> </span><span class="s">"/"</span>
+<span class="w">  </span><span class="nt">import_path</span><span class="p">:</span><span class="w"> </span><span class="l l-Scalar l-Scalar-Plain">ray.serve.llm:build_openai_app</span>
+<span class="w">  </span><span class="nt">args</span><span class="p">:</span>
+<span class="w">    </span><span class="nt">llm_configs</span><span class="p">:</span>
+<span class="w">      </span><span class="p p-Indicator">-</span><span class="w"> </span><span class="nt">model_loading_config</span><span class="p">:</span>
+<span class="w">          </span><span class="nt">model_id</span><span class="p">:</span><span class="w"> </span><span class="l l-Scalar l-Scalar-Plain">my-qwen</span>
+<span class="w">          </span><span class="nt">model_source</span><span class="p">:</span><span class="w"> </span><span class="l l-Scalar l-Scalar-Plain">Qwen/Qwen2.5-3B-Instruct</span>
+<span class="w">        </span><span class="nt">accelerator_type</span><span class="p">:</span><span class="w"> </span><span class="l l-Scalar l-Scalar-Plain">L4</span>
+<span class="w">        </span><span class="c1">### Uncomment if your model is gated and need your Huggingface Token to access it</span>
+<span class="w">        </span><span class="c1">#runtime_env:</span>
+<span class="w">        </span><span class="c1">#  env_vars:</span>
+<span class="w">        </span><span class="c1">#    HF_TOKEN: &lt;YOUR-TOKEN-HERE&gt;</span>
+<span class="w">        </span><span class="nt">engine_kwargs</span><span class="p">:</span>
+<span class="w">          </span><span class="nt">max_model_len</span><span class="p">:</span><span class="w"> </span><span class="l l-Scalar l-Scalar-Plain">8192</span>
+</pre></div>
+</div>
+</div>
+</div>
+</div><div class="jp-Cell jp-CodeCell jp-Notebook-cell jp-mod-noOutputs">
+<div class="jp-Cell-inputWrapper" tabindex="0">
+<div class="jp-Collapser jp-InputCollapser jp-Cell-inputCollapser">
+</div>
+<div class="jp-InputArea jp-Cell-inputArea">
+<div class="jp-InputPrompt jp-InputArea-prompt">In [ ]:</div>
+<div class="jp-CodeMirrorEditor jp-Editor jp-InputArea-editor" data-type="inline">
+<div class="cm-editor cm-s-jupyter">
+<div class="highlight hl-ipython3"><pre><span></span><span class="o">!</span>serve<span class="w"> </span>run<span class="w"> </span>serve_my_qwen.yaml<span class="w"> </span>--non-blocking
+</pre></div>
+</div>
+</div>
+</div>
+</div>
+</div>
+<div class="jp-Cell jp-MarkdownCell jp-Notebook-cell">
+<div class="jp-Cell-inputWrapper" tabindex="0">
+<div class="jp-Collapser jp-InputCollapser jp-Cell-inputCollapser">
+</div>
+<div class="jp-InputArea jp-Cell-inputArea"><div class="jp-InputPrompt jp-InputArea-prompt">
+</div><div class="jp-RenderedHTMLCommon jp-RenderedMarkdown jp-MarkdownOutput" data-mime-type="text/markdown">
+<h3 id="Using-Structured-Output">Using Structured Output<a class="anchor-link" href="#Using-Structured-Output">¶</a></h3><p>Now let's test our structured output model with some product descriptions:</p>
+</div>
+</div>
+</div>
+</div><div class="jp-Cell jp-CodeCell jp-Notebook-cell jp-mod-noOutputs">
+<div class="jp-Cell-inputWrapper" tabindex="0">
+<div class="jp-Collapser jp-InputCollapser jp-Cell-inputCollapser">
+</div>
+<div class="jp-InputArea jp-Cell-inputArea">
+<div class="jp-InputPrompt jp-InputArea-prompt">In [ ]:</div>
+<div class="jp-CodeMirrorEditor jp-Editor jp-InputArea-editor" data-type="inline">
+<div class="cm-editor cm-s-jupyter">
+<div class="highlight hl-ipython3"><pre><span></span><span class="c1">#json_method1.py</span>
+<span class="kn">from</span><span class="w"> </span><span class="nn">openai</span><span class="w"> </span><span class="kn">import</span> <span class="n">OpenAI</span>
+<span class="kn">from</span><span class="w"> </span><span class="nn">pydantic</span><span class="w"> </span><span class="kn">import</span> <span class="n">BaseModel</span>
+<span class="kn">from</span><span class="w"> </span><span class="nn">enum</span><span class="w"> </span><span class="kn">import</span> <span class="n">Enum</span>
+
+<span class="n">client</span> <span class="o">=</span> <span class="n">OpenAI</span><span class="p">(</span><span class="n">base_url</span><span class="o">=</span><span class="s2">"http://localhost:8000/v1"</span><span class="p">,</span> <span class="n">api_key</span><span class="o">=</span><span class="s2">"FAKE_KEY"</span><span class="p">)</span>
+
+<span class="c1"># (Optional) We use Pydantic model to handle schema definition/validation</span>
+<span class="k">class</span><span class="w"> </span><span class="nc">CarType</span><span class="p">(</span><span class="nb">str</span><span class="p">,</span> <span class="n">Enum</span><span class="p">):</span>
+    <span class="n">sedan</span> <span class="o">=</span> <span class="s2">"sedan"</span>
+    <span class="n">suv</span> <span class="o">=</span> <span class="s2">"SUV"</span>
+    <span class="n">truck</span> <span class="o">=</span> <span class="s2">"Truck"</span>
+    <span class="n">coupe</span> <span class="o">=</span> <span class="s2">"Coupe"</span>
+
+<span class="k">class</span><span class="w"> </span><span class="nc">CarDescription</span><span class="p">(</span><span class="n">BaseModel</span><span class="p">):</span>
+    <span class="n">brand</span><span class="p">:</span> <span class="nb">str</span>
+    <span class="n">model</span><span class="p">:</span> <span class="nb">str</span>
+    <span class="n">car_type</span><span class="p">:</span> <span class="n">CarType</span>
+
+<span class="c1"># 1. Define your schema</span>
+<span class="n">json_schema</span> <span class="o">=</span> <span class="n">CarDescription</span><span class="o">.</span><span class="n">model_json_schema</span><span class="p">()</span>
+
+<span class="c1"># 2. Send a request</span>
+<span class="n">response</span> <span class="o">=</span> <span class="n">client</span><span class="o">.</span><span class="n">chat</span><span class="o">.</span><span class="n">completions</span><span class="o">.</span><span class="n">create</span><span class="p">(</span>
+    <span class="n">model</span><span class="o">=</span><span class="s2">"my-qwen"</span><span class="p">,</span>
+    <span class="n">messages</span><span class="o">=</span><span class="p">[</span>
+        <span class="p">{</span>
+            <span class="s2">"role"</span><span class="p">:</span> <span class="s2">"user"</span><span class="p">,</span>
+            <span class="s2">"content"</span><span class="p">:</span> <span class="s2">"Generate a JSON with the brand, model and car_type of the most iconic car from the 90's"</span><span class="p">,</span>
+        <span class="p">}</span>
+    <span class="p">],</span>
+    <span class="c1"># 3. Set `response_format` of type `json_schema`</span>
+    <span class="n">response_format</span><span class="o">=</span> <span class="p">{</span>
+        <span class="s2">"type"</span><span class="p">:</span> <span class="s2">"json_schema"</span><span class="p">,</span>
+        <span class="c1"># 4. Provide `name`and `schema` (both required)</span>
+        <span class="s2">"json_schema"</span><span class="p">:</span> <span class="p">{</span>
+            <span class="s2">"name"</span><span class="p">:</span> <span class="s2">"car-description"</span><span class="p">,</span> <span class="c1"># arbitrary</span>
+            <span class="s2">"schema"</span><span class="p">:</span> <span class="n">json_schema</span> <span class="c1"># your JSON schema</span>
+        <span class="p">},</span>
+    <span class="p">}</span>
+<span class="p">)</span>
+
+<span class="nb">print</span><span class="p">(</span><span class="n">response</span><span class="o">.</span><span class="n">choices</span><span class="p">[</span><span class="mi">0</span><span class="p">]</span><span class="o">.</span><span class="n">message</span><span class="o">.</span><span class="n">content</span><span class="p">)</span>
+</pre></div>
+</div>
+</div>
+</div>
+</div>
+</div>
+<div class="jp-Cell jp-MarkdownCell jp-Notebook-cell">
+<div class="jp-Cell-inputWrapper" tabindex="0">
+<div class="jp-Collapser jp-InputCollapser jp-Cell-inputCollapser">
+</div>
+<div class="jp-InputArea jp-Cell-inputArea"><div class="jp-InputPrompt jp-InputArea-prompt">
+</div><div class="jp-RenderedHTMLCommon jp-RenderedMarkdown jp-MarkdownOutput" data-mime-type="text/markdown">
+<h3 id="Expected-Output">Expected Output<a class="anchor-link" href="#Expected-Output">¶</a></h3><p>The model will return a consistent JSON structure like:</p>
+<div class="highlight"><pre><span></span><span class="p">{</span>
+<span class="w">  </span><span class="nt">"brand"</span><span class="p">:</span><span class="w"> </span><span class="s2">"Lexus"</span><span class="p">,</span>
+<span class="w">  </span><span class="nt">"model"</span><span class="p">:</span><span class="w"> </span><span class="s2">"IS F"</span><span class="p">,</span>
+<span class="w">  </span><span class="nt">"car_type"</span><span class="p">:</span><span class="w"> </span><span class="s2">"SUV"</span>
+<span class="p">}</span>
+</pre></div>
+</div>
+</div>
+</div>
+</div>
+<div class="jp-Cell jp-MarkdownCell jp-Notebook-cell">
+<div class="jp-Cell-inputWrapper" tabindex="0">
+<div class="jp-Collapser jp-InputCollapser jp-Cell-inputCollapser">
+</div>
+<div class="jp-InputArea jp-Cell-inputArea"><div class="jp-InputPrompt jp-InputArea-prompt">
+</div><div class="jp-RenderedHTMLCommon jp-RenderedMarkdown jp-MarkdownOutput" data-mime-type="text/markdown">
+<p>Shutdown</p>
+</div>
+</div>
+</div>
+</div><div class="jp-Cell jp-CodeCell jp-Notebook-cell jp-mod-noOutputs">
+<div class="jp-Cell-inputWrapper" tabindex="0">
+<div class="jp-Collapser jp-InputCollapser jp-Cell-inputCollapser">
+</div>
+<div class="jp-InputArea jp-Cell-inputArea">
+<div class="jp-InputPrompt jp-InputArea-prompt">In [ ]:</div>
+<div class="jp-CodeMirrorEditor jp-Editor jp-InputArea-editor" data-type="inline">
+<div class="cm-editor cm-s-jupyter">
+<div class="highlight hl-ipython3"><pre><span></span><span class="o">!</span>serve<span class="w"> </span>shutdown<span class="w"> </span>-y
+</pre></div>
+</div>
+</div>
+</div>
+</div>
+</div>
+<div class="jp-Cell jp-MarkdownCell jp-Notebook-cell">
+<div class="jp-Cell-inputWrapper" tabindex="0">
+<div class="jp-Collapser jp-InputCollapser jp-Cell-inputCollapser">
+</div>
+<div class="jp-InputArea jp-Cell-inputArea"><div class="jp-InputPrompt jp-InputArea-prompt">
+</div><div class="jp-RenderedHTMLCommon jp-RenderedMarkdown jp-MarkdownOutput" data-mime-type="text/markdown">
+<h3 id="Key-Benefits">Key Benefits<a class="anchor-link" href="#Key-Benefits">¶</a></h3><ul>
+<li><strong>Guaranteed Structure</strong>: Always returns valid JSON matching your schema</li>
+<li><strong>Type Safety</strong>: Enforces data types (strings, numbers, arrays)</li>
+<li><strong>Required Fields</strong>: Ensures all specified fields are present</li>
+<li><strong>Easy Integration</strong>: Directly usable in applications without parsing</li>
+</ul>
+<h3 id="Learn-More">Learn More<a class="anchor-link" href="#Learn-More">¶</a></h3><p>For comprehensive structured output guides, see:</p>
+<ul>
+<li><a href="https://docs.anyscale.com/llm/serving/structured-output">LLM deployment with structured output on Anyscale</a> - Complete guide with all output formats</li>
+<li><a href="https://docs.vllm.ai/en/stable/features/structured_outputs.html">Request structured output (vLLM documentation)</a> - Complete guide on vLLM API for structured outputs</li>
+</ul>
 </div>
 </div>
 </div>

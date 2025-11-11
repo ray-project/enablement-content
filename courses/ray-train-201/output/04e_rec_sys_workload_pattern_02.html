@@ -7517,7 +7517,7 @@ a.anchor-link {
 </div>
 <div class="jp-InputArea jp-Cell-inputArea"><div class="jp-InputPrompt jp-InputArea-prompt">
 </div><div class="jp-RenderedHTMLCommon jp-RenderedMarkdown jp-MarkdownOutput" data-mime-type="text/markdown">
-<h2 id="01-%C2%B7-Imports">01 · Imports<a class="anchor-link" href="#01-%C2%B7-Imports">¶</a></h2><p>Start by importing all the libraries you need for the rest of the notebook. These include standard utilities like <code>os</code>, <code>json</code>, and <code>pandas</code>, as well as deep learning libraries like PyTorch and visualization tools like <code>matplotlib</code>.</p>
+<h2 id="1.-Imports">1. Imports<a class="anchor-link" href="#1.-Imports">¶</a></h2><p>Start by importing all the libraries you need for the rest of the notebook. These include standard utilities like <code>os</code>, <code>json</code>, and <code>pandas</code>, as well as deep learning libraries like PyTorch and visualization tools like <code>matplotlib</code>.</p>
 <p>Also, import everything needed for <strong>distributed training and data processing with Ray</strong>:</p>
 <ul>
 <li><code>ray</code> and <code>ray.data</code> provide the high-level distributed data API.</li>
@@ -7525,7 +7525,32 @@ a.anchor-link {
 <li><code>prepare_model</code> wraps your PyTorch model for multi-worker training with Distributed Data Parallel (DDP).</li>
 </ul>
 <p>A few extra helpers like <code>tqdm</code> and <code>train_test_split</code> round out the list for progress bars and quick offline preprocessing.</p>
-<p>This notebook assumes Ray is already running (For example, with Anyscale), so you don’t call <code>ray.init()</code> manually.</p>
+</div>
+</div>
+</div>
+</div><div class="jp-Cell jp-CodeCell jp-Notebook-cell jp-mod-noOutputs">
+<div class="jp-Cell-inputWrapper" tabindex="0">
+<div class="jp-Collapser jp-InputCollapser jp-Cell-inputCollapser">
+</div>
+<div class="jp-InputArea jp-Cell-inputArea">
+<div class="jp-InputPrompt jp-InputArea-prompt">In [ ]:</div>
+<div class="jp-CodeMirrorEditor jp-Editor jp-InputArea-editor" data-type="inline">
+<div class="cm-editor cm-s-jupyter">
+<div class="highlight hl-ipython3"><pre><span></span><span class="c1"># 00. Runtime setup</span>
+<span class="kn">import</span><span class="w"> </span><span class="nn">os</span><span class="o">,</span><span class="w"> </span><span class="nn">sys</span><span class="o">,</span><span class="w"> </span><span class="nn">subprocess</span>
+
+<span class="c1"># Non-secret env var </span>
+<span class="n">os</span><span class="o">.</span><span class="n">environ</span><span class="p">[</span><span class="s2">"RAY_TRAIN_V2_ENABLED"</span><span class="p">]</span> <span class="o">=</span> <span class="s2">"1"</span>
+
+<span class="c1"># Install Python dependencies </span>
+<span class="n">subprocess</span><span class="o">.</span><span class="n">check_call</span><span class="p">([</span>
+    <span class="n">sys</span><span class="o">.</span><span class="n">executable</span><span class="p">,</span> <span class="s2">"-m"</span><span class="p">,</span> <span class="s2">"pip"</span><span class="p">,</span> <span class="s2">"install"</span><span class="p">,</span> <span class="s2">"--no-cache-dir"</span><span class="p">,</span>
+    <span class="s2">"torch==2.8.0"</span><span class="p">,</span>
+    <span class="s2">"matplotlib==3.10.6"</span><span class="p">,</span>
+    <span class="s2">"pyarrow==14.0.2"</span><span class="p">,</span>
+<span class="p">])</span>
+</pre></div>
+</div>
 </div>
 </div>
 </div>
@@ -7548,6 +7573,7 @@ a.anchor-link {
 <span class="kn">import</span><span class="w"> </span><span class="nn">matplotlib.pyplot</span><span class="w"> </span><span class="k">as</span><span class="w"> </span><span class="nn">plt</span>
 <span class="kn">import</span><span class="w"> </span><span class="nn">zipfile</span>
 <span class="kn">import</span><span class="w"> </span><span class="nn">shutil</span>
+<span class="kn">import</span><span class="w"> </span><span class="nn">tempfile</span>
 
 <span class="c1"># PyTorch</span>
 <span class="kn">import</span><span class="w"> </span><span class="nn">torch</span>
@@ -7574,9 +7600,13 @@ a.anchor-link {
 </div>
 <div class="jp-InputArea jp-Cell-inputArea"><div class="jp-InputPrompt jp-InputArea-prompt">
 </div><div class="jp-RenderedHTMLCommon jp-RenderedMarkdown jp-MarkdownOutput" data-mime-type="text/markdown">
-<h3 id="02-%C2%B7-Load-MovieLens-100K-Dataset">02 · Load MovieLens 100K Dataset<a class="anchor-link" href="#02-%C2%B7-Load-MovieLens-100K-Dataset">¶</a></h3><p>Download and extract the <a href="https://grouplens.org/datasets/movielens/100k/">MovieLens 100K</a> dataset and persist a cleaned version to cluster storage under <code>/mnt/cluster_storage/rec_sys_tutorial/raw/ratings.csv</code>.</p>
-<p>The MovieLens 100K dataset contains 100,000 ratings across 943 users and 1,682 movies. It’s small enough to train quickly, but realistic enough to demonstrate scaling and checkpointing with Ray Train.</p>
-<p>If you already downloaded and extracted the dataset, skip both steps to save time. The output is a CSV with four columns: <code>user_id</code>, <code>item_id</code>, <code>rating</code>, and <code>timestamp</code>.</p>
+<h3 id="2.-Load-MovieLens-100K-dataset">2. Load MovieLens 100K dataset<a class="anchor-link" href="#2.-Load-MovieLens-100K-dataset">¶</a></h3><p>Download and extract the <a href="https://grouplens.org/datasets/movielens/100k/">MovieLens 100K</a> dataset, then persist a cleaned copy under <code>/mnt/cluster_storage/rec_sys_tutorial/raw/</code> in <strong>two formats</strong>:</p>
+<ul>
+<li><strong>CSV:</strong> <code>ratings.csv</code> (kept for later inference cells).</li>
+<li><strong>Parquet dataset:</strong> <code>ratings_parquet/</code> as multiple shards (production-style blob store layout) so Ray Data can <strong>stream</strong> reads in parallel without materializing the full dataset.</li>
+</ul>
+<p>The output has four columns: <code>user_id</code>, <code>item_id</code>, <code>rating</code>, and <code>timestamp</code>.</p>
+<p>The MovieLens 100K dataset contains <strong>100,000 ratings</strong> across <strong>943 users</strong> and <strong>1,682 movies</strong> — small enough for quick iteration, yet realistic for demonstrating distributed streaming and training with <strong>Ray Data + Ray Train</strong>.</p>
 </div>
 </div>
 </div>
@@ -7588,13 +7618,14 @@ a.anchor-link {
 <div class="jp-InputPrompt jp-InputArea-prompt">In [ ]:</div>
 <div class="jp-CodeMirrorEditor jp-Editor jp-InputArea-editor" data-type="inline">
 <div class="cm-editor cm-s-jupyter">
-<div class="highlight hl-ipython3"><pre><span></span><span class="c1"># 02. Load MovieLens 100K Dataset and store in /mnt/cluster_storage/</span>
+<div class="highlight hl-ipython3"><pre><span></span><span class="c1"># 02. Load MovieLens 100K Dataset and store in /mnt/cluster_storage/ as CSV + Parquet</span>
 
 <span class="c1"># Define clean working paths</span>
 <span class="n">DATA_URL</span> <span class="o">=</span> <span class="s2">"http://files.grouplens.org/datasets/movielens/ml-100k.zip"</span>
 <span class="n">LOCAL_ZIP</span> <span class="o">=</span> <span class="s2">"/mnt/cluster_storage/rec_sys_tutorial/ml-100k.zip"</span>
 <span class="n">EXTRACT_DIR</span> <span class="o">=</span> <span class="s2">"/mnt/cluster_storage/rec_sys_tutorial/ml-100k"</span>
 <span class="n">OUTPUT_CSV</span> <span class="o">=</span> <span class="s2">"/mnt/cluster_storage/rec_sys_tutorial/raw/ratings.csv"</span>
+<span class="n">PARQUET_DIR</span> <span class="o">=</span> <span class="s2">"/mnt/cluster_storage/rec_sys_tutorial/raw/ratings_parquet"</span>
 
 <span class="c1"># Ensure target directories exist</span>
 <span class="n">os</span><span class="o">.</span><span class="n">makedirs</span><span class="p">(</span><span class="s2">"/mnt/cluster_storage/rec_sys_tutorial/raw"</span><span class="p">,</span> <span class="n">exist_ok</span><span class="o">=</span><span class="kc">True</span><span class="p">)</span>
@@ -7605,6 +7636,7 @@ a.anchor-link {
 
 <span class="c1"># Extract cleanly</span>
 <span class="k">if</span> <span class="ow">not</span> <span class="n">os</span><span class="o">.</span><span class="n">path</span><span class="o">.</span><span class="n">exists</span><span class="p">(</span><span class="n">EXTRACT_DIR</span><span class="p">):</span>
+    <span class="kn">import</span><span class="w"> </span><span class="nn">zipfile</span>
     <span class="k">with</span> <span class="n">zipfile</span><span class="o">.</span><span class="n">ZipFile</span><span class="p">(</span><span class="n">LOCAL_ZIP</span><span class="p">,</span> <span class="s1">'r'</span><span class="p">)</span> <span class="k">as</span> <span class="n">zip_ref</span><span class="p">:</span>
         <span class="n">zip_ref</span><span class="o">.</span><span class="n">extractall</span><span class="p">(</span><span class="s2">"/mnt/cluster_storage/rec_sys_tutorial"</span><span class="p">)</span>
 
@@ -7612,11 +7644,20 @@ a.anchor-link {
 <span class="n">raw_path</span> <span class="o">=</span> <span class="n">os</span><span class="o">.</span><span class="n">path</span><span class="o">.</span><span class="n">join</span><span class="p">(</span><span class="n">EXTRACT_DIR</span><span class="p">,</span> <span class="s2">"u.data"</span><span class="p">)</span>
 <span class="n">df</span> <span class="o">=</span> <span class="n">pd</span><span class="o">.</span><span class="n">read_csv</span><span class="p">(</span><span class="n">raw_path</span><span class="p">,</span> <span class="n">sep</span><span class="o">=</span><span class="s2">"</span><span class="se">\t</span><span class="s2">"</span><span class="p">,</span> <span class="n">names</span><span class="o">=</span><span class="p">[</span><span class="s2">"user_id"</span><span class="p">,</span> <span class="s2">"item_id"</span><span class="p">,</span> <span class="s2">"rating"</span><span class="p">,</span> <span class="s2">"timestamp"</span><span class="p">])</span>
 
-<span class="c1"># Save cleaned version</span>
+<span class="c1"># Persist CSV (kept for later inference cell that expects CSV)</span>
 <span class="n">df</span><span class="o">.</span><span class="n">to_csv</span><span class="p">(</span><span class="n">OUTPUT_CSV</span><span class="p">,</span> <span class="n">index</span><span class="o">=</span><span class="kc">False</span><span class="p">)</span>
 
-<span class="nb">print</span><span class="p">(</span><span class="sa">f</span><span class="s2">"✅ Loaded </span><span class="si">{</span><span class="nb">len</span><span class="p">(</span><span class="n">df</span><span class="p">)</span><span class="si">:</span><span class="s2">,</span><span class="si">}</span><span class="s2"> ratings → </span><span class="si">{</span><span class="n">OUTPUT_CSV</span><span class="si">}</span><span class="s2">"</span><span class="p">)</span>
-<span class="n">df</span><span class="o">.</span><span class="n">head</span><span class="p">()</span>
+<span class="c1"># Persist a Parquet *dataset* (multiple files) to simulate blob storage layout</span>
+<span class="k">if</span> <span class="n">os</span><span class="o">.</span><span class="n">path</span><span class="o">.</span><span class="n">exists</span><span class="p">(</span><span class="n">PARQUET_DIR</span><span class="p">):</span>
+    <span class="n">shutil</span><span class="o">.</span><span class="n">rmtree</span><span class="p">(</span><span class="n">PARQUET_DIR</span><span class="p">)</span>
+<span class="n">os</span><span class="o">.</span><span class="n">makedirs</span><span class="p">(</span><span class="n">PARQUET_DIR</span><span class="p">,</span> <span class="n">exist_ok</span><span class="o">=</span><span class="kc">True</span><span class="p">)</span>
+
+<span class="n">NUM_PARQUET_SHARDS</span> <span class="o">=</span> <span class="mi">8</span>
+<span class="k">for</span> <span class="n">i</span><span class="p">,</span> <span class="n">shard</span> <span class="ow">in</span> <span class="nb">enumerate</span><span class="p">(</span><span class="n">np</span><span class="o">.</span><span class="n">array_split</span><span class="p">(</span><span class="n">df</span><span class="p">,</span> <span class="n">NUM_PARQUET_SHARDS</span><span class="p">)):</span>
+    <span class="n">shard</span><span class="o">.</span><span class="n">to_parquet</span><span class="p">(</span><span class="n">os</span><span class="o">.</span><span class="n">path</span><span class="o">.</span><span class="n">join</span><span class="p">(</span><span class="n">PARQUET_DIR</span><span class="p">,</span> <span class="sa">f</span><span class="s2">"part-</span><span class="si">{</span><span class="n">i</span><span class="si">:</span><span class="s2">02d</span><span class="si">}</span><span class="s2">.parquet"</span><span class="p">),</span> <span class="n">index</span><span class="o">=</span><span class="kc">False</span><span class="p">)</span>
+
+<span class="nb">print</span><span class="p">(</span><span class="sa">f</span><span class="s2">"✅ Loaded </span><span class="si">{</span><span class="nb">len</span><span class="p">(</span><span class="n">df</span><span class="p">)</span><span class="si">:</span><span class="s2">,</span><span class="si">}</span><span class="s2"> ratings → CSV: </span><span class="si">{</span><span class="n">OUTPUT_CSV</span><span class="si">}</span><span class="s2">"</span><span class="p">)</span>
+<span class="nb">print</span><span class="p">(</span><span class="sa">f</span><span class="s2">"✅ Wrote Parquet dataset with </span><span class="si">{</span><span class="n">NUM_PARQUET_SHARDS</span><span class="si">}</span><span class="s2"> shards → </span><span class="si">{</span><span class="n">PARQUET_DIR</span><span class="si">}</span><span class="s2">"</span><span class="p">)</span>
 </pre></div>
 </div>
 </div>
@@ -7629,8 +7670,8 @@ a.anchor-link {
 </div>
 <div class="jp-InputArea jp-Cell-inputArea"><div class="jp-InputPrompt jp-InputArea-prompt">
 </div><div class="jp-RenderedHTMLCommon jp-RenderedMarkdown jp-MarkdownOutput" data-mime-type="text/markdown">
-<h3 id="03-%C2%B7-Preprocess-IDs-and-Create-Ray-Dataset">03 · Preprocess IDs and Create Ray Dataset<a class="anchor-link" href="#03-%C2%B7-Preprocess-IDs-and-Create-Ray-Dataset">¶</a></h3><p>Begin preprocessing by encoding <code>user_id</code> and <code>item_id</code> into contiguous integer indices required for embedding layers. These encoded columns—<code>user_idx</code> and <code>item_idx</code>—are what your model uses during training.</p>
-<p>After encoding, drop the original IDs and split the dataset into 64 chunks. Serialize each chunk and push to Ray’s object store using <code>ray.put(...)</code>. This allows Ray Data to construct a distributed dataset in the next step without creating a bottleneck on a single worker or process.</p>
+<h3 id="3.-Point-to-Parquet-dataset-URI">3. Point to Parquet dataset URI<a class="anchor-link" href="#3.-Point-to-Parquet-dataset-URI">¶</a></h3><p>Instead of creating a Ray Dataset from in-memory pandas objects, this tutorial now reads data directly from a <strong>Parquet dataset</strong> stored in persistent cluster storage.</p>
+<p>This URI will be used by Ray Data to <strong>stream</strong> Parquet shards efficiently across workers without loading the full dataset into memory.</p>
 </div>
 </div>
 </div>
@@ -7642,23 +7683,13 @@ a.anchor-link {
 <div class="jp-InputPrompt jp-InputArea-prompt">In [ ]:</div>
 <div class="jp-CodeMirrorEditor jp-Editor jp-InputArea-editor" data-type="inline">
 <div class="cm-editor cm-s-jupyter">
-<div class="highlight hl-ipython3"><pre><span></span><span class="c1"># 03. Preprocess IDs and create Ray Dataset in parallel</span>
+<div class="highlight hl-ipython3"><pre><span></span><span class="c1"># 03. Point to Parquet dataset URI </span>
+<span class="n">DATASET_URI</span> <span class="o">=</span> <span class="n">os</span><span class="o">.</span><span class="n">environ</span><span class="o">.</span><span class="n">get</span><span class="p">(</span>
+    <span class="s2">"RATINGS_PARQUET_URI"</span><span class="p">,</span>
+    <span class="s2">"/mnt/cluster_storage/rec_sys_tutorial/raw/ratings_parquet"</span><span class="p">,</span>
+<span class="p">)</span>
 
-<span class="c1"># Load CSV</span>
-<span class="n">df</span> <span class="o">=</span> <span class="n">pd</span><span class="o">.</span><span class="n">read_csv</span><span class="p">(</span><span class="s2">"/mnt/cluster_storage/rec_sys_tutorial/raw/ratings.csv"</span><span class="p">)</span>
-
-<span class="c1"># Encode user_id and item_id</span>
-<span class="n">user2idx</span> <span class="o">=</span> <span class="p">{</span><span class="n">uid</span><span class="p">:</span> <span class="n">j</span> <span class="k">for</span> <span class="n">j</span><span class="p">,</span> <span class="n">uid</span> <span class="ow">in</span> <span class="nb">enumerate</span><span class="p">(</span><span class="nb">sorted</span><span class="p">(</span><span class="n">df</span><span class="p">[</span><span class="s2">"user_id"</span><span class="p">]</span><span class="o">.</span><span class="n">unique</span><span class="p">()))}</span>
-<span class="n">item2idx</span> <span class="o">=</span> <span class="p">{</span><span class="n">iid</span><span class="p">:</span> <span class="n">j</span> <span class="k">for</span> <span class="n">j</span><span class="p">,</span> <span class="n">iid</span> <span class="ow">in</span> <span class="nb">enumerate</span><span class="p">(</span><span class="nb">sorted</span><span class="p">(</span><span class="n">df</span><span class="p">[</span><span class="s2">"item_id"</span><span class="p">]</span><span class="o">.</span><span class="n">unique</span><span class="p">()))}</span>
-
-<span class="n">df</span><span class="p">[</span><span class="s2">"user_idx"</span><span class="p">]</span> <span class="o">=</span> <span class="n">df</span><span class="p">[</span><span class="s2">"user_id"</span><span class="p">]</span><span class="o">.</span><span class="n">map</span><span class="p">(</span><span class="n">user2idx</span><span class="p">)</span>
-<span class="n">df</span><span class="p">[</span><span class="s2">"item_idx"</span><span class="p">]</span> <span class="o">=</span> <span class="n">df</span><span class="p">[</span><span class="s2">"item_id"</span><span class="p">]</span><span class="o">.</span><span class="n">map</span><span class="p">(</span><span class="n">item2idx</span><span class="p">)</span>
-<span class="n">df</span> <span class="o">=</span> <span class="n">df</span><span class="p">[[</span><span class="s2">"user_idx"</span><span class="p">,</span> <span class="s2">"item_idx"</span><span class="p">,</span> <span class="s2">"rating"</span><span class="p">,</span> <span class="s2">"timestamp"</span><span class="p">]]</span>
-
-<span class="c1"># Split into multiple chunks for parallel ingestion</span>
-<span class="n">NUM_SPLITS</span> <span class="o">=</span> <span class="mi">64</span>  <span class="c1"># adjust based on cluster size</span>
-<span class="n">dfs</span> <span class="o">=</span> <span class="n">np</span><span class="o">.</span><span class="n">array_split</span><span class="p">(</span><span class="n">df</span><span class="p">,</span> <span class="n">NUM_SPLITS</span><span class="p">)</span>
-<span class="n">object_refs</span> <span class="o">=</span> <span class="p">[</span><span class="n">ray</span><span class="o">.</span><span class="n">put</span><span class="p">(</span><span class="n">split</span><span class="p">)</span> <span class="k">for</span> <span class="n">split</span> <span class="ow">in</span> <span class="n">dfs</span><span class="p">]</span>
+<span class="nb">print</span><span class="p">(</span><span class="s2">"Parquet dataset URI:"</span><span class="p">,</span> <span class="n">DATASET_URI</span><span class="p">)</span>
 </pre></div>
 </div>
 </div>
@@ -7671,13 +7702,14 @@ a.anchor-link {
 </div>
 <div class="jp-InputArea jp-Cell-inputArea"><div class="jp-InputPrompt jp-InputArea-prompt">
 </div><div class="jp-RenderedHTMLCommon jp-RenderedMarkdown jp-MarkdownOutput" data-mime-type="text/markdown">
-<h3 id="04-%C2%B7-Visualize-Dataset:-Ratings,-Users,-and-Items">04 · Visualize Dataset: Ratings, Users, and Items<a class="anchor-link" href="#04-%C2%B7-Visualize-Dataset:-Ratings,-Users,-and-Items">¶</a></h3><p>Before training, visualize the distribution of ratings, user activity, and item popularity. These quick checks help you verify that the dataset parses correctly and reveal useful patterns:</p>
+<h3 id="4.-Visualize-dataset:-ratings,-users,-and-items">4. Visualize dataset: ratings, users, and items<a class="anchor-link" href="#4.-Visualize-dataset:-ratings,-users,-and-items">¶</a></h3><p>Before training, visualize the distribution of ratings, user activity, and item popularity.<br/>
+These plots serve as a quick sanity check to confirm the dataset loaded correctly and to highlight patterns in user–item interactions:</p>
 <ul>
-<li>The first plot shows the overall rating distribution (1–5 stars). As expected, you see a skew toward 4 and 5.</li>
-<li>The second plot shows how many ratings each user has submitted. There’s a long tail: a few power users, but many light users.</li>
-<li>The third plot shows how often users rated each item. Again, you see a long-tail distribution common in recommendation settings.</li>
+<li><strong>Rating distribution:</strong> shows how often each rating (1–5 stars) occurs, typically skewed toward higher scores.</li>
+<li><strong>Ratings per user:</strong> reveals the long-tail behavior where a few users rate many items, while most rate only a few.</li>
+<li><strong>Ratings per item:</strong> similarly shows that a handful of popular items receive most of the ratings.</li>
 </ul>
-<p>These histograms give you a sense of sparsity and coverage, both of which influence model performance.</p>
+<p>This visualization works with either raw IDs (<code>user_id</code>, <code>item_id</code>) or encoded indices (<code>user_idx</code>, <code>item_idx</code>), depending on what’s available in the current DataFrame.</p>
 </div>
 </div>
 </div>
@@ -7689,25 +7721,29 @@ a.anchor-link {
 <div class="jp-InputPrompt jp-InputArea-prompt">In [ ]:</div>
 <div class="jp-CodeMirrorEditor jp-Editor jp-InputArea-editor" data-type="inline">
 <div class="cm-editor cm-s-jupyter">
-<div class="highlight hl-ipython3"><pre><span></span><span class="c1"># 04. Visualize Dataset: Ratings, User &amp; Item Activity</span>
+<div class="highlight hl-ipython3"><pre><span></span><span class="c1"># 04. Visualize dataset: ratings, user and item activity</span>
 
-<span class="c1"># Plot rating distribution</span>
+<span class="c1"># Use encoded indices if present; otherwise fall back to raw IDs</span>
+<span class="n">user_col</span> <span class="o">=</span> <span class="s2">"user_idx"</span> <span class="k">if</span> <span class="s2">"user_idx"</span> <span class="ow">in</span> <span class="n">df</span><span class="o">.</span><span class="n">columns</span> <span class="k">else</span> <span class="s2">"user_id"</span>
+<span class="n">item_col</span> <span class="o">=</span> <span class="s2">"item_idx"</span> <span class="k">if</span> <span class="s2">"item_idx"</span> <span class="ow">in</span> <span class="n">df</span><span class="o">.</span><span class="n">columns</span> <span class="k">else</span> <span class="s2">"item_id"</span>
+
 <span class="n">plt</span><span class="o">.</span><span class="n">figure</span><span class="p">(</span><span class="n">figsize</span><span class="o">=</span><span class="p">(</span><span class="mi">12</span><span class="p">,</span> <span class="mi">4</span><span class="p">))</span>
 
+<span class="c1"># Rating distribution</span>
 <span class="n">plt</span><span class="o">.</span><span class="n">subplot</span><span class="p">(</span><span class="mi">1</span><span class="p">,</span> <span class="mi">3</span><span class="p">,</span> <span class="mi">1</span><span class="p">)</span>
 <span class="n">df</span><span class="p">[</span><span class="s2">"rating"</span><span class="p">]</span><span class="o">.</span><span class="n">hist</span><span class="p">(</span><span class="n">bins</span><span class="o">=</span><span class="p">[</span><span class="mf">0.5</span><span class="p">,</span><span class="mf">1.5</span><span class="p">,</span><span class="mf">2.5</span><span class="p">,</span><span class="mf">3.5</span><span class="p">,</span><span class="mf">4.5</span><span class="p">,</span><span class="mf">5.5</span><span class="p">],</span> <span class="n">edgecolor</span><span class="o">=</span><span class="s1">'black'</span><span class="p">)</span>
 <span class="n">plt</span><span class="o">.</span><span class="n">title</span><span class="p">(</span><span class="s2">"Rating Distribution"</span><span class="p">)</span>
 <span class="n">plt</span><span class="o">.</span><span class="n">xlabel</span><span class="p">(</span><span class="s2">"Rating"</span><span class="p">);</span> <span class="n">plt</span><span class="o">.</span><span class="n">ylabel</span><span class="p">(</span><span class="s2">"Frequency"</span><span class="p">)</span>
 
-<span class="c1"># Plot number of ratings per user</span>
+<span class="c1"># Number of ratings per user</span>
 <span class="n">plt</span><span class="o">.</span><span class="n">subplot</span><span class="p">(</span><span class="mi">1</span><span class="p">,</span> <span class="mi">3</span><span class="p">,</span> <span class="mi">2</span><span class="p">)</span>
-<span class="n">df</span><span class="p">[</span><span class="s2">"user_idx"</span><span class="p">]</span><span class="o">.</span><span class="n">value_counts</span><span class="p">()</span><span class="o">.</span><span class="n">hist</span><span class="p">(</span><span class="n">bins</span><span class="o">=</span><span class="mi">30</span><span class="p">,</span> <span class="n">edgecolor</span><span class="o">=</span><span class="s1">'black'</span><span class="p">)</span>
+<span class="n">df</span><span class="p">[</span><span class="n">user_col</span><span class="p">]</span><span class="o">.</span><span class="n">value_counts</span><span class="p">()</span><span class="o">.</span><span class="n">hist</span><span class="p">(</span><span class="n">bins</span><span class="o">=</span><span class="mi">30</span><span class="p">,</span> <span class="n">edgecolor</span><span class="o">=</span><span class="s1">'black'</span><span class="p">)</span>
 <span class="n">plt</span><span class="o">.</span><span class="n">title</span><span class="p">(</span><span class="s2">"Ratings per User"</span><span class="p">)</span>
 <span class="n">plt</span><span class="o">.</span><span class="n">xlabel</span><span class="p">(</span><span class="s2">"# Ratings"</span><span class="p">);</span> <span class="n">plt</span><span class="o">.</span><span class="n">ylabel</span><span class="p">(</span><span class="s2">"Users"</span><span class="p">)</span>
 
-<span class="c1"># Plot number of ratings per item</span>
+<span class="c1"># Number of ratings per item</span>
 <span class="n">plt</span><span class="o">.</span><span class="n">subplot</span><span class="p">(</span><span class="mi">1</span><span class="p">,</span> <span class="mi">3</span><span class="p">,</span> <span class="mi">3</span><span class="p">)</span>
-<span class="n">df</span><span class="p">[</span><span class="s2">"item_idx"</span><span class="p">]</span><span class="o">.</span><span class="n">value_counts</span><span class="p">()</span><span class="o">.</span><span class="n">hist</span><span class="p">(</span><span class="n">bins</span><span class="o">=</span><span class="mi">30</span><span class="p">,</span> <span class="n">edgecolor</span><span class="o">=</span><span class="s1">'black'</span><span class="p">)</span>
+<span class="n">df</span><span class="p">[</span><span class="n">item_col</span><span class="p">]</span><span class="o">.</span><span class="n">value_counts</span><span class="p">()</span><span class="o">.</span><span class="n">hist</span><span class="p">(</span><span class="n">bins</span><span class="o">=</span><span class="mi">30</span><span class="p">,</span> <span class="n">edgecolor</span><span class="o">=</span><span class="s1">'black'</span><span class="p">)</span>
 <span class="n">plt</span><span class="o">.</span><span class="n">title</span><span class="p">(</span><span class="s2">"Ratings per Item"</span><span class="p">)</span>
 <span class="n">plt</span><span class="o">.</span><span class="n">xlabel</span><span class="p">(</span><span class="s2">"# Ratings"</span><span class="p">);</span> <span class="n">plt</span><span class="o">.</span><span class="n">ylabel</span><span class="p">(</span><span class="s2">"Items"</span><span class="p">)</span>
 
@@ -7725,8 +7761,11 @@ a.anchor-link {
 </div>
 <div class="jp-InputArea jp-Cell-inputArea"><div class="jp-InputPrompt jp-InputArea-prompt">
 </div><div class="jp-RenderedHTMLCommon jp-RenderedMarkdown jp-MarkdownOutput" data-mime-type="text/markdown">
-<h3 id="05-%C2%B7-Create-Ray-Dataset-from-Encoded-Chunks">05 · Create Ray Dataset from Encoded Chunks<a class="anchor-link" href="#05-%C2%B7-Create-Ray-Dataset-from-Encoded-Chunks">¶</a></h3><p>Now, convert your list of encoded pandas chunks into a Ray Dataset using <code>from_pandas_refs(...)</code>. This method ensures that each chunk becomes its own block, enabling parallel data processing across the cluster.</p>
-<p>The result is a distributed Ray Dataset with one block per chunk, which is ideal for streaming batches during training. Confirm the number of blocks and show a few rows to verify the format.</p>
+<h3 id="5.-Create-Ray-Dataset-from-Parquet-and-encode-IDs">5. Create Ray Dataset from Parquet and encode IDs<a class="anchor-link" href="#5.-Create-Ray-Dataset-from-Parquet-and-encode-IDs">¶</a></h3><p>Read the MovieLens ratings directly from the <strong>Parquet dataset</strong> using <code>ray.data.read_parquet()</code>. This keeps data in a <strong>streaming, non-materialized</strong> form suitable for large-scale distributed processing.</p>
+<p>Next, build lightweight <strong>global ID mappings</strong> for users and items on the driver to convert raw <code>user_id</code> and <code>item_id</code> values into contiguous integer indices (<code>user_idx</code>, <code>item_idx</code>) required for embedding layers.<br/>
+This mapping step materializes only the distinct IDs (a small subset of the data) while keeping the main dataset lazy and scalable.</p>
+<p>Finally, apply a <code>map_batches()</code> transformation to encode each batch of rows in parallel across the cluster.<br/>
+The resulting <strong>Ray Dataset</strong> remains distributed and ready for streaming batches directly into the Ray Train workers.</p>
 </div>
 </div>
 </div>
@@ -7738,10 +7777,32 @@ a.anchor-link {
 <div class="jp-InputPrompt jp-InputArea-prompt">In [ ]:</div>
 <div class="jp-CodeMirrorEditor jp-Editor jp-InputArea-editor" data-type="inline">
 <div class="cm-editor cm-s-jupyter">
-<div class="highlight hl-ipython3"><pre><span></span><span class="c1"># 05. Create Ray Dataset from refs (uses multiple blocks/workers)</span>
+<div class="highlight hl-ipython3"><pre><span></span><span class="c1"># 05. Create Ray Dataset by reading Parquet, then encode IDs via Ray</span>
 
-<span class="n">ratings_ds</span> <span class="o">=</span> <span class="n">ray</span><span class="o">.</span><span class="n">data</span><span class="o">.</span><span class="n">from_pandas_refs</span><span class="p">(</span><span class="n">object_refs</span><span class="p">)</span>
-<span class="nb">print</span><span class="p">(</span><span class="s2">"✅ Ray Dataset created with"</span><span class="p">,</span> <span class="n">ratings_ds</span><span class="o">.</span><span class="n">num_blocks</span><span class="p">(),</span> <span class="s2">"blocks"</span><span class="p">)</span>
+<span class="c1"># Read Parquet dataset directly</span>
+<span class="n">ratings_ds</span> <span class="o">=</span> <span class="n">ray</span><span class="o">.</span><span class="n">data</span><span class="o">.</span><span class="n">read_parquet</span><span class="p">(</span><span class="n">DATASET_URI</span><span class="p">)</span>
+<span class="nb">print</span><span class="p">(</span><span class="s2">"✅ Parquet dataset loaded (streaming, non-materialized)"</span><span class="p">)</span>
+<span class="n">ratings_ds</span><span class="o">.</span><span class="n">show</span><span class="p">(</span><span class="mi">3</span><span class="p">)</span>
+
+<span class="c1"># ---- Build global ID mappings on the driver ----</span>
+<span class="n">user_ids</span> <span class="o">=</span> <span class="nb">sorted</span><span class="p">([</span><span class="n">r</span><span class="p">[</span><span class="s2">"user_id"</span><span class="p">]</span> <span class="k">for</span> <span class="n">r</span> <span class="ow">in</span> <span class="n">ratings_ds</span><span class="o">.</span><span class="n">groupby</span><span class="p">(</span><span class="s2">"user_id"</span><span class="p">)</span><span class="o">.</span><span class="n">count</span><span class="p">()</span><span class="o">.</span><span class="n">take_all</span><span class="p">()])</span>
+<span class="n">item_ids</span> <span class="o">=</span> <span class="nb">sorted</span><span class="p">([</span><span class="n">r</span><span class="p">[</span><span class="s2">"item_id"</span><span class="p">]</span> <span class="k">for</span> <span class="n">r</span> <span class="ow">in</span> <span class="n">ratings_ds</span><span class="o">.</span><span class="n">groupby</span><span class="p">(</span><span class="s2">"item_id"</span><span class="p">)</span><span class="o">.</span><span class="n">count</span><span class="p">()</span><span class="o">.</span><span class="n">take_all</span><span class="p">()])</span>
+
+<span class="n">user2idx</span> <span class="o">=</span> <span class="p">{</span><span class="n">uid</span><span class="p">:</span> <span class="n">j</span> <span class="k">for</span> <span class="n">j</span><span class="p">,</span> <span class="n">uid</span> <span class="ow">in</span> <span class="nb">enumerate</span><span class="p">(</span><span class="n">user_ids</span><span class="p">)}</span>
+<span class="n">item2idx</span> <span class="o">=</span> <span class="p">{</span><span class="n">iid</span><span class="p">:</span> <span class="n">j</span> <span class="k">for</span> <span class="n">j</span><span class="p">,</span> <span class="n">iid</span> <span class="ow">in</span> <span class="nb">enumerate</span><span class="p">(</span><span class="n">item_ids</span><span class="p">)}</span>
+
+<span class="n">NUM_USERS</span> <span class="o">=</span> <span class="nb">len</span><span class="p">(</span><span class="n">user2idx</span><span class="p">)</span>
+<span class="n">NUM_ITEMS</span> <span class="o">=</span> <span class="nb">len</span><span class="p">(</span><span class="n">item2idx</span><span class="p">)</span>
+<span class="nb">print</span><span class="p">(</span><span class="sa">f</span><span class="s2">"Users: </span><span class="si">{</span><span class="n">NUM_USERS</span><span class="si">:</span><span class="s2">,</span><span class="si">}</span><span class="s2"> | Items: </span><span class="si">{</span><span class="n">NUM_ITEMS</span><span class="si">:</span><span class="s2">,</span><span class="si">}</span><span class="s2">"</span><span class="p">)</span>
+
+<span class="c1"># ---- Encode to contiguous indices within Ray (keeps everything distributed) ----</span>
+<span class="k">def</span><span class="w"> </span><span class="nf">encode_batch</span><span class="p">(</span><span class="n">pdf</span><span class="p">:</span> <span class="n">pd</span><span class="o">.</span><span class="n">DataFrame</span><span class="p">)</span> <span class="o">-&gt;</span> <span class="n">pd</span><span class="o">.</span><span class="n">DataFrame</span><span class="p">:</span>
+    <span class="n">pdf</span><span class="p">[</span><span class="s2">"user_idx"</span><span class="p">]</span> <span class="o">=</span> <span class="n">pdf</span><span class="p">[</span><span class="s2">"user_id"</span><span class="p">]</span><span class="o">.</span><span class="n">map</span><span class="p">(</span><span class="n">user2idx</span><span class="p">)</span><span class="o">.</span><span class="n">astype</span><span class="p">(</span><span class="s2">"int64"</span><span class="p">)</span>
+    <span class="n">pdf</span><span class="p">[</span><span class="s2">"item_idx"</span><span class="p">]</span> <span class="o">=</span> <span class="n">pdf</span><span class="p">[</span><span class="s2">"item_id"</span><span class="p">]</span><span class="o">.</span><span class="n">map</span><span class="p">(</span><span class="n">item2idx</span><span class="p">)</span><span class="o">.</span><span class="n">astype</span><span class="p">(</span><span class="s2">"int64"</span><span class="p">)</span>
+    <span class="k">return</span> <span class="n">pdf</span><span class="p">[[</span><span class="s2">"user_idx"</span><span class="p">,</span> <span class="s2">"item_idx"</span><span class="p">,</span> <span class="s2">"rating"</span><span class="p">,</span> <span class="s2">"timestamp"</span><span class="p">]]</span>
+
+<span class="n">ratings_ds</span> <span class="o">=</span> <span class="n">ratings_ds</span><span class="o">.</span><span class="n">map_batches</span><span class="p">(</span><span class="n">encode_batch</span><span class="p">,</span> <span class="n">batch_format</span><span class="o">=</span><span class="s2">"pandas"</span><span class="p">)</span>
+<span class="nb">print</span><span class="p">(</span><span class="s2">"✅ Encoded Ray Dataset schema:"</span><span class="p">,</span> <span class="n">ratings_ds</span><span class="o">.</span><span class="n">schema</span><span class="p">())</span>
 <span class="n">ratings_ds</span><span class="o">.</span><span class="n">show</span><span class="p">(</span><span class="mi">3</span><span class="p">)</span>
 </pre></div>
 </div>
@@ -7755,7 +7816,7 @@ a.anchor-link {
 </div>
 <div class="jp-InputArea jp-Cell-inputArea"><div class="jp-InputPrompt jp-InputArea-prompt">
 </div><div class="jp-RenderedHTMLCommon jp-RenderedMarkdown jp-MarkdownOutput" data-mime-type="text/markdown">
-<h3 id="06-%C2%B7-Train/Validation-Split-using-Ray-Data">06 · Train/Validation Split using Ray Data<a class="anchor-link" href="#06-%C2%B7-Train/Validation-Split-using-Ray-Data">¶</a></h3><p>Next, split the dataset into training and validation sets. First, shuffle the entire Ray Dataset to ensure randomization, then split by row index, using 80% for training and 20% for validation.</p>
+<h3 id="6.-Train/validation-split-using-Ray-Data">6. Train/validation split using Ray Data<a class="anchor-link" href="#6.-Train/validation-split-using-Ray-Data">¶</a></h3><p>Next, split the dataset into training and validation sets. First, shuffle the entire Ray Dataset to ensure randomization, then split by row index, using 80% for training and 20% for validation.</p>
 <p>This approach is simple and scalable: Ray handles the shuffling and slicing in parallel across blocks. Also, set a fixed seed to ensure the split is reproducible. After you split it, each dataset remains a fully distributed Ray Dataset, ready to stream into workers.</p>
 </div>
 </div>
@@ -7768,20 +7829,19 @@ a.anchor-link {
 <div class="jp-InputPrompt jp-InputArea-prompt">In [ ]:</div>
 <div class="jp-CodeMirrorEditor jp-Editor jp-InputArea-editor" data-type="inline">
 <div class="cm-editor cm-s-jupyter">
-<div class="highlight hl-ipython3"><pre><span></span><span class="c1"># 06. Train/Val Split using Ray Data</span>
+<div class="highlight hl-ipython3"><pre><span></span><span class="c1"># 06. Train/val split using Ray Data (lazy, avoids materialization)</span>
 
-<span class="c1"># Parameters</span>
 <span class="n">TRAIN_FRAC</span> <span class="o">=</span> <span class="mf">0.8</span>
 <span class="n">SEED</span> <span class="o">=</span> <span class="mi">42</span>  <span class="c1"># for reproducibility</span>
 
-<span class="c1"># Shuffle + split by index</span>
-<span class="n">total_rows</span> <span class="o">=</span> <span class="n">ratings_ds</span><span class="o">.</span><span class="n">count</span><span class="p">()</span>
-<span class="n">train_size</span> <span class="o">=</span> <span class="nb">int</span><span class="p">(</span><span class="n">total_rows</span> <span class="o">*</span> <span class="n">TRAIN_FRAC</span><span class="p">)</span>
+<span class="c1"># Block-level shuffle + proportional split (approximate by block, lazy)</span>
+<span class="n">train_ds</span><span class="p">,</span> <span class="n">val_ds</span> <span class="o">=</span> <span class="p">(</span>
+    <span class="n">ratings_ds</span>
+    <span class="o">.</span><span class="n">randomize_block_order</span><span class="p">(</span><span class="n">seed</span><span class="o">=</span><span class="n">SEED</span><span class="p">)</span>   <span class="c1"># lightweight; no row-level materialization</span>
+    <span class="o">.</span><span class="n">split_proportionately</span><span class="p">([</span><span class="n">TRAIN_FRAC</span><span class="p">])</span>  <span class="c1"># returns [train, remainder]</span>
+<span class="p">)</span>
 
-<span class="n">ratings_ds</span> <span class="o">=</span> <span class="n">ratings_ds</span><span class="o">.</span><span class="n">random_shuffle</span><span class="p">(</span><span class="n">seed</span><span class="o">=</span><span class="n">SEED</span><span class="p">)</span>
-<span class="n">train_ds</span><span class="p">,</span> <span class="n">val_ds</span> <span class="o">=</span> <span class="n">ratings_ds</span><span class="o">.</span><span class="n">split_at_indices</span><span class="p">([</span><span class="n">train_size</span><span class="p">])</span>
-
-<span class="nb">print</span><span class="p">(</span><span class="sa">f</span><span class="s2">"✅ Train/Val Split:"</span><span class="p">)</span>
+<span class="nb">print</span><span class="p">(</span><span class="s2">"✅ Train/Val Split:"</span><span class="p">)</span>
 <span class="nb">print</span><span class="p">(</span><span class="sa">f</span><span class="s2">"  Train → </span><span class="si">{</span><span class="n">train_ds</span><span class="o">.</span><span class="n">count</span><span class="p">()</span><span class="si">:</span><span class="s2">,</span><span class="si">}</span><span class="s2"> rows"</span><span class="p">)</span>
 <span class="nb">print</span><span class="p">(</span><span class="sa">f</span><span class="s2">"  Val   → </span><span class="si">{</span><span class="n">val_ds</span><span class="o">.</span><span class="n">count</span><span class="p">()</span><span class="si">:</span><span class="s2">,</span><span class="si">}</span><span class="s2"> rows"</span><span class="p">)</span>
 </pre></div>

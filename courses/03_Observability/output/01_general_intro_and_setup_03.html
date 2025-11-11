@@ -3,7 +3,7 @@
 <html lang="en">
 <head><meta charset="utf-8"/>
 <meta content="width=device-width, initial-scale=1.0" name="viewport"/>
-<title>04d1_generative_cv_pattern_07</title><script src="https://cdnjs.cloudflare.com/ajax/libs/require.js/2.1.10/require.min.js"></script>
+<title>01_general_intro_and_setup_03</title><script src="https://cdnjs.cloudflare.com/ajax/libs/require.js/2.1.10/require.min.js"></script>
 <style type="text/css">
     pre { line-height: 125%; }
 td.linenos .normal { color: inherit; background-color: transparent; padding-left: 5px; padding-right: 5px; }
@@ -7517,72 +7517,17 @@ a.anchor-link {
 </div>
 <div class="jp-InputArea jp-Cell-inputArea"><div class="jp-InputPrompt jp-InputArea-prompt">
 </div><div class="jp-RenderedHTMLCommon jp-RenderedMarkdown jp-MarkdownOutput" data-mime-type="text/markdown">
-<h2 id="%F0%9F%8E%89-Wrapping-Up-&amp;-Next-Steps">🎉 Wrapping Up &amp; Next Steps<a class="anchor-link" href="#%F0%9F%8E%89-Wrapping-Up-&amp;-Next-Steps">¶</a></h2><p>Awesome work making it to the end. In this tutorial, you used <strong>Ray Train and Ray Data on Anyscale</strong> to scale a compact diffusion-policy workload, from raw JPEG bytes to distributed training and sampling, without changing the core PyTorch logic. You should now feel confident:</p>
+<h2 id="Setting-Up-Local-Ray-Observability">Setting Up Local Ray Observability<a class="anchor-link" href="#Setting-Up-Local-Ray-Observability">¶</a></h2><p>This section focuses on local Ray setup where the Ray Dashboard serves as the primary tool for monitoring and debugging. <strong>This setup enables running the local examples featured in subsequent courses.</strong></p>
+<h3 id="Prerequisites-and-Assumptions">Prerequisites and Assumptions<a class="anchor-link" href="#Prerequisites-and-Assumptions">¶</a></h3><p>This setup assumes the following environment and tools are available:</p>
 <ul>
-<li>Using <strong>Ray Data</strong> to decode, normalize, and shard large image datasets in parallel</li>
-<li>Scaling training across multiple GPUs using <strong>TorchTrainer</strong> and a Ray-native <code>train_loop</code></li>
-<li>Managing distributed training state with <strong>Ray Checkpoints</strong> and automatic resume</li>
-<li>Running fault-tolerant multi-node jobs on Anyscale without orchestration scripts</li>
-<li>Performing post-training sampling or evaluation using <strong>Ray tasks</strong> on GPU workers</li>
+<li><strong>Operating System</strong>: macOS (tested on macOS Sequoia Version 15.6)</li>
+<li><strong>Package Manager</strong>: Homebrew installed and configured</li>
+<li><strong>Python Environment</strong>: Conda or similar virtual environment manager</li>
+<li><strong>Terminal Access</strong>: Command-line interface for running Ray and Grafana commands</li>
 </ul>
-<hr/>
-<h2 id="%F0%9F%9A%80-Where-can-you-take-this-next?">🚀 Where can you take this next?<a class="anchor-link" href="#%F0%9F%9A%80-Where-can-you-take-this-next?">¶</a></h2><p>Below are a few directions you might explore to adapt or extend the pattern:</p>
-<ol>
-<li><p><strong>Backbones &amp; Architecture Upgrades</strong></p>
-<ul>
-<li>Swap in a larger ResNet or another vision model for much better generative performance.</li>
-<li>Try pre-trained encoders and fine-tune only the diffusion-specific layers.</li>
-</ul>
-</li>
-<li><p><strong>Conditional Diffusion</strong></p>
-<ul>
-<li>Use the <code>label</code> column to condition the model (For example, class-conditioning).</li>
-<li>Compare unconditional vs. conditional generation side by side.</li>
-</ul>
-</li>
-<li><p><strong>Sampling Improvements</strong></p>
-<ul>
-<li>Replace naive reverse diffusion with De-noising Diffusion Implicit Models (DDIM), Pseudo Numerical Methods for Diffusion Models (PNDM), or learned de-noisers.</li>
-<li>Add timestep embeddings or noise schedules to increase model expressiveness.</li>
-</ul>
-</li>
-<li><p><strong>Longer Training &amp; Mixed Precision</strong></p>
-<ul>
-<li>Increase the <code>max_epochs</code> and enable Automatic Mixed Precision (AMP) for faster training with less memory.</li>
-<li>Visualize convergence and training stability across longer runs.</li>
-</ul>
-</li>
-<li><p><strong>Hyperparameter Sweeps</strong></p>
-<ul>
-<li>Use <strong>Ray Tune</strong> to search over learning rates, model size, or sampling steps.</li>
-<li>Leverage Tune’s reporting to schedule early stopping or checkpoint pruning.</li>
-</ul>
-</li>
-<li><p><strong>Data Handling &amp; Scaling</strong></p>
-<ul>
-<li>Shard the dataset into multiple Parquet files and distribute across more workers.</li>
-<li>Store and load datasets from S3 or other cloud storage.</li>
-</ul>
-</li>
-<li><p><strong>Image Quality Evaluation</strong></p>
-<ul>
-<li>Log Fréchet Inception Distance (FID) scores, perceptual similarity, or diffusion-specific metrics.</li>
-<li>Compare generated samples from different checkpoints or backbones.</li>
-</ul>
-</li>
-<li><p><strong>Model Serving</strong></p>
-<ul>
-<li>Package the reverse sampler into a Ray task or <strong>Ray Serve</strong> endpoint.</li>
-<li>Run a demo app that generates images on demand from a class name or random seed.</li>
-</ul>
-</li>
-<li><p><strong>End-to-End MLOps</strong></p>
-<ul>
-<li>Register the best checkpoint with MLflow or Weights &amp; Biases.</li>
-<li>Wrap the training loop in a Ray Job and run it on a schedule with Anyscale.</li>
-</ul>
-</li>
-</ol>
+<div class="alert alert-block alert-warning">
+<b>Note:</b> This guide is specifically written for macOS. For Linux or Windows setups, commands and installation methods may differ.
+</div>
 </div>
 </div>
 </div>
@@ -7593,6 +7538,219 @@ a.anchor-link {
 </div>
 <div class="jp-InputArea jp-Cell-inputArea"><div class="jp-InputPrompt jp-InputArea-prompt">
 </div><div class="jp-RenderedHTMLCommon jp-RenderedMarkdown jp-MarkdownOutput" data-mime-type="text/markdown">
+<h3 id="Step-1:-Install-Required-Packages">Step 1: Install Required Packages<a class="anchor-link" href="#Step-1:-Install-Required-Packages">¶</a></h3><p>Install the required packages locally within a Conda virtual environment:</p>
+</div>
+</div>
+</div>
+</div><div class="jp-Cell jp-CodeCell jp-Notebook-cell jp-mod-noOutputs">
+<div class="jp-Cell-inputWrapper" tabindex="0">
+<div class="jp-Collapser jp-InputCollapser jp-Cell-inputCollapser">
+</div>
+<div class="jp-InputArea jp-Cell-inputArea">
+<div class="jp-InputPrompt jp-InputArea-prompt">In [ ]:</div>
+<div class="jp-CodeMirrorEditor jp-Editor jp-InputArea-editor" data-type="inline">
+<div class="cm-editor cm-s-jupyter">
+<div class="highlight hl-ipython3"><pre><span></span>%%bash
+<span class="c1"># Test basic Ray startup</span>
+pip<span class="w"> </span>install<span class="w"> </span>-U<span class="w"> </span><span class="s2">"ray[all]"</span>
+</pre></div>
+</div>
+</div>
+</div>
+</div>
+</div>
+<div class="jp-Cell jp-MarkdownCell jp-Notebook-cell">
+<div class="jp-Cell-inputWrapper" tabindex="0">
+<div class="jp-Collapser jp-InputCollapser jp-Cell-inputCollapser">
+</div>
+<div class="jp-InputArea jp-Cell-inputArea"><div class="jp-InputPrompt jp-InputArea-prompt">
+</div><div class="jp-RenderedHTMLCommon jp-RenderedMarkdown jp-MarkdownOutput" data-mime-type="text/markdown">
+<h3 id="Step-2:-Launch-Prometheus">Step 2: Launch Prometheus<a class="anchor-link" href="#Step-2:-Launch-Prometheus">¶</a></h3><p>Prometheus is an open-source monitoring system that collects and stores metrics. Launch Prometheus using Ray's built-in integration in the terminal:</p>
+</div>
+</div>
+</div>
+</div><div class="jp-Cell jp-CodeCell jp-Notebook-cell jp-mod-noOutputs">
+<div class="jp-Cell-inputWrapper" tabindex="0">
+<div class="jp-Collapser jp-InputCollapser jp-Cell-inputCollapser">
+</div>
+<div class="jp-InputArea jp-Cell-inputArea">
+<div class="jp-InputPrompt jp-InputArea-prompt">In [ ]:</div>
+<div class="jp-CodeMirrorEditor jp-Editor jp-InputArea-editor" data-type="inline">
+<div class="cm-editor cm-s-jupyter">
+<div class="highlight hl-ipython3"><pre><span></span><span class="c1"># Launch Prometheus using Ray's built-in integration</span>
+<span class="c1"># !ray metrics launch-prometheus</span>
+</pre></div>
+</div>
+</div>
+</div>
+</div>
+</div>
+<div class="jp-Cell jp-MarkdownCell jp-Notebook-cell">
+<div class="jp-Cell-inputWrapper" tabindex="0">
+<div class="jp-Collapser jp-InputCollapser jp-Cell-inputCollapser">
+</div>
+<div class="jp-InputArea jp-Cell-inputArea"><div class="jp-InputPrompt jp-InputArea-prompt">
+</div><div class="jp-RenderedHTMLCommon jp-RenderedMarkdown jp-MarkdownOutput" data-mime-type="text/markdown">
+<h3 id="Step-3:-Launch-Ray-Cluster">Step 3: Launch Ray Cluster<a class="anchor-link" href="#Step-3:-Launch-Ray-Cluster">¶</a></h3><p>Launch a Ray cluster with a dedicated head node and a separate worker node, ensuring that the head node does not run any workloads.</p>
+<h4 id="Start-by-launching-the-Ray-head-node-in-the-terminal:">Start by launching the Ray head node in the terminal:<a class="anchor-link" href="#Start-by-launching-the-Ray-head-node-in-the-terminal:">¶</a></h4>
+</div>
+</div>
+</div>
+</div><div class="jp-Cell jp-CodeCell jp-Notebook-cell jp-mod-noOutputs">
+<div class="jp-Cell-inputWrapper" tabindex="0">
+<div class="jp-Collapser jp-InputCollapser jp-Cell-inputCollapser">
+</div>
+<div class="jp-InputArea jp-Cell-inputArea">
+<div class="jp-InputPrompt jp-InputArea-prompt">In [ ]:</div>
+<div class="jp-CodeMirrorEditor jp-Editor jp-InputArea-editor" data-type="inline">
+<div class="cm-editor cm-s-jupyter">
+<div class="highlight hl-ipython3"><pre><span></span><span class="c1">### Start Ray Head Node with Metrics Export</span>
+
+<span class="c1"># Start head node with:</span>
+<span class="c1"># - No CPUs (workload will run on worker only)</span>
+<span class="c1"># - Metrics export on port 8080</span>
+
+<span class="c1"># !export RAY_ENABLE_WINDOWS_OR_OSX_CLUSTER=1</span>
+<span class="c1"># !ray start --head --num-cpus=0 --port=6379 --metrics-export-port=8080 </span>
+</pre></div>
+</div>
+</div>
+</div>
+</div>
+</div>
+<div class="jp-Cell jp-MarkdownCell jp-Notebook-cell">
+<div class="jp-Cell-inputWrapper" tabindex="0">
+<div class="jp-Collapser jp-InputCollapser jp-Cell-inputCollapser">
+</div>
+<div class="jp-InputArea jp-Cell-inputArea"><div class="jp-InputPrompt jp-InputArea-prompt">
+</div><div class="jp-RenderedHTMLCommon jp-RenderedMarkdown jp-MarkdownOutput" data-mime-type="text/markdown">
+<h4 id="Now-launch-a-Ray-worker-node-in-the-terminal:">Now launch a Ray worker node in the terminal:<a class="anchor-link" href="#Now-launch-a-Ray-worker-node-in-the-terminal:">¶</a></h4>
+</div>
+</div>
+</div>
+</div><div class="jp-Cell jp-CodeCell jp-Notebook-cell jp-mod-noOutputs">
+<div class="jp-Cell-inputWrapper" tabindex="0">
+<div class="jp-Collapser jp-InputCollapser jp-Cell-inputCollapser">
+</div>
+<div class="jp-InputArea jp-Cell-inputArea">
+<div class="jp-InputPrompt jp-InputArea-prompt">In [ ]:</div>
+<div class="jp-CodeMirrorEditor jp-Editor jp-InputArea-editor" data-type="inline">
+<div class="cm-editor cm-s-jupyter">
+<div class="highlight hl-ipython3"><pre><span></span><span class="c1"># !ray start --address=127.0.0.1:6379  --num-cpus=1</span>
+</pre></div>
+</div>
+</div>
+</div>
+</div>
+</div>
+<div class="jp-Cell jp-MarkdownCell jp-Notebook-cell">
+<div class="jp-Cell-inputWrapper" tabindex="0">
+<div class="jp-Collapser jp-InputCollapser jp-Cell-inputCollapser">
+</div>
+<div class="jp-InputArea jp-Cell-inputArea"><div class="jp-InputPrompt jp-InputArea-prompt">
+</div><div class="jp-RenderedHTMLCommon jp-RenderedMarkdown jp-MarkdownOutput" data-mime-type="text/markdown">
+<h3 id="Step-4:-Install-and-Launch-Grafana">Step 4: Install and Launch Grafana<a class="anchor-link" href="#Step-4:-Install-and-Launch-Grafana">¶</a></h3><p>Grafana is an open-source visualization platform that creates dashboards and graphs from Prometheus metrics. Install Grafana from the <a href="https://grafana.com/grafana/download">official website</a>:</p>
+</div>
+</div>
+</div>
+</div><div class="jp-Cell jp-CodeCell jp-Notebook-cell jp-mod-noOutputs">
+<div class="jp-Cell-inputWrapper" tabindex="0">
+<div class="jp-Collapser jp-InputCollapser jp-Cell-inputCollapser">
+</div>
+<div class="jp-InputArea jp-Cell-inputArea">
+<div class="jp-InputPrompt jp-InputArea-prompt">In [ ]:</div>
+<div class="jp-CodeMirrorEditor jp-Editor jp-InputArea-editor" data-type="inline">
+<div class="cm-editor cm-s-jupyter">
+<div class="highlight hl-ipython3"><pre><span></span>%%bash
+
+brew<span class="w"> </span>install<span class="w"> </span>grafana
+</pre></div>
+</div>
+</div>
+</div>
+</div>
+</div>
+<div class="jp-Cell jp-MarkdownCell jp-Notebook-cell">
+<div class="jp-Cell-inputWrapper" tabindex="0">
+<div class="jp-Collapser jp-InputCollapser jp-Cell-inputCollapser">
+</div>
+<div class="jp-InputArea jp-Cell-inputArea"><div class="jp-InputPrompt jp-InputArea-prompt">
+</div><div class="jp-RenderedHTMLCommon jp-RenderedMarkdown jp-MarkdownOutput" data-mime-type="text/markdown">
+<h4 id="Launch-Grafana">Launch Grafana<a class="anchor-link" href="#Launch-Grafana">¶</a></h4><p>Launch Grafana by running the following command in the terminal:</p>
+</div>
+</div>
+</div>
+</div><div class="jp-Cell jp-CodeCell jp-Notebook-cell jp-mod-noOutputs">
+<div class="jp-Cell-inputWrapper" tabindex="0">
+<div class="jp-Collapser jp-InputCollapser jp-Cell-inputCollapser">
+</div>
+<div class="jp-InputArea jp-Cell-inputArea">
+<div class="jp-InputPrompt jp-InputArea-prompt">In [ ]:</div>
+<div class="jp-CodeMirrorEditor jp-Editor jp-InputArea-editor" data-type="inline">
+<div class="cm-editor cm-s-jupyter">
+<div class="highlight hl-ipython3"><pre><span></span>%%bash
+
+grafana<span class="w"> </span>server<span class="w"> </span><span class="se">\</span>
+<span class="w">  </span>--config<span class="w"> </span>/tmp/ray/session_latest/metrics/grafana/grafana.ini<span class="w"> </span><span class="se">\</span>
+<span class="w">  </span>--homepath<span class="w"> </span>/opt/homebrew/opt/grafana/share/grafana
+</pre></div>
+</div>
+</div>
+</div>
+</div>
+</div>
+<div class="jp-Cell jp-MarkdownCell jp-Notebook-cell">
+<div class="jp-Cell-inputWrapper" tabindex="0">
+<div class="jp-Collapser jp-InputCollapser jp-Cell-inputCollapser">
+</div>
+<div class="jp-InputArea jp-Cell-inputArea"><div class="jp-InputPrompt jp-InputArea-prompt">
+</div><div class="jp-RenderedHTMLCommon jp-RenderedMarkdown jp-MarkdownOutput" data-mime-type="text/markdown">
+<h4 id="Additional-Setup-(Optional)">Additional Setup (Optional)<a class="anchor-link" href="#Additional-Setup-(Optional)">¶</a></h4><p>You may need to run the following commands to properly launch Grafana:</p>
+</div>
+</div>
+</div>
+</div><div class="jp-Cell jp-CodeCell jp-Notebook-cell jp-mod-noOutputs">
+<div class="jp-Cell-inputWrapper" tabindex="0">
+<div class="jp-Collapser jp-InputCollapser jp-Cell-inputCollapser">
+</div>
+<div class="jp-InputArea jp-Cell-inputArea">
+<div class="jp-InputPrompt jp-InputArea-prompt">In [ ]:</div>
+<div class="jp-CodeMirrorEditor jp-Editor jp-InputArea-editor" data-type="inline">
+<div class="cm-editor cm-s-jupyter">
+<div class="highlight hl-ipython3"><pre><span></span><span class="c1"># (Optional) You may need to run following commands to be able to launch Grafana</span>
+
+<span class="c1"># !sudo chown root: `which py-spy`</span>
+<span class="c1"># !sudo chmod u+s `which py-spy`</span>
+<span class="c1"># !PYTHONMALLOC=malloc</span>
+</pre></div>
+</div>
+</div>
+</div>
+</div>
+</div>
+<div class="jp-Cell jp-MarkdownCell jp-Notebook-cell">
+<div class="jp-Cell-inputWrapper" tabindex="0">
+<div class="jp-Collapser jp-InputCollapser jp-Cell-inputCollapser">
+</div>
+<div class="jp-InputArea jp-Cell-inputArea"><div class="jp-InputPrompt jp-InputArea-prompt">
+</div><div class="jp-RenderedHTMLCommon jp-RenderedMarkdown jp-MarkdownOutput" data-mime-type="text/markdown">
+<p>Visit <a href="http://127.0.0.1:8265/#/overview">http://127.0.0.1:8265/#/overview</a> to access the Ray Dashboard locally:</p>
+<img alt="No description has been provided for this image" loading="lazy" src="https://anyscale-materials.s3.us-west-2.amazonaws.com/ray-observability/1-Overview/resources_view.png" width="70%"/>
+</div>
+</div>
+</div>
+</div>
+<div class="jp-Cell jp-MarkdownCell jp-Notebook-cell">
+<div class="jp-Cell-inputWrapper" tabindex="0">
+<div class="jp-Collapser jp-InputCollapser jp-Cell-inputCollapser">
+</div>
+<div class="jp-InputArea jp-Cell-inputArea"><div class="jp-InputPrompt jp-InputArea-prompt">
+</div><div class="jp-RenderedHTMLCommon jp-RenderedMarkdown jp-MarkdownOutput" data-mime-type="text/markdown">
+<p>Click on "Cluster" in the navigation to see the two running nodes: one head node and one worker node:</p>
+<img alt="No description has been provided for this image" loading="lazy" src="https://anyscale-materials.s3.us-west-2.amazonaws.com/ray-observability/1-Overview/cluster_view.png" width="70%"/>
+<p><strong>Ray Observability on K8s:</strong>
+To start Ray on a K8s environment without using Anyscale and set up Ray Observability, refer to <a href="https://docs.ray.io/en/latest/cluster/kubernetes/troubleshooting.html">KubeRay Troubleshooting</a> for more information.</p>
+<h3 id="What's-Next">What's Next<a class="anchor-link" href="#What's-Next">¶</a></h3><p>The next course provides an overview of Ray and Anyscale observability with examples. All subsequent courses include observability examples. Items marked <strong>"Local Environment"</strong> can be run locally using the setup above.</p>
 </div>
 </div>
 </div>

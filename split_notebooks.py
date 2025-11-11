@@ -56,7 +56,7 @@ def fix_image_paths_in_cell(cell, notebook_path):
     
     return cell
 
-def split_notebook_by_h2(notebook_path, output_dir):
+def split_notebook_by_h2(notebook_path, output_dir, force=False):
     """
     Splits a notebook into parts at each '##' (second-level markdown header).
     Returns a list of output notebook paths (relative to repo root).
@@ -99,17 +99,31 @@ def split_notebook_by_h2(notebook_path, output_dir):
         out_name = f"{base}_{idx+1:02d}.ipynb"
         out_path = os.path.join(output_dir, out_name)
         os.makedirs(output_dir, exist_ok=True)
-        with open(out_path, 'w', encoding='utf-8') as f:
-            json.dump(part_nb, f, indent=1)
+        if force or not os.path.exists(out_path):
+            with open(out_path, 'w', encoding='utf-8') as f:
+                json.dump(part_nb, f, indent=1)
+        else:
+            print(f"Skipping existing split notebook: {out_path} (use --force to regenerate)")
         # Store path relative to repo root
         rel_path = os.path.relpath(out_path, Path.cwd())
         output_paths.append(rel_path)
     return output_paths
 
-def find_notebooks_by_course(root="courses"):
-    """Find all .ipynb files organized by course folder, ignoring output/ dirs."""
+def find_notebooks_by_course(root="courses", target_course=None):
+    """
+    Find all .ipynb files organized by course folder, ignoring output/ dirs.
+    Optionally limit the search to a single course folder.
+    """
     courses = {}
-    for item in os.listdir(root):
+    try:
+        if target_course:
+            candidates = [target_course]
+        else:
+            candidates = os.listdir(root)
+    except FileNotFoundError:
+        return courses
+
+    for item in candidates:
         course_path = os.path.join(root, item)
         if os.path.isdir(course_path):
             notebooks = []
@@ -158,11 +172,16 @@ def write_index_md_from_courses(courses_data, display_names, index_path="index.m
     with open(index_path, "w", encoding="utf-8") as f:
         f.write("\n".join(lines))
 
-def convert_notebook_to_html(notebook_path):
+def convert_notebook_to_html(notebook_path, force=False):
     """
     Convert a notebook to HTML using jupyter nbconvert.
     Returns True if successful, False otherwise.
     """
+    html_path = os.path.splitext(notebook_path)[0] + ".html"
+    if not force and os.path.exists(html_path):
+        print(f"Skipping existing HTML: {html_path} (use --force to regenerate)")
+        return True
+
     try:
         result = subprocess.run(
             ['jupyter', 'nbconvert', '--to', 'html', notebook_path],
@@ -182,20 +201,19 @@ def convert_notebook_to_html(notebook_path):
 def find_all_split_notebooks(root="courses"):
     """
     Find all split notebooks in output directories across all courses.
+    Recursively searches for output directories at any level.
     Returns a list of absolute paths to split notebooks.
     """
     split_notebooks = []
-    for item in os.listdir(root):
-        course_path = os.path.join(root, item)
-        if os.path.isdir(course_path):
-            output_dir = os.path.join(course_path, 'output')
-            if os.path.exists(output_dir):
-                for filename in os.listdir(output_dir):
-                    if filename.endswith('.ipynb'):
-                        split_notebooks.append(os.path.join(output_dir, filename))
+    for root_dir, dirs, files in os.walk(root):
+        # Check if this directory is named 'output'
+        if os.path.basename(root_dir) == 'output':
+            for filename in files:
+                if filename.endswith('.ipynb'):
+                    split_notebooks.append(os.path.join(root_dir, filename))
     return split_notebooks
 
-def convert_all_split_notebooks_to_html(root="courses"):
+def convert_all_split_notebooks_to_html(root="courses", force=False):
     """
     Convert all split notebooks in output directories to HTML.
     Returns the number of successfully converted notebooks.
@@ -209,7 +227,7 @@ def convert_all_split_notebooks_to_html(root="courses"):
     successful_conversions = 0
     
     for notebook_path in split_notebooks:
-        if convert_notebook_to_html(notebook_path):
+        if convert_notebook_to_html(notebook_path, force=force):
             successful_conversions += 1
     
     print(f"Successfully converted {successful_conversions}/{len(split_notebooks)} notebooks to HTML")
@@ -219,12 +237,25 @@ def main():
     parser = argparse.ArgumentParser(description='Split notebooks by H2 headers and optionally convert to HTML')
     parser.add_argument('--no-html', action='store_true', 
                        help='Skip HTML conversion of split notebooks')
+    parser.add_argument('--course', help='Name of course folder under courses/ to process')
+    parser.add_argument('--force', action='store_true',
+                       help='Regenerate outputs even if they already exist')
     args = parser.parse_args()
     
     # Load course display names from config
     display_names = load_course_display_names()
     
-    courses_notebooks = find_notebooks_by_course()
+    courses_root = "courses"
+    courses_notebooks = find_notebooks_by_course(root=courses_root, target_course=args.course)
+    if args.course:
+        target_course_path = os.path.join(courses_root, args.course)
+        if not os.path.isdir(target_course_path):
+            print(f"Course '{args.course}' not found under '{courses_root}'. Nothing to do.")
+            return
+        if args.course not in courses_notebooks:
+            print(f"No notebooks found for course '{args.course}'. Nothing to do.")
+            return
+
     courses_data = {}
     first_notebook = None
     
@@ -234,7 +265,7 @@ def main():
         for nb_path in notebooks:
             nb_dir = os.path.dirname(nb_path)
             output_dir = os.path.join(nb_dir, 'output')
-            split_paths = split_notebook_by_h2(nb_path, output_dir)
+            split_paths = split_notebook_by_h2(nb_path, output_dir, force=args.force)
             if split_paths:
                 course_parts.extend(split_paths)
                 if first_notebook is None:
@@ -280,7 +311,8 @@ def main():
         print("\n" + "="*50)
         print("Converting split notebooks to HTML...")
         print("="*50)
-        convert_all_split_notebooks_to_html()
+        html_root = os.path.join(courses_root, args.course) if args.course else courses_root
+        convert_all_split_notebooks_to_html(root=html_root, force=args.force)
     else:
         print("\nSkipping HTML conversion (--no-html flag provided)")
 

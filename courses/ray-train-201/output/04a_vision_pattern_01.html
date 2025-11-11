@@ -7517,15 +7517,15 @@ a.anchor-link {
 </div>
 <div class="jp-InputArea jp-Cell-inputArea"><div class="jp-InputPrompt jp-InputArea-prompt">
 </div><div class="jp-RenderedHTMLCommon jp-RenderedMarkdown jp-MarkdownOutput" data-mime-type="text/markdown">
-<h2 id="%F0%9F%96%BC%EF%B8%8F-04a-%C2%B7-Computer-Vision-Pattern-with-Ray-Train">🖼️ 04a · Computer-Vision Pattern with Ray Train<a class="anchor-link" href="#%F0%9F%96%BC%EF%B8%8F-04a-%C2%B7-Computer-Vision-Pattern-with-Ray-Train">¶</a></h2><p>This notebook walks through an end-to-end, <strong>real-world computer-vision workflow</strong> that runs seamlessly on an Anyscale cluster using <strong>Ray Train</strong>. You start by pulling a slice of the Food-101 dataset, push it through a lightweight preprocessing pipeline, store it efficiently in Parquet, and then fine-tune a ResNet-18 in a fault-tolerant, distributed manner. Along the way, you  lean on Ray’s helpers to prepare data loaders, coordinate workers, checkpoint automatically, resume after failure, and even launch GPU inference jobs—all without writing a single line of low-level distributed code.</p>
-<h3 id="What-you%E2%80%99ll-learn-&amp;-take-away">What you’ll learn &amp; take away<a class="anchor-link" href="#What-you%E2%80%99ll-learn-&amp;-take-away">¶</a></h3><ul>
+<h1 id="04a-Computer-vision-pattern-with-Ray-Train">04a Computer-vision pattern with Ray Train<a class="anchor-link" href="#04a-Computer-vision-pattern-with-Ray-Train">¶</a></h1><p>This notebook is an end-to-end, <strong>real-world computer-vision workflow</strong> that runs seamlessly on an Anyscale cluster using <strong>Ray Train</strong>. You start by pulling a slice of the Food-101 dataset, push it through a lightweight preprocessing pipeline, store it efficiently in Parquet, and then fine-tune a ResNet-18 model in a fault-tolerant, distributed manner. Along the way, you lean on Ray’s helpers to prepare data loaders, coordinate workers, checkpoint automatically, and resume after failure. Afterwards, you perform inference with Ray Data, all without writing a single line of low-level distributed code.</p>
+<h3 id="What-you-learn-and-take-away">What you learn and take away<a class="anchor-link" href="#What-you-learn-and-take-away">¶</a></h3><ul>
 <li>Launch distributed training with <strong>Ray Train’s <code>TorchTrainer</code></strong> and configure it for multi-GPU, multi-node execution.</li>
 <li>Use <strong>Ray Train’s built-in utilities</strong> (<code>prepare_model</code>, <code>prepare_data_loader</code>, <code>get_checkpoint</code>, <code>train.report</code>) to wrap your existing PyTorch code without modifying your modeling logic.</li>
 <li>Save and resume from <strong>automatic, fault-tolerant checkpoints</strong> across epochs.</li>
-<li>Offload batch <strong>inference as a Ray remote task</strong>, allowing you to treat inference as a scalable workload.</li>
+<li>Offload batch <strong>inference using Ray Data</strong>. This allows you to treat inference as a scalable workload.</li>
 <li>Run end-to-end training and evaluation without needing to understand the low-level mechanics of distributed systems.</li>
 </ul>
-<p>By the end of the tutorial you have a working model, clear loss curves, and a hands-on feel for how Ray Train simplifies distributed computer-vision workloads.</p>
+<p>By the end of the tutorial you have a working model, clear loss curves, and a hands-on experience of how Ray Train simplifies distributed computer-vision workloads.</p>
 </div>
 </div>
 </div>
@@ -7536,14 +7536,14 @@ a.anchor-link {
 </div>
 <div class="jp-InputArea jp-Cell-inputArea"><div class="jp-InputPrompt jp-InputArea-prompt">
 </div><div class="jp-RenderedHTMLCommon jp-RenderedMarkdown jp-MarkdownOutput" data-mime-type="text/markdown">
-<h3 id="%F0%9F%94%A2-What-problem-are-you-solving?-(Image-classification-with-Food-101-Lite)">🔢 What problem are you solving? (Image classification with Food-101-Lite)<a class="anchor-link" href="#%F0%9F%94%A2-What-problem-are-you-solving?-(Image-classification-with-Food-101-Lite)">¶</a></h3><p>In this notebook you train a neural network to <strong>classify food photos</strong> into one of <strong>10 categories</strong><br/>
+<h3 id="What-problem-are-you-solving?-(image-classification-with-Food-101-Lite)">What problem are you solving? (image classification with Food-101-Lite)<a class="anchor-link" href="#What-problem-are-you-solving?-(image-classification-with-Food-101-Lite)">¶</a></h3><p>This notebook trains a neural network to <strong>classify food photos</strong> into one of <strong>10 categories</strong><br/>
 using the <strong>Food-101-Lite</strong> dataset—a compact, 10-class subset of the original Food-101 benchmark.</p>
 <hr/>
 <h3 id="Inputs">Inputs<a class="anchor-link" href="#Inputs">¶</a></h3><p>Every sample is a 3-channel Red-Green-Blue (RGB) image, resized to $224 \times 224$:</p>
 <p>$$
 x \;\in\; [0,1]^{3 \times 224 \times 224}\;.
 $$</p>
-<p>You apply standard vision transforms (normalization, random crop/flip) and batch the data with plain <strong>PyTorch DataLoader</strong> (wrapped by <code>ray.train.torch.prepare_data_loader</code> for distributed training).</p>
+<p>You apply standard vision transforms (normalization, random crop/flip) and batch the data with a plain <strong>PyTorch DataLoader</strong> (wrapped by <code>ray.train.torch.prepare_data_loader</code> for distributed training).</p>
 <hr/>
 <h3 id="Labels">Labels<a class="anchor-link" href="#Labels">¶</a></h3><p>Each image belongs to one of ten classes:</p>
 <p>['pizza', 'hamburger', 'sushi', 'ramen', 'fried rice',
@@ -7554,7 +7554,7 @@ $$</p>
 <p>$$
 f_\theta(x)\;=\;\hat{y}\;\in\;\mathbb{R}^{10}.
 $$</p>
-<p>Training minimizes the <strong>cross-entropy loss</strong></p>
+<p>Training minimizes the <strong>cross-entropy loss</strong>,</p>
 <p>$$
 \mathcal{L}(x,y)\;=\;-\log \bigl(\hat{y}_{\,y}\bigr),
 $$</p>
@@ -7570,22 +7570,20 @@ $$</p>
 </div>
 <div class="jp-InputArea jp-Cell-inputArea"><div class="jp-InputPrompt jp-InputArea-prompt">
 </div><div class="jp-RenderedHTMLCommon jp-RenderedMarkdown jp-MarkdownOutput" data-mime-type="text/markdown">
-<h3 id="%F0%9F%A7%AD-How-you-migrate-this-computer-vision-workload-to-a-distributed-setup-using-Ray-on-Anyscale">🧭 How you migrate this computer vision workload to a distributed setup using Ray on Anyscale<a class="anchor-link" href="#%F0%9F%A7%AD-How-you-migrate-this-computer-vision-workload-to-a-distributed-setup-using-Ray-on-Anyscale">¶</a></h3><p>In this tutorial, you start with a small PyTorch-based image classification task---training a ResNet-18 on a 10% slice of the Food-101 dataset, and progressively migrate it into a fully distributed, fault-tolerant training job using <strong>Ray Train on Anyscale</strong>. Your goal is to show you exactly how to scale <em>your existing workflow</em> without rewriting it from scratch.</p>
-<p>Here’s how you do it':</p>
+<h3 id="How-to-migrate-this-computer-vision-workload-to-a-distributed-setup-using-Ray-on-Anyscale">How to migrate this computer vision workload to a distributed setup using Ray on Anyscale<a class="anchor-link" href="#How-to-migrate-this-computer-vision-workload-to-a-distributed-setup-using-Ray-on-Anyscale">¶</a></h3><p>In this tutorial, you start with a small PyTorch-based image classification task—training a ResNet-18 model on a 10% slice of the Food-101 dataset, and progressively migrate it into a fully distributed, fault-tolerant training job using <strong>Ray Train on Anyscale</strong>. The goal is to show you exactly how to scale <em>your existing workflow</em> without rewriting it from scratch.</p>
+<p>Use the following steps to migrate:</p>
 <ol>
 <li><p><strong>Preprocess data and persist it in a distributed-friendly format</strong><br/>
 You take raw images from Hugging Face’s <code>food101</code> dataset, apply <code>torchvision</code> resizing and center-cropping, and serialize them to <strong>Parquet</strong> using <code>pyarrow</code>. The system writes these Parquet files to the <strong>Anyscale cluster’s shared storage volume</strong> (<code>/mnt/cluster_storage</code>), so any node can access them, on any worker, without duplication or sync issues.</p>
 </li>
 <li><p><strong>Create a lightweight PyTorch <code>Dataset</code> for Parquet ingestion</strong><br/>
-Instead of using Ray Data or Hugging Face <code>Dataset</code>, you implement a custom <code>Food101Dataset</code> that reads directly from the Parquet files. This provides control over the way the system reads rows and row groups. While this isn’t yet fully distributed, it allows you to simulate a real-world scenario where a developer starts with something simple before optimizing. <strong>Note:</strong> you use Pytorch style data loading in this tutorial to demonstrate (1) low level control in a pytorch native environment and (2) how to move pre-existing pytorch code into a distributed Anyscale environment. Other tutorials in this module incorporate Ray Data, so you can see how the two approaches differ.</p>
+You implement a custom <code>Food101Dataset</code> that reads directly from the Parquet files. This provides control over the way the system reads rows and row groups. While this isn’t yet fully distributed, it allows you to simulate a real-world scenario where a developer starts with something simple before optimizing. <strong>Note:</strong> you use PyTorch style data loading in this tutorial to demonstrate (1) low level control in a PyTorch native environment and (2) how to move pre-existing PyTorch code into a distributed Anyscale environment. Other tutorials in this module incorporate Ray Data, so you can see how the two approaches differ.</p>
 </li>
 <li><p><strong>Integrate Ray Train into the training loop</strong><br/>
-You encapsulate your existing PyTorch training logic in a <code>train_loop_per_worker()</code> function, which Ray Train executes on each worker (typically one per GPU). Inside this loop, you:</p>
+You encapsulate your existing PyTorch training logic in a <code>train_loop_per_worker()</code> function, which Ray Train executes on each worker, typically one per GPU. Inside this loop, you:</p>
 <ul>
 <li>Wrap the model with <code>prepare_model()</code> to make it compatible with distributed data parallelism.</li>
 <li>Wrap the <code>DataLoader</code> with <code>prepare_data_loader()</code> to enable device placement and Ray worker context handling.</li>
-<li>Add a <code>torch.utils.data.DistributedSampler</code> to each <code>DataLoader</code>, so that <strong>data is correctly sharded across workers</strong>—each worker only processes a unique subset of the training and validation datasets.</li>
-<li>As required by the <code>DistributedSampler</code>, all <code>sampler.set_epoch(epoch)</code> at the start of each epoch to reshuffle the data correctly.</li>
 <li>Use Ray’s <code>Checkpoint</code> API to save and resume from checkpoints as needed.</li>
 <li>Report training and validation metrics with <code>train.report()</code> after each epoch.</li>
 </ul>
@@ -7593,7 +7591,7 @@ You encapsulate your existing PyTorch training logic in a <code>train_loop_per_w
 <li><p><strong>Launch training with <code>TorchTrainer</code> on an Anyscale cluster</strong><br/>
 You instantiate a <code>TorchTrainer</code> that runs:</p>
 <ul>
-<li>With <code>num_workers=8</code> and <code>use_gpu=True</code> (For example, across 8 A10 or A100 GPUs on Anyscale).</li>
+<li>With <code>num_workers=8</code> and <code>use_gpu=True</code>. For example, across 8 A10 or A100 GPUs on Anyscale. Please note that this amount of compute is not necessary for the example in this tutorial, as the excess resources are for educational purposes only.</li>
 <li>With <code>RunConfig</code> that sets checkpoint retention and auto-resume (with <code>max_failures=3</code>).</li>
 <li>On infrastructure that's provisioned and scheduled by Anyscale with no manual Ray cluster setup required.</li>
 </ul>
@@ -7609,10 +7607,10 @@ You instantiate a <code>TorchTrainer</code> that runs:</p>
 You run <code>trainer.fit()</code> a second time. If manual intervention or failure interrupts the previous training, Ray picks up from the latest checkpoint. This shows <strong>real-world robustness</strong> without any manual checkpoint management or scripting.</p>
 </li>
 <li><p><strong>Launch distributed GPU inference tasks</strong><br/>
-At the end, you define a Ray remote function (<code>@ray.remote(num_gpus=1)</code>) that loads the best checkpoint and runs inference on a single image from the validation set. You run this task on one GPU from the cluster.</p>
+At the end, you provide inference with a Ray Data pipeline that loads the best checkpoint and runs inference on a single image from the validation set. You run this task on one GPU from the cluster.</p>
 </li>
 </ol>
-<p>All of this runs inside a <strong>managed Anyscale workspace</strong>. You don’t need to start or SSH into clusters, worry about node IP, or configure NCCL. The entire setup is <strong>declarative and self-contained in this notebook</strong>, and can be re-run or scaled up by changing a single parameter (<code>num_workers</code>).</p>
+<p>All of this runs inside a <strong>managed Anyscale workspace</strong>. You don’t need to start or SSH into clusters, worry about node IP, or configure NCCL. The entire setup is <strong>declarative and self-contained in this notebook</strong>, and you can re-run it or scale it up by changing a single parameter (<code>num_workers</code>).</p>
 <p>This tutorial mirrors how many ML teams operate in practice: starting with a working PyTorch training loop and migrating it to the cloud without rewriting core logic. With Ray Train on Anyscale, the migration is clean, incremental, and production-ready.</p>
 </div>
 </div>

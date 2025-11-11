@@ -7517,8 +7517,36 @@ a.anchor-link {
 </div>
 <div class="jp-InputArea jp-Cell-inputArea"><div class="jp-InputPrompt jp-InputArea-prompt">
 </div><div class="jp-RenderedHTMLCommon jp-RenderedMarkdown jp-MarkdownOutput" data-mime-type="text/markdown">
-<h2 id="1-%C2%B7-Imports">1 · Imports<a class="anchor-link" href="#1-%C2%B7-Imports">¶</a></h2><p>Before you touch any data, import every tool you need.<br/>
+<h2 id="1.-Imports">1. Imports<a class="anchor-link" href="#1.-Imports">¶</a></h2><p>Before you touch any data, import every tool you need.<br/>
 Alongside the standard scientific-Python stack, bring in <strong>XGBoost</strong> for gradient-boosted decision trees and <strong>Ray</strong> for distributed data loading and training. Ray Train’s helper classes (RunConfig, ScalingConfig, CheckpointConfig, FailureConfig) give you fault-tolerant, CPU training with almost no extra code.</p>
+</div>
+</div>
+</div>
+</div><div class="jp-Cell jp-CodeCell jp-Notebook-cell jp-mod-noOutputs">
+<div class="jp-Cell-inputWrapper" tabindex="0">
+<div class="jp-Collapser jp-InputCollapser jp-Cell-inputCollapser">
+</div>
+<div class="jp-InputArea jp-Cell-inputArea">
+<div class="jp-InputPrompt jp-InputArea-prompt">In [ ]:</div>
+<div class="jp-CodeMirrorEditor jp-Editor jp-InputArea-editor" data-type="inline">
+<div class="cm-editor cm-s-jupyter">
+<div class="highlight hl-ipython3"><pre><span></span><span class="c1"># 00. Runtime setup </span>
+<span class="kn">import</span><span class="w"> </span><span class="nn">os</span><span class="o">,</span><span class="w"> </span><span class="nn">sys</span><span class="o">,</span><span class="w"> </span><span class="nn">subprocess</span>
+
+<span class="c1"># Non-secret env var </span>
+<span class="n">os</span><span class="o">.</span><span class="n">environ</span><span class="p">[</span><span class="s2">"RAY_TRAIN_V2_ENABLED"</span><span class="p">]</span> <span class="o">=</span> <span class="s2">"1"</span>
+
+<span class="c1"># Install Python dependencies </span>
+<span class="n">subprocess</span><span class="o">.</span><span class="n">check_call</span><span class="p">([</span>
+    <span class="n">sys</span><span class="o">.</span><span class="n">executable</span><span class="p">,</span> <span class="s2">"-m"</span><span class="p">,</span> <span class="s2">"pip"</span><span class="p">,</span> <span class="s2">"install"</span><span class="p">,</span> <span class="s2">"--no-cache-dir"</span><span class="p">,</span>
+    <span class="s2">"matplotlib==3.10.6"</span><span class="p">,</span>
+    <span class="s2">"scikit-learn==1.7.2"</span><span class="p">,</span>
+    <span class="s2">"pyarrow==14.0.2"</span><span class="p">,</span>    
+    <span class="s2">"xgboost==3.0.5"</span><span class="p">,</span>
+    <span class="s2">"seaborn==0.13.2"</span><span class="p">,</span>
+<span class="p">])</span>
+</pre></div>
+</div>
 </div>
 </div>
 </div>
@@ -7540,9 +7568,11 @@ Alongside the standard scientific-Python stack, bring in <strong>XGBoost</strong
 <span class="kn">from</span><span class="w"> </span><span class="nn">sklearn.metrics</span><span class="w"> </span><span class="kn">import</span> <span class="n">accuracy_score</span><span class="p">,</span> <span class="n">confusion_matrix</span>
 <span class="kn">from</span><span class="w"> </span><span class="nn">sklearn.model_selection</span><span class="w"> </span><span class="kn">import</span> <span class="n">train_test_split</span>
 <span class="kn">import</span><span class="w"> </span><span class="nn">xgboost</span><span class="w"> </span><span class="k">as</span><span class="w"> </span><span class="nn">xgb</span>
+<span class="kn">import</span><span class="w"> </span><span class="nn">pyarrow</span><span class="w"> </span><span class="k">as</span><span class="w"> </span><span class="nn">pa</span>
 
 <span class="kn">import</span><span class="w"> </span><span class="nn">ray</span>
 <span class="kn">import</span><span class="w"> </span><span class="nn">ray.data</span><span class="w"> </span><span class="k">as</span><span class="w"> </span><span class="nn">rd</span>
+<span class="kn">from</span><span class="w"> </span><span class="nn">ray.data</span><span class="w"> </span><span class="kn">import</span> <span class="n">ActorPoolStrategy</span>
 <span class="kn">from</span><span class="w"> </span><span class="nn">ray.train</span><span class="w"> </span><span class="kn">import</span> <span class="n">RunConfig</span><span class="p">,</span> <span class="n">ScalingConfig</span><span class="p">,</span> <span class="n">CheckpointConfig</span><span class="p">,</span> <span class="n">FailureConfig</span><span class="p">,</span> <span class="n">get_dataset_shard</span><span class="p">,</span> <span class="n">get_checkpoint</span><span class="p">,</span> <span class="n">get_context</span>
 <span class="kn">from</span><span class="w"> </span><span class="nn">ray.train.xgboost</span><span class="w"> </span><span class="kn">import</span> <span class="n">XGBoostTrainer</span><span class="p">,</span> <span class="n">RayTrainReportCallback</span>
 </pre></div>
@@ -7557,7 +7587,7 @@ Alongside the standard scientific-Python stack, bring in <strong>XGBoost</strong
 </div>
 <div class="jp-InputArea jp-Cell-inputArea"><div class="jp-InputPrompt jp-InputArea-prompt">
 </div><div class="jp-RenderedHTMLCommon jp-RenderedMarkdown jp-MarkdownOutput" data-mime-type="text/markdown">
-<h3 id="2-%C2%B7-Load-the-University-of-California,-Irvine-(UCI)-Cover-type-dataset">2 · Load the University of California, Irvine (UCI) Cover type dataset<a class="anchor-link" href="#2-%C2%B7-Load-the-University-of-California,-Irvine-(UCI)-Cover-type-dataset">¶</a></h3><p>The Cover type dataset contains ~580 000 forest-cover observations with 54 tabular features and a 7-class label. Fetch it from <code>sklearn.datasets</code>, rename the target column to <code>label</code> (Ray’s default), and shift the classes from <strong>1-7</strong> to <strong>0-6</strong> so they're zero-indexed as XGBoost expects. A quick <code>value_counts</code> sanity-check confirms the mapping worked.</p>
+<h3 id="2.-Load-the-University-of-California,-Irvine-(UCI)-Cover-type-dataset">2. Load the University of California, Irvine (UCI) Cover type dataset<a class="anchor-link" href="#2.-Load-the-University-of-California,-Irvine-(UCI)-Cover-type-dataset">¶</a></h3><p>The Cover type dataset contains ~580 000 forest-cover observations with 54 tabular features and a 7-class label. Fetch it from <code>sklearn.datasets</code>, rename the target column to <code>label</code> (Ray’s default), and shift the classes from <strong>1-7</strong> to <strong>0-6</strong> so they're zero-indexed as XGBoost expects. A quick <code>value_counts</code> sanity-check confirms the mapping worked.</p>
 </div>
 </div>
 </div>
@@ -7588,7 +7618,7 @@ Alongside the standard scientific-Python stack, bring in <strong>XGBoost</strong
 </div>
 <div class="jp-InputArea jp-Cell-inputArea"><div class="jp-InputPrompt jp-InputArea-prompt">
 </div><div class="jp-RenderedHTMLCommon jp-RenderedMarkdown jp-MarkdownOutput" data-mime-type="text/markdown">
-<h3 id="3-%C2%B7-Visualise-class-balance">3 · Visualise class balance<a class="anchor-link" href="#3-%C2%B7-Visualise-class-balance">¶</a></h3><p>Highly imbalanced targets can bias tree-based models, so plot the raw label counts. The cover type distribution shows skew, but not much—the bar chart lets you judge whether extra re-scaling or class-weighting is necessary (You rely on XGBoost’s built-in handling for now).</p>
+<h3 id="3.-Visualize-class-balance">3. Visualize class balance<a class="anchor-link" href="#3.-Visualize-class-balance">¶</a></h3><p>Highly imbalanced targets can bias tree-based models, so plot the raw label counts. The cover type distribution shows skew, but not much—the bar chart lets you judge whether extra re-scaling or class-weighting is necessary. Rely on XGBoost’s built-in handling for this step.</p>
 </div>
 </div>
 </div>
@@ -7615,7 +7645,11 @@ Alongside the standard scientific-Python stack, bring in <strong>XGBoost</strong
 </div>
 <div class="jp-InputArea jp-Cell-inputArea"><div class="jp-InputPrompt jp-InputArea-prompt">
 </div><div class="jp-RenderedHTMLCommon jp-RenderedMarkdown jp-MarkdownOutput" data-mime-type="text/markdown">
-<h3 id="4-%C2%B7-Persist-the-dataset-to-Parquet">4 · Persist the dataset to Parquet<a class="anchor-link" href="#4-%C2%B7-Persist-the-dataset-to-Parquet">¶</a></h3><p>Storing the data-frame once on the cluster’s shared file-system keeps later steps fast and reproducible. Parquet is columnar, compressed, and lazily readable by Ray Data, which means you can stream partitions to workers without loading everything into RAM.</p>
+<h3 id="4.-Write-train-/-validation-Parquet-files">4. Write train / validation Parquet files<a class="anchor-link" href="#4.-Write-train-/-validation-Parquet-files">¶</a></h3><p>Rather than splitting a large dataset in memory later, you persist <strong>train</strong> and <strong>validation</strong> splits up front.<br/>
+Each split is written to the cluster’s shared volume (<code>/mnt/cluster_storage</code>) so that all Ray workers can access it directly.<br/>
+This approach keeps the workflow reproducible and avoids rematerializing the dataset during distributed training.</p>
+<p>You perform a <strong>stratified 80 / 20 split</strong> to preserve class balance across splits, then write each subset to its own Parquet file.<br/>
+Parquet is columnar and compressed, making it ideal for Ray Data ingestion and parallel reads.</p>
 </div>
 </div>
 </div>
@@ -7627,12 +7661,24 @@ Alongside the standard scientific-Python stack, bring in <strong>XGBoost</strong
 <div class="jp-InputPrompt jp-InputArea-prompt">In [ ]:</div>
 <div class="jp-CodeMirrorEditor jp-Editor jp-InputArea-editor" data-type="inline">
 <div class="cm-editor cm-s-jupyter">
-<div class="highlight hl-ipython3"><pre><span></span><span class="c1"># 04. Write to /mnt/cluster_storage/covtype/</span>
+<div class="highlight hl-ipython3"><pre><span></span><span class="c1"># 04. Write separate train/val Parquets to /mnt/cluster_storage/covtype/</span>
+
 <span class="n">PARQUET_DIR</span> <span class="o">=</span> <span class="s2">"/mnt/cluster_storage/covtype/parquet"</span>
 <span class="n">os</span><span class="o">.</span><span class="n">makedirs</span><span class="p">(</span><span class="n">PARQUET_DIR</span><span class="p">,</span> <span class="n">exist_ok</span><span class="o">=</span><span class="kc">True</span><span class="p">)</span>
-<span class="n">file_path</span> <span class="o">=</span> <span class="n">os</span><span class="o">.</span><span class="n">path</span><span class="o">.</span><span class="n">join</span><span class="p">(</span><span class="n">PARQUET_DIR</span><span class="p">,</span> <span class="s2">"covtype.parquet"</span><span class="p">)</span>
-<span class="n">df</span><span class="o">.</span><span class="n">to_parquet</span><span class="p">(</span><span class="n">file_path</span><span class="p">)</span>
-<span class="nb">print</span><span class="p">(</span><span class="sa">f</span><span class="s2">"Wrote Parquet -&gt; </span><span class="si">{</span><span class="n">file_path</span><span class="si">}</span><span class="s2">"</span><span class="p">)</span>
+
+<span class="n">TRAIN_PARQUET</span> <span class="o">=</span> <span class="n">os</span><span class="o">.</span><span class="n">path</span><span class="o">.</span><span class="n">join</span><span class="p">(</span><span class="n">PARQUET_DIR</span><span class="p">,</span> <span class="s2">"train.parquet"</span><span class="p">)</span>
+<span class="n">VAL_PARQUET</span>   <span class="o">=</span> <span class="n">os</span><span class="o">.</span><span class="n">path</span><span class="o">.</span><span class="n">join</span><span class="p">(</span><span class="n">PARQUET_DIR</span><span class="p">,</span> <span class="s2">"val.parquet"</span><span class="p">)</span>
+
+<span class="c1"># Stratified 80/20 split for reproducibility</span>
+<span class="n">train_df</span><span class="p">,</span> <span class="n">val_df</span> <span class="o">=</span> <span class="n">train_test_split</span><span class="p">(</span>
+    <span class="n">df</span><span class="p">,</span> <span class="n">test_size</span><span class="o">=</span><span class="mf">0.2</span><span class="p">,</span> <span class="n">random_state</span><span class="o">=</span><span class="mi">42</span><span class="p">,</span> <span class="n">stratify</span><span class="o">=</span><span class="n">df</span><span class="p">[</span><span class="s2">"label"</span><span class="p">]</span>
+<span class="p">)</span>
+
+<span class="n">train_df</span><span class="o">.</span><span class="n">to_parquet</span><span class="p">(</span><span class="n">TRAIN_PARQUET</span><span class="p">,</span> <span class="n">index</span><span class="o">=</span><span class="kc">False</span><span class="p">)</span>
+<span class="n">val_df</span><span class="o">.</span><span class="n">to_parquet</span><span class="p">(</span><span class="n">VAL_PARQUET</span><span class="p">,</span> <span class="n">index</span><span class="o">=</span><span class="kc">False</span><span class="p">)</span>
+
+<span class="nb">print</span><span class="p">(</span><span class="sa">f</span><span class="s2">"Wrote Train → </span><span class="si">{</span><span class="n">TRAIN_PARQUET</span><span class="si">}</span><span class="s2"> (</span><span class="si">{</span><span class="nb">len</span><span class="p">(</span><span class="n">train_df</span><span class="p">)</span><span class="si">:</span><span class="s2">,</span><span class="si">}</span><span class="s2"> rows)"</span><span class="p">)</span>
+<span class="nb">print</span><span class="p">(</span><span class="sa">f</span><span class="s2">"Wrote Val   → </span><span class="si">{</span><span class="n">VAL_PARQUET</span><span class="si">}</span><span class="s2">   (</span><span class="si">{</span><span class="nb">len</span><span class="p">(</span><span class="n">val_df</span><span class="p">)</span><span class="si">:</span><span class="s2">,</span><span class="si">}</span><span class="s2"> rows)"</span><span class="p">)</span>
 </pre></div>
 </div>
 </div>
@@ -7645,7 +7691,11 @@ Alongside the standard scientific-Python stack, bring in <strong>XGBoost</strong
 </div>
 <div class="jp-InputArea jp-Cell-inputArea"><div class="jp-InputPrompt jp-InputArea-prompt">
 </div><div class="jp-RenderedHTMLCommon jp-RenderedMarkdown jp-MarkdownOutput" data-mime-type="text/markdown">
-<h3 id="5-%C2%B7-Read-the-data-as-a-Ray-Dataset">5 · Read the data as a Ray Dataset<a class="anchor-link" href="#5-%C2%B7-Read-the-data-as-a-Ray-Dataset">¶</a></h3><p><code>ray.data.read_parquet</code> gives you a <strong>lazy, columnar dataset</strong> and shuffles it on-the-fly. From this point on, every split, batch, or transformation executes in parallel across the cluster, so you avoid a single-node bottleneck.</p>
+<h3 id="5.-Load-the-train-and-validation-splits-as-Ray-Datasets">5. Load the train and validation splits as Ray Datasets<a class="anchor-link" href="#5.-Load-the-train-and-validation-splits-as-Ray-Datasets">¶</a></h3><p>Now that the data is stored in Parquet, you load each split directly with <code>ray.data.read_parquet</code>.<br/>
+Each call returns a <strong>lazy, columnar Ray Dataset</strong> that supports distributed reads and transformations across the cluster.</p>
+<p>Calling <code>.random_shuffle()</code> on the training split ensures balanced sampling during training,<br/>
+while leaving the validation split unshuffled preserves its deterministic order for evaluation.</p>
+<p>From this point forward, all data access is <strong>parallel and streaming</strong>, eliminating single-node I/O bottlenecks.</p>
 </div>
 </div>
 </div>
@@ -7657,9 +7707,12 @@ Alongside the standard scientific-Python stack, bring in <strong>XGBoost</strong
 <div class="jp-InputPrompt jp-InputArea-prompt">In [ ]:</div>
 <div class="jp-CodeMirrorEditor jp-Editor jp-InputArea-editor" data-type="inline">
 <div class="cm-editor cm-s-jupyter">
-<div class="highlight hl-ipython3"><pre><span></span><span class="c1"># 05. Load dataset into a Ray Dataset (lazy, columnar)</span>
-<span class="n">ds_full</span> <span class="o">=</span> <span class="n">rd</span><span class="o">.</span><span class="n">read_parquet</span><span class="p">(</span><span class="n">file_path</span><span class="p">)</span><span class="o">.</span><span class="n">random_shuffle</span><span class="p">()</span>      
-<span class="nb">print</span><span class="p">(</span><span class="n">ds_full</span><span class="p">)</span>
+<div class="highlight hl-ipython3"><pre><span></span><span class="c1"># 05. Load the two splits as Ray Datasets (lazy, columnar)</span>
+<span class="n">train_ds</span> <span class="o">=</span> <span class="n">rd</span><span class="o">.</span><span class="n">read_parquet</span><span class="p">(</span><span class="n">TRAIN_PARQUET</span><span class="p">)</span><span class="o">.</span><span class="n">random_shuffle</span><span class="p">()</span>
+<span class="n">val_ds</span>   <span class="o">=</span> <span class="n">rd</span><span class="o">.</span><span class="n">read_parquet</span><span class="p">(</span><span class="n">VAL_PARQUET</span><span class="p">)</span>
+
+<span class="nb">print</span><span class="p">(</span><span class="n">train_ds</span><span class="p">)</span>
+<span class="nb">print</span><span class="p">(</span><span class="n">val_ds</span><span class="p">)</span>
 </pre></div>
 </div>
 </div>
@@ -7672,7 +7725,9 @@ Alongside the standard scientific-Python stack, bring in <strong>XGBoost</strong
 </div>
 <div class="jp-InputArea jp-Cell-inputArea"><div class="jp-InputPrompt jp-InputArea-prompt">
 </div><div class="jp-RenderedHTMLCommon jp-RenderedMarkdown jp-MarkdownOutput" data-mime-type="text/markdown">
-<h3 id="6-%C2%B7-Create-train-/-validation-splits">6 · Create train / validation splits<a class="anchor-link" href="#6-%C2%B7-Create-train-/-validation-splits">¶</a></h3><p>Perform an 80 / 20 split directly on the Ray Dataset, preserving the lazy execution plan. Each subset remains a Ray Dataset object, so they can later stream to the training workers in parallel.</p>
+<h3 id="6.-Inspect-dataset-sizes-(optional)">6. Inspect dataset sizes (optional)<a class="anchor-link" href="#6.-Inspect-dataset-sizes-(optional)">¶</a></h3><p>After loading the Parquet files, quickly confirm that both splits were read correctly by counting their rows.<br/>
+This step triggers a lightweight distributed count across the cluster and verifies that the<br/>
+<strong>train / validation partitioning</strong> matches the expected 80 / 20 ratio before moving on to distributed training.</p>
 </div>
 </div>
 </div>
@@ -7684,9 +7739,7 @@ Alongside the standard scientific-Python stack, bring in <strong>XGBoost</strong
 <div class="jp-InputPrompt jp-InputArea-prompt">In [ ]:</div>
 <div class="jp-CodeMirrorEditor jp-Editor jp-InputArea-editor" data-type="inline">
 <div class="cm-editor cm-s-jupyter">
-<div class="highlight hl-ipython3"><pre><span></span><span class="c1"># 06. Split to train / validation Ray Datasets</span>
-<span class="n">train_ds</span><span class="p">,</span> <span class="n">val_ds</span> <span class="o">=</span> <span class="n">ds_full</span><span class="o">.</span><span class="n">split_proportionately</span><span class="p">([</span><span class="mf">0.8</span><span class="p">])</span>
-<span class="nb">print</span><span class="p">(</span><span class="sa">f</span><span class="s2">"Train rows: </span><span class="si">{</span><span class="n">train_ds</span><span class="o">.</span><span class="n">count</span><span class="p">()</span><span class="si">}</span><span class="s2">,  Val rows: </span><span class="si">{</span><span class="n">val_ds</span><span class="o">.</span><span class="n">count</span><span class="p">()</span><span class="si">}</span><span class="s2">"</span><span class="p">)</span>
+<div class="highlight hl-ipython3"><pre><span></span><span class="nb">print</span><span class="p">(</span><span class="sa">f</span><span class="s2">"Train rows: </span><span class="si">{</span><span class="n">train_ds</span><span class="o">.</span><span class="n">count</span><span class="p">()</span><span class="si">:</span><span class="s2">,</span><span class="si">}</span><span class="s2">,  Val rows: </span><span class="si">{</span><span class="n">val_ds</span><span class="o">.</span><span class="n">count</span><span class="p">()</span><span class="si">:</span><span class="s2">,</span><span class="si">}</span><span class="s2">"</span><span class="p">)</span>  <span class="c1"># Note that this will materialize the dataset (skip at scale)</span>
 </pre></div>
 </div>
 </div>
@@ -7699,7 +7752,7 @@ Alongside the standard scientific-Python stack, bring in <strong>XGBoost</strong
 </div>
 <div class="jp-InputArea jp-Cell-inputArea"><div class="jp-InputPrompt jp-InputArea-prompt">
 </div><div class="jp-RenderedHTMLCommon jp-RenderedMarkdown jp-MarkdownOutput" data-mime-type="text/markdown">
-<h3 id="7-%C2%B7-Inspect-a-mini-batch">7 · Inspect a mini-batch<a class="anchor-link" href="#7-%C2%B7-Inspect-a-mini-batch">¶</a></h3><p>Taking a tiny pandas batch helps verify that feature columns and labels have the expected shapes and types. You also build <code>feature_columns</code>, a list you reuse when building XGBoost’s <code>DMatrix</code>.</p>
+<h3 id="7.-Inspect-a-mini-batch">7. Inspect a mini-batch<a class="anchor-link" href="#7.-Inspect-a-mini-batch">¶</a></h3><p>Taking a tiny pandas batch helps verify that feature columns and labels have the expected shapes and types. You also build <code>feature_columns</code>, a list you reuse when building XGBoost’s <code>DMatrix</code>.</p>
 </div>
 </div>
 </div>

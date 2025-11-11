@@ -7517,12 +7517,12 @@ a.anchor-link {
 </div>
 <div class="jp-InputArea jp-Cell-inputArea"><div class="jp-InputPrompt jp-InputArea-prompt">
 </div><div class="jp-RenderedHTMLCommon jp-RenderedMarkdown jp-MarkdownOutput" data-mime-type="text/markdown">
-<h2 id="%F0%9F%8F%94%EF%B8%8F-04b-%C2%B7-Tabular-Workload-Pattern-with-Ray-Train">🏔️ 04b · Tabular Workload Pattern with Ray Train<a class="anchor-link" href="#%F0%9F%8F%94%EF%B8%8F-04b-%C2%B7-Tabular-Workload-Pattern-with-Ray-Train">¶</a></h2><p>In this tutorial you take the classic <strong>Cover type forest-cover dataset</strong> (580 k rows, 54 tabular features) and scale an <strong>XGBoost</strong> model across an Anyscale cluster using <strong>Ray Train V2</strong>.</p>
-<h3 id="What-you%E2%80%99ll-learn-&amp;-take-away">What you’ll learn &amp; take away<a class="anchor-link" href="#What-you%E2%80%99ll-learn-&amp;-take-away">¶</a></h3><ul>
+<h1 id="04b-Tabular-workload-pattern-with-Ray-Train">04b Tabular workload pattern with Ray Train<a class="anchor-link" href="#04b-Tabular-workload-pattern-with-Ray-Train">¶</a></h1><p>In this tutorial you take the classic <strong>Cover type forest-cover dataset</strong> (580 k rows, 54 tabular features) and scale an <strong>XGBoost</strong> model across an Anyscale cluster using <strong>Ray Train V2</strong>.</p>
+<h3 id="What-you-learn-and-take-away">What you learn and take away<a class="anchor-link" href="#What-you-learn-and-take-away">¶</a></h3><ul>
 <li>Ingest tabular data at scale using <strong>Ray Data</strong> and persist it to Parquet for reproducibility</li>
 <li>Launch a fault-tolerant, checkpoint enabled <strong>XGBoost training loop</strong> on multiple CPUs using <strong>Ray Train</strong></li>
-<li>Resume training from checkpoints across job restarts and hardware failures</li>
-<li>Evaluate model accuracy, visualize feature importance, and scale batch inference using <strong>Ray remote tasks</strong></li>
+<li>Resume training from checkpoints for protection agains job restarts and hardware failures</li>
+<li>Evaluate model accuracy, visualize feature importance, and scale batch inference using <strong>Ray Data</strong></li>
 <li>Understand how to port classic gradient boosting workflows into a <strong>fully distributed, multi-node training setup on Anyscale</strong></li>
 </ul>
 </div>
@@ -7535,7 +7535,7 @@ a.anchor-link {
 </div>
 <div class="jp-InputArea jp-Cell-inputArea"><div class="jp-InputPrompt jp-InputArea-prompt">
 </div><div class="jp-RenderedHTMLCommon jp-RenderedMarkdown jp-MarkdownOutput" data-mime-type="text/markdown">
-<h3 id="%F0%9F%94%A2-What-problem-are-you-solving?-(Forest-Cover-Classification-with-XGBoost)">🔢 What problem are you solving? (Forest Cover Classification with XGBoost)<a class="anchor-link" href="#%F0%9F%94%A2-What-problem-are-you-solving?-(Forest-Cover-Classification-with-XGBoost)">¶</a></h3><p>You're predicting which <strong>type of forest vegetation</strong> (For example, Lodge-pole Pine, Spruce/Fir, Aspen) is present at a given land location, using only numeric and binary cartographic features such as elevation, slope, soil type, and proximity to roads or hydrology.</p>
+<h3 id="What-problem-are-you-solving?-(Forest-cover-classification-with-XGBoost)">What problem are you solving? (Forest cover classification with XGBoost)<a class="anchor-link" href="#What-problem-are-you-solving?-(Forest-cover-classification-with-XGBoost)">¶</a></h3><p>You're predicting which <strong>type of forest vegetation</strong> (for example, Lodge-pole Pine, Spruce/Fir, Aspen) is present at a given land location, using only numeric and binary cartographic features such as elevation, slope, soil type, and proximity to roads or hydrology.</p>
 <hr/>
 <h3 id="What's-XGBoost?">What's XGBoost?<a class="anchor-link" href="#What's-XGBoost?">¶</a></h3><p><strong>XGBoost</strong> (Extreme Gradient Boosting) is a fast, scalable machine learning algorithm based on <strong>gradient-boosted decision trees</strong>. It builds a sequence of shallow decision trees, where each new tree tries to correct the errors of the previous ensemble by minimizing a differentiable loss (like log-loss).</p>
 <p>In your case, minimize the <strong>multi-class Softmax log-loss</strong>, learning a function:</p>
@@ -7554,23 +7554,23 @@ $$</p>
 </div>
 <div class="jp-InputArea jp-Cell-inputArea"><div class="jp-InputPrompt jp-InputArea-prompt">
 </div><div class="jp-RenderedHTMLCommon jp-RenderedMarkdown jp-MarkdownOutput" data-mime-type="text/markdown">
-<h3 id="%F0%9F%A7%AD-How-you%E2%80%99ll-migrate-this-tabular-workload-to-a-distributed-setup-using-Ray-on-Anyscale">🧭 How you’ll migrate this tabular workload to a distributed setup using Ray on Anyscale<a class="anchor-link" href="#%F0%9F%A7%AD-How-you%E2%80%99ll-migrate-this-tabular-workload-to-a-distributed-setup-using-Ray-on-Anyscale">¶</a></h3><p>This tutorial walks through the end-to-end process of <strong>migrating a local XGBoost training pipeline to a distributed Ray cluster running on Anyscale</strong>.</p>
-<p>Here’s how you make that transition:</p>
+<h3 id="How-to-migrate-this-tabular-workload-to-a-distributed-setup-using-Ray-on-Anyscale">How to migrate this tabular workload to a distributed setup using Ray on Anyscale<a class="anchor-link" href="#How-to-migrate-this-tabular-workload-to-a-distributed-setup-using-Ray-on-Anyscale">¶</a></h3><p>This tutorial walks through the end-to-end process of <strong>migrating a local XGBoost training pipeline to a distributed Ray cluster running on Anyscale</strong>.</p>
+<p>The following steps make that transition:</p>
 <ol>
-<li><p><strong>Local → Remote Data</strong><br/>
+<li><p><strong>Store local data as remote data</strong><br/>
 Store the raw data as Parquet in a shared cloud directory and load it using <strong>Ray Data</strong>, which streams and shards the dataset across workers automatically.</p>
 </li>
-<li><p><strong>Single-process → Multi-worker Training</strong><br/>
+<li><p><strong>Convert a single-process to multi-worker training</strong><br/>
 Define a custom <code>train_func</code>, then let <strong>Ray Train</strong> spin up 16 distributed training workers (1 per CPU) and run <code>xgb.train</code> in parallel, each with its own data shard.</p>
 </li>
-<li><p><strong>Manual Checkpointing → Automated Fault Tolerance</strong><br/>
+<li><p><strong>Configure Ray for automated fault tolerance</strong><br/>
 With <code>RayTrainReportCallback</code> and <code>CheckpointConfig</code>, Ray saves checkpoints every 10 boosting rounds and can resume mid-training if any worker crashes or a job is re-launched.</p>
 </li>
-<li><p><strong>Manual Loops → Cluster-scale Abstractions</strong><br/>
-Skip the boilerplate of manually slicing datasets, coordinating workers, or building launch scripts. Instead, declare intent (with <code>ScalingConfig</code>, <code>RunConfig</code>, and <code>FailureConfig</code>) and let <strong>Ray + Anyscale</strong> manage the execution.</p>
+<li><p><strong>Use Ray's cluster-scale abstractions</strong><br/>
+Skip the boilerplate of manually slicing datasets, coordinating workers, or building launch scripts. Instead, declare intent (with <code>ScalingConfig</code>, <code>RunConfig</code>, and <code>FailureConfig</code>) and let <strong>Ray and Anyscale</strong> manage the execution.</p>
 </li>
-<li><p><strong>Offline Inference → Remote Tasks</strong><br/>
-Batch inference can launch as <strong>Ray remote tasks</strong> on CPU workers, which is useful for validation, drift detection, or live scoring inside a service.</p>
+<li><p><strong>Use offline inference</strong><br/>
+Batch inference is done with <strong>Ray Data</strong> on CPU workers. This is useful for seamlessly evolving the pipeline to large-scale production environments.</p>
 </li>
 </ol>
 <p>This pattern turns a traditional single-node workflow into a scalable, resilient training pipeline with minimal code changes, and it works seamlessly on any cluster you provision through Anyscale.</p>

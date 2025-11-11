@@ -7517,11 +7517,11 @@ a.anchor-link {
 </div>
 <div class="jp-InputArea jp-Cell-inputArea"><div class="jp-InputPrompt jp-InputArea-prompt">
 </div><div class="jp-RenderedHTMLCommon jp-RenderedMarkdown jp-MarkdownOutput" data-mime-type="text/markdown">
-<h2 id="%F0%9F%8C%80-04-d2-%C2%B7-Diffusion-Policy-Pattern-with-Ray-Train">🌀 04-d2 · Diffusion-Policy Pattern with Ray Train<a class="anchor-link" href="#%F0%9F%8C%80-04-d2-%C2%B7-Diffusion-Policy-Pattern-with-Ray-Train">¶</a></h2><p>In this notebook you build a <strong>mini diffusion-policy pipeline</strong> on a <strong>real Pendulum-v1 offline dataset</strong> and run it end-to-end on an Anyscale cluster with <strong>Ray Train V2</strong>.</p>
-<h3 id="What-you%E2%80%99ll-learn-&amp;-take-away">What you’ll learn &amp; take away<a class="anchor-link" href="#What-you%E2%80%99ll-learn-&amp;-take-away">¶</a></h3><ul>
+<h1 id="04-d2-Diffusion-Policy-Pattern-with-Ray-Train">04-d2 Diffusion-Policy Pattern with Ray Train<a class="anchor-link" href="#04-d2-Diffusion-Policy-Pattern-with-Ray-Train">¶</a></h1><p>This notebook builds a <strong>mini diffusion-policy pipeline</strong> on a <strong>real Pendulum-v1 offline dataset</strong> and runs it end-to-end on an Anyscale cluster with <strong>Ray Train V2</strong>.</p>
+<h3 id="What-you-learn-and-take-away">What you learn and take away<a class="anchor-link" href="#What-you-learn-and-take-away">¶</a></h3><ul>
 <li>How to use <strong>Ray Data</strong> to stream and preprocess Gymnasium rollouts in parallel across CPU workers</li>
 <li>How to scale training across <strong>multiple A10G GPUs</strong> using <code>TorchTrainer</code> with a minimal <code>LightningModule</code></li>
-<li>How to <strong>checkpoint every epoch</strong> with <code>ray.train.report()</code> for robust fault tolerance and auto-resume</li>
+<li>How to <strong>checkpoint every epoch</strong> for robust fault tolerance and auto-resume</li>
 <li>How to log and visualize metrics using <strong>Ray’s built-in results and observability tooling</strong></li>
 <li>How to generate actions from a trained policy directly in-notebook, with <strong>no need to repackage or redeploy</strong></li>
 <li>How to run the full pipeline on <strong>Anyscale Workspaces</strong> with no infrastructure setup or cluster config required</li>
@@ -7536,8 +7536,8 @@ a.anchor-link {
 </div>
 <div class="jp-InputArea jp-Cell-inputArea"><div class="jp-InputPrompt jp-InputArea-prompt">
 </div><div class="jp-RenderedHTMLCommon jp-RenderedMarkdown jp-MarkdownOutput" data-mime-type="text/markdown">
-<h3 id="%F0%9F%94%A2-What-problem-are-you-solving?-(Inverted-Pendulum,-Diffusion-Style)">🔢 What problem are you solving? (Inverted Pendulum, Diffusion-Style)<a class="anchor-link" href="#%F0%9F%94%A2-What-problem-are-you-solving?-(Inverted-Pendulum,-Diffusion-Style)">¶</a></h3><p>You’re training a policy to <strong>swing up and balance an inverted pendulum</strong> — a classic control problem.<br/>
-In the Gym <code>Pendulum-v1</code> env|ironment, the agent sees the current state of the pendulum and must decide what <strong>torque</strong> to apply at the pivot.</p>
+<h3 id="What-problem-are-you-solving?-(Inverted-Pendulum,-Diffusion-Style)">What problem are you solving? (Inverted Pendulum, Diffusion-Style)<a class="anchor-link" href="#What-problem-are-you-solving?-(Inverted-Pendulum,-Diffusion-Style)">¶</a></h3><p>You’re training a policy to <strong>swing up and balance an inverted pendulum</strong> — a classic control problem.<br/>
+In the Gym <code>Pendulum-v1</code> environment, the agent sees the current state of the pendulum and must decide what <strong>torque</strong> to apply at the pivot.</p>
 <hr/>
 <h3 id="What's-a-policy?">What's a policy?<a class="anchor-link" href="#What's-a-policy?">¶</a></h3><p>A <strong>policy</strong> is a function that maps the current state to an action:</p>
 <p>$$
@@ -7577,7 +7577,7 @@ $$</p>
 </tr>
 </tbody>
 </table>
-<p>The pendulum starts hanging down and must swing up and balanced.</p>
+<p>The pendulum starts hanging down and must swing up and maintain balance.</p>
 <p>Encode the state as:</p>
 <p>$$
 s_{k} = [\cos\theta_{k},\ \sin\theta_{k},\ \dot\theta_{k}] \in \mathbb{R}^3
@@ -7619,7 +7619,7 @@ $$</p>
 </div>
 <div class="jp-InputArea jp-Cell-inputArea"><div class="jp-InputPrompt jp-InputArea-prompt">
 </div><div class="jp-RenderedHTMLCommon jp-RenderedMarkdown jp-MarkdownOutput" data-mime-type="text/markdown">
-<h3 id="%F0%9F%A7%AD-How-you%E2%80%99ll-scale-this-policy-learning-workload-using-Ray-on-Anyscale">🧭 How you’ll scale this policy learning workload using Ray on Anyscale<a class="anchor-link" href="#%F0%9F%A7%AD-How-you%E2%80%99ll-scale-this-policy-learning-workload-using-Ray-on-Anyscale">¶</a></h3><p>This tutorial shows how to take a <strong>local PyTorch + Gymnasium workflow</strong> and migrate it to a fully <strong>distributed, fault-tolerant Ray pipeline running on Anyscale</strong> with minimal code changes.</p>
+<h3 id="How-to-scale-this-policy-learning-workload-using-Ray-on-Anyscale">How to scale this policy learning workload using Ray on Anyscale<a class="anchor-link" href="#How-to-scale-this-policy-learning-workload-using-Ray-on-Anyscale">¶</a></h3><p>This tutorial shows how to take a <strong>local PyTorch + Gymnasium workflow</strong> and migrate it to a fully <strong>distributed, fault-tolerant Ray pipeline running on Anyscale</strong> with minimal code changes.</p>
 <p>Here’s how the transition works:</p>
 <ol>
 <li><p><strong>Gym rollouts → Ray Dataset</strong><br/>
@@ -7628,14 +7628,16 @@ Generate simulation rollouts from <code>Pendulum-v1</code> and stream them direc
 <li><p><strong>Local Training → Cluster-scale Distributed Training</strong><br/>
 Wrap a minimal <code>LightningModule</code> in a Ray Train <code>train_loop</code>, then launch training with <strong>TorchTrainer</strong> across 8 A10G GPUs. Ray handles data sharding, worker setup, and device placement without boilerplate.</p>
 </li>
-<li><p><strong>Manual State Saving → Structured Checkpointing &amp; Resumption</strong><br/>
-At the end of each epoch, save model weights and metadata with <code>ray.train.report(checkpoint=...)</code>. Ray then <strong>auto-resumes training</strong> from the latest checkpoint after restarts. This requires no further logic.</p>
+<li><p><strong>Manual State Saving → Lightning-Integrated Checkpointing &amp; Auto-Resume</strong><br/>
+Checkpointing and metric tracking are handled automatically by <strong>PyTorch Lightning</strong> and <strong>Ray Train V2</strong>.<br/>
+The <code>RayTrainReportCallback()</code> forwards Lightning’s <code>checkpoint.ckpt</code> files and logged metrics to Ray,<br/>
+enabling <strong>structured, fault-tolerant training</strong> with seamless resume support. No manual save or report logic required.</p>
 </li>
 <li><p><strong>Ad-hoc Coordination → Declarative Orchestration</strong><br/>
 Replace manual logging, retry logic, and resource management with <strong>Ray-native configs</strong> (<code>ScalingConfig</code>, <code>CheckpointConfig</code>, <code>FailureConfig</code>), letting Ray + Anyscale own the orchestration.</p>
 </li>
 <li><p><strong>Notebook-only Inference → Cluster-aware Evaluation</strong><br/>
-After training, perform <strong>reverse diffusion sampling</strong> in-notebook using the latest checkpoint—but this can easily scale to distributed Ray tasks or serve as the basis for a production rollout.</p>
+After training, perform <strong>reverse diffusion sampling</strong> in-notebook using the latest checkpoint—but this can easily scale using <strong>Ray Data</strong>.</p>
 </li>
 </ol>
 <p>This flow upgrades a local notebook into a <strong>multi-node, resilient training + inference pipeline</strong>, using Ray’s native abstractions and running seamlessly inside an Anyscale Workspace, without sacrificing dev agility.</p>

@@ -7517,14 +7517,14 @@ a.anchor-link {
 </div>
 <div class="jp-InputArea jp-Cell-inputArea"><div class="jp-InputPrompt jp-InputArea-prompt">
 </div><div class="jp-RenderedHTMLCommon jp-RenderedMarkdown jp-MarkdownOutput" data-mime-type="text/markdown">
-<h2 id="%F0%9F%96%BC%EF%B8%8F-04-d1-%C2%B7-Generative-Computer-Vision-Pattern-with-Ray-Train">🖼️ 04-d1 · Generative Computer-Vision Pattern with Ray Train<a class="anchor-link" href="#%F0%9F%96%BC%EF%B8%8F-04-d1-%C2%B7-Generative-Computer-Vision-Pattern-with-Ray-Train">¶</a></h2><p>In this notebook you build a <strong>mini diffusion pipeline</strong> on the <strong>Food-101-Lite</strong> dataset and run it end-to-end on an Anyscale cluster with <strong>Ray Train V2</strong>.</p>
-<h3 id="What-you%E2%80%99ll-learn-&amp;-take-away">What you’ll learn &amp; take away<a class="anchor-link" href="#What-you%E2%80%99ll-learn-&amp;-take-away">¶</a></h3><ul>
+<h1 id="04-d1-Generative-computer-vision-pattern-with-Ray-Train">04-d1 Generative computer-vision pattern with Ray Train<a class="anchor-link" href="#04-d1-Generative-computer-vision-pattern-with-Ray-Train">¶</a></h1><p>This notebook builds a <strong>mini diffusion pipeline</strong> on the <strong>Food-101-Lite</strong> dataset and runs it end-to-end on an Anyscale cluster with <strong>Ray Train V2</strong>.</p>
+<h3 id="What-you-learn-and-take-away">What you learn and take away<a class="anchor-link" href="#What-you-learn-and-take-away">¶</a></h3><ul>
 <li>How to use <strong>Ray Data</strong> to decode and preprocess large image datasets in parallel</li>
 <li>How to split and shard datasets for <strong>distributed training</strong> across multiple Ray workers</li>
 <li>How to wrap a custom <code>LightningModule</code> with Ray Train to scale out <strong>PyTorch code without boilerplate</strong></li>
-<li>How to <strong>enable fault tolerance</strong> by saving and restoring model checkpoints with <code>ray.train.report()</code></li>
+<li>How to <strong>enable fault tolerance</strong> by saving and restoring model checkpoints</li>
 <li>How to run training and evaluation with <strong>no changes to your core model code</strong> as Ray handles multi-node orchestration</li>
-<li>How to generate images post-training using the same Ray-hosted environment</li>
+<li>How to generate images post-training using the same Ray-hosted environment on Anyscale</li>
 </ul>
 </div>
 </div>
@@ -7536,7 +7536,7 @@ a.anchor-link {
 </div>
 <div class="jp-InputArea jp-Cell-inputArea"><div class="jp-InputPrompt jp-InputArea-prompt">
 </div><div class="jp-RenderedHTMLCommon jp-RenderedMarkdown jp-MarkdownOutput" data-mime-type="text/markdown">
-<h3 id="%F0%9F%94%A2-What-problem-are-you-solving?-(Diffusion-as-image-de-noising)">🔢 What problem are you solving? (Diffusion as image de-noising)<a class="anchor-link" href="#%F0%9F%94%A2-What-problem-are-you-solving?-(Diffusion-as-image-de-noising)">¶</a></h3><p>You’re training a <strong>generative model</strong> that learns to produce realistic Red-Green-Blue (RGB) images from pure noise<br/>
+<h3 id="What-problem-are-you-solving?-(Diffusion-as-image-de-noising)">What problem are you solving? (Diffusion as image de-noising)<a class="anchor-link" href="#What-problem-are-you-solving?-(Diffusion-as-image-de-noising)">¶</a></h3><p>You’re training a <strong>generative model</strong> that learns to produce realistic Red-Green-Blue (RGB) images from pure noise<br/>
 by learning how to <em>reverse</em> a noising process.</p>
 <p>This approach builds on <strong>de-noising diffusion models</strong>: instead of modeling the full image distribution $p(x)$ directly,<br/>
 teach the model to reverse a <em>known</em> corruption process that gradually adds noise to clean images.</p>
@@ -7575,7 +7575,7 @@ and inject Gaussian noise into the image:</p>
 </div>
 <div class="jp-InputArea jp-Cell-inputArea"><div class="jp-InputPrompt jp-InputArea-prompt">
 </div><div class="jp-RenderedHTMLCommon jp-RenderedMarkdown jp-MarkdownOutput" data-mime-type="text/markdown">
-<h3 id="%F0%9F%A7%AD-How-you%E2%80%99ll-migrate-this-diffusion-policy-workload-to-a-distributed-setup-using-Ray-on-Anyscale">🧭 How you’ll migrate this diffusion-policy workload to a distributed setup using Ray on Anyscale<a class="anchor-link" href="#%F0%9F%A7%AD-How-you%E2%80%99ll-migrate-this-diffusion-policy-workload-to-a-distributed-setup-using-Ray-on-Anyscale">¶</a></h3><p>This tutorial walks through the end-to-end process of <strong>migrating a local image-based diffusion policy to a distributed Ray cluster running on Anyscale</strong>.</p>
+<h3 id="How-to-migrate-this-diffusion-policy-workload-to-a-distributed-setup-using-Ray-on-Anyscale">How to migrate this diffusion-policy workload to a distributed setup using Ray on Anyscale<a class="anchor-link" href="#How-to-migrate-this-diffusion-policy-workload-to-a-distributed-setup-using-Ray-on-Anyscale">¶</a></h3><p>This tutorial walks through the end-to-end process of <strong>migrating a local image-based diffusion policy to a distributed Ray cluster running on Anyscale</strong>.</p>
 <p>Here’s how you make that transition:</p>
 <ol>
 <li><p><strong>Local Joint Photographic Experts Groups (JPEG) → Distributed Ray Dataset</strong><br/>
@@ -7584,14 +7584,12 @@ Preprocess and store Food-101 images as Parquet, then use <strong>Ray Data</stro
 <li><p><strong>Single-GPU PyTorch → Multi-node Distributed Training</strong><br/>
 Wrap your Lightning model in a Ray Train <code>train_loop</code>, then launch distributed training using <strong>TorchTrainer</strong> with 8 GPU workers—each operating on its own data partition with no manual coordination.</p>
 </li>
-<li><p><strong>Manual Checkpoints → Automatic Fault Tolerance</strong><br/>
-Save a checkpoint after every epoch using <code>ray.train.report(checkpoint=...)</code>, and configure Ray to <strong>auto-resume from the most recent checkpoint</strong> if a job fails or you relaunch it.</p>
+<li><p><strong>Manual Checkpoints → Lightning-Integrated Fault Tolerance</strong><br/>
+Checkpointing and recovery are now handled automatically by <strong>PyTorch Lightning</strong> in combination with <strong>Ray Train V2</strong>.<br/>
+The <code>RayTrainReportCallback()</code> forwards each Lightning <code>checkpoint.ckpt</code> to Ray, enabling <strong>structured, automatic resume and fault-tolerant training</strong> with no manual save or report logic required.</p>
 </li>
 <li><p><strong>Manual Data Management → Declarative Scaling with Ray</strong><br/>
 Instead of slicing data or managing worker processes yourself, declare your intent with <code>ScalingConfig</code>, <code>CheckpointConfig</code>, and <code>FailureConfig</code>, and let <strong>Ray + Anyscale handle the orchestration</strong>.</p>
-</li>
-<li><p><strong>Single-node Sampling → Remote Inference Tasks</strong><br/>
-After training, run <strong>reverse diffusion sampling</strong> as Ray tasks on GPU nodes, making it easy to scale post-training inference or build a lightweight visual demo.</p>
 </li>
 </ol>
 <p>This pattern transforms a simple single-node PyTorch loop into a <strong>scalable, fault-tolerant, multi-node training pipeline</strong> with just a few lines of Ray-specific code, and it runs seamlessly on any cluster provisioned with Anyscale.</p>

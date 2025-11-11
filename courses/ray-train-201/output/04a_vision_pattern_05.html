@@ -7517,7 +7517,16 @@ a.anchor-link {
 </div>
 <div class="jp-InputArea jp-Cell-inputArea"><div class="jp-InputPrompt jp-InputArea-prompt">
 </div><div class="jp-RenderedHTMLCommon jp-RenderedMarkdown jp-MarkdownOutput" data-mime-type="text/markdown">
-<h2 id="11-%C2%B7-train_loop_per_worker">11 · <code>train_loop_per_worker</code><a class="anchor-link" href="#11-%C2%B7-train_loop_per_worker">¶</a></h2><p>This is the workhorse called by each Ray worker. Inside, build the model, optimiser, and loss, try to resume from any existing checkpoint, run the training and validation loops, log metrics, and (on rank 0) save new checkpoints and append results to a history file. At the end, compute a final validation accuracy for good measure.</p>
+<h2 id="11.-train_loop_per_worker">11. <code>train_loop_per_worker</code><a class="anchor-link" href="#11.-train_loop_per_worker">¶</a></h2><p>This function defines the <strong>per-worker training logic</strong> that Ray Train executes on each distributed worker.</p>
+<p>Each worker builds its own model, optimizer, and dataloaders; resumes automatically from the most recent Ray-managed checkpoint (if available); and then trains and validates the model across epochs.</p>
+<p>Key behaviors to note:</p>
+<ul>
+<li><strong>Checkpoints</strong> are first written to a fast <strong>temporary local directory</strong> on each worker, then safely persisted to the run’s configured <code>storage_path</code> by <code>train.report()</code>—ensuring reliability and retry support even under transient node failures.</li>
+<li><strong>Metrics</strong> (train and validation loss) are automatically collected and stored by Ray Train—no need for manual file writes or JSON logging.</li>
+<li><strong>Fault tolerance</strong> is fully handled by Ray Train’s checkpointing and retry mechanism via <code>RunConfig</code> and <code>FailureConfig</code>.</li>
+<li><strong>Final accuracy</strong> is computed using <code>torchmetrics.MulticlassAccuracy</code>, which performs synchronized, <strong>distributed accuracy aggregation</strong> across all workers, ensuring a correct global metric instead of rank-0-only evaluation.</li>
+</ul>
+<p>This design keeps the training loop clean, fault-tolerant, and fully aligned with Ray Train’s built-in distributed orchestration.</p>
 </div>
 </div>
 </div>
@@ -7529,8 +7538,11 @@ a.anchor-link {
 <div class="jp-InputPrompt jp-InputArea-prompt">In [ ]:</div>
 <div class="jp-CodeMirrorEditor jp-Editor jp-InputArea-editor" data-type="inline">
 <div class="cm-editor cm-s-jupyter">
-<div class="highlight hl-ipython3"><pre><span></span><span class="c1"># 11. Define Ray Train train_loop_per_worker</span>
+<div class="highlight hl-ipython3"><pre><span></span><span class="c1"># 11. Define Ray Train train_loop_per_worker (tempdir checkpoints + Ray-managed metrics)</span>
 <span class="k">def</span><span class="w"> </span><span class="nf">train_loop_per_worker</span><span class="p">(</span><span class="n">config</span><span class="p">):</span>
+    <span class="kn">import</span><span class="w"> </span><span class="nn">tempfile</span>
+
+    <span class="n">rank</span> <span class="o">=</span> <span class="n">get_context</span><span class="p">()</span><span class="o">.</span><span class="n">get_world_rank</span><span class="p">()</span>
 
     <span class="c1"># === Model ===</span>
     <span class="n">net</span> <span class="o">=</span> <span class="n">resnet18</span><span class="p">(</span><span class="n">num_classes</span><span class="o">=</span><span class="mi">101</span><span class="p">)</span>
@@ -7541,14 +7553,21 @@ a.anchor-link {
     <span class="n">criterion</span> <span class="o">=</span> <span class="n">nn</span><span class="o">.</span><span class="n">CrossEntropyLoss</span><span class="p">()</span>
 
     <span class="c1"># === Resume from Checkpoint ===</span>
-    <span class="n">checkpoint</span> <span class="o">=</span> <span class="n">get_checkpoint</span><span class="p">()</span>
     <span class="n">start_epoch</span> <span class="o">=</span> <span class="mi">0</span>
-    <span class="k">if</span> <span class="n">checkpoint</span><span class="p">:</span>
-        <span class="k">with</span> <span class="n">checkpoint</span><span class="o">.</span><span class="n">as_directory</span><span class="p">()</span> <span class="k">as</span> <span class="n">ckpt_dir</span><span class="p">:</span>
-            <span class="n">model</span><span class="o">.</span><span class="n">load_state_dict</span><span class="p">(</span><span class="n">torch</span><span class="o">.</span><span class="n">load</span><span class="p">(</span><span class="n">os</span><span class="o">.</span><span class="n">path</span><span class="o">.</span><span class="n">join</span><span class="p">(</span><span class="n">ckpt_dir</span><span class="p">,</span> <span class="s2">"model.pt"</span><span class="p">)))</span>
-            <span class="n">optimizer</span><span class="o">.</span><span class="n">load_state_dict</span><span class="p">(</span><span class="n">torch</span><span class="o">.</span><span class="n">load</span><span class="p">(</span><span class="n">os</span><span class="o">.</span><span class="n">path</span><span class="o">.</span><span class="n">join</span><span class="p">(</span><span class="n">ckpt_dir</span><span class="p">,</span> <span class="s2">"optimizer.pt"</span><span class="p">)))</span>
-            <span class="n">start_epoch</span> <span class="o">=</span> <span class="n">torch</span><span class="o">.</span><span class="n">load</span><span class="p">(</span><span class="n">os</span><span class="o">.</span><span class="n">path</span><span class="o">.</span><span class="n">join</span><span class="p">(</span><span class="n">ckpt_dir</span><span class="p">,</span> <span class="s2">"extra.pt"</span><span class="p">))[</span><span class="s2">"epoch"</span><span class="p">]</span>
-        <span class="nb">print</span><span class="p">(</span><span class="sa">f</span><span class="s2">"[Rank </span><span class="si">{</span><span class="n">get_context</span><span class="p">()</span><span class="o">.</span><span class="n">get_world_rank</span><span class="p">()</span><span class="si">}</span><span class="s2">] Resumed from checkpoint at epoch </span><span class="si">{</span><span class="n">start_epoch</span><span class="si">}</span><span class="s2">"</span><span class="p">)</span>
+    <span class="n">ckpt</span> <span class="o">=</span> <span class="n">get_checkpoint</span><span class="p">()</span>
+    <span class="k">if</span> <span class="n">ckpt</span><span class="p">:</span>
+        <span class="k">with</span> <span class="n">ckpt</span><span class="o">.</span><span class="n">as_directory</span><span class="p">()</span> <span class="k">as</span> <span class="n">ckpt_dir</span><span class="p">:</span>
+            <span class="c1"># Map to CPU is fine; prepare_model will handle device placement.</span>
+            <span class="n">model</span><span class="o">.</span><span class="n">load_state_dict</span><span class="p">(</span><span class="n">torch</span><span class="o">.</span><span class="n">load</span><span class="p">(</span><span class="n">os</span><span class="o">.</span><span class="n">path</span><span class="o">.</span><span class="n">join</span><span class="p">(</span><span class="n">ckpt_dir</span><span class="p">,</span> <span class="s2">"model.pt"</span><span class="p">),</span> <span class="n">map_location</span><span class="o">=</span><span class="s2">"cpu"</span><span class="p">))</span>
+            <span class="n">opt_path</span> <span class="o">=</span> <span class="n">os</span><span class="o">.</span><span class="n">path</span><span class="o">.</span><span class="n">join</span><span class="p">(</span><span class="n">ckpt_dir</span><span class="p">,</span> <span class="s2">"optimizer.pt"</span><span class="p">)</span>
+            <span class="k">if</span> <span class="n">os</span><span class="o">.</span><span class="n">path</span><span class="o">.</span><span class="n">exists</span><span class="p">(</span><span class="n">opt_path</span><span class="p">):</span>
+                <span class="n">optimizer</span><span class="o">.</span><span class="n">load_state_dict</span><span class="p">(</span><span class="n">torch</span><span class="o">.</span><span class="n">load</span><span class="p">(</span><span class="n">opt_path</span><span class="p">,</span> <span class="n">map_location</span><span class="o">=</span><span class="s2">"cpu"</span><span class="p">))</span>
+            <span class="n">meta_path</span> <span class="o">=</span> <span class="n">os</span><span class="o">.</span><span class="n">path</span><span class="o">.</span><span class="n">join</span><span class="p">(</span><span class="n">ckpt_dir</span><span class="p">,</span> <span class="s2">"meta.pt"</span><span class="p">)</span>
+            <span class="k">if</span> <span class="n">os</span><span class="o">.</span><span class="n">path</span><span class="o">.</span><span class="n">exists</span><span class="p">(</span><span class="n">meta_path</span><span class="p">):</span>
+                <span class="c1"># Continue from the next epoch after the saved one</span>
+                <span class="n">start_epoch</span> <span class="o">=</span> <span class="nb">int</span><span class="p">(</span><span class="n">torch</span><span class="o">.</span><span class="n">load</span><span class="p">(</span><span class="n">meta_path</span><span class="p">)</span><span class="o">.</span><span class="n">get</span><span class="p">(</span><span class="s2">"epoch"</span><span class="p">,</span> <span class="o">-</span><span class="mi">1</span><span class="p">))</span> <span class="o">+</span> <span class="mi">1</span>
+        <span class="k">if</span> <span class="n">rank</span> <span class="o">==</span> <span class="mi">0</span><span class="p">:</span>
+            <span class="nb">print</span><span class="p">(</span><span class="sa">f</span><span class="s2">"[Rank </span><span class="si">{</span><span class="n">rank</span><span class="si">}</span><span class="s2">] Resumed from checkpoint at epoch </span><span class="si">{</span><span class="n">start_epoch</span><span class="si">}</span><span class="s2">"</span><span class="p">)</span>
 
     <span class="c1"># === DataLoaders ===</span>
     <span class="n">train_loader</span> <span class="o">=</span> <span class="n">build_dataloader</span><span class="p">(</span>
@@ -7560,11 +7579,12 @@ a.anchor-link {
 
     <span class="c1"># === Training Loop ===</span>
     <span class="k">for</span> <span class="n">epoch</span> <span class="ow">in</span> <span class="nb">range</span><span class="p">(</span><span class="n">start_epoch</span><span class="p">,</span> <span class="n">config</span><span class="p">[</span><span class="s2">"epochs"</span><span class="p">]):</span>
-        <span class="n">train_loader</span><span class="o">.</span><span class="n">sampler</span><span class="o">.</span><span class="n">set_epoch</span><span class="p">(</span><span class="n">epoch</span><span class="p">)</span>  <span class="c1"># required when using DistributedSampler</span>
-        <span class="n">model</span><span class="o">.</span><span class="n">train</span><span class="p">()</span>
-        <span class="n">train_loss_total</span> <span class="o">=</span> <span class="mf">0.0</span>
-        <span class="n">train_batches</span> <span class="o">=</span> <span class="mi">0</span>
+        <span class="c1"># Required when using DistributedSampler</span>
+        <span class="k">if</span> <span class="nb">hasattr</span><span class="p">(</span><span class="n">train_loader</span><span class="p">,</span> <span class="s2">"sampler"</span><span class="p">)</span> <span class="ow">and</span> <span class="nb">hasattr</span><span class="p">(</span><span class="n">train_loader</span><span class="o">.</span><span class="n">sampler</span><span class="p">,</span> <span class="s2">"set_epoch"</span><span class="p">):</span>
+            <span class="n">train_loader</span><span class="o">.</span><span class="n">sampler</span><span class="o">.</span><span class="n">set_epoch</span><span class="p">(</span><span class="n">epoch</span><span class="p">)</span>
 
+        <span class="n">model</span><span class="o">.</span><span class="n">train</span><span class="p">()</span>
+        <span class="n">train_loss_total</span><span class="p">,</span> <span class="n">train_batches</span> <span class="o">=</span> <span class="mf">0.0</span><span class="p">,</span> <span class="mi">0</span>
         <span class="k">for</span> <span class="n">xb</span><span class="p">,</span> <span class="n">yb</span> <span class="ow">in</span> <span class="n">train_loader</span><span class="p">:</span>
             <span class="n">optimizer</span><span class="o">.</span><span class="n">zero_grad</span><span class="p">()</span>
             <span class="n">loss</span> <span class="o">=</span> <span class="n">criterion</span><span class="p">(</span><span class="n">model</span><span class="p">(</span><span class="n">xb</span><span class="p">),</span> <span class="n">yb</span><span class="p">)</span>
@@ -7572,49 +7592,52 @@ a.anchor-link {
             <span class="n">optimizer</span><span class="o">.</span><span class="n">step</span><span class="p">()</span>
             <span class="n">train_loss_total</span> <span class="o">+=</span> <span class="n">loss</span><span class="o">.</span><span class="n">item</span><span class="p">()</span>
             <span class="n">train_batches</span> <span class="o">+=</span> <span class="mi">1</span>
-
-        <span class="n">train_loss</span> <span class="o">=</span> <span class="n">train_loss_total</span> <span class="o">/</span> <span class="n">train_batches</span>
+        <span class="n">train_loss</span> <span class="o">=</span> <span class="n">train_loss_total</span> <span class="o">/</span> <span class="nb">max</span><span class="p">(</span><span class="n">train_batches</span><span class="p">,</span> <span class="mi">1</span><span class="p">)</span>
 
         <span class="c1"># === Validation Loop ===</span>
         <span class="n">model</span><span class="o">.</span><span class="n">eval</span><span class="p">()</span>
-        <span class="n">val_loss_total</span> <span class="o">=</span> <span class="mf">0.0</span>
-        <span class="n">val_batches</span> <span class="o">=</span> <span class="mi">0</span>
+        <span class="n">val_loss_total</span><span class="p">,</span> <span class="n">val_batches</span> <span class="o">=</span> <span class="mf">0.0</span><span class="p">,</span> <span class="mi">0</span>
         <span class="k">with</span> <span class="n">torch</span><span class="o">.</span><span class="n">no_grad</span><span class="p">():</span>
             <span class="k">for</span> <span class="n">val_xb</span><span class="p">,</span> <span class="n">val_yb</span> <span class="ow">in</span> <span class="n">val_loader</span><span class="p">:</span>
                 <span class="n">val_loss_total</span> <span class="o">+=</span> <span class="n">criterion</span><span class="p">(</span><span class="n">model</span><span class="p">(</span><span class="n">val_xb</span><span class="p">),</span> <span class="n">val_yb</span><span class="p">)</span><span class="o">.</span><span class="n">item</span><span class="p">()</span>
                 <span class="n">val_batches</span> <span class="o">+=</span> <span class="mi">1</span>
-        <span class="n">val_loss</span> <span class="o">=</span> <span class="n">val_loss_total</span> <span class="o">/</span> <span class="n">val_batches</span>
+        <span class="n">val_loss</span> <span class="o">=</span> <span class="n">val_loss_total</span> <span class="o">/</span> <span class="nb">max</span><span class="p">(</span><span class="n">val_batches</span><span class="p">,</span> <span class="mi">1</span><span class="p">)</span>
 
-        <span class="n">metrics</span> <span class="o">=</span> <span class="p">{</span><span class="s2">"train_loss"</span><span class="p">:</span> <span class="n">train_loss</span><span class="p">,</span> <span class="s2">"val_loss"</span><span class="p">:</span> <span class="n">val_loss</span><span class="p">,</span> <span class="s2">"epoch"</span><span class="p">:</span> <span class="n">epoch</span><span class="p">}</span>
-        <span class="k">if</span> <span class="n">train</span><span class="o">.</span><span class="n">get_context</span><span class="p">()</span><span class="o">.</span><span class="n">get_world_rank</span><span class="p">()</span> <span class="o">==</span> <span class="mi">0</span><span class="p">:</span>
+        <span class="n">metrics</span> <span class="o">=</span> <span class="p">{</span><span class="s2">"epoch"</span><span class="p">:</span> <span class="n">epoch</span><span class="p">,</span> <span class="s2">"train_loss"</span><span class="p">:</span> <span class="n">train_loss</span><span class="p">,</span> <span class="s2">"val_loss"</span><span class="p">:</span> <span class="n">val_loss</span><span class="p">}</span>
+        <span class="k">if</span> <span class="n">rank</span> <span class="o">==</span> <span class="mi">0</span><span class="p">:</span>
             <span class="nb">print</span><span class="p">(</span><span class="n">metrics</span><span class="p">)</span>
 
-        <span class="c1"># === Save checkpoint only on rank 0 ===</span>
-        <span class="k">if</span> <span class="n">get_context</span><span class="p">()</span><span class="o">.</span><span class="n">get_world_rank</span><span class="p">()</span> <span class="o">==</span> <span class="mi">0</span><span class="p">:</span>
-            <span class="n">ckpt_dir</span> <span class="o">=</span> <span class="sa">f</span><span class="s2">"/mnt/cluster_storage/food101_lite/tmp_checkpoints/epoch_</span><span class="si">{</span><span class="n">epoch</span><span class="si">}</span><span class="s2">_</span><span class="si">{</span><span class="n">uuid</span><span class="o">.</span><span class="n">uuid4</span><span class="p">()</span><span class="o">.</span><span class="n">hex</span><span class="si">}</span><span class="s2">"</span>
-            <span class="n">os</span><span class="o">.</span><span class="n">makedirs</span><span class="p">(</span><span class="n">ckpt_dir</span><span class="p">,</span> <span class="n">exist_ok</span><span class="o">=</span><span class="kc">True</span><span class="p">)</span>
-            <span class="n">torch</span><span class="o">.</span><span class="n">save</span><span class="p">(</span><span class="n">model</span><span class="o">.</span><span class="n">state_dict</span><span class="p">(),</span> <span class="n">os</span><span class="o">.</span><span class="n">path</span><span class="o">.</span><span class="n">join</span><span class="p">(</span><span class="n">ckpt_dir</span><span class="p">,</span> <span class="s2">"model.pt"</span><span class="p">))</span>
-            <span class="n">torch</span><span class="o">.</span><span class="n">save</span><span class="p">(</span><span class="n">optimizer</span><span class="o">.</span><span class="n">state_dict</span><span class="p">(),</span> <span class="n">os</span><span class="o">.</span><span class="n">path</span><span class="o">.</span><span class="n">join</span><span class="p">(</span><span class="n">ckpt_dir</span><span class="p">,</span> <span class="s2">"optimizer.pt"</span><span class="p">))</span>
-            <span class="n">torch</span><span class="o">.</span><span class="n">save</span><span class="p">({</span><span class="s2">"epoch"</span><span class="p">:</span> <span class="n">epoch</span><span class="p">},</span> <span class="n">os</span><span class="o">.</span><span class="n">path</span><span class="o">.</span><span class="n">join</span><span class="p">(</span><span class="n">ckpt_dir</span><span class="p">,</span> <span class="s2">"extra.pt"</span><span class="p">))</span>
-            <span class="n">checkpoint</span> <span class="o">=</span> <span class="n">Checkpoint</span><span class="o">.</span><span class="n">from_directory</span><span class="p">(</span><span class="n">ckpt_dir</span><span class="p">)</span>
+        <span class="c1"># ---- Save checkpoint to fast local temp dir; Ray persists it via report() ----</span>
+        <span class="k">if</span> <span class="n">rank</span> <span class="o">==</span> <span class="mi">0</span><span class="p">:</span>
+            <span class="k">with</span> <span class="n">tempfile</span><span class="o">.</span><span class="n">TemporaryDirectory</span><span class="p">()</span> <span class="k">as</span> <span class="n">tmpdir</span><span class="p">:</span>
+                <span class="n">torch</span><span class="o">.</span><span class="n">save</span><span class="p">(</span><span class="n">model</span><span class="o">.</span><span class="n">state_dict</span><span class="p">(),</span> <span class="n">os</span><span class="o">.</span><span class="n">path</span><span class="o">.</span><span class="n">join</span><span class="p">(</span><span class="n">tmpdir</span><span class="p">,</span> <span class="s2">"model.pt"</span><span class="p">))</span>
+                <span class="n">torch</span><span class="o">.</span><span class="n">save</span><span class="p">(</span><span class="n">optimizer</span><span class="o">.</span><span class="n">state_dict</span><span class="p">(),</span> <span class="n">os</span><span class="o">.</span><span class="n">path</span><span class="o">.</span><span class="n">join</span><span class="p">(</span><span class="n">tmpdir</span><span class="p">,</span> <span class="s2">"optimizer.pt"</span><span class="p">))</span>
+                <span class="n">torch</span><span class="o">.</span><span class="n">save</span><span class="p">({</span><span class="s2">"epoch"</span><span class="p">:</span> <span class="n">epoch</span><span class="p">},</span> <span class="n">os</span><span class="o">.</span><span class="n">path</span><span class="o">.</span><span class="n">join</span><span class="p">(</span><span class="n">tmpdir</span><span class="p">,</span> <span class="s2">"meta.pt"</span><span class="p">))</span>
+                <span class="n">ckpt_out</span> <span class="o">=</span> <span class="n">Checkpoint</span><span class="o">.</span><span class="n">from_directory</span><span class="p">(</span><span class="n">tmpdir</span><span class="p">)</span>
+                <span class="n">train</span><span class="o">.</span><span class="n">report</span><span class="p">(</span><span class="n">metrics</span><span class="p">,</span> <span class="n">checkpoint</span><span class="o">=</span><span class="n">ckpt_out</span><span class="p">)</span>
         <span class="k">else</span><span class="p">:</span>
-            <span class="n">checkpoint</span> <span class="o">=</span> <span class="kc">None</span>
+            <span class="c1"># Non-zero ranks report metrics only (no checkpoint attachment)</span>
+            <span class="n">train</span><span class="o">.</span><span class="n">report</span><span class="p">(</span><span class="n">metrics</span><span class="p">)</span>
 
-        <span class="c1"># Append metrics to a file (only on rank 0)</span>
-        <span class="k">if</span> <span class="n">train</span><span class="o">.</span><span class="n">get_context</span><span class="p">()</span><span class="o">.</span><span class="n">get_world_rank</span><span class="p">()</span> <span class="o">==</span> <span class="mi">0</span><span class="p">:</span>
-            <span class="k">with</span> <span class="nb">open</span><span class="p">(</span><span class="s2">"/mnt/cluster_storage/food101_lite/results/history.csv"</span><span class="p">,</span> <span class="s2">"a"</span><span class="p">)</span> <span class="k">as</span> <span class="n">f</span><span class="p">:</span>
-                <span class="n">f</span><span class="o">.</span><span class="n">write</span><span class="p">(</span><span class="sa">f</span><span class="s2">"</span><span class="si">{</span><span class="n">epoch</span><span class="si">}</span><span class="s2">,</span><span class="si">{</span><span class="n">train_loss</span><span class="si">}</span><span class="s2">,</span><span class="si">{</span><span class="n">val_loss</span><span class="si">}</span><span class="se">\n</span><span class="s2">"</span><span class="p">)</span>
-        <span class="n">train</span><span class="o">.</span><span class="n">report</span><span class="p">(</span><span class="n">metrics</span><span class="p">,</span> <span class="n">checkpoint</span><span class="o">=</span><span class="n">checkpoint</span><span class="p">)</span>
+    <span class="c1"># === Final validation accuracy (distributed via TorchMetrics) ===</span>
+    <span class="kn">from</span><span class="w"> </span><span class="nn">torchmetrics.classification</span><span class="w"> </span><span class="kn">import</span> <span class="n">MulticlassAccuracy</span>
 
-    <span class="n">correct</span><span class="p">,</span> <span class="n">total</span> <span class="o">=</span> <span class="mi">0</span><span class="p">,</span> <span class="mi">0</span>
     <span class="n">model</span><span class="o">.</span><span class="n">eval</span><span class="p">()</span>
-    <span class="k">for</span> <span class="n">xb</span><span class="p">,</span> <span class="n">yb</span> <span class="ow">in</span> <span class="n">val_loader</span><span class="p">:</span>
-        <span class="n">xb</span><span class="p">,</span> <span class="n">yb</span> <span class="o">=</span> <span class="n">xb</span><span class="o">.</span><span class="n">cuda</span><span class="p">(),</span> <span class="n">yb</span><span class="o">.</span><span class="n">cuda</span><span class="p">()</span>
-        <span class="n">pred</span> <span class="o">=</span> <span class="n">model</span><span class="p">(</span><span class="n">xb</span><span class="p">)</span><span class="o">.</span><span class="n">argmax</span><span class="p">(</span><span class="n">dim</span><span class="o">=</span><span class="mi">1</span><span class="p">)</span>
-        <span class="n">correct</span> <span class="o">+=</span> <span class="p">(</span><span class="n">pred</span> <span class="o">==</span> <span class="n">yb</span><span class="p">)</span><span class="o">.</span><span class="n">sum</span><span class="p">()</span><span class="o">.</span><span class="n">item</span><span class="p">()</span>
-        <span class="n">total</span> <span class="o">+=</span> <span class="n">yb</span><span class="o">.</span><span class="n">size</span><span class="p">(</span><span class="mi">0</span><span class="p">)</span>
-    <span class="n">accuracy</span> <span class="o">=</span> <span class="n">correct</span> <span class="o">/</span> <span class="n">total</span>
-    <span class="nb">print</span><span class="p">(</span><span class="sa">f</span><span class="s2">"Val Accuracy: </span><span class="si">{</span><span class="n">accuracy</span><span class="si">:</span><span class="s2">.2%</span><span class="si">}</span><span class="s2">"</span><span class="p">)</span>
+    <span class="n">device</span> <span class="o">=</span> <span class="nb">next</span><span class="p">(</span><span class="n">model</span><span class="o">.</span><span class="n">parameters</span><span class="p">())</span><span class="o">.</span><span class="n">device</span>
+    <span class="c1"># Sync across DDP workers when computing the final value</span>
+    <span class="n">acc_metric</span> <span class="o">=</span> <span class="n">MulticlassAccuracy</span><span class="p">(</span>
+        <span class="n">num_classes</span><span class="o">=</span><span class="mi">101</span><span class="p">,</span> <span class="n">average</span><span class="o">=</span><span class="s2">"micro"</span><span class="p">,</span> <span class="n">sync_on_compute</span><span class="o">=</span><span class="kc">True</span>
+    <span class="p">)</span><span class="o">.</span><span class="n">to</span><span class="p">(</span><span class="n">device</span><span class="p">)</span>
+
+    <span class="k">with</span> <span class="n">torch</span><span class="o">.</span><span class="n">no_grad</span><span class="p">():</span>
+        <span class="k">for</span> <span class="n">xb</span><span class="p">,</span> <span class="n">yb</span> <span class="ow">in</span> <span class="n">val_loader</span><span class="p">:</span>
+            <span class="n">logits</span> <span class="o">=</span> <span class="n">model</span><span class="p">(</span><span class="n">xb</span><span class="p">)</span>
+            <span class="n">preds</span> <span class="o">=</span> <span class="n">torch</span><span class="o">.</span><span class="n">argmax</span><span class="p">(</span><span class="n">logits</span><span class="p">,</span> <span class="n">dim</span><span class="o">=</span><span class="mi">1</span><span class="p">)</span>
+            <span class="n">acc_metric</span><span class="o">.</span><span class="n">update</span><span class="p">(</span><span class="n">preds</span><span class="p">,</span> <span class="n">yb</span><span class="p">)</span>
+
+    <span class="n">dist_val_acc</span> <span class="o">=</span> <span class="n">acc_metric</span><span class="o">.</span><span class="n">compute</span><span class="p">()</span><span class="o">.</span><span class="n">item</span><span class="p">()</span>
+    <span class="k">if</span> <span class="n">rank</span> <span class="o">==</span> <span class="mi">0</span><span class="p">:</span>
+        <span class="nb">print</span><span class="p">(</span><span class="sa">f</span><span class="s2">"Val Accuracy (distributed): </span><span class="si">{</span><span class="n">dist_val_acc</span><span class="si">:</span><span class="s2">.2%</span><span class="si">}</span><span class="s2">"</span><span class="p">)</span>
 </pre></div>
 </div>
 </div>

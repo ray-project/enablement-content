@@ -7517,7 +7517,7 @@ a.anchor-link {
 </div>
 <div class="jp-InputArea jp-Cell-inputArea"><div class="jp-InputPrompt jp-InputArea-prompt">
 </div><div class="jp-RenderedHTMLCommon jp-RenderedMarkdown jp-MarkdownOutput" data-mime-type="text/markdown">
-<h2 id="13-%C2%B7-Resume-training-from-checkpoint">13 · Resume training from checkpoint<a class="anchor-link" href="#13-%C2%B7-Resume-training-from-checkpoint">¶</a></h2><p>Ray automatically resumes from the latest checkpoint if one is available. This makes fault tolerance seamless—if the system interrupts a node or it fails, training can pick up where it left off with no manual intervention.</p>
+<h2 id="13.-Resume-training-from-checkpoint">13. Resume training from checkpoint<a class="anchor-link" href="#13.-Resume-training-from-checkpoint">¶</a></h2><p>Ray automatically resumes from the latest checkpoint if one is available. This makes fault tolerance seamless—if the system interrupts a node or it fails, training can pick up where it left off with no manual intervention.</p>
 </div>
 </div>
 </div>
@@ -7532,46 +7532,6 @@ a.anchor-link {
 <div class="highlight hl-ipython3"><pre><span></span><span class="c1"># 13. Demonstrate fault-tolerant resume</span>
 <span class="n">result</span> <span class="o">=</span> <span class="n">trainer</span><span class="o">.</span><span class="n">fit</span><span class="p">()</span>
 <span class="nb">print</span><span class="p">(</span><span class="s2">"Metrics after resume run:"</span><span class="p">,</span> <span class="n">result</span><span class="o">.</span><span class="n">metrics</span><span class="p">)</span>
-</pre></div>
-</div>
-</div>
-</div>
-</div>
-</div>
-<div class="jp-Cell jp-MarkdownCell jp-Notebook-cell">
-<div class="jp-Cell-inputWrapper" tabindex="0">
-<div class="jp-Collapser jp-InputCollapser jp-Cell-inputCollapser">
-</div>
-<div class="jp-InputArea jp-Cell-inputArea"><div class="jp-InputPrompt jp-InputArea-prompt">
-</div><div class="jp-RenderedHTMLCommon jp-RenderedMarkdown jp-MarkdownOutput" data-mime-type="text/markdown">
-<h3 id="14-%C2%B7-Inference-helper-%E2%80%94-remote-GPU-forecast">14 · Inference helper — remote GPU forecast<a class="anchor-link" href="#14-%C2%B7-Inference-helper-%E2%80%94-remote-GPU-forecast">¶</a></h3><p>Define a Ray remote function that loads a model checkpoint on a spare GPU and generates a forecast given a recent input window. Ray distributes this function to any available resource and runs independently of the training workers, making it great for batch inference or serving.</p>
-</div>
-</div>
-</div>
-</div><div class="jp-Cell jp-CodeCell jp-Notebook-cell jp-mod-noOutputs">
-<div class="jp-Cell-inputWrapper" tabindex="0">
-<div class="jp-Collapser jp-InputCollapser jp-Cell-inputCollapser">
-</div>
-<div class="jp-InputArea jp-Cell-inputArea">
-<div class="jp-InputPrompt jp-InputArea-prompt">In [ ]:</div>
-<div class="jp-CodeMirrorEditor jp-Editor jp-InputArea-editor" data-type="inline">
-<div class="cm-editor cm-s-jupyter">
-<div class="highlight hl-ipython3"><pre><span></span><span class="c1"># 14. Inference helper – forecast next 12 h from best checkpoint</span>
-
-<span class="nd">@ray</span><span class="o">.</span><span class="n">remote</span><span class="p">(</span><span class="n">num_gpus</span><span class="o">=</span><span class="mi">1</span><span class="p">)</span>
-<span class="k">def</span><span class="w"> </span><span class="nf">forecast_from_checkpoint</span><span class="p">(</span><span class="n">ckpt_path</span><span class="p">,</span> <span class="n">past_array</span><span class="p">):</span>
-    <span class="n">ck</span> <span class="o">=</span> <span class="n">Checkpoint</span><span class="o">.</span><span class="n">from_directory</span><span class="p">(</span><span class="n">ckpt_path</span><span class="p">)</span>
-    <span class="n">model</span> <span class="o">=</span> <span class="n">TimeSeriesTransformer</span><span class="p">(</span><span class="n">INPUT_WINDOW</span><span class="p">,</span> <span class="n">HORIZON</span><span class="p">,</span> <span class="n">d_model</span><span class="o">=</span><span class="mi">128</span><span class="p">,</span> <span class="n">nhead</span><span class="o">=</span><span class="mi">4</span><span class="p">,</span> <span class="n">num_layers</span><span class="o">=</span><span class="mi">3</span><span class="p">)</span>
-    <span class="k">with</span> <span class="n">ck</span><span class="o">.</span><span class="n">as_directory</span><span class="p">()</span> <span class="k">as</span> <span class="n">d</span><span class="p">:</span>
-        <span class="n">sd</span> <span class="o">=</span> <span class="n">torch</span><span class="o">.</span><span class="n">load</span><span class="p">(</span><span class="n">os</span><span class="o">.</span><span class="n">path</span><span class="o">.</span><span class="n">join</span><span class="p">(</span><span class="n">d</span><span class="p">,</span> <span class="s2">"model.pt"</span><span class="p">),</span> <span class="n">map_location</span><span class="o">=</span><span class="s2">"cuda"</span><span class="p">)</span>
-        <span class="n">sd</span> <span class="o">=</span> <span class="p">{</span><span class="n">k</span><span class="o">.</span><span class="n">replace</span><span class="p">(</span><span class="s2">"module."</span><span class="p">,</span> <span class="s2">""</span><span class="p">,</span> <span class="mi">1</span><span class="p">):</span> <span class="n">v</span> <span class="k">for</span> <span class="n">k</span><span class="p">,</span><span class="n">v</span> <span class="ow">in</span> <span class="n">sd</span><span class="o">.</span><span class="n">items</span><span class="p">()}</span>
-        <span class="n">model</span><span class="o">.</span><span class="n">load_state_dict</span><span class="p">(</span><span class="n">sd</span><span class="p">)</span>
-    <span class="n">model</span><span class="o">.</span><span class="n">eval</span><span class="p">()</span><span class="o">.</span><span class="n">cuda</span><span class="p">()</span>
-
-    <span class="n">past</span> <span class="o">=</span> <span class="n">torch</span><span class="o">.</span><span class="n">tensor</span><span class="p">(</span><span class="n">past_array</span><span class="p">,</span> <span class="n">dtype</span><span class="o">=</span><span class="n">torch</span><span class="o">.</span><span class="n">float32</span><span class="p">)</span><span class="o">.</span><span class="n">unsqueeze</span><span class="p">(</span><span class="mi">0</span><span class="p">)</span><span class="o">.</span><span class="n">unsqueeze</span><span class="p">(</span><span class="o">-</span><span class="mi">1</span><span class="p">)</span><span class="o">.</span><span class="n">cuda</span><span class="p">()</span>
-    <span class="k">with</span> <span class="n">torch</span><span class="o">.</span><span class="n">no_grad</span><span class="p">():</span>
-        <span class="n">pred_norm</span> <span class="o">=</span> <span class="n">model</span><span class="p">(</span><span class="n">past</span><span class="p">)</span><span class="o">.</span><span class="n">cpu</span><span class="p">()</span><span class="o">.</span><span class="n">squeeze</span><span class="p">()</span><span class="o">.</span><span class="n">numpy</span><span class="p">()</span>
-    <span class="k">return</span> <span class="n">pred_norm</span>
 </pre></div>
 </div>
 </div>

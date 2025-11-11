@@ -7517,12 +7517,12 @@ a.anchor-link {
 </div>
 <div class="jp-InputArea jp-Cell-inputArea"><div class="jp-InputPrompt jp-InputArea-prompt">
 </div><div class="jp-RenderedHTMLCommon jp-RenderedMarkdown jp-MarkdownOutput" data-mime-type="text/markdown">
-<h2 id="%F0%9F%95%92-04c-%C2%B7-Time-Series-Workload-Pattern-with-Ray-Train">🕒 04c · Time-Series Workload Pattern with Ray Train<a class="anchor-link" href="#%F0%9F%95%92-04c-%C2%B7-Time-Series-Workload-Pattern-with-Ray-Train">¶</a></h2><p>In this notebook you tackle <strong>New York City (NYC) taxi-demand forecasting</strong> (2014 half-hourly counts) and scale a <em>sequence-to-sequence Transformer</em> across an Anyscale cluster using <strong>Ray Train V2</strong>.</p>
-<h3 id="What-you%E2%80%99ll-learn-&amp;-take-away">What you’ll learn &amp; take away<a class="anchor-link" href="#What-you%E2%80%99ll-learn-&amp;-take-away">¶</a></h3><ul>
-<li><strong>Ray Train V2 distributed loops</strong> – wrap a PyTorch Transformer in <code>TorchTrainer</code> and run it across 8 GPUs with a <em>single</em> <code>ScalingConfig</code> line.</li>
-<li><strong>Fault-tolerant checkpointing on Anyscale</strong> – recover seamlessly from pre-emptions or node failures with automatic epoch-level checkpoints.</li>
-<li><strong>Remote GPU inference from checkpoints</strong> – spin up transient GPU actors for batch forecasts without redeploying the whole trainer.<br/>
-By the end you know exactly how to take a single-node notebook forecast and scale it—data, training, and inference—on any Anyscale cluster.</li>
+<h1 id="04c-Time-Series-workload-pattern-with-Ray-Train">04c Time-Series workload pattern with Ray Train<a class="anchor-link" href="#04c-Time-Series-workload-pattern-with-Ray-Train">¶</a></h1><p>In this notebook you tackle <strong>New York City (NYC) taxi-demand forecasting</strong> (2014 half-hourly counts) and scale a <em>sequence-to-sequence Transformer</em> across an Anyscale cluster using <strong>Ray Train V2</strong>.</p>
+<h3 id="What-you-learn-and-take-away">What you learn and take away<a class="anchor-link" href="#What-you-learn-and-take-away">¶</a></h3><ul>
+<li><strong>Ray Train V2 distributed loops</strong>: wrap a PyTorch Transformer in <code>TorchTrainer</code> and run it across 8 GPUs with a <em>single</em> <code>ScalingConfig</code> line.</li>
+<li><strong>Fault-tolerant checkpointing on Anyscale</strong>: recover seamlessly from pre-emptions or node failures with automatic epoch-level checkpoints.</li>
+<li><strong>Inference from checkpoints</strong>: use <strong>Ray Data</strong> with stateful GPU actors to perform scalable batch forecasts directly from saved checkpoints.<br/>
+By the end, you’ll know how to take a single-node notebook forecast and scale data loading, training, and inference seamlessly across an Anyscale cluster.</li>
 </ul>
 </div>
 </div>
@@ -7534,16 +7534,16 @@ By the end you know exactly how to take a single-node notebook forecast and scal
 </div>
 <div class="jp-InputArea jp-Cell-inputArea"><div class="jp-InputPrompt jp-InputArea-prompt">
 </div><div class="jp-RenderedHTMLCommon jp-RenderedMarkdown jp-MarkdownOutput" data-mime-type="text/markdown">
-<h3 id="%F0%9F%94%A2-What-problem-are-you-solving?-(NYC-Taxi-Demand-Forecasting-with-a-Transformer)">🔢 What problem are you solving? (NYC Taxi Demand Forecasting with a Transformer)<a class="anchor-link" href="#%F0%9F%94%A2-What-problem-are-you-solving?-(NYC-Taxi-Demand-Forecasting-with-a-Transformer)">¶</a></h3><p>YOu want to predict the <strong>next 24 hours (48 half-hour slots)</strong> of taxi pickups in NYC, given one week of historical demand.<br/>
+<h3 id="What-problem-are-you-solving?-(NYC-taxi-demand-forecasting-with-a-Transformer)">What problem are you solving? (NYC taxi demand forecasting with a Transformer)<a class="anchor-link" href="#What-problem-are-you-solving?-(NYC-taxi-demand-forecasting-with-a-Transformer)">¶</a></h3><p>You want to predict the <strong>next 24 hours (48 half-hour slots)</strong> of taxi pickups in NYC, given one week of historical demand.<br/>
 Accurate short-term forecasts help ride-hailing fleets, traffic planners, and dynamic pricing engines allocate resources efficiently.</p>
 <hr/>
-<h3 id="What's-a-Sequence-to-Sequence-Transformer?">What's a Sequence-to-Sequence Transformer?<a class="anchor-link" href="#What's-a-Sequence-to-Sequence-Transformer?">¶</a></h3><p>A <strong>Transformer</strong> models the joint distribution of a sequence by stacking self-attention layers that capture long-range dependencies without recurrence.<br/>
+<h3 id="What's-a-sequence-to-sequence-Transformer?">What's a sequence-to-sequence Transformer?<a class="anchor-link" href="#What's-a-sequence-to-sequence-Transformer?">¶</a></h3><p>A <strong>Transformer</strong> models the joint distribution of a sequence by stacking self-attention layers that capture long-range dependencies without recurrence.<br/>
 Your architecture learns a function</p>
 <p>$$
 f_\theta : \underbrace{\mathbb{R}^{T\times 1}}_{\text{past}} \;\longrightarrow\; \underbrace{\mathbb{R}^{F}}_{\text{future}}
 $$</p>
 <p>where $T=168$ half-hours (one week) and $F=48$.<br/>
-During training you use <strong>teacher forcing</strong>, feeding the shifted ground truth to the decoder, so the model can focus on learning residual patterns rather than inventing an initial context.</p>
+During training you use <strong>teacher forcing</strong> (a design choice), feeding the shifted ground truth to the decoder, so the model can focus on learning residual patterns rather than inventing an initial context.</p>
 <hr/>
 </div>
 </div>
@@ -7555,23 +7555,24 @@ During training you use <strong>teacher forcing</strong>, feeding the shifted gr
 </div>
 <div class="jp-InputArea jp-Cell-inputArea"><div class="jp-InputPrompt jp-InputArea-prompt">
 </div><div class="jp-RenderedHTMLCommon jp-RenderedMarkdown jp-MarkdownOutput" data-mime-type="text/markdown">
-<h3 id="%F0%9F%A7%AD-How-you-Migrate-This-Time-Series-Workload-to-a-Distributed-Multi-Node-Setup-using-Ray-on-Anyscale">🧭 How you Migrate This Time-Series Workload to a Distributed Multi-Node Setup using Ray on Anyscale<a class="anchor-link" href="#%F0%9F%A7%AD-How-you-Migrate-This-Time-Series-Workload-to-a-Distributed-Multi-Node-Setup-using-Ray-on-Anyscale">¶</a></h3><p>This tutorial walks through the end-to-end process of <strong>migrating a single-GPU PyTorch forecasting pipeline to a distributed Ray cluster running on Anyscale</strong>.</p>
-<p>Here’s how you make that transition:</p>
+<h3 id="How-to-migrate-this-time-series-workload-to-a-distributed-multi-node-setup-using-Ray-on-Anyscale">How to migrate this time-series workload to a distributed multi-node setup using Ray on Anyscale<a class="anchor-link" href="#How-to-migrate-this-time-series-workload-to-a-distributed-multi-node-setup-using-Ray-on-Anyscale">¶</a></h3><p>This tutorial walks through the end-to-end process of <strong>migrating a single-GPU PyTorch forecasting pipeline to a distributed Ray cluster running on Anyscale</strong>.</p>
+<p>Follow these steps to make the transition:</p>
 <ol>
-<li><p><strong>Local CSV → Shared Parquet</strong><br/>
-Download the NYC Taxi dataset as a CSV, resample it to 30-minute intervals, normalize the values, and save it as <strong>Parquet shards</strong> in a shared filesystem (<code>/mnt/cluster_storage</code>) — the default storage for Anyscale clusters.</p>
+<li><p><strong>Migrate local CSV data to shared Parquet</strong><br/>
+Download the NYC taxi dataset as a CSV, resample it to 30-minute intervals, normalize the values, and save it as <strong>Parquet shards</strong> in a shared filesystem (<code>/mnt/cluster_storage</code>)—the default storage for Anyscale clusters.</p>
 </li>
-<li><p><strong>Single-loop preprocessing → Sliding window generation for Distributed Data Parallel (DDP)</strong><br/>
-Create overlapping input/output windows (past → future) to train a forecasting model. While this preprocessing is local and sequential here, it mirrors pipelines that parallelize with <strong>Ray Data</strong> in large-scale settings. (See other tutorials in this module that incorporate Ray Data for reference)</p>
+<li><p><strong>Create sliding window generation for Distributed Data Parallel (DDP)</strong><br/>
+Create overlapping input and output windows (past to future) to train a forecasting model. While this preprocessing is local and sequential in this tutorial, it mirrors pipelines that parallelize with <strong>Ray Data</strong> in large-scale settings.</p>
 </li>
-<li><p><strong>Vanilla PyTorch → Distributed Ray Train</strong><br/>
+<li><p><strong>Define a vanilla PyTorch function to use distributed Ray Train</strong><br/>
 Define a <code>train_loop_per_worker()</code> function and use <strong>Ray Train</strong> to launch <strong>8 GPU workers</strong> across the cluster. Each worker loads its own Parquet shard, trains independently under Distributed Data Parallel (DDP), and reports live metrics.</p>
 </li>
-<li><p><strong>Manual device logic → Scalable cluster orchestration</strong><br/>
-Instead of managing GPUs or process groups manually, configure <code>ScalingConfig</code>, <code>RunConfig</code>, and <code>FailureConfig</code>. <strong>Ray + Anyscale handle fault-tolerant execution across nodes.</strong></p>
+<li><p><strong>Configure Ray for scalable cluster orchestration</strong><br/>
+Instead of managing GPUs or process groups manually, configure <code>ScalingConfig</code>, <code>RunConfig</code>, and <code>FailureConfig</code>. <strong>Ray and Anyscale handle fault-tolerant execution across nodes.</strong></p>
 </li>
-<li><p><strong>Offline inference → Distributed forecasting with remote Ray tasks</strong><br/>
-Define a <code>@ray.remote</code> forecasting function that loads a trained checkpoint and runs prediction on the latest data window. This allows <strong>parallel, stateless inference</strong> on any GPU in the cluster.</p>
+<li><p><strong>Perform distributed batch inference with Ray Data</strong><br/>
+Use <strong>Ray Data</strong> with stateful GPU actors to load the trained checkpoint once per worker and run scalable, parallel forecasts on the latest data windows.<br/>
+This enables <strong>efficient, reusable, and fault-tolerant</strong> inference across the cluster.</p>
 </li>
 </ol>
 <p>This pattern takes a local academic-style time-series workflow and scales it into a <strong>cluster-resilient, fault-tolerant forecasting pipeline</strong>, all while preserving your native PyTorch modeling code.</p>

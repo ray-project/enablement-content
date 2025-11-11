@@ -7517,13 +7517,10 @@ a.anchor-link {
 </div>
 <div class="jp-InputArea jp-Cell-inputArea"><div class="jp-InputPrompt jp-InputArea-prompt">
 </div><div class="jp-RenderedHTMLCommon jp-RenderedMarkdown jp-MarkdownOutput" data-mime-type="text/markdown">
-<h2 id="09-%C2%B7-Ray-Train-train_loop-(Checkpoint-+-Resume)">09 · Ray Train <code>train_loop</code> (Checkpoint + Resume)<a class="anchor-link" href="#09-%C2%B7-Ray-Train-train_loop-(Checkpoint-+-Resume)">¶</a></h2><p>Core training logic run <strong>once per Ray worker</strong>:</p>
-<ol>
-<li>Shard-aware DataLoaders with <code>get_dataset_shard</code>.</li>
-<li>Auto-resume from the latest Ray Checkpoint (if present).</li>
-<li>Manual per-epoch checkpointing: save <code>model.pt</code> + <code>meta.pt</code>, then call <code>report(metrics, checkpoint=…)</code>.<br/>
-This makes the run fully <strong>fault-tolerant</strong>---if a worker crashes, Ray restarts the group and re-enters the loop with the latest checkpoint.</li>
-</ol>
+<h2 id="9.-Ray-Train-train_loop-(Lightning-+-Ray-integration)">9. Ray Train <code>train_loop</code> (Lightning + Ray integration)<a class="anchor-link" href="#9.-Ray-Train-train_loop-(Lightning-+-Ray-integration)">¶</a></h2><p>Define the core training logic that runs <strong>once per Ray worker</strong>.<br/>
+This version uses <strong>PyTorch Lightning with Ray Train V2</strong> for automatic distributed setup, checkpointing, and metric reporting.<br/>
+<code>RayDDPStrategy</code> and <code>RayTrainReportCallback</code> handle synchronization, while <code>prepare_trainer()</code> wires up Ray’s environment.<br/>
+Lightning manages all checkpoints (<code>checkpoint.ckpt</code>) and metrics transparently, ensuring fully <strong>fault-tolerant, resumable multi-GPU training</strong>.</p>
 </div>
 </div>
 </div>
@@ -7535,70 +7532,87 @@ This makes the run fully <strong>fault-tolerant</strong>---if a worker crashes, 
 <div class="jp-InputPrompt jp-InputArea-prompt">In [ ]:</div>
 <div class="jp-CodeMirrorEditor jp-Editor jp-InputArea-editor" data-type="inline">
 <div class="cm-editor cm-s-jupyter">
-<div class="highlight hl-ipython3"><pre><span></span><span class="c1"># 09. Train Loop for Ray TorchTrainer</span>
+<div class="highlight hl-ipython3"><pre><span></span><span class="c1"># 09. Train loop for Ray TorchTrainer (RayDDP + Lightning-native, NEW API aligned)</span>
 
 <span class="k">def</span><span class="w"> </span><span class="nf">train_loop</span><span class="p">(</span><span class="n">config</span><span class="p">):</span>
-<span class="w">    </span><span class="sd">"""Ray Train per-worker function with checkpointing and resume support."""</span>
-    <span class="kn">import</span><span class="w"> </span><span class="nn">os</span><span class="o">,</span><span class="w"> </span><span class="nn">torch</span><span class="o">,</span><span class="w"> </span><span class="nn">uuid</span><span class="o">,</span><span class="w"> </span><span class="nn">json</span>
-    <span class="kn">from</span><span class="w"> </span><span class="nn">ray.train</span><span class="w"> </span><span class="kn">import</span> <span class="n">get_checkpoint</span><span class="p">,</span> <span class="n">get_context</span><span class="p">,</span> <span class="n">report</span><span class="p">,</span> <span class="n">Checkpoint</span>
+<span class="w">    </span><span class="sd">"""</span>
+<span class="sd">    Lightning-owned loop with Ray integration:</span>
+<span class="sd">      - RayDDPStrategy for multi-worker DDP</span>
+<span class="sd">      - RayLightningEnvironment for ranks/addrs</span>
+<span class="sd">      - RayTrainReportCallback to forward metrics + checkpoints to Ray</span>
+<span class="sd">      - Resume from the Ray-provided Lightning checkpoint ("checkpoint.ckpt")</span>
+<span class="sd">    """</span>
+    <span class="kn">import</span><span class="w"> </span><span class="nn">warnings</span>
+    <span class="n">warnings</span><span class="o">.</span><span class="n">filterwarnings</span><span class="p">(</span>
+        <span class="s2">"ignore"</span><span class="p">,</span>
+        <span class="n">message</span><span class="o">=</span><span class="s2">"barrier.*using the device under current context"</span><span class="p">,</span>
+    <span class="p">)</span>
+    <span class="kn">import</span><span class="w"> </span><span class="nn">os</span>
+    <span class="kn">import</span><span class="w"> </span><span class="nn">torch</span>
+    <span class="kn">import</span><span class="w"> </span><span class="nn">lightning.pytorch</span><span class="w"> </span><span class="k">as</span><span class="w"> </span><span class="nn">pl</span>
+    <span class="kn">from</span><span class="w"> </span><span class="nn">ray.train</span><span class="w"> </span><span class="kn">import</span> <span class="n">get_checkpoint</span><span class="p">,</span> <span class="n">get_context</span>
+    <span class="kn">from</span><span class="w"> </span><span class="nn">ray.train.lightning</span><span class="w"> </span><span class="kn">import</span> <span class="p">(</span>
+        <span class="n">RayLightningEnvironment</span><span class="p">,</span>
+        <span class="n">RayDDPStrategy</span><span class="p">,</span>
+        <span class="n">RayTrainReportCallback</span><span class="p">,</span>
+        <span class="n">prepare_trainer</span><span class="p">,</span>
+    <span class="p">)</span>
 
-    <span class="c1"># Paths</span>
-    <span class="n">LOG_PATH</span> <span class="o">=</span> <span class="s2">"/mnt/cluster_storage/generative_cv/epoch_metrics.json"</span>
-    <span class="n">CKPT_ROOT</span> <span class="o">=</span> <span class="s2">"/mnt/cluster_storage/generative_cv/food101_diffusion_ckpts"</span>
-
-    <span class="n">rank</span> <span class="o">=</span> <span class="n">get_context</span><span class="p">()</span><span class="o">.</span><span class="n">get_world_rank</span><span class="p">()</span>
-    <span class="k">if</span> <span class="n">rank</span> <span class="o">==</span> <span class="mi">0</span><span class="p">:</span>
-        <span class="n">os</span><span class="o">.</span><span class="n">makedirs</span><span class="p">(</span><span class="n">CKPT_ROOT</span><span class="p">,</span> <span class="n">exist_ok</span><span class="o">=</span><span class="kc">True</span><span class="p">)</span>
-        <span class="k">if</span> <span class="ow">not</span> <span class="n">get_checkpoint</span><span class="p">()</span> <span class="ow">and</span> <span class="n">os</span><span class="o">.</span><span class="n">path</span><span class="o">.</span><span class="n">exists</span><span class="p">(</span><span class="n">LOG_PATH</span><span class="p">):</span>
-            <span class="n">os</span><span class="o">.</span><span class="n">remove</span><span class="p">(</span><span class="n">LOG_PATH</span><span class="p">)</span>
-
-    <span class="c1"># Data</span>
+    <span class="c1"># ---- Data shards from Ray Data → iterable loaders ----</span>
     <span class="n">train_ds</span> <span class="o">=</span> <span class="n">ray</span><span class="o">.</span><span class="n">train</span><span class="o">.</span><span class="n">get_dataset_shard</span><span class="p">(</span><span class="s2">"train"</span><span class="p">)</span>
     <span class="n">val_ds</span>   <span class="o">=</span> <span class="n">ray</span><span class="o">.</span><span class="n">train</span><span class="o">.</span><span class="n">get_dataset_shard</span><span class="p">(</span><span class="s2">"val"</span><span class="p">)</span>
-    <span class="n">train_loader</span> <span class="o">=</span> <span class="n">train_ds</span><span class="o">.</span><span class="n">iter_torch_batches</span><span class="p">(</span><span class="n">batch_size</span><span class="o">=</span><span class="mi">32</span><span class="p">)</span>
-    <span class="n">val_loader</span>   <span class="o">=</span> <span class="n">val_ds</span><span class="o">.</span><span class="n">iter_torch_batches</span><span class="p">(</span><span class="n">batch_size</span><span class="o">=</span><span class="mi">32</span><span class="p">)</span>
+    <span class="n">train_loader</span> <span class="o">=</span> <span class="n">train_ds</span><span class="o">.</span><span class="n">iter_torch_batches</span><span class="p">(</span><span class="n">batch_size</span><span class="o">=</span><span class="n">config</span><span class="o">.</span><span class="n">get</span><span class="p">(</span><span class="s2">"batch_size"</span><span class="p">,</span> <span class="mi">32</span><span class="p">))</span>
+    <span class="n">val_loader</span>   <span class="o">=</span> <span class="n">val_ds</span><span class="o">.</span><span class="n">iter_torch_batches</span><span class="p">(</span><span class="n">batch_size</span><span class="o">=</span><span class="n">config</span><span class="o">.</span><span class="n">get</span><span class="p">(</span><span class="s2">"batch_size"</span><span class="p">,</span> <span class="mi">32</span><span class="p">))</span>
 
-    <span class="c1"># Model</span>
+    <span class="c1"># ---- Model ----</span>
     <span class="n">model</span> <span class="o">=</span> <span class="n">PixelDiffusion</span><span class="p">()</span>
-    <span class="n">start_epoch</span> <span class="o">=</span> <span class="mi">0</span>
 
-    <span class="c1"># Resume from checkpoint if present</span>
-    <span class="n">ckpt</span> <span class="o">=</span> <span class="n">get_checkpoint</span><span class="p">()</span>
-    <span class="k">if</span> <span class="n">ckpt</span><span class="p">:</span>
-        <span class="k">with</span> <span class="n">ckpt</span><span class="o">.</span><span class="n">as_directory</span><span class="p">()</span> <span class="k">as</span> <span class="n">d</span><span class="p">:</span>
-            <span class="n">model</span><span class="o">.</span><span class="n">load_state_dict</span><span class="p">(</span><span class="n">torch</span><span class="o">.</span><span class="n">load</span><span class="p">(</span><span class="n">os</span><span class="o">.</span><span class="n">path</span><span class="o">.</span><span class="n">join</span><span class="p">(</span><span class="n">d</span><span class="p">,</span> <span class="s2">"model.pt"</span><span class="p">),</span> <span class="n">map_location</span><span class="o">=</span><span class="s2">"cpu"</span><span class="p">))</span>
-            <span class="n">start_epoch</span> <span class="o">=</span> <span class="n">torch</span><span class="o">.</span><span class="n">load</span><span class="p">(</span><span class="n">os</span><span class="o">.</span><span class="n">path</span><span class="o">.</span><span class="n">join</span><span class="p">(</span><span class="n">d</span><span class="p">,</span> <span class="s2">"meta.pt"</span><span class="p">))</span><span class="o">.</span><span class="n">get</span><span class="p">(</span><span class="s2">"epoch"</span><span class="p">,</span> <span class="mi">0</span><span class="p">)</span> <span class="o">+</span> <span class="mi">1</span>
-        <span class="k">if</span> <span class="n">rank</span> <span class="o">==</span> <span class="mi">0</span><span class="p">:</span>
-            <span class="nb">print</span><span class="p">(</span><span class="sa">f</span><span class="s2">"[Rank </span><span class="si">{</span><span class="n">rank</span><span class="si">}</span><span class="s2">] Resumed from checkpoint at epoch </span><span class="si">{</span><span class="n">start_epoch</span><span class="si">}</span><span class="s2">"</span><span class="p">)</span>
+    <span class="c1"># ---- Lightning Trainer configured for Ray ----</span>
+    <span class="n">CKPT_ROOT</span> <span class="o">=</span> <span class="n">os</span><span class="o">.</span><span class="n">path</span><span class="o">.</span><span class="n">join</span><span class="p">(</span><span class="n">tempfile</span><span class="o">.</span><span class="n">gettempdir</span><span class="p">(),</span> <span class="s2">"ray_pl_ckpts"</span><span class="p">)</span>
+    <span class="n">os</span><span class="o">.</span><span class="n">makedirs</span><span class="p">(</span><span class="n">CKPT_ROOT</span><span class="p">,</span> <span class="n">exist_ok</span><span class="o">=</span><span class="kc">True</span><span class="p">)</span>
 
-    <span class="c1"># Trainer</span>
     <span class="n">trainer</span> <span class="o">=</span> <span class="n">pl</span><span class="o">.</span><span class="n">Trainer</span><span class="p">(</span>
         <span class="n">max_epochs</span><span class="o">=</span><span class="n">config</span><span class="o">.</span><span class="n">get</span><span class="p">(</span><span class="s2">"epochs"</span><span class="p">,</span> <span class="mi">10</span><span class="p">),</span>
-        <span class="n">accelerator</span><span class="o">=</span><span class="s2">"gpu"</span> <span class="k">if</span> <span class="n">torch</span><span class="o">.</span><span class="n">cuda</span><span class="o">.</span><span class="n">is_available</span><span class="p">()</span> <span class="k">else</span> <span class="s2">"cpu"</span><span class="p">,</span>
-        <span class="n">devices</span><span class="o">=</span><span class="mi">1</span><span class="p">,</span>
+        <span class="n">devices</span><span class="o">=</span><span class="s2">"auto"</span><span class="p">,</span>
+        <span class="n">accelerator</span><span class="o">=</span><span class="s2">"auto"</span><span class="p">,</span>
+        <span class="n">strategy</span><span class="o">=</span><span class="n">RayDDPStrategy</span><span class="p">(),</span>
         <span class="n">plugins</span><span class="o">=</span><span class="p">[</span><span class="n">RayLightningEnvironment</span><span class="p">()],</span>
+        <span class="n">callbacks</span><span class="o">=</span><span class="p">[</span>
+            <span class="n">RayTrainReportCallback</span><span class="p">(),</span>
+            <span class="n">pl</span><span class="o">.</span><span class="n">callbacks</span><span class="o">.</span><span class="n">ModelCheckpoint</span><span class="p">(</span>
+                <span class="n">dirpath</span><span class="o">=</span><span class="n">CKPT_ROOT</span><span class="p">,</span>         <span class="c1"># local scratch is fine (or leave None to use default)</span>
+                <span class="n">filename</span><span class="o">=</span><span class="s2">"epoch-</span><span class="si">{epoch:03d}</span><span class="s2">"</span><span class="p">,</span>
+                <span class="n">every_n_epochs</span><span class="o">=</span><span class="mi">1</span><span class="p">,</span>
+                <span class="n">save_top_k</span><span class="o">=-</span><span class="mi">1</span><span class="p">,</span>
+                <span class="n">save_last</span><span class="o">=</span><span class="kc">True</span><span class="p">,</span>
+            <span class="p">),</span>
+        <span class="p">],</span>
+        <span class="n">default_root_dir</span><span class="o">=</span><span class="n">CKPT_ROOT</span><span class="p">,</span>        <span class="c1"># also local</span>
         <span class="n">enable_progress_bar</span><span class="o">=</span><span class="kc">False</span><span class="p">,</span>
         <span class="n">check_val_every_n_epoch</span><span class="o">=</span><span class="mi">1</span><span class="p">,</span>
     <span class="p">)</span>
 
-    <span class="c1"># Train loop: run each epoch, checkpoint manually</span>
-    <span class="k">for</span> <span class="n">epoch</span> <span class="ow">in</span> <span class="nb">range</span><span class="p">(</span><span class="n">start_epoch</span><span class="p">,</span> <span class="n">config</span><span class="o">.</span><span class="n">get</span><span class="p">(</span><span class="s2">"epochs"</span><span class="p">,</span> <span class="mi">10</span><span class="p">)):</span>
-        <span class="n">trainer</span><span class="o">.</span><span class="n">fit_loop</span><span class="o">.</span><span class="n">max_epochs</span> <span class="o">=</span> <span class="n">epoch</span> <span class="o">+</span> <span class="mi">1</span>
-        <span class="n">trainer</span><span class="o">.</span><span class="n">fit_loop</span><span class="o">.</span><span class="n">current_epoch</span> <span class="o">=</span> <span class="n">epoch</span>
-        <span class="n">trainer</span><span class="o">.</span><span class="n">fit</span><span class="p">(</span><span class="n">model</span><span class="p">,</span> <span class="n">train_dataloaders</span><span class="o">=</span><span class="n">train_loader</span><span class="p">,</span> <span class="n">val_dataloaders</span><span class="o">=</span><span class="n">val_loader</span><span class="p">)</span>
+    <span class="c1"># Wire up ranks/world size with Ray</span>
+    <span class="n">trainer</span> <span class="o">=</span> <span class="n">prepare_trainer</span><span class="p">(</span><span class="n">trainer</span><span class="p">)</span>
 
-        <span class="k">if</span> <span class="n">rank</span> <span class="o">==</span> <span class="mi">0</span><span class="p">:</span>
-            <span class="c1"># Save model checkpoint</span>
-            <span class="n">out_dir</span> <span class="o">=</span> <span class="n">os</span><span class="o">.</span><span class="n">path</span><span class="o">.</span><span class="n">join</span><span class="p">(</span><span class="n">CKPT_ROOT</span><span class="p">,</span> <span class="sa">f</span><span class="s2">"epoch_</span><span class="si">{</span><span class="n">epoch</span><span class="si">}</span><span class="s2">_</span><span class="si">{</span><span class="n">uuid</span><span class="o">.</span><span class="n">uuid4</span><span class="p">()</span><span class="o">.</span><span class="n">hex</span><span class="si">}</span><span class="s2">"</span><span class="p">)</span>
-            <span class="n">os</span><span class="o">.</span><span class="n">makedirs</span><span class="p">(</span><span class="n">out_dir</span><span class="p">,</span> <span class="n">exist_ok</span><span class="o">=</span><span class="kc">True</span><span class="p">)</span>
-            <span class="n">torch</span><span class="o">.</span><span class="n">save</span><span class="p">(</span><span class="n">model</span><span class="o">.</span><span class="n">state_dict</span><span class="p">(),</span> <span class="n">os</span><span class="o">.</span><span class="n">path</span><span class="o">.</span><span class="n">join</span><span class="p">(</span><span class="n">out_dir</span><span class="p">,</span> <span class="s2">"model.pt"</span><span class="p">))</span>
-            <span class="n">torch</span><span class="o">.</span><span class="n">save</span><span class="p">({</span><span class="s2">"epoch"</span><span class="p">:</span> <span class="n">epoch</span><span class="p">},</span> <span class="n">os</span><span class="o">.</span><span class="n">path</span><span class="o">.</span><span class="n">join</span><span class="p">(</span><span class="n">out_dir</span><span class="p">,</span> <span class="s2">"meta.pt"</span><span class="p">))</span>
-            <span class="n">ckpt_out</span> <span class="o">=</span> <span class="n">Checkpoint</span><span class="o">.</span><span class="n">from_directory</span><span class="p">(</span><span class="n">out_dir</span><span class="p">)</span>
-        <span class="k">else</span><span class="p">:</span>
-            <span class="n">ckpt_out</span> <span class="o">=</span> <span class="kc">None</span>
+    <span class="c1"># ---- Resume from latest Ray-provided Lightning checkpoint (if any) ----</span>
+    <span class="n">ckpt_path</span> <span class="o">=</span> <span class="kc">None</span>
+    <span class="n">ckpt</span> <span class="o">=</span> <span class="n">get_checkpoint</span><span class="p">()</span>
+    <span class="k">if</span> <span class="n">ckpt</span><span class="p">:</span>
+        <span class="k">with</span> <span class="n">ckpt</span><span class="o">.</span><span class="n">as_directory</span><span class="p">()</span> <span class="k">as</span> <span class="n">d</span><span class="p">:</span>
+            <span class="n">candidate</span> <span class="o">=</span> <span class="n">os</span><span class="o">.</span><span class="n">path</span><span class="o">.</span><span class="n">join</span><span class="p">(</span><span class="n">d</span><span class="p">,</span> <span class="s2">"checkpoint.ckpt"</span><span class="p">)</span>
+            <span class="k">if</span> <span class="n">os</span><span class="o">.</span><span class="n">path</span><span class="o">.</span><span class="n">exists</span><span class="p">(</span><span class="n">candidate</span><span class="p">):</span>
+                <span class="n">ckpt_path</span> <span class="o">=</span> <span class="n">candidate</span>
+                <span class="k">if</span> <span class="n">get_context</span><span class="p">()</span><span class="o">.</span><span class="n">get_world_rank</span><span class="p">()</span> <span class="o">==</span> <span class="mi">0</span><span class="p">:</span>
+                    <span class="nb">print</span><span class="p">(</span><span class="sa">f</span><span class="s2">"✅ Resuming from Lightning checkpoint: </span><span class="si">{</span><span class="n">ckpt_path</span><span class="si">}</span><span class="s2">"</span><span class="p">)</span>
 
-        <span class="c1"># Report with checkpoint so Ray saves it</span>
-        <span class="n">report</span><span class="p">({</span><span class="s2">"epoch"</span><span class="p">:</span> <span class="n">epoch</span><span class="p">},</span> <span class="n">checkpoint</span><span class="o">=</span><span class="n">ckpt_out</span><span class="p">)</span>
+    <span class="c1"># ---- Let Lightning own the loop ----</span>
+    <span class="n">trainer</span><span class="o">.</span><span class="n">fit</span><span class="p">(</span>
+        <span class="n">model</span><span class="p">,</span>
+        <span class="n">train_dataloaders</span><span class="o">=</span><span class="n">train_loader</span><span class="p">,</span>
+        <span class="n">val_dataloaders</span><span class="o">=</span><span class="n">val_loader</span><span class="p">,</span>
+        <span class="n">ckpt_path</span><span class="o">=</span><span class="n">ckpt_path</span><span class="p">,</span>
+    <span class="p">)</span>
 </pre></div>
 </div>
 </div>
@@ -7611,8 +7625,8 @@ This makes the run fully <strong>fault-tolerant</strong>---if a worker crashes, 
 </div>
 <div class="jp-InputArea jp-Cell-inputArea"><div class="jp-InputPrompt jp-InputArea-prompt">
 </div><div class="jp-RenderedHTMLCommon jp-RenderedMarkdown jp-MarkdownOutput" data-mime-type="text/markdown">
-<h3 id="10-%C2%B7-Launch-Distributed-Training-with-TorchTrainer">10 · Launch Distributed Training with TorchTrainer<a class="anchor-link" href="#10-%C2%B7-Launch-Distributed-Training-with-TorchTrainer">¶</a></h3><p>Ask for <strong>8 GPU workers</strong>, keep the five most-recent checkpoints, and allow up to three automatic retries.<br/>
-<code>result.checkpoint</code> captures the checkpoint from the highest epoch (because you used <code>epoch</code> as the score attribute---you can change this to other metrics such as validation loss or training loss).</p>
+<h3 id="10.-Launch-distributed-Training-with-TorchTrainer">10. Launch distributed Training with TorchTrainer<a class="anchor-link" href="#10.-Launch-distributed-Training-with-TorchTrainer">¶</a></h3><p>Ask for <strong>8 GPU workers</strong>, keep the five most-recent checkpoints, and allow up to one automatic retry.<br/>
+<code>result.checkpoint</code> captures the checkpoint from the highest epoch (because you used <code>epoch</code> as the score attribute, you can change this to other metrics such as validation loss or training loss).</p>
 </div>
 </div>
 </div>
@@ -7624,28 +7638,28 @@ This makes the run fully <strong>fault-tolerant</strong>---if a worker crashes, 
 <div class="jp-InputPrompt jp-InputArea-prompt">In [ ]:</div>
 <div class="jp-CodeMirrorEditor jp-Editor jp-InputArea-editor" data-type="inline">
 <div class="cm-editor cm-s-jupyter">
-<div class="highlight hl-ipython3"><pre><span></span><span class="c1"># 10. Launch Distributed Training</span>
+<div class="highlight hl-ipython3"><pre><span></span><span class="c1"># 10. Launch distributed training (same API, now Lightning-native inside)</span>
 
 <span class="n">trainer</span> <span class="o">=</span> <span class="n">TorchTrainer</span><span class="p">(</span>
-    <span class="n">train_loop</span><span class="p">,</span>
+    <span class="n">train_loop_per_worker</span><span class="o">=</span><span class="n">train_loop</span><span class="p">,</span>
     <span class="n">scaling_config</span><span class="o">=</span><span class="n">ScalingConfig</span><span class="p">(</span><span class="n">num_workers</span><span class="o">=</span><span class="mi">8</span><span class="p">,</span> <span class="n">use_gpu</span><span class="o">=</span><span class="kc">True</span><span class="p">),</span>
     <span class="n">datasets</span><span class="o">=</span><span class="p">{</span><span class="s2">"train"</span><span class="p">:</span> <span class="n">train_ds</span><span class="p">,</span> <span class="s2">"val"</span><span class="p">:</span> <span class="n">val_ds</span><span class="p">},</span>
     <span class="n">run_config</span><span class="o">=</span><span class="n">RunConfig</span><span class="p">(</span>
         <span class="n">name</span><span class="o">=</span><span class="s2">"food101_diffusion_ft"</span><span class="p">,</span>
         <span class="n">storage_path</span><span class="o">=</span><span class="s2">"/mnt/cluster_storage/generative_cv/food101_diffusion_results"</span><span class="p">,</span>
         <span class="n">checkpoint_config</span><span class="o">=</span><span class="n">CheckpointConfig</span><span class="p">(</span>
-            <span class="n">checkpoint_frequency</span><span class="o">=</span><span class="mi">1</span><span class="p">,</span>
+            <span class="n">checkpoint_frequency</span><span class="o">=</span><span class="mi">1</span><span class="p">,</span>          <span class="c1"># Ray keeps N most recent Lightning ckpts</span>
             <span class="n">num_to_keep</span><span class="o">=</span><span class="mi">5</span><span class="p">,</span>
             <span class="n">checkpoint_score_attribute</span><span class="o">=</span><span class="s2">"epoch"</span><span class="p">,</span>
             <span class="n">checkpoint_score_order</span><span class="o">=</span><span class="s2">"max"</span><span class="p">,</span>
         <span class="p">),</span>
-        <span class="n">failure_config</span><span class="o">=</span><span class="n">FailureConfig</span><span class="p">(</span><span class="n">max_failures</span><span class="o">=</span><span class="mi">3</span><span class="p">),</span>
+        <span class="n">failure_config</span><span class="o">=</span><span class="n">FailureConfig</span><span class="p">(</span><span class="n">max_failures</span><span class="o">=</span><span class="mi">1</span><span class="p">),</span>
     <span class="p">),</span>
 <span class="p">)</span>
 
 <span class="n">result</span> <span class="o">=</span> <span class="n">trainer</span><span class="o">.</span><span class="n">fit</span><span class="p">()</span>
 <span class="nb">print</span><span class="p">(</span><span class="s2">"Training complete →"</span><span class="p">,</span> <span class="n">result</span><span class="o">.</span><span class="n">metrics</span><span class="p">)</span>
-<span class="n">best_ckpt</span> <span class="o">=</span> <span class="n">result</span><span class="o">.</span><span class="n">checkpoint</span>  <span class="c1"># checkpoint from highest reported epoch (you can change score attr)</span>
+<span class="n">best_ckpt</span> <span class="o">=</span> <span class="n">result</span><span class="o">.</span><span class="n">checkpoint</span>
 </pre></div>
 </div>
 </div>
@@ -7658,11 +7672,9 @@ This makes the run fully <strong>fault-tolerant</strong>---if a worker crashes, 
 </div>
 <div class="jp-InputArea jp-Cell-inputArea"><div class="jp-InputPrompt jp-InputArea-prompt">
 </div><div class="jp-RenderedHTMLCommon jp-RenderedMarkdown jp-MarkdownOutput" data-mime-type="text/markdown">
-<h3 id="11-%C2%B7-Plot-Loss-Curves">11 · Plot Loss Curves<a class="anchor-link" href="#11-%C2%B7-Plot-Loss-Curves">¶</a></h3><p>Parse the JSON written by <code>PixelDiffusion.on_train_epoch_end</code>, convert to a DataFrame, and render Train vs. Val MSE loss.<br/>
-Good practice for quick health checks without external tooling.</p>
-<p><strong>Why is validation loss lower than training loss?</strong><br/>
-You measure training loss <em>before</em> weights update and includes fresh noise every step, while validation runs in <code>eval()</code> mode with no gradient updates, often making it slightly lower, especially early in training.<br/>
-This is normal behavior in this sort of scenario and usually means the model is generalizing well, and not over-fitting.</p>
+<h3 id="11.-Plot-loss-curves">11. Plot loss curves<a class="anchor-link" href="#11.-Plot-loss-curves">¶</a></h3><p>Visualize training and validation loss directly from Ray’s tracked metrics.<br/>
+<code>result.metrics_dataframe</code> automatically aggregates values logged by Lightning during training.<br/>
+Plotting these losses provides a quick health check to confirm steady convergence and model generalization.</p>
 </div>
 </div>
 </div>
@@ -7674,20 +7686,29 @@ This is normal behavior in this sort of scenario and usually means the model is 
 <div class="jp-InputPrompt jp-InputArea-prompt">In [ ]:</div>
 <div class="jp-CodeMirrorEditor jp-Editor jp-InputArea-editor" data-type="inline">
 <div class="cm-editor cm-s-jupyter">
-<div class="highlight hl-ipython3"><pre><span></span><span class="c1"># 11. Plot Train/Val Loss Curves</span>
+<div class="highlight hl-ipython3"><pre><span></span><span class="c1"># 11. Plot train/val loss curves (Ray + Lightning integration)</span>
 
-<span class="n">LOG_PATH</span> <span class="o">=</span> <span class="s2">"/mnt/cluster_storage/generative_cv/epoch_metrics.json"</span>
-<span class="k">with</span> <span class="nb">open</span><span class="p">(</span><span class="n">LOG_PATH</span><span class="p">,</span> <span class="s2">"r"</span><span class="p">)</span> <span class="k">as</span> <span class="n">f</span><span class="p">:</span>
-    <span class="n">logs</span> <span class="o">=</span> <span class="n">json</span><span class="o">.</span><span class="n">load</span><span class="p">(</span><span class="n">f</span><span class="p">)</span>
+<span class="c1"># Ray stores all metrics emitted by Lightning in a dataframe</span>
+<span class="n">df</span> <span class="o">=</span> <span class="n">result</span><span class="o">.</span><span class="n">metrics_dataframe</span>
 
-<span class="n">df</span> <span class="o">=</span> <span class="n">pd</span><span class="o">.</span><span class="n">DataFrame</span><span class="p">(</span><span class="n">logs</span><span class="p">)</span>
-<span class="n">df</span><span class="p">[</span><span class="s2">"val_loss"</span><span class="p">]</span> <span class="o">=</span> <span class="n">pd</span><span class="o">.</span><span class="n">to_numeric</span><span class="p">(</span><span class="n">df</span><span class="p">[</span><span class="s2">"val_loss"</span><span class="p">],</span> <span class="n">errors</span><span class="o">=</span><span class="s2">"coerce"</span><span class="p">)</span>
+<span class="c1"># Display first few rows (optional sanity check)</span>
+<span class="nb">print</span><span class="p">(</span><span class="n">df</span><span class="o">.</span><span class="n">head</span><span class="p">())</span>
 
-<span class="n">plt</span><span class="o">.</span><span class="n">figure</span><span class="p">(</span><span class="n">figsize</span><span class="o">=</span><span class="p">(</span><span class="mi">7</span><span class="p">,</span><span class="mi">4</span><span class="p">))</span>
+<span class="c1"># Convert and clean up</span>
+<span class="k">if</span> <span class="s2">"train_loss"</span> <span class="ow">not</span> <span class="ow">in</span> <span class="n">df</span><span class="o">.</span><span class="n">columns</span> <span class="ow">or</span> <span class="s2">"val_loss"</span> <span class="ow">not</span> <span class="ow">in</span> <span class="n">df</span><span class="o">.</span><span class="n">columns</span><span class="p">:</span>
+    <span class="k">raise</span> <span class="ne">ValueError</span><span class="p">(</span><span class="s2">"Expected train_loss and val_loss in metrics. "</span>
+                     <span class="s2">"Did you call self.log('train_loss') / self.log('val_loss') in PixelDiffusion?"</span><span class="p">)</span>
+
+<span class="n">plt</span><span class="o">.</span><span class="n">figure</span><span class="p">(</span><span class="n">figsize</span><span class="o">=</span><span class="p">(</span><span class="mi">7</span><span class="p">,</span> <span class="mi">4</span><span class="p">))</span>
 <span class="n">plt</span><span class="o">.</span><span class="n">plot</span><span class="p">(</span><span class="n">df</span><span class="p">[</span><span class="s2">"epoch"</span><span class="p">],</span> <span class="n">df</span><span class="p">[</span><span class="s2">"train_loss"</span><span class="p">],</span> <span class="n">marker</span><span class="o">=</span><span class="s2">"o"</span><span class="p">,</span> <span class="n">label</span><span class="o">=</span><span class="s2">"Train"</span><span class="p">)</span>
-<span class="n">plt</span><span class="o">.</span><span class="n">plot</span><span class="p">(</span><span class="n">df</span><span class="p">[</span><span class="s2">"epoch"</span><span class="p">],</span> <span class="n">df</span><span class="p">[</span><span class="s2">"val_loss"</span><span class="p">],</span>   <span class="n">marker</span><span class="o">=</span><span class="s2">"o"</span><span class="p">,</span> <span class="n">label</span><span class="o">=</span><span class="s2">"Val"</span><span class="p">)</span>
-<span class="n">plt</span><span class="o">.</span><span class="n">xlabel</span><span class="p">(</span><span class="s2">"Epoch"</span><span class="p">);</span> <span class="n">plt</span><span class="o">.</span><span class="n">ylabel</span><span class="p">(</span><span class="s2">"MSE Loss"</span><span class="p">);</span> <span class="n">plt</span><span class="o">.</span><span class="n">title</span><span class="p">(</span><span class="s2">"Pixel Diffusion - Loss per Epoch"</span><span class="p">)</span>
-<span class="n">plt</span><span class="o">.</span><span class="n">grid</span><span class="p">(</span><span class="kc">True</span><span class="p">);</span> <span class="n">plt</span><span class="o">.</span><span class="n">legend</span><span class="p">();</span> <span class="n">plt</span><span class="o">.</span><span class="n">tight_layout</span><span class="p">();</span> <span class="n">plt</span><span class="o">.</span><span class="n">show</span><span class="p">()</span>
+<span class="n">plt</span><span class="o">.</span><span class="n">plot</span><span class="p">(</span><span class="n">df</span><span class="p">[</span><span class="s2">"epoch"</span><span class="p">],</span> <span class="n">df</span><span class="p">[</span><span class="s2">"val_loss"</span><span class="p">],</span> <span class="n">marker</span><span class="o">=</span><span class="s2">"o"</span><span class="p">,</span> <span class="n">label</span><span class="o">=</span><span class="s2">"Val"</span><span class="p">)</span>
+<span class="n">plt</span><span class="o">.</span><span class="n">xlabel</span><span class="p">(</span><span class="s2">"Epoch"</span><span class="p">)</span>
+<span class="n">plt</span><span class="o">.</span><span class="n">ylabel</span><span class="p">(</span><span class="s2">"MSE Loss"</span><span class="p">)</span>
+<span class="n">plt</span><span class="o">.</span><span class="n">title</span><span class="p">(</span><span class="s2">"Pixel Diffusion – Loss per Epoch (Ray Train + Lightning)"</span><span class="p">)</span>
+<span class="n">plt</span><span class="o">.</span><span class="n">grid</span><span class="p">(</span><span class="kc">True</span><span class="p">)</span>
+<span class="n">plt</span><span class="o">.</span><span class="n">legend</span><span class="p">()</span>
+<span class="n">plt</span><span class="o">.</span><span class="n">tight_layout</span><span class="p">()</span>
+<span class="n">plt</span><span class="o">.</span><span class="n">show</span><span class="p">()</span>
 </pre></div>
 </div>
 </div>

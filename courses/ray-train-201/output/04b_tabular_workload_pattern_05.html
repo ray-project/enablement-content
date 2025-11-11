@@ -7517,7 +7517,7 @@ a.anchor-link {
 </div>
 <div class="jp-InputArea jp-Cell-inputArea"><div class="jp-InputPrompt jp-InputArea-prompt">
 </div><div class="jp-RenderedHTMLCommon jp-RenderedMarkdown jp-MarkdownOutput" data-mime-type="text/markdown">
-<h2 id="16-%C2%B7-Continue-training-from-the-latest-checkpoint">16 · Continue training from the latest checkpoint<a class="anchor-link" href="#16-%C2%B7-Continue-training-from-the-latest-checkpoint">¶</a></h2><p>Because <code>train_func</code> always checks for <code>get_checkpoint()</code>, re-invoking <code>trainer.fit()</code> automatically resumes boosting from where you left off. Simply call <code>fit()</code> a second time and print the new best validation log-loss.</p>
+<h2 id="15.-Continue-training-from-the-latest-checkpoint">15. Continue training from the latest checkpoint<a class="anchor-link" href="#15.-Continue-training-from-the-latest-checkpoint">¶</a></h2><p>Because <code>train_func</code> always checks for <code>get_checkpoint()</code>, re-invoking <code>trainer.fit()</code> automatically resumes boosting from where you left off. Simply call <code>fit()</code> a second time and print the new best validation log-loss.</p>
 </div>
 </div>
 </div>
@@ -7529,9 +7529,9 @@ a.anchor-link {
 <div class="jp-InputPrompt jp-InputArea-prompt">In [ ]:</div>
 <div class="jp-CodeMirrorEditor jp-Editor jp-InputArea-editor" data-type="inline">
 <div class="cm-editor cm-s-jupyter">
-<div class="highlight hl-ipython3"><pre><span></span><span class="c1"># 16. Run 50 more training iterations from the last saved checkpoint</span>
+<div class="highlight hl-ipython3"><pre><span></span><span class="c1"># 15. Run 50 more training iterations from the last saved checkpoint</span>
 <span class="n">result</span> <span class="o">=</span> <span class="n">trainer</span><span class="o">.</span><span class="n">fit</span><span class="p">()</span>
-<span class="n">best_ckpt</span> <span class="o">=</span> <span class="n">result</span><span class="o">.</span><span class="n">checkpoint</span>            <span class="c1"># saved automatically by Trainer </span>
+<span class="n">best_ckpt</span> <span class="o">=</span> <span class="n">result</span><span class="o">.</span><span class="n">checkpoint</span>            <span class="c1"># Saved automatically by Trainer </span>
 </pre></div>
 </div>
 </div>
@@ -7544,7 +7544,9 @@ a.anchor-link {
 </div>
 <div class="jp-InputArea jp-Cell-inputArea"><div class="jp-InputPrompt jp-InputArea-prompt">
 </div><div class="jp-RenderedHTMLCommon jp-RenderedMarkdown jp-MarkdownOutput" data-mime-type="text/markdown">
-<h3 id="17-%C2%B7-Verify-post-training-inference">17 · Verify post-training inference<a class="anchor-link" href="#17-%C2%B7-Verify-post-training-inference">¶</a></h3><p>Rerun the same batch-inference helper to confirm that extra boosting rounds improved accuracy.</p>
+<h3 id="16.-Verify-post-training-inference">16. Verify post-training inference<a class="anchor-link" href="#16.-Verify-post-training-inference">¶</a></h3><p>Rerun the Ray Data inference pipeline with the latest checkpoint to confirm that<br/>
+additional boosting rounds improved validation accuracy.<br/>
+This reuses the same distributed actors, ensuring consistent and scalable evaluation.</p>
 </div>
 </div>
 </div>
@@ -7556,16 +7558,29 @@ a.anchor-link {
 <div class="jp-InputPrompt jp-InputArea-prompt">In [ ]:</div>
 <div class="jp-CodeMirrorEditor jp-Editor jp-InputArea-editor" data-type="inline">
 <div class="cm-editor cm-s-jupyter">
-<div class="highlight hl-ipython3"><pre><span></span><span class="c1"># 17. Rerun example batch inference from before to verify improved accuracy:</span>
+<div class="highlight hl-ipython3"><pre><span></span><span class="c1"># 16. Rerun Ray Data inference to verify improved accuracy after continued training</span>
 
-<span class="c1"># Take a random sample of 1024 rows from the validation set to use as input.</span>
-<span class="n">sample_batch</span> <span class="o">=</span> <span class="n">val_pd</span><span class="o">.</span><span class="n">sample</span><span class="p">(</span><span class="mi">1024</span><span class="p">,</span> <span class="n">random_state</span><span class="o">=</span><span class="mi">0</span><span class="p">)</span>
+<span class="c1"># Reuse the existing Ray Data inference setup with the latest checkpoint</span>
+<span class="n">pred_ds</span> <span class="o">=</span> <span class="n">val_ds</span><span class="o">.</span><span class="n">map_batches</span><span class="p">(</span>
+    <span class="n">XGBPredictor</span><span class="p">,</span>
+    <span class="n">fn_constructor_args</span><span class="o">=</span><span class="p">(</span><span class="n">best_ckpt</span><span class="p">,</span> <span class="n">feature_columns</span><span class="p">),</span>
+    <span class="n">batch_format</span><span class="o">=</span><span class="s2">"pandas"</span><span class="p">,</span>
+    <span class="n">compute</span><span class="o">=</span><span class="n">ActorPoolStrategy</span><span class="p">(),</span>
+    <span class="n">num_cpus</span><span class="o">=</span><span class="mi">1</span><span class="p">,</span>
+<span class="p">)</span>
 
-<span class="c1"># Submit the batch inference task to a Ray worker and block until it finishes.</span>
-<span class="n">preds</span> <span class="o">=</span> <span class="n">ray</span><span class="o">.</span><span class="n">get</span><span class="p">(</span><span class="n">predict_batch</span><span class="o">.</span><span class="n">remote</span><span class="p">(</span><span class="n">best_ckpt</span><span class="p">,</span> <span class="n">sample_batch</span><span class="p">))</span>
+<span class="c1"># Aggregate accuracy across all batches</span>
+<span class="n">stats_ds</span> <span class="o">=</span> <span class="n">pred_ds</span><span class="o">.</span><span class="n">map_batches</span><span class="p">(</span>
+    <span class="k">lambda</span> <span class="n">df</span><span class="p">:</span> <span class="n">pd</span><span class="o">.</span><span class="n">DataFrame</span><span class="p">({</span>
+        <span class="s2">"correct"</span><span class="p">:</span> <span class="p">[</span><span class="nb">int</span><span class="p">((</span><span class="n">df</span><span class="p">[</span><span class="s2">"pred"</span><span class="p">]</span> <span class="o">==</span> <span class="n">df</span><span class="p">[</span><span class="s2">"label"</span><span class="p">])</span><span class="o">.</span><span class="n">sum</span><span class="p">())],</span>
+        <span class="s2">"n"</span><span class="p">:</span> <span class="p">[</span><span class="nb">int</span><span class="p">(</span><span class="nb">len</span><span class="p">(</span><span class="n">df</span><span class="p">))]</span>
+    <span class="p">}),</span>
+    <span class="n">batch_format</span><span class="o">=</span><span class="s2">"pandas"</span><span class="p">,</span>
+<span class="p">)</span>
 
-<span class="c1"># Compute and print classification accuracy by comparing predictions to true labels.</span>
-<span class="nb">print</span><span class="p">(</span><span class="s2">"Sample batch accuracy:"</span><span class="p">,</span> <span class="n">accuracy_score</span><span class="p">(</span><span class="n">sample_batch</span><span class="o">.</span><span class="n">label</span><span class="p">,</span> <span class="n">preds</span><span class="p">))</span>
+<span class="n">correct</span> <span class="o">=</span> <span class="nb">int</span><span class="p">(</span><span class="n">stats_ds</span><span class="o">.</span><span class="n">sum</span><span class="p">(</span><span class="s2">"correct"</span><span class="p">))</span>
+<span class="n">n</span> <span class="o">=</span> <span class="nb">int</span><span class="p">(</span><span class="n">stats_ds</span><span class="o">.</span><span class="n">sum</span><span class="p">(</span><span class="s2">"n"</span><span class="p">))</span>
+<span class="nb">print</span><span class="p">(</span><span class="sa">f</span><span class="s2">"Validation accuracy after continued training: </span><span class="si">{</span><span class="n">correct</span><span class="w"> </span><span class="o">/</span><span class="w"> </span><span class="n">n</span><span class="si">:</span><span class="s2">.3f</span><span class="si">}</span><span class="s2">"</span><span class="p">)</span>
 </pre></div>
 </div>
 </div>
@@ -7578,7 +7593,7 @@ a.anchor-link {
 </div>
 <div class="jp-InputArea jp-Cell-inputArea"><div class="jp-InputPrompt jp-InputArea-prompt">
 </div><div class="jp-RenderedHTMLCommon jp-RenderedMarkdown jp-MarkdownOutput" data-mime-type="text/markdown">
-<h3 id="18-%C2%B7-Cleanup">18 · Cleanup<a class="anchor-link" href="#18-%C2%B7-Cleanup">¶</a></h3><p>Finally, tidy up by deleting temporary checkpoint folders, the metrics CSV, and any intermediate result directories. Clearing out old artefacts frees disk space and leaves your workspace clean for whatever comes next.</p>
+<h3 id="17.-Clean-up">17. Clean up<a class="anchor-link" href="#17.-Clean-up">¶</a></h3><p>Finally, tidy up by deleting temporary checkpoint folders, the metrics CSV, and any intermediate result directories. Clearing out old artifacts frees disk space and leaves your workspace clean for whatever comes next.</p>
 </div>
 </div>
 </div>
@@ -7590,13 +7605,94 @@ a.anchor-link {
 <div class="jp-InputPrompt jp-InputArea-prompt">In [ ]:</div>
 <div class="jp-CodeMirrorEditor jp-Editor jp-InputArea-editor" data-type="inline">
 <div class="cm-editor cm-s-jupyter">
-<div class="highlight hl-ipython3"><pre><span></span><span class="c1"># 18. Optional clean‑up to free space</span>
+<div class="highlight hl-ipython3"><pre><span></span><span class="c1"># 17. Optional cleanup to free space</span>
 <span class="n">ARTIFACT_DIR</span> <span class="o">=</span> <span class="s2">"/mnt/cluster_storage/covtype"</span>
 <span class="k">if</span> <span class="n">os</span><span class="o">.</span><span class="n">path</span><span class="o">.</span><span class="n">exists</span><span class="p">(</span><span class="n">ARTIFACT_DIR</span><span class="p">):</span>
     <span class="n">shutil</span><span class="o">.</span><span class="n">rmtree</span><span class="p">(</span><span class="n">ARTIFACT_DIR</span><span class="p">)</span>
     <span class="nb">print</span><span class="p">(</span><span class="sa">f</span><span class="s2">"Deleted </span><span class="si">{</span><span class="n">ARTIFACT_DIR</span><span class="si">}</span><span class="s2">"</span><span class="p">)</span>
 </pre></div>
 </div>
+</div>
+</div>
+</div>
+</div>
+<div class="jp-Cell jp-MarkdownCell jp-Notebook-cell">
+<div class="jp-Cell-inputWrapper" tabindex="0">
+<div class="jp-Collapser jp-InputCollapser jp-Cell-inputCollapser">
+</div>
+<div class="jp-InputArea jp-Cell-inputArea"><div class="jp-InputPrompt jp-InputArea-prompt">
+</div><div class="jp-RenderedHTMLCommon jp-RenderedMarkdown jp-MarkdownOutput" data-mime-type="text/markdown">
+<h3 id="Wrap-up-and-next-steps">Wrap up and next steps<a class="anchor-link" href="#Wrap-up-and-next-steps">¶</a></h3><p>You built a fast and fault-tolerant XGBoost training loop that runs on real data, scales across CPUs, recovers from worker failures, and supports batch inference, all inside a single notebook.</p>
+<p>You should now feel confident:</p>
+<ul>
+<li>Using <strong>Ray Data</strong> to ingest, shuffle, and shard large tabular datasets across a cluster</li>
+<li>Defining custom <code>train_func</code>s that run on <strong>Ray Train</strong> workers and resume seamlessly from checkpoints</li>
+<li>Tracking per-round metrics and saving checkpoints with <strong>RayTrainReportCallback</strong></li>
+<li>Leveraging <strong>Ray’s distributed execution model</strong> to evaluate and monitor models without manual orchestration</li>
+<li>Launching remote CPU-powered inference tasks using <strong>Ray Data</strong> for scalable batch scoring</li>
+</ul>
+<hr/>
+<h3 id="Where-can-you-take-this-next?">Where can you take this next?<a class="anchor-link" href="#Where-can-you-take-this-next?">¶</a></h3><p>Below are a few directions you might explore to adapt or extend the pattern:</p>
+<ol>
+<li><p><strong>Early stopping and best iteration tracking</strong></p>
+<ul>
+<li>Add <code>early_stopping_rounds=10</code> to <code>xgb.train</code> and log the best round.</li>
+<li>Track performance delta across resumed runs.</li>
+</ul>
+</li>
+<li><p><strong>Hyperparameter sweeps</strong></p>
+<ul>
+<li>Wrap the trainer with <strong>Ray Tune</strong> and search over <code>eta</code>, <code>max_depth</code>, or <code>subsample</code>.</li>
+<li>Use Tune’s built-in checkpoint pruning and log callbacks.</li>
+</ul>
+</li>
+<li><p><strong>Feature engineering at scale</strong></p>
+<ul>
+<li>Create new features using <code>Ray Dataset.map_batches</code>, such as terrain interactions or log-scaled distances.</li>
+<li>Materialize multiple Parquet shards and benchmark load time.</li>
+</ul>
+</li>
+<li><p><strong>Model interpretability</strong></p>
+<ul>
+<li>Use XGBoost’s built-in <code>Booster.get_score</code> for feature attributions.</li>
+<li>Rank features by importance and validate with domain knowledge.</li>
+</ul>
+</li>
+<li><p><strong>Serving the model</strong></p>
+<ul>
+<li>Package the Booster as a Ray task or <strong>Ray Serve</strong> endpoint.</li>
+<li>Deploy an API that takes a feature vector and returns the predicted cover type.</li>
+</ul>
+</li>
+<li><p><strong>Real-time logging</strong></p>
+<ul>
+<li>Integrate with MLflow or Weights &amp; Biases to store logs, plots, and checkpoints.</li>
+<li>Use tags and metadata to track experiments over time.</li>
+</ul>
+</li>
+<li><p><strong>Alternative objectives</strong></p>
+<ul>
+<li>Try a binary objective (for example, presence versus absence of a species) or regression target (for example, canopy height).</li>
+<li>Fine-tune loss functions for specific ecological tasks.</li>
+</ul>
+</li>
+<li><p><strong>End-to-end MLOps</strong></p>
+<ul>
+<li>Schedule retraining with Ray Jobs or Anyscale Jobs.</li>
+<li>Upload new data snapshots and trigger daily training runs with automatic checkpoint cleanup.</li>
+</ul>
+</li>
+</ol>
+</div>
+</div>
+</div>
+</div>
+<div class="jp-Cell jp-MarkdownCell jp-Notebook-cell">
+<div class="jp-Cell-inputWrapper" tabindex="0">
+<div class="jp-Collapser jp-InputCollapser jp-Cell-inputCollapser">
+</div>
+<div class="jp-InputArea jp-Cell-inputArea"><div class="jp-InputPrompt jp-InputArea-prompt">
+</div><div class="jp-RenderedHTMLCommon jp-RenderedMarkdown jp-MarkdownOutput" data-mime-type="text/markdown">
 </div>
 </div>
 </div>

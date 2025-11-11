@@ -7517,8 +7517,8 @@ a.anchor-link {
 </div>
 <div class="jp-InputArea jp-Cell-inputArea"><div class="jp-InputPrompt jp-InputArea-prompt">
 </div><div class="jp-RenderedHTMLCommon jp-RenderedMarkdown jp-MarkdownOutput" data-mime-type="text/markdown">
-<h2 id="12-%C2%B7-Inference:-Recommend-Top-N-Items-for-a-User">12 · Inference: Recommend Top-N Items for a User<a class="anchor-link" href="#12-%C2%B7-Inference:-Recommend-Top-N-Items-for-a-User">¶</a></h2><p>To demonstrate inference, generate top-10 item recommendations for a randomly selected user.</p>
-<p>First, reload the original <code>ratings.csv</code> and rebuild the user/item ID mappings used during training. Then, load the latest model checkpoint and restore the trained embedding weights. If you trained the model with DDP, strip the <code>'module.'</code> prefix from checkpoint keys.</p>
+<h2 id="12.-Inference:-recommend-top-N-items-for-a-user">12. Inference: recommend top-N items for a user<a class="anchor-link" href="#12.-Inference:-recommend-top-N-items-for-a-user">¶</a></h2><p>To demonstrate inference, generate top-10 item recommendations for a randomly selected user. Please note that the following method is meant for this small example, and <strong>Ray Data</strong> should be used for inference at scale.</p>
+<p>First, reload the original <code>ratings.csv</code> and rebuild the user and item ID mappings used during training. Then, load the latest model checkpoint and restore the trained embedding weights. If you trained the model with DDP, strip the <code>'module.'</code> prefix from checkpoint keys.</p>
 <p>Next, select a user, compute their embedding, and take the dot product against all item embeddings to produce predicted scores. Finally, extract the top-N items with the highest scores and print their IDs and associated scores.</p>
 </div>
 </div>
@@ -7531,10 +7531,10 @@ a.anchor-link {
 <div class="jp-InputPrompt jp-InputArea-prompt">In [ ]:</div>
 <div class="jp-CodeMirrorEditor jp-Editor jp-InputArea-editor" data-type="inline">
 <div class="cm-editor cm-s-jupyter">
-<div class="highlight hl-ipython3"><pre><span></span><span class="c1"># 12. Inference: Recommend Top-N Items for a User</span>
+<div class="highlight hl-ipython3"><pre><span></span><span class="c1"># 12. Inference: recommend top-N items for a user</span>
 
 <span class="c1"># ---------------------------------------------</span>
-<span class="c1"># Step 1: Reload original ratings CSV + mappings</span>
+<span class="c1"># Step 1: Reload original ratings CSV and mappings</span>
 <span class="c1"># ---------------------------------------------</span>
 <span class="n">df</span> <span class="o">=</span> <span class="n">pd</span><span class="o">.</span><span class="n">read_csv</span><span class="p">(</span><span class="s2">"/mnt/cluster_storage/rec_sys_tutorial/raw/ratings.csv"</span><span class="p">)</span>
 
@@ -7582,11 +7582,11 @@ a.anchor-link {
     <span class="n">scores</span> <span class="o">=</span> <span class="n">torch</span><span class="o">.</span><span class="n">matmul</span><span class="p">(</span><span class="n">user_vector</span><span class="p">,</span> <span class="n">item_vectors</span><span class="o">.</span><span class="n">T</span><span class="p">)</span><span class="o">.</span><span class="n">squeeze</span><span class="p">(</span><span class="mi">0</span><span class="p">)</span>          <span class="c1"># [num_items]</span>
 
     <span class="n">topk</span> <span class="o">=</span> <span class="n">torch</span><span class="o">.</span><span class="n">topk</span><span class="p">(</span><span class="n">scores</span><span class="p">,</span> <span class="n">k</span><span class="o">=</span><span class="mi">10</span><span class="p">)</span>
-    <span class="n">top_item_ids</span> <span class="o">=</span> <span class="p">[</span><span class="n">idx2item</span><span class="p">[</span><span class="n">i</span><span class="o">.</span><span class="n">item</span><span class="p">()]</span> <span class="k">for</span> <span class="n">j</span> <span class="ow">in</span> <span class="n">topk</span><span class="o">.</span><span class="n">indices</span><span class="p">]</span>
+    <span class="n">top_item_ids</span> <span class="o">=</span> <span class="p">[</span><span class="n">idx2item</span><span class="p">[</span><span class="n">j</span><span class="o">.</span><span class="n">item</span><span class="p">()]</span> <span class="k">for</span> <span class="n">j</span> <span class="ow">in</span> <span class="n">topk</span><span class="o">.</span><span class="n">indices</span><span class="p">]</span>
     <span class="n">top_scores</span> <span class="o">=</span> <span class="n">topk</span><span class="o">.</span><span class="n">values</span><span class="o">.</span><span class="n">tolist</span><span class="p">()</span>
 
 <span class="c1"># ---------------------------------------------</span>
-<span class="c1"># Step 4: Print Top-N Recommendations</span>
+<span class="c1"># Step 4: Print top-N recommendations</span>
 <span class="c1"># ---------------------------------------------</span>
 <span class="nb">print</span><span class="p">(</span><span class="s2">"</span><span class="se">\n</span><span class="s2">Top 10 Recommended Item IDs:"</span><span class="p">)</span>
 <span class="k">for</span> <span class="n">i</span><span class="p">,</span> <span class="p">(</span><span class="n">item_id</span><span class="p">,</span> <span class="n">score</span><span class="p">)</span> <span class="ow">in</span> <span class="nb">enumerate</span><span class="p">(</span><span class="nb">zip</span><span class="p">(</span><span class="n">top_item_ids</span><span class="p">,</span> <span class="n">top_scores</span><span class="p">),</span> <span class="mi">1</span><span class="p">):</span>
@@ -7603,7 +7603,7 @@ a.anchor-link {
 </div>
 <div class="jp-InputArea jp-Cell-inputArea"><div class="jp-InputPrompt jp-InputArea-prompt">
 </div><div class="jp-RenderedHTMLCommon jp-RenderedMarkdown jp-MarkdownOutput" data-mime-type="text/markdown">
-<h3 id="13-%C2%B7-Join-Top-N-Item-IDs-with-Movie-Titles">13 · Join Top-N Item IDs with Movie Titles<a class="anchor-link" href="#13-%C2%B7-Join-Top-N-Item-IDs-with-Movie-Titles">¶</a></h3><p>To make your recommendations more interpretable, join the top-10 recommended <code>item_id</code>s with movie titles from the original <code>u.item</code> metadata file.</p>
+<h3 id="13.-Join-top-N-item-IDs-with-movie-titles">13. Join top-N item IDs with movie titles<a class="anchor-link" href="#13.-Join-top-N-item-IDs-with-movie-titles">¶</a></h3><p>To make your recommendations more interpretable, join the top-10 recommended <code>item_id</code>s with movie titles from the original <code>u.item</code> metadata file.</p>
 <p>Load only the relevant columns—<code>item_id</code> and <code>title</code>—from <code>u.item</code>, then merge them with the top-N predictions you computed in the previous step. The result is a user-friendly list of movie titles with associated predicted scores, rather than raw item IDs.</p>
 <p>This small addition makes the model outputs easier to understand and more useful for downstream applications.</p>
 </div>
@@ -7617,7 +7617,7 @@ a.anchor-link {
 <div class="jp-InputPrompt jp-InputArea-prompt">In [ ]:</div>
 <div class="jp-CodeMirrorEditor jp-Editor jp-InputArea-editor" data-type="inline">
 <div class="cm-editor cm-s-jupyter">
-<div class="highlight hl-ipython3"><pre><span></span><span class="c1"># 13. Join Top-N Item IDs with Movie Titles from u.item</span>
+<div class="highlight hl-ipython3"><pre><span></span><span class="c1"># 13. Join top-N item IDs with movie titles from u.item</span>
 
 <span class="n">item_metadata</span> <span class="o">=</span> <span class="n">pd</span><span class="o">.</span><span class="n">read_csv</span><span class="p">(</span>
     <span class="s2">"/mnt/cluster_storage/rec_sys_tutorial/ml-100k/u.item"</span><span class="p">,</span>
@@ -7651,7 +7651,7 @@ a.anchor-link {
 </div>
 <div class="jp-InputArea jp-Cell-inputArea"><div class="jp-InputPrompt jp-InputArea-prompt">
 </div><div class="jp-RenderedHTMLCommon jp-RenderedMarkdown jp-MarkdownOutput" data-mime-type="text/markdown">
-<h3 id="14-%C2%B7-Cleanup-Shared-Storage">14 · Cleanup Shared Storage<a class="anchor-link" href="#14-%C2%B7-Cleanup-Shared-Storage">¶</a></h3><p>Reclaim cluster disk space by deleting the entire tutorial output directory.<br/>
+<h3 id="14.-Clean-up-shared-storage">14. Clean up shared storage<a class="anchor-link" href="#14.-Clean-up-shared-storage">¶</a></h3><p>Reclaim cluster disk space by deleting the entire tutorial output directory.<br/>
 Run this only when you’re <strong>sure</strong> you don’t need the checkpoints or metrics anymore.</p>
 </div>
 </div>
@@ -7666,7 +7666,7 @@ Run this only when you’re <strong>sure</strong> you don’t need the checkpoin
 <div class="cm-editor cm-s-jupyter">
 <div class="highlight hl-ipython3"><pre><span></span><span class="c1"># 14. Cleanup -- delete checkpoints and metrics from model training</span>
 
-<span class="n">TARGET_PATH</span> <span class="o">=</span> <span class="s2">"/mnt/cluster_storage/rec_sys_tutorial"</span>
+<span class="n">TARGET_PATH</span> <span class="o">=</span> <span class="s2">"/mnt/cluster_storage/rec_sys_tutorial"</span>  <span class="c1"># please note, that /mnt/cluster_storage/ only exists on Anyscale</span>
 
 <span class="k">if</span> <span class="n">os</span><span class="o">.</span><span class="n">path</span><span class="o">.</span><span class="n">exists</span><span class="p">(</span><span class="n">TARGET_PATH</span><span class="p">):</span>
     <span class="n">shutil</span><span class="o">.</span><span class="n">rmtree</span><span class="p">(</span><span class="n">TARGET_PATH</span><span class="p">)</span>
@@ -7685,75 +7685,75 @@ Run this only when you’re <strong>sure</strong> you don’t need the checkpoin
 </div>
 <div class="jp-InputArea jp-Cell-inputArea"><div class="jp-InputPrompt jp-InputArea-prompt">
 </div><div class="jp-RenderedHTMLCommon jp-RenderedMarkdown jp-MarkdownOutput" data-mime-type="text/markdown">
-<h3 id="%F0%9F%8E%89-Wrapping-Up-&amp;-Next-Steps">🎉 Wrapping Up &amp; Next Steps<a class="anchor-link" href="#%F0%9F%8E%89-Wrapping-Up-&amp;-Next-Steps">¶</a></h3><p>Awesome work making it to the end. In this tutorial, you used <strong>Ray Train and Ray Data on Anyscale</strong> to scale a full matrix factorization recommendation system, end-to-end, from a raw CSV to multi-GPU distributed training and personalized top-N item recommendations.</p>
+<h3 id="Wrap-up-and-next-steps">Wrap up and next steps<a class="anchor-link" href="#Wrap-up-and-next-steps">¶</a></h3><p>In this tutorial, you used <strong>Ray Train and Ray Data on Anyscale</strong> to scale a full matrix factorization recommendation system, end-to-end, from a raw CSV to multi-GPU distributed training and personalized top-N item recommendations.</p>
 <p>You should now feel confident:</p>
 <ul>
 <li>Using <strong>Ray Data</strong> to preprocess, encode, and shard large tabular datasets</li>
 <li>Streaming data into PyTorch with <code>iter_torch_batches()</code> for efficient training</li>
 <li>Scaling matrix factorization across multiple GPUs with <strong>Ray Train’s <code>TorchTrainer</code></strong></li>
-<li>Saving and resuming training with distributed <strong>Ray Checkpoints</strong></li>
+<li>Saving and resuming training with <strong>Ray Checkpoints</strong></li>
 <li>Running multi-node, fault-tolerant jobs without touching orchestration code</li>
-<li>Performing post-training inference using Ray-restored model checkpoints and learned user/item embeddings</li>
+<li>Performing post-training inference using Ray-restored model checkpoints and learned user and item embeddings</li>
 </ul>
 <hr/>
-<h3 id="%F0%9F%9A%80-Where-can-you-take-this-next?">🚀 Where can you take this next?<a class="anchor-link" href="#%F0%9F%9A%80-Where-can-you-take-this-next?">¶</a></h3><p>Here are a few directions you can explore to extend or adapt this workload:</p>
+<h3 id="Where-can-you-take-this-next?">Where can you take this next?<a class="anchor-link" href="#Where-can-you-take-this-next?">¶</a></h3><p>The following are a few directions you can explore to extend or adapt this workload:</p>
 <ol>
-<li><p><strong>Ranking Metrics &amp; Evaluation</strong></p>
+<li><p><strong>Ranking metrics and evaluation</strong></p>
 <ul>
 <li>Add metrics like <strong>Root Mean Squared Error (RMSE)</strong>, <strong>Normalized Discounted Cumulative Gain (NDCG)</strong>, or <strong>Hit@K</strong> to evaluate recommendation quality.</li>
 <li>Filter out already-rated items during inference to measure novelty.</li>
 </ul>
 </li>
-<li><p><strong>Two-Tower and Deep Models</strong></p>
+<li><p><strong>Two-tower and deep models</strong></p>
 <ul>
 <li>Replace dot product with a <strong>two-tower neural model</strong> or a <strong>deep MLP</strong>.</li>
-<li>Add side features (For example, timestamp, genre) into each tower for better personalization.</li>
+<li>Add side features (for example, timestamp, genre) into each tower for better personalization.</li>
 </ul>
 </li>
-<li><p><strong>Recommendation Personalization</strong></p>
+<li><p><strong>Recommendation personalization</strong></p>
 <ul>
 <li>Store and cache user embeddings after training.</li>
 <li>Run lightweight inference tasks to generate recommendations in real-time.</li>
 </ul>
 </li>
-<li><p><strong>Content-Based or Hybrid Models</strong></p>
+<li><p><strong>Content-based or hybrid models</strong></p>
 <ul>
 <li>Join movie metadata (genres, tags) and build a hybrid collaborative–content model.</li>
 <li>Embed titles or genres using pre-trained language models.</li>
 </ul>
 </li>
-<li><p><strong>Hyperparameter Optimization</strong></p>
+<li><p><strong>Hyperparameter optimization</strong></p>
 <ul>
 <li>Use <strong>Ray Tune</strong> to sweep embedding sizes, learning rates, or regularization.</li>
 <li>Track performance over epochs and checkpoint the best models automatically.</li>
 </ul>
 </li>
-<li><p><strong>Data Scaling</strong></p>
+<li><p><strong>Data scaling</strong></p>
 <ul>
 <li>Switch from MovieLens 100K to 1M or 10M as Ray Data handles it seamlessly.</li>
 <li>Save and load from cloud object storage (S3, GCS) for real-world deployments.</li>
 </ul>
 </li>
-<li><p><strong>Production Inference</strong></p>
+<li><p><strong>Production inference</strong></p>
 <ul>
-<li>Wrap the recommendation system into a <strong>Ray Serve</strong> endpoint for serving top-N results.</li>
+<li>Wrap the recommendation system into a <strong>Ray Serve</strong> endpoint for serving top-N results using <strong>Ray Data</strong> based inference.</li>
 <li>Build a simple demo that recommends movies to live users.</li>
 </ul>
 </li>
-<li><p><strong>End-to-End MLOps</strong></p>
+<li><p><strong>End-to-end MLOps</strong></p>
 <ul>
 <li>Register the best model with MLflow or Weights &amp; Biases.</li>
-<li>Package the training job as a Ray Job and schedule it with Anyscale.</li>
+<li>Package the training job as a Ray job and schedule it with Anyscale.</li>
 </ul>
 </li>
 <li><p><strong>Multi-tenant recommendation systems</strong></p>
 <ul>
-<li>Extend this to support <strong>multiple audiences</strong> or contexts (For example, multi-country, A/B groups).</li>
+<li>Extend this to support <strong>multiple audiences</strong> or contexts (for example, multi-country, A/B groups).</li>
 <li>Train and serve context-aware models in parallel using Ray.</li>
 </ul>
 </li>
 </ol>
-<p>This pattern gives you a solid foundation for scaling recommendation workloads across real datasets and real infrastructure—without rewriting your model or managing your cluster. Let Ray + Anyscale do the heavy lifting.</p>
+<p>This pattern gives you a solid foundation for scaling recommendation workloads across real datasets and real infrastructure—without rewriting your model or managing your cluster.</p>
 </div>
 </div>
 </div>

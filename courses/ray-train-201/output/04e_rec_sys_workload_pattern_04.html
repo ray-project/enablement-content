@@ -7517,15 +7517,17 @@ a.anchor-link {
 </div>
 <div class="jp-InputArea jp-Cell-inputArea"><div class="jp-InputPrompt jp-InputArea-prompt">
 </div><div class="jp-RenderedHTMLCommon jp-RenderedMarkdown jp-MarkdownOutput" data-mime-type="text/markdown">
-<h2 id="08-%C2%B7-Define-Ray-Train-Loop-(with-Validation,-Logging,-and-Checkpointing)">08 · Define Ray Train Loop (with Validation, Logging, and Checkpointing)<a class="anchor-link" href="#08-%C2%B7-Define-Ray-Train-Loop-(with-Validation,-Logging,-and-Checkpointing)">¶</a></h2><p>Define the <code>train_loop_per_worker</code>, the core function Ray executes on each worker. This loop handles everything from dataset loading and model training to validation, logging, and checkpointing.</p>
-<p>Each worker receives its own shard of the training and validation sets with <code>get_dataset_shard</code>. Use <code>iter_torch_batches</code> to stream batches directly into PyTorch.</p>
-<p>For each epoch:</p>
+<h2 id="8.-Define-Ray-Train-loop-(with-validation,-checkpointing,-and-Ray-managed-metrics)">8. Define Ray Train loop (with validation, checkpointing, and Ray-managed metrics)<a class="anchor-link" href="#8.-Define-Ray-Train-loop-(with-validation,-checkpointing,-and-Ray-managed-metrics)">¶</a></h2><p>Define the <code>train_loop_per_worker</code>, the core function executed by each Ray Train worker.<br/>
+This loop handles distributed training, validation, and checkpointing with Ray-managed metrics.</p>
+<p>Each worker receives its own shard of the training and validation datasets using <code>get_dataset_shard()</code>.<br/>
+Batches are streamed directly into PyTorch via <code>iter_torch_batches()</code>, ensuring efficient, fully distributed data loading.</p>
+<p>During each epoch:</p>
 <ul>
-<li>Compute the average training loss across all batches.</li>
-<li>Evaluate the model on the validation set and compute the average validation loss.</li>
-<li>On rank 0 only, save a checkpoint (model weights + epoch metadata) and append the losses to a shared JSON log.</li>
+<li>Compute average <strong>training</strong> and <strong>validation</strong> MSE losses.</li>
+<li>On <strong>rank 0</strong> only, save a temporary checkpoint (model weights + epoch metadata) using <code>tempfile.TemporaryDirectory()</code>.</li>
+<li>Call <code>ray.train.report()</code> to report metrics and attach the checkpoint; other workers report metrics only.</li>
 </ul>
-<p>Finally, call <code>ray.train.report</code> to expose metrics and checkpoints to the Ray controller. This enables fault tolerance, auto-resume, and metrics tracking with zero additional setup.</p>
+<p>All metrics are automatically captured by Ray and made available in <code>result.metrics_dataframe</code>, enabling progress tracking and fault-tolerant recovery without extra logging logic.</p>
 </div>
 </div>
 </div>
@@ -7537,51 +7539,45 @@ a.anchor-link {
 <div class="jp-InputPrompt jp-InputArea-prompt">In [ ]:</div>
 <div class="jp-CodeMirrorEditor jp-Editor jp-InputArea-editor" data-type="inline">
 <div class="cm-editor cm-s-jupyter">
-<div class="highlight hl-ipython3"><pre><span></span><span class="c1"># 08. Define Ray Train Loop (with Val Loss + Checkpointing + Logging)</span>
+<div class="highlight hl-ipython3"><pre><span></span><span class="c1"># 08. Define Ray Train loop (with val loss, checkpointing, and Ray-managed metrics)</span>
 
 <span class="k">def</span><span class="w"> </span><span class="nf">train_loop_per_worker</span><span class="p">(</span><span class="n">config</span><span class="p">):</span>
-
-    <span class="c1"># Get dataset shards for this worker</span>
+    <span class="kn">import</span><span class="w"> </span><span class="nn">tempfile</span>
+    <span class="c1"># ---------------- Dataset shards -&gt; PyTorch-style iterators ---------------- #</span>
     <span class="n">train_ds</span> <span class="o">=</span> <span class="n">get_dataset_shard</span><span class="p">(</span><span class="s2">"train"</span><span class="p">)</span>
     <span class="n">val_ds</span>   <span class="o">=</span> <span class="n">get_dataset_shard</span><span class="p">(</span><span class="s2">"val"</span><span class="p">)</span>
     <span class="n">train_loader</span> <span class="o">=</span> <span class="n">train_ds</span><span class="o">.</span><span class="n">iter_torch_batches</span><span class="p">(</span><span class="n">batch_size</span><span class="o">=</span><span class="mi">512</span><span class="p">,</span> <span class="n">dtypes</span><span class="o">=</span><span class="n">torch</span><span class="o">.</span><span class="n">float32</span><span class="p">)</span>
     <span class="n">val_loader</span>   <span class="o">=</span> <span class="n">val_ds</span><span class="o">.</span><span class="n">iter_torch_batches</span><span class="p">(</span><span class="n">batch_size</span><span class="o">=</span><span class="mi">512</span><span class="p">,</span> <span class="n">dtypes</span><span class="o">=</span><span class="n">torch</span><span class="o">.</span><span class="n">float32</span><span class="p">)</span>
 
-    <span class="c1"># Create model and optimizer</span>
+    <span class="c1"># ---------------- Model / Optimizer ---------------- #</span>
     <span class="n">model</span> <span class="o">=</span> <span class="n">MatrixFactorizationModel</span><span class="p">(</span>
         <span class="n">num_users</span><span class="o">=</span><span class="n">config</span><span class="p">[</span><span class="s2">"num_users"</span><span class="p">],</span>
         <span class="n">num_items</span><span class="o">=</span><span class="n">config</span><span class="p">[</span><span class="s2">"num_items"</span><span class="p">],</span>
-        <span class="n">embedding_dim</span><span class="o">=</span><span class="n">config</span><span class="o">.</span><span class="n">get</span><span class="p">(</span><span class="s2">"embedding_dim"</span><span class="p">,</span> <span class="mi">64</span><span class="p">)</span>
+        <span class="n">embedding_dim</span><span class="o">=</span><span class="n">config</span><span class="o">.</span><span class="n">get</span><span class="p">(</span><span class="s2">"embedding_dim"</span><span class="p">,</span> <span class="mi">64</span><span class="p">),</span>
     <span class="p">)</span>
     <span class="n">model</span> <span class="o">=</span> <span class="n">prepare_model</span><span class="p">(</span><span class="n">model</span><span class="p">)</span>
     <span class="n">optimizer</span> <span class="o">=</span> <span class="n">torch</span><span class="o">.</span><span class="n">optim</span><span class="o">.</span><span class="n">Adam</span><span class="p">(</span><span class="n">model</span><span class="o">.</span><span class="n">parameters</span><span class="p">(),</span> <span class="n">lr</span><span class="o">=</span><span class="n">config</span><span class="o">.</span><span class="n">get</span><span class="p">(</span><span class="s2">"lr"</span><span class="p">,</span> <span class="mf">1e-3</span><span class="p">))</span>
 
-    <span class="c1"># Paths for checkpointing and logging</span>
-    <span class="n">CKPT_DIR</span> <span class="o">=</span> <span class="s2">"/mnt/cluster_storage/rec_sys_tutorial/checkpoints"</span>
-    <span class="n">LOG_PATH</span> <span class="o">=</span> <span class="s2">"/mnt/cluster_storage/rec_sys_tutorial/epoch_metrics.json"</span>
-    <span class="n">os</span><span class="o">.</span><span class="n">makedirs</span><span class="p">(</span><span class="n">CKPT_DIR</span><span class="p">,</span> <span class="n">exist_ok</span><span class="o">=</span><span class="kc">True</span><span class="p">)</span>
-    <span class="n">rank</span> <span class="o">=</span> <span class="nb">int</span><span class="p">(</span><span class="n">os</span><span class="o">.</span><span class="n">environ</span><span class="o">.</span><span class="n">get</span><span class="p">(</span><span class="s2">"RANK"</span><span class="p">,</span> <span class="s2">"0"</span><span class="p">))</span>  <span class="c1"># Worker rank</span>
+    <span class="c1"># ---------------- Checkpointing setup ---------------- #</span>
+    <span class="n">rank</span> <span class="o">=</span> <span class="n">get_context</span><span class="p">()</span><span class="o">.</span><span class="n">get_world_rank</span><span class="p">()</span>
     <span class="n">start_epoch</span> <span class="o">=</span> <span class="mi">0</span>
 
-    <span class="c1"># Resume from checkpoint if available</span>
+    <span class="c1"># If a checkpoint exists (auto-resume), load it</span>
     <span class="n">ckpt</span> <span class="o">=</span> <span class="n">get_checkpoint</span><span class="p">()</span>
     <span class="k">if</span> <span class="n">ckpt</span><span class="p">:</span>
         <span class="k">with</span> <span class="n">ckpt</span><span class="o">.</span><span class="n">as_directory</span><span class="p">()</span> <span class="k">as</span> <span class="n">ckpt_dir</span><span class="p">:</span>
-            <span class="n">model</span><span class="o">.</span><span class="n">load_state_dict</span><span class="p">(</span><span class="n">torch</span><span class="o">.</span><span class="n">load</span><span class="p">(</span><span class="n">os</span><span class="o">.</span><span class="n">path</span><span class="o">.</span><span class="n">join</span><span class="p">(</span><span class="n">ckpt_dir</span><span class="p">,</span> <span class="s2">"model.pt"</span><span class="p">),</span> <span class="n">map_location</span><span class="o">=</span><span class="s2">"cpu"</span><span class="p">))</span>
+            <span class="n">model</span><span class="o">.</span><span class="n">load_state_dict</span><span class="p">(</span>
+                <span class="n">torch</span><span class="o">.</span><span class="n">load</span><span class="p">(</span><span class="n">os</span><span class="o">.</span><span class="n">path</span><span class="o">.</span><span class="n">join</span><span class="p">(</span><span class="n">ckpt_dir</span><span class="p">,</span> <span class="s2">"model.pt"</span><span class="p">),</span> <span class="n">map_location</span><span class="o">=</span><span class="s2">"cpu"</span><span class="p">)</span>
+            <span class="p">)</span>
             <span class="n">start_epoch</span> <span class="o">=</span> <span class="n">torch</span><span class="o">.</span><span class="n">load</span><span class="p">(</span><span class="n">os</span><span class="o">.</span><span class="n">path</span><span class="o">.</span><span class="n">join</span><span class="p">(</span><span class="n">ckpt_dir</span><span class="p">,</span> <span class="s2">"meta.pt"</span><span class="p">))</span><span class="o">.</span><span class="n">get</span><span class="p">(</span><span class="s2">"epoch"</span><span class="p">,</span> <span class="mi">0</span><span class="p">)</span> <span class="o">+</span> <span class="mi">1</span>
         <span class="k">if</span> <span class="n">rank</span> <span class="o">==</span> <span class="mi">0</span><span class="p">:</span>
             <span class="nb">print</span><span class="p">(</span><span class="sa">f</span><span class="s2">"[Rank </span><span class="si">{</span><span class="n">rank</span><span class="si">}</span><span class="s2">] ✅ Resumed from checkpoint at epoch </span><span class="si">{</span><span class="n">start_epoch</span><span class="si">}</span><span class="s2">"</span><span class="p">)</span>
 
-    <span class="c1"># Clean up log file on first run (only if not resuming)</span>
-    <span class="k">if</span> <span class="n">rank</span> <span class="o">==</span> <span class="mi">0</span> <span class="ow">and</span> <span class="n">start_epoch</span> <span class="o">==</span> <span class="mi">0</span> <span class="ow">and</span> <span class="n">os</span><span class="o">.</span><span class="n">path</span><span class="o">.</span><span class="n">exists</span><span class="p">(</span><span class="n">LOG_PATH</span><span class="p">):</span>
-        <span class="n">os</span><span class="o">.</span><span class="n">remove</span><span class="p">(</span><span class="n">LOG_PATH</span><span class="p">)</span>
-
-    <span class="c1"># ----------------- Training Loop ----------------- #</span>
+    <span class="c1"># ---------------- Training loop ---------------- #</span>
     <span class="k">for</span> <span class="n">epoch</span> <span class="ow">in</span> <span class="nb">range</span><span class="p">(</span><span class="n">start_epoch</span><span class="p">,</span> <span class="n">config</span><span class="o">.</span><span class="n">get</span><span class="p">(</span><span class="s2">"epochs"</span><span class="p">,</span> <span class="mi">5</span><span class="p">)):</span>
+        <span class="c1"># ---- Train ----</span>
         <span class="n">model</span><span class="o">.</span><span class="n">train</span><span class="p">()</span>
         <span class="n">train_losses</span> <span class="o">=</span> <span class="p">[]</span>
-
-        <span class="c1"># Train over each batch</span>
         <span class="k">for</span> <span class="n">batch</span> <span class="ow">in</span> <span class="n">train_loader</span><span class="p">:</span>
             <span class="n">user</span> <span class="o">=</span> <span class="n">batch</span><span class="p">[</span><span class="s2">"user_idx"</span><span class="p">]</span><span class="o">.</span><span class="n">long</span><span class="p">()</span>
             <span class="n">item</span> <span class="o">=</span> <span class="n">batch</span><span class="p">[</span><span class="s2">"item_idx"</span><span class="p">]</span><span class="o">.</span><span class="n">long</span><span class="p">()</span>
@@ -7596,9 +7592,9 @@ a.anchor-link {
 
             <span class="n">train_losses</span><span class="o">.</span><span class="n">append</span><span class="p">(</span><span class="n">loss</span><span class="o">.</span><span class="n">item</span><span class="p">())</span>
 
-        <span class="n">avg_train_loss</span> <span class="o">=</span> <span class="nb">sum</span><span class="p">(</span><span class="n">train_losses</span><span class="p">)</span> <span class="o">/</span> <span class="nb">len</span><span class="p">(</span><span class="n">train_losses</span><span class="p">)</span>
+        <span class="n">avg_train_loss</span> <span class="o">=</span> <span class="nb">sum</span><span class="p">(</span><span class="n">train_losses</span><span class="p">)</span> <span class="o">/</span> <span class="nb">max</span><span class="p">(</span><span class="mi">1</span><span class="p">,</span> <span class="nb">len</span><span class="p">(</span><span class="n">train_losses</span><span class="p">))</span>
 
-        <span class="c1"># ---------- Validation Pass ----------</span>
+        <span class="c1"># ---- Validate ----</span>
         <span class="n">model</span><span class="o">.</span><span class="n">eval</span><span class="p">()</span>
         <span class="n">val_losses</span> <span class="o">=</span> <span class="p">[]</span>
         <span class="k">with</span> <span class="n">torch</span><span class="o">.</span><span class="n">no_grad</span><span class="p">():</span>
@@ -7611,46 +7607,27 @@ a.anchor-link {
                 <span class="n">loss</span> <span class="o">=</span> <span class="n">F</span><span class="o">.</span><span class="n">mse_loss</span><span class="p">(</span><span class="n">pred</span><span class="p">,</span> <span class="n">rating</span><span class="p">)</span>
                 <span class="n">val_losses</span><span class="o">.</span><span class="n">append</span><span class="p">(</span><span class="n">loss</span><span class="o">.</span><span class="n">item</span><span class="p">())</span>
 
-        <span class="n">avg_val_loss</span> <span class="o">=</span> <span class="nb">sum</span><span class="p">(</span><span class="n">val_losses</span><span class="p">)</span> <span class="o">/</span> <span class="nb">len</span><span class="p">(</span><span class="n">val_losses</span><span class="p">)</span>
+        <span class="n">avg_val_loss</span> <span class="o">=</span> <span class="nb">sum</span><span class="p">(</span><span class="n">val_losses</span><span class="p">)</span> <span class="o">/</span> <span class="nb">max</span><span class="p">(</span><span class="mi">1</span><span class="p">,</span> <span class="nb">len</span><span class="p">(</span><span class="n">val_losses</span><span class="p">))</span>
 
-        <span class="c1"># Log to stdout</span>
-        <span class="nb">print</span><span class="p">(</span><span class="sa">f</span><span class="s2">"[Epoch </span><span class="si">{</span><span class="n">epoch</span><span class="si">}</span><span class="s2">] Train MSE: </span><span class="si">{</span><span class="n">avg_train_loss</span><span class="si">:</span><span class="s2">.4f</span><span class="si">}</span><span class="s2"> | Val MSE: </span><span class="si">{</span><span class="n">avg_val_loss</span><span class="si">:</span><span class="s2">.4f</span><span class="si">}</span><span class="s2">"</span><span class="p">)</span>
-
-        <span class="c1"># ---------- Save Checkpoint (Rank 0 Only) ----------</span>
+        <span class="c1"># Console log (optional)</span>
         <span class="k">if</span> <span class="n">rank</span> <span class="o">==</span> <span class="mi">0</span><span class="p">:</span>
-            <span class="n">out_dir</span> <span class="o">=</span> <span class="n">os</span><span class="o">.</span><span class="n">path</span><span class="o">.</span><span class="n">join</span><span class="p">(</span><span class="n">CKPT_DIR</span><span class="p">,</span> <span class="sa">f</span><span class="s2">"epoch_</span><span class="si">{</span><span class="n">epoch</span><span class="si">}</span><span class="s2">_</span><span class="si">{</span><span class="n">uuid</span><span class="o">.</span><span class="n">uuid4</span><span class="p">()</span><span class="o">.</span><span class="n">hex</span><span class="si">}</span><span class="s2">"</span><span class="p">)</span>
-            <span class="n">os</span><span class="o">.</span><span class="n">makedirs</span><span class="p">(</span><span class="n">out_dir</span><span class="p">,</span> <span class="n">exist_ok</span><span class="o">=</span><span class="kc">True</span><span class="p">)</span>
-            <span class="n">torch</span><span class="o">.</span><span class="n">save</span><span class="p">(</span><span class="n">model</span><span class="o">.</span><span class="n">state_dict</span><span class="p">(),</span> <span class="n">os</span><span class="o">.</span><span class="n">path</span><span class="o">.</span><span class="n">join</span><span class="p">(</span><span class="n">out_dir</span><span class="p">,</span> <span class="s2">"model.pt"</span><span class="p">))</span>
-            <span class="n">torch</span><span class="o">.</span><span class="n">save</span><span class="p">({</span><span class="s2">"epoch"</span><span class="p">:</span> <span class="n">epoch</span><span class="p">},</span> <span class="n">os</span><span class="o">.</span><span class="n">path</span><span class="o">.</span><span class="n">join</span><span class="p">(</span><span class="n">out_dir</span><span class="p">,</span> <span class="s2">"meta.pt"</span><span class="p">))</span>
-            <span class="n">ckpt_out</span> <span class="o">=</span> <span class="n">Checkpoint</span><span class="o">.</span><span class="n">from_directory</span><span class="p">(</span><span class="n">out_dir</span><span class="p">)</span>
-        <span class="k">else</span><span class="p">:</span>
-            <span class="n">ckpt_out</span> <span class="o">=</span> <span class="kc">None</span>
+            <span class="nb">print</span><span class="p">(</span><span class="sa">f</span><span class="s2">"[Epoch </span><span class="si">{</span><span class="n">epoch</span><span class="si">}</span><span class="s2">] Train MSE: </span><span class="si">{</span><span class="n">avg_train_loss</span><span class="si">:</span><span class="s2">.4f</span><span class="si">}</span><span class="s2"> | Val MSE: </span><span class="si">{</span><span class="n">avg_val_loss</span><span class="si">:</span><span class="s2">.4f</span><span class="si">}</span><span class="s2">"</span><span class="p">)</span>
 
-        <span class="c1"># ---------- Append Metrics to JSON Log (Rank 0) ----------</span>
-        <span class="k">if</span> <span class="n">rank</span> <span class="o">==</span> <span class="mi">0</span><span class="p">:</span>
-            <span class="n">logs</span> <span class="o">=</span> <span class="p">[]</span>
-            <span class="k">if</span> <span class="n">os</span><span class="o">.</span><span class="n">path</span><span class="o">.</span><span class="n">exists</span><span class="p">(</span><span class="n">LOG_PATH</span><span class="p">):</span>
-                <span class="k">try</span><span class="p">:</span>
-                    <span class="k">with</span> <span class="nb">open</span><span class="p">(</span><span class="n">LOG_PATH</span><span class="p">,</span> <span class="s2">"r"</span><span class="p">)</span> <span class="k">as</span> <span class="n">f</span><span class="p">:</span>
-                        <span class="n">logs</span> <span class="o">=</span> <span class="n">json</span><span class="o">.</span><span class="n">load</span><span class="p">(</span><span class="n">f</span><span class="p">)</span>
-                <span class="k">except</span> <span class="n">json</span><span class="o">.</span><span class="n">JSONDecodeError</span><span class="p">:</span>
-                    <span class="nb">print</span><span class="p">(</span><span class="s2">"⚠️  JSON log unreadable. Starting fresh."</span><span class="p">)</span>
-                    <span class="n">logs</span> <span class="o">=</span> <span class="p">[]</span>
-
-            <span class="n">logs</span><span class="o">.</span><span class="n">append</span><span class="p">({</span>
-                <span class="s2">"epoch"</span><span class="p">:</span> <span class="n">epoch</span><span class="p">,</span>
-                <span class="s2">"train_loss"</span><span class="p">:</span> <span class="n">avg_train_loss</span><span class="p">,</span>
-                <span class="s2">"val_loss"</span><span class="p">:</span> <span class="n">avg_val_loss</span>
-            <span class="p">})</span>
-            <span class="k">with</span> <span class="nb">open</span><span class="p">(</span><span class="n">LOG_PATH</span><span class="p">,</span> <span class="s2">"w"</span><span class="p">)</span> <span class="k">as</span> <span class="n">f</span><span class="p">:</span>
-                <span class="n">json</span><span class="o">.</span><span class="n">dump</span><span class="p">(</span><span class="n">logs</span><span class="p">,</span> <span class="n">f</span><span class="p">)</span>
-
-        <span class="c1"># ---------- Report to Ray Train ----------</span>
-        <span class="n">report</span><span class="p">({</span>
+        <span class="n">metrics</span> <span class="o">=</span> <span class="p">{</span>
             <span class="s2">"epoch"</span><span class="p">:</span> <span class="n">epoch</span><span class="p">,</span>
             <span class="s2">"train_loss"</span><span class="p">:</span> <span class="n">avg_train_loss</span><span class="p">,</span>
-            <span class="s2">"val_loss"</span><span class="p">:</span> <span class="n">avg_val_loss</span>
-        <span class="p">},</span> <span class="n">checkpoint</span><span class="o">=</span><span class="n">ckpt_out</span><span class="p">)</span>
+            <span class="s2">"val_loss"</span><span class="p">:</span> <span class="n">avg_val_loss</span><span class="p">,</span>
+        <span class="p">}</span>
+
+        <span class="c1"># ---- Save checkpoint &amp; report (rank 0 attaches checkpoint; others report metrics only) ----</span>
+        <span class="k">if</span> <span class="n">rank</span> <span class="o">==</span> <span class="mi">0</span><span class="p">:</span>
+            <span class="k">with</span> <span class="n">tempfile</span><span class="o">.</span><span class="n">TemporaryDirectory</span><span class="p">()</span> <span class="k">as</span> <span class="n">tmpdir</span><span class="p">:</span>
+                <span class="n">torch</span><span class="o">.</span><span class="n">save</span><span class="p">(</span><span class="n">model</span><span class="o">.</span><span class="n">state_dict</span><span class="p">(),</span> <span class="n">os</span><span class="o">.</span><span class="n">path</span><span class="o">.</span><span class="n">join</span><span class="p">(</span><span class="n">tmpdir</span><span class="p">,</span> <span class="s2">"model.pt"</span><span class="p">))</span>
+                <span class="n">torch</span><span class="o">.</span><span class="n">save</span><span class="p">({</span><span class="s2">"epoch"</span><span class="p">:</span> <span class="n">epoch</span><span class="p">},</span> <span class="n">os</span><span class="o">.</span><span class="n">path</span><span class="o">.</span><span class="n">join</span><span class="p">(</span><span class="n">tmpdir</span><span class="p">,</span> <span class="s2">"meta.pt"</span><span class="p">))</span>
+                <span class="n">ckpt_out</span> <span class="o">=</span> <span class="n">Checkpoint</span><span class="o">.</span><span class="n">from_directory</span><span class="p">(</span><span class="n">tmpdir</span><span class="p">)</span>
+                <span class="n">report</span><span class="p">(</span><span class="n">metrics</span><span class="p">,</span> <span class="n">checkpoint</span><span class="o">=</span><span class="n">ckpt_out</span><span class="p">)</span>
+        <span class="k">else</span><span class="p">:</span>
+            <span class="n">report</span><span class="p">(</span><span class="n">metrics</span><span class="p">,</span> <span class="n">checkpoint</span><span class="o">=</span><span class="kc">None</span><span class="p">)</span>
 </pre></div>
 </div>
 </div>
@@ -7663,7 +7640,7 @@ a.anchor-link {
 </div>
 <div class="jp-InputArea jp-Cell-inputArea"><div class="jp-InputPrompt jp-InputArea-prompt">
 </div><div class="jp-RenderedHTMLCommon jp-RenderedMarkdown jp-MarkdownOutput" data-mime-type="text/markdown">
-<h3 id="09-%C2%B7-Launch-Distributed-Training-with-Ray-Train">09 · Launch Distributed Training with Ray Train<a class="anchor-link" href="#09-%C2%B7-Launch-Distributed-Training-with-Ray-Train">¶</a></h3><p>Now, launch distributed training using <code>TorchTrainer</code>, Ray Train’s high-level orchestration interface. Provide it with:</p>
+<h3 id="9.-Launch-distributed-training-with-Ray-Train">9. Launch distributed training with Ray Train<a class="anchor-link" href="#9.-Launch-distributed-training-with-Ray-Train">¶</a></h3><p>Now, launch distributed training using <code>TorchTrainer</code>, Ray Train’s high-level orchestration interface. Provide it with:</p>
 <ul>
 <li>Your custom <code>train_loop_per_worker</code> function</li>
 <li>A <code>train_config</code> dictionary that specifies model dimensions, learning rate, and number of epochs</li>
@@ -7672,7 +7649,7 @@ a.anchor-link {
 </ul>
 <p>Also, configure checkpointing and fault tolerance:</p>
 <ul>
-<li>Ray keeps the 3 most recent checkpoints</li>
+<li>Ray keeps all checkpoints checkpoints for later plotting</li>
 <li>Failed workers retry up to two times</li>
 </ul>
 <p>Calling <code>trainer.fit()</code> kicks off training across the cluster. If any workers fail or disconnect, Ray restarts them and resume from the latest checkpoint.</p>
@@ -7687,12 +7664,12 @@ a.anchor-link {
 <div class="jp-InputPrompt jp-InputArea-prompt">In [ ]:</div>
 <div class="jp-CodeMirrorEditor jp-Editor jp-InputArea-editor" data-type="inline">
 <div class="cm-editor cm-s-jupyter">
-<div class="highlight hl-ipython3"><pre><span></span><span class="c1"># 09. Launch Distributed Training with Ray TorchTrainer</span>
+<div class="highlight hl-ipython3"><pre><span></span><span class="c1"># 09. Launch distributed training with Ray TorchTrainer</span>
 
-<span class="c1"># Define config params</span>
+<span class="c1"># Define config params (use Ray-derived counts)</span>
 <span class="n">train_config</span> <span class="o">=</span> <span class="p">{</span>
-    <span class="s2">"num_users"</span><span class="p">:</span> <span class="n">df</span><span class="p">[</span><span class="s2">"user_idx"</span><span class="p">]</span><span class="o">.</span><span class="n">nunique</span><span class="p">(),</span>
-    <span class="s2">"num_items"</span><span class="p">:</span> <span class="n">df</span><span class="p">[</span><span class="s2">"item_idx"</span><span class="p">]</span><span class="o">.</span><span class="n">nunique</span><span class="p">(),</span>
+    <span class="s2">"num_users"</span><span class="p">:</span> <span class="n">NUM_USERS</span><span class="p">,</span>
+    <span class="s2">"num_items"</span><span class="p">:</span> <span class="n">NUM_ITEMS</span><span class="p">,</span>
     <span class="s2">"embedding_dim"</span><span class="p">:</span> <span class="mi">64</span><span class="p">,</span>
     <span class="s2">"lr"</span><span class="p">:</span> <span class="mf">1e-3</span><span class="p">,</span>
     <span class="s2">"epochs"</span><span class="p">:</span> <span class="mi">20</span><span class="p">,</span>
@@ -7709,7 +7686,7 @@ a.anchor-link {
     <span class="n">run_config</span><span class="o">=</span><span class="n">RunConfig</span><span class="p">(</span>
         <span class="n">name</span><span class="o">=</span><span class="s2">"mf_ray_train"</span><span class="p">,</span>
         <span class="n">storage_path</span><span class="o">=</span><span class="s2">"/mnt/cluster_storage/rec_sys_tutorial/results"</span><span class="p">,</span>
-        <span class="n">checkpoint_config</span><span class="o">=</span><span class="n">CheckpointConfig</span><span class="p">(</span><span class="n">num_to_keep</span><span class="o">=</span><span class="mi">3</span><span class="p">),</span>
+        <span class="n">checkpoint_config</span><span class="o">=</span><span class="n">CheckpointConfig</span><span class="p">(</span><span class="n">num_to_keep</span><span class="o">=</span><span class="mi">20</span><span class="p">),</span>
         <span class="n">failure_config</span><span class="o">=</span><span class="n">FailureConfig</span><span class="p">(</span><span class="n">max_failures</span><span class="o">=</span><span class="mi">2</span><span class="p">)</span>
     <span class="p">)</span>
 <span class="p">)</span>
@@ -7728,9 +7705,10 @@ a.anchor-link {
 </div>
 <div class="jp-InputArea jp-Cell-inputArea"><div class="jp-InputPrompt jp-InputArea-prompt">
 </div><div class="jp-RenderedHTMLCommon jp-RenderedMarkdown jp-MarkdownOutput" data-mime-type="text/markdown">
-<h3 id="10-%C2%B7-Plot-Train-and-Validation-Loss-Curves">10 · Plot Train and Validation Loss Curves<a class="anchor-link" href="#10-%C2%B7-Plot-Train-and-Validation-Loss-Curves">¶</a></h3><p>After training, load the logged epoch metrics from the shared JSON file and plot the train and validation loss curves.</p>
-<p>This visualization helps you evaluate model behavior across epochs, whether it’s under-fitting, over-fitting, or converging steadily. You compute both curves using MSE (Mean Squared Error), which is the same loss function used during training.</p>
-<p>Plotting these curves also serves as a sanity check to ensure that checkpointing, logging, and training progressed as expected.</p>
+<h3 id="10.-Plot-train-and-validation-loss-curves">10. Plot train and validation loss curves<a class="anchor-link" href="#10.-Plot-train-and-validation-loss-curves">¶</a></h3><p>After training, retrieve the full metrics history directly from <strong>Ray Train’s internal tracking</strong> via <code>result.metrics_dataframe</code>.</p>
+<p>This DataFrame automatically includes all reported metrics across epochs (e.g., <code>train_loss</code>, <code>val_loss</code>) for every call to <code>ray.train.report()</code>.<br/>
+You use it to visualize model convergence and ensure the training loop, checkpointing, and reporting worked correctly.</p>
+<p>The plotted curves show how the <strong>training</strong> and <strong>validation</strong> MSE losses evolve over time—confirming whether the model is learning effectively and when it begins to stabilize.</p>
 </div>
 </div>
 </div>
@@ -7742,23 +7720,25 @@ a.anchor-link {
 <div class="jp-InputPrompt jp-InputArea-prompt">In [ ]:</div>
 <div class="jp-CodeMirrorEditor jp-Editor jp-InputArea-editor" data-type="inline">
 <div class="cm-editor cm-s-jupyter">
-<div class="highlight hl-ipython3"><pre><span></span><span class="c1"># 10. Plot Train/Val Loss Curves</span>
+<div class="highlight hl-ipython3"><pre><span></span><span class="c1"># 10. Plot train/val loss curves (from Ray Train results)</span>
 
-<span class="c1"># Path to training metrics log</span>
-<span class="n">LOG_PATH</span> <span class="o">=</span> <span class="s2">"/mnt/cluster_storage/rec_sys_tutorial/epoch_metrics.json"</span>
+<span class="c1"># Pull the full metrics history Ray stored for this run</span>
+<span class="n">df</span> <span class="o">=</span> <span class="n">result</span><span class="o">.</span><span class="n">metrics_dataframe</span><span class="o">.</span><span class="n">copy</span><span class="p">()</span>
 
-<span class="c1"># Load and convert to DataFrame</span>
-<span class="k">with</span> <span class="nb">open</span><span class="p">(</span><span class="n">LOG_PATH</span><span class="p">,</span> <span class="s2">"r"</span><span class="p">)</span> <span class="k">as</span> <span class="n">f</span><span class="p">:</span>
-    <span class="n">logs</span> <span class="o">=</span> <span class="n">json</span><span class="o">.</span><span class="n">load</span><span class="p">(</span><span class="n">f</span><span class="p">)</span>
+<span class="c1"># Keep only the columns we need (guard against extra columns)</span>
+<span class="n">cols</span> <span class="o">=</span> <span class="p">[</span><span class="n">c</span> <span class="k">for</span> <span class="n">c</span> <span class="ow">in</span> <span class="p">[</span><span class="s2">"epoch"</span><span class="p">,</span> <span class="s2">"train_loss"</span><span class="p">,</span> <span class="s2">"val_loss"</span><span class="p">]</span> <span class="k">if</span> <span class="n">c</span> <span class="ow">in</span> <span class="n">df</span><span class="o">.</span><span class="n">columns</span><span class="p">]</span>
+<span class="n">df</span> <span class="o">=</span> <span class="n">df</span><span class="p">[</span><span class="n">cols</span><span class="p">]</span><span class="o">.</span><span class="n">dropna</span><span class="p">()</span>
 
-<span class="n">df</span> <span class="o">=</span> <span class="n">pd</span><span class="o">.</span><span class="n">DataFrame</span><span class="p">(</span><span class="n">logs</span><span class="p">)</span>
-<span class="n">df</span><span class="p">[</span><span class="s2">"train_loss"</span><span class="p">]</span> <span class="o">=</span> <span class="n">pd</span><span class="o">.</span><span class="n">to_numeric</span><span class="p">(</span><span class="n">df</span><span class="p">[</span><span class="s2">"train_loss"</span><span class="p">],</span> <span class="n">errors</span><span class="o">=</span><span class="s2">"coerce"</span><span class="p">)</span>
-<span class="n">df</span><span class="p">[</span><span class="s2">"val_loss"</span><span class="p">]</span> <span class="o">=</span> <span class="n">pd</span><span class="o">.</span><span class="n">to_numeric</span><span class="p">(</span><span class="n">df</span><span class="p">[</span><span class="s2">"val_loss"</span><span class="p">],</span> <span class="n">errors</span><span class="o">=</span><span class="s2">"coerce"</span><span class="p">)</span>
+<span class="c1"># If multiple rows per epoch exist, keep the last report per epoch</span>
+<span class="k">if</span> <span class="s2">"epoch"</span> <span class="ow">in</span> <span class="n">df</span><span class="o">.</span><span class="n">columns</span><span class="p">:</span>
+    <span class="n">df</span> <span class="o">=</span> <span class="n">df</span><span class="o">.</span><span class="n">sort_index</span><span class="p">()</span><span class="o">.</span><span class="n">groupby</span><span class="p">(</span><span class="s2">"epoch"</span><span class="p">,</span> <span class="n">as_index</span><span class="o">=</span><span class="kc">False</span><span class="p">)</span><span class="o">.</span><span class="n">last</span><span class="p">()</span>
 
 <span class="c1"># Plot</span>
 <span class="n">plt</span><span class="o">.</span><span class="n">figure</span><span class="p">(</span><span class="n">figsize</span><span class="o">=</span><span class="p">(</span><span class="mi">7</span><span class="p">,</span> <span class="mi">4</span><span class="p">))</span>
-<span class="n">plt</span><span class="o">.</span><span class="n">plot</span><span class="p">(</span><span class="n">df</span><span class="p">[</span><span class="s2">"epoch"</span><span class="p">],</span> <span class="n">df</span><span class="p">[</span><span class="s2">"train_loss"</span><span class="p">],</span> <span class="n">marker</span><span class="o">=</span><span class="s2">"o"</span><span class="p">,</span> <span class="n">label</span><span class="o">=</span><span class="s2">"Train"</span><span class="p">)</span>
-<span class="n">plt</span><span class="o">.</span><span class="n">plot</span><span class="p">(</span><span class="n">df</span><span class="p">[</span><span class="s2">"epoch"</span><span class="p">],</span> <span class="n">df</span><span class="p">[</span><span class="s2">"val_loss"</span><span class="p">],</span> <span class="n">marker</span><span class="o">=</span><span class="s2">"o"</span><span class="p">,</span> <span class="n">label</span><span class="o">=</span><span class="s2">"Val"</span><span class="p">)</span>
+<span class="k">if</span> <span class="s2">"train_loss"</span> <span class="ow">in</span> <span class="n">df</span><span class="o">.</span><span class="n">columns</span><span class="p">:</span>
+    <span class="n">plt</span><span class="o">.</span><span class="n">plot</span><span class="p">(</span><span class="n">df</span><span class="p">[</span><span class="s2">"epoch"</span><span class="p">],</span> <span class="n">df</span><span class="p">[</span><span class="s2">"train_loss"</span><span class="p">],</span> <span class="n">marker</span><span class="o">=</span><span class="s2">"o"</span><span class="p">,</span> <span class="n">label</span><span class="o">=</span><span class="s2">"Train"</span><span class="p">)</span>
+<span class="k">if</span> <span class="s2">"val_loss"</span> <span class="ow">in</span> <span class="n">df</span><span class="o">.</span><span class="n">columns</span><span class="p">:</span>
+    <span class="n">plt</span><span class="o">.</span><span class="n">plot</span><span class="p">(</span><span class="n">df</span><span class="p">[</span><span class="s2">"epoch"</span><span class="p">],</span> <span class="n">df</span><span class="p">[</span><span class="s2">"val_loss"</span><span class="p">],</span> <span class="n">marker</span><span class="o">=</span><span class="s2">"o"</span><span class="p">,</span> <span class="n">label</span><span class="o">=</span><span class="s2">"Val"</span><span class="p">)</span>
 <span class="n">plt</span><span class="o">.</span><span class="n">xlabel</span><span class="p">(</span><span class="s2">"Epoch"</span><span class="p">)</span>
 <span class="n">plt</span><span class="o">.</span><span class="n">ylabel</span><span class="p">(</span><span class="s2">"MSE Loss"</span><span class="p">)</span>
 <span class="n">plt</span><span class="o">.</span><span class="n">title</span><span class="p">(</span><span class="s2">"Matrix Factorization - Loss per Epoch"</span><span class="p">)</span>

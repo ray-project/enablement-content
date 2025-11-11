@@ -7517,7 +7517,7 @@ a.anchor-link {
 </div>
 <div class="jp-InputArea jp-Cell-inputArea"><div class="jp-InputPrompt jp-InputArea-prompt">
 </div><div class="jp-RenderedHTMLCommon jp-RenderedMarkdown jp-MarkdownOutput" data-mime-type="text/markdown">
-<h2 id="06-%C2%B7-Custom-Food101Dataset-for-Parquet">06 · Custom <code>Food101Dataset</code> for Parquet<a class="anchor-link" href="#06-%C2%B7-Custom-Food101Dataset-for-Parquet">¶</a></h2><p>To feed data into PyTorch, define a custom <code>Dataset</code>. You cache Parquet metadata, map global indices to specific row groups, and pull only the row you need. Each <code>__getitem__</code> returns an <code>(image, label)</code> pair that's immediately ready for further transforms.</p>
+<h2 id="6.-Custom-Food101Dataset-for-Parquet">6. Custom <code>Food101Dataset</code> for Parquet<a class="anchor-link" href="#6.-Custom-Food101Dataset-for-Parquet">¶</a></h2><p>To feed data into PyTorch, define a custom <code>Dataset</code>. You cache Parquet metadata, map global indices to specific row groups, and pull only the row you need. Each <code>__getitem__</code> returns an <code>(image, label)</code> pair that's immediately ready for further transforms.</p>
 </div>
 </div>
 </div>
@@ -7568,7 +7568,7 @@ a.anchor-link {
 </div>
 <div class="jp-InputArea jp-Cell-inputArea"><div class="jp-InputPrompt jp-InputArea-prompt">
 </div><div class="jp-RenderedHTMLCommon jp-RenderedMarkdown jp-MarkdownOutput" data-mime-type="text/markdown">
-<h3 id="07-%C2%B7-Image-Transform">07 · Image Transform<a class="anchor-link" href="#07-%C2%B7-Image-Transform">¶</a></h3><p>Here you create a transform pipeline: <code>ToTensor()</code> followed by ImageNet mean and standard-deviation normalisation. By applying the transform inside the dataset, you make sure every worker, no matter where it runs, processes images in exactly the same way.</p>
+<h3 id="7.-Image-transform">7. Image transform<a class="anchor-link" href="#7.-Image-transform">¶</a></h3><p>Create a transform pipeline: <code>ToTensor()</code> followed by ImageNet mean and standard-deviation normalisation. By applying the transform inside the dataset, you make sure every worker, no matter where it runs, processes images in exactly the same way.</p>
 </div>
 </div>
 </div>
@@ -7600,7 +7600,7 @@ a.anchor-link {
 </div>
 <div class="jp-InputArea jp-Cell-inputArea"><div class="jp-InputPrompt jp-InputArea-prompt">
 </div><div class="jp-RenderedHTMLCommon jp-RenderedMarkdown jp-MarkdownOutput" data-mime-type="text/markdown">
-<h3 id="08-%C2%B7-Train%E2%80%93Validation-Split">08 · Train–Validation Split<a class="anchor-link" href="#08-%C2%B7-Train%E2%80%93Validation-Split">¶</a></h3><p>Shuffle the full Parquet table once (seeded for reproducibility) and then slice off the last 500 rows to construct the validation set. Write the train and validation partitions to their own Parquet files so you can load them independently later.</p>
+<h3 id="8.-Train/validation-split">8. Train/validation split<a class="anchor-link" href="#8.-Train/validation-split">¶</a></h3><p>Shuffle the full Parquet table once (seeded for reproducibility) and then slice off the last 500 rows to construct the validation set. Write the train and validation partitions to their own Parquet files so you can load them independently later.</p>
 </div>
 </div>
 </div>
@@ -7635,7 +7635,7 @@ a.anchor-link {
 </div>
 <div class="jp-InputArea jp-Cell-inputArea"><div class="jp-InputPrompt jp-InputArea-prompt">
 </div><div class="jp-RenderedHTMLCommon jp-RenderedMarkdown jp-MarkdownOutput" data-mime-type="text/markdown">
-<h3 id="09-%C2%B7-Inspect-a-DataLoader-Batch">09 · Inspect a DataLoader Batch<a class="anchor-link" href="#09-%C2%B7-Inspect-a-DataLoader-Batch">¶</a></h3><p>Before you scale out, build a regular single-process <code>DataLoader</code>, pull one batch, and print its shape. This tiny test reassures you that batching, multiprocessing, and transforms work correctly.</p>
+<h3 id="9.-Inspect-a-DataLoader-batch">9. Inspect a DataLoader batch<a class="anchor-link" href="#9.-Inspect-a-DataLoader-batch">¶</a></h3><p>Before you scale out, build a regular single-process <code>DataLoader</code>, pull one batch, and print its shape. This tiny test reassures you that batching, multiprocessing, and transforms work correctly.</p>
 </div>
 </div>
 </div>

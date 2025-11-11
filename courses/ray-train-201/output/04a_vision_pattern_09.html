@@ -7517,7 +7517,9 @@ a.anchor-link {
 </div>
 <div class="jp-InputArea jp-Cell-inputArea"><div class="jp-InputPrompt jp-InputArea-prompt">
 </div><div class="jp-RenderedHTMLCommon jp-RenderedMarkdown jp-MarkdownOutput" data-mime-type="text/markdown">
-<h2 id="15-%C2%B7-Remote-Inference-Helper">15 · Remote Inference Helper<a class="anchor-link" href="#15-%C2%B7-Remote-Inference-Helper">¶</a></h2><p>Define a lightweight Ray remote function that loads a chosen checkpoint into a fresh <code>resnet18</code>, runs inference on one image, and returns both the predicted and true labels. Because the function requests one GPU, Ray schedules it on an appropriate node.</p>
+<h2 id="15.-Batch-inference-with-Ray-Data">15. Batch inference with Ray Data<a class="anchor-link" href="#15.-Batch-inference-with-Ray-Data">¶</a></h2><p>Define a <strong>stateful, GPU-backed batch inference pipeline</strong> using Ray Data.<br/>
+Each actor loads the model <strong>once per GPU</strong>, keeps it in memory, and performs inference on incoming batches in parallel.<br/>
+This pattern scales efficiently across multiple GPUs and avoids redundant model loading for every prediction.</p>
 </div>
 </div>
 </div>
@@ -7529,41 +7531,74 @@ a.anchor-link {
 <div class="jp-InputPrompt jp-InputArea-prompt">In [ ]:</div>
 <div class="jp-CodeMirrorEditor jp-Editor jp-InputArea-editor" data-type="inline">
 <div class="cm-editor cm-s-jupyter">
-<div class="highlight hl-ipython3"><pre><span></span><span class="c1"># 15. Define batch inference function</span>
+<div class="highlight hl-ipython3"><pre><span></span><span class="c1"># 15. Batch inference with Ray Data (force GPU actors if available on the cluster)</span>
 
-<span class="nd">@ray</span><span class="o">.</span><span class="n">remote</span><span class="p">(</span><span class="n">num_gpus</span><span class="o">=</span><span class="mi">1</span><span class="p">)</span>
-<span class="k">def</span><span class="w"> </span><span class="nf">run_inference_from_checkpoint</span><span class="p">(</span><span class="n">checkpoint_path</span><span class="p">,</span> <span class="n">parquet_path</span><span class="p">,</span> <span class="n">idx</span><span class="o">=</span><span class="mi">0</span><span class="p">):</span>
+<span class="kn">import</span><span class="w"> </span><span class="nn">ray.data</span><span class="w"> </span><span class="k">as</span><span class="w"> </span><span class="nn">rdata</span>
 
-    <span class="c1"># === Load model ===</span>
-    <span class="n">model</span> <span class="o">=</span> <span class="n">resnet18</span><span class="p">(</span><span class="n">num_classes</span><span class="o">=</span><span class="mi">101</span><span class="p">)</span>
-    <span class="n">checkpoint</span> <span class="o">=</span> <span class="n">Checkpoint</span><span class="o">.</span><span class="n">from_directory</span><span class="p">(</span><span class="n">checkpoint_path</span><span class="p">)</span>
+<span class="k">class</span><span class="w"> </span><span class="nc">ImageBatchPredictor</span><span class="p">:</span>
+<span class="w">    </span><span class="sd">"""Stateful per-actor batch predictor that keeps the model in memory."""</span>
+    <span class="k">def</span><span class="w"> </span><span class="fm">__init__</span><span class="p">(</span><span class="bp">self</span><span class="p">,</span> <span class="n">checkpoint_path</span><span class="p">:</span> <span class="nb">str</span><span class="p">):</span>
+        <span class="c1"># Pick the best available device on the ACTOR (worker), not the driver.</span>
+        <span class="bp">self</span><span class="o">.</span><span class="n">device</span> <span class="o">=</span> <span class="n">torch</span><span class="o">.</span><span class="n">device</span><span class="p">(</span><span class="s2">"cuda"</span> <span class="k">if</span> <span class="n">torch</span><span class="o">.</span><span class="n">cuda</span><span class="o">.</span><span class="n">is_available</span><span class="p">()</span> <span class="k">else</span> <span class="s2">"cpu"</span><span class="p">)</span>
 
-    <span class="k">with</span> <span class="n">checkpoint</span><span class="o">.</span><span class="n">as_directory</span><span class="p">()</span> <span class="k">as</span> <span class="n">ckpt_dir</span><span class="p">:</span>
-        <span class="n">state_dict</span> <span class="o">=</span> <span class="n">torch</span><span class="o">.</span><span class="n">load</span><span class="p">(</span><span class="n">os</span><span class="o">.</span><span class="n">path</span><span class="o">.</span><span class="n">join</span><span class="p">(</span><span class="n">ckpt_dir</span><span class="p">,</span> <span class="s2">"model.pt"</span><span class="p">),</span> <span class="n">map_location</span><span class="o">=</span><span class="s2">"cuda"</span><span class="p">)</span>
+        <span class="c1"># === Load model &amp; weights once per actor ===</span>
+        <span class="n">model</span> <span class="o">=</span> <span class="n">resnet18</span><span class="p">(</span><span class="n">num_classes</span><span class="o">=</span><span class="mi">101</span><span class="p">)</span>
+        <span class="n">checkpoint</span> <span class="o">=</span> <span class="n">Checkpoint</span><span class="o">.</span><span class="n">from_directory</span><span class="p">(</span><span class="n">checkpoint_path</span><span class="p">)</span>
+        <span class="k">with</span> <span class="n">checkpoint</span><span class="o">.</span><span class="n">as_directory</span><span class="p">()</span> <span class="k">as</span> <span class="n">ckpt_dir</span><span class="p">:</span>
+            <span class="n">state_dict</span> <span class="o">=</span> <span class="n">torch</span><span class="o">.</span><span class="n">load</span><span class="p">(</span>
+                <span class="n">os</span><span class="o">.</span><span class="n">path</span><span class="o">.</span><span class="n">join</span><span class="p">(</span><span class="n">ckpt_dir</span><span class="p">,</span> <span class="s2">"model.pt"</span><span class="p">),</span>
+                <span class="n">map_location</span><span class="o">=</span><span class="bp">self</span><span class="o">.</span><span class="n">device</span><span class="p">,</span>
+            <span class="p">)</span>
+            <span class="c1"># Strip DDP "module." prefix if present</span>
+            <span class="n">state_dict</span> <span class="o">=</span> <span class="p">{</span><span class="n">k</span><span class="o">.</span><span class="n">replace</span><span class="p">(</span><span class="s2">"module."</span><span class="p">,</span> <span class="s2">""</span><span class="p">,</span> <span class="mi">1</span><span class="p">):</span> <span class="n">v</span> <span class="k">for</span> <span class="n">k</span><span class="p">,</span> <span class="n">v</span> <span class="ow">in</span> <span class="n">state_dict</span><span class="o">.</span><span class="n">items</span><span class="p">()}</span>
+            <span class="n">model</span><span class="o">.</span><span class="n">load_state_dict</span><span class="p">(</span><span class="n">state_dict</span><span class="p">)</span>
 
-        <span class="c1"># Strip "module." prefix from distributed data parallelism trained weights</span>
-        <span class="n">state_dict</span> <span class="o">=</span> <span class="p">{</span><span class="n">k</span><span class="o">.</span><span class="n">replace</span><span class="p">(</span><span class="s2">"module."</span><span class="p">,</span> <span class="s2">""</span><span class="p">,</span> <span class="mi">1</span><span class="p">):</span> <span class="n">v</span> <span class="k">for</span> <span class="n">k</span><span class="p">,</span> <span class="n">v</span> <span class="ow">in</span> <span class="n">state_dict</span><span class="o">.</span><span class="n">items</span><span class="p">()}</span>
+        <span class="bp">self</span><span class="o">.</span><span class="n">model</span> <span class="o">=</span> <span class="n">model</span><span class="o">.</span><span class="n">eval</span><span class="p">()</span><span class="o">.</span><span class="n">to</span><span class="p">(</span><span class="bp">self</span><span class="o">.</span><span class="n">device</span><span class="p">)</span>
+        <span class="bp">self</span><span class="o">.</span><span class="n">transform</span> <span class="o">=</span> <span class="n">T</span><span class="o">.</span><span class="n">Compose</span><span class="p">([</span>
+            <span class="n">T</span><span class="o">.</span><span class="n">ToTensor</span><span class="p">(),</span>
+            <span class="n">T</span><span class="o">.</span><span class="n">Normalize</span><span class="p">(</span><span class="n">mean</span><span class="o">=</span><span class="n">IMAGENET_MEAN</span><span class="p">,</span> <span class="n">std</span><span class="o">=</span><span class="n">IMAGENET_STD</span><span class="p">),</span>
+        <span class="p">])</span>
+        <span class="n">torch</span><span class="o">.</span><span class="n">set_grad_enabled</span><span class="p">(</span><span class="kc">False</span><span class="p">)</span>
 
-        <span class="n">model</span><span class="o">.</span><span class="n">load_state_dict</span><span class="p">(</span><span class="n">state_dict</span><span class="p">)</span>
+    <span class="k">def</span><span class="w"> </span><span class="fm">__call__</span><span class="p">(</span><span class="bp">self</span><span class="p">,</span> <span class="n">batch</span><span class="p">):</span>
+<span class="w">        </span><span class="sd">"""batch: Pandas DataFrame with columns ['image_bytes', 'label']"""</span>
+        <span class="n">imgs</span> <span class="o">=</span> <span class="p">[]</span>
+        <span class="k">for</span> <span class="n">b</span> <span class="ow">in</span> <span class="n">batch</span><span class="p">[</span><span class="s2">"image_bytes"</span><span class="p">]:</span>
+            <span class="n">img</span> <span class="o">=</span> <span class="n">Image</span><span class="o">.</span><span class="n">open</span><span class="p">(</span><span class="n">io</span><span class="o">.</span><span class="n">BytesIO</span><span class="p">(</span><span class="n">b</span><span class="p">))</span><span class="o">.</span><span class="n">convert</span><span class="p">(</span><span class="s2">"RGB"</span><span class="p">)</span>
+            <span class="n">imgs</span><span class="o">.</span><span class="n">append</span><span class="p">(</span><span class="bp">self</span><span class="o">.</span><span class="n">transform</span><span class="p">(</span><span class="n">img</span><span class="p">)</span><span class="o">.</span><span class="n">numpy</span><span class="p">())</span>  <span class="c1"># (C,H,W) as numpy</span>
+        <span class="n">x</span> <span class="o">=</span> <span class="n">torch</span><span class="o">.</span><span class="n">from_numpy</span><span class="p">(</span><span class="n">np</span><span class="o">.</span><span class="n">stack</span><span class="p">(</span><span class="n">imgs</span><span class="p">,</span> <span class="n">axis</span><span class="o">=</span><span class="mi">0</span><span class="p">))</span><span class="o">.</span><span class="n">to</span><span class="p">(</span><span class="bp">self</span><span class="o">.</span><span class="n">device</span><span class="p">)</span>  <span class="c1"># (N,C,H,W)</span>
 
-    <span class="n">model</span><span class="o">.</span><span class="n">eval</span><span class="p">()</span><span class="o">.</span><span class="n">cuda</span><span class="p">()</span>
+        <span class="n">logits</span> <span class="o">=</span> <span class="bp">self</span><span class="o">.</span><span class="n">model</span><span class="p">(</span><span class="n">x</span><span class="p">)</span>
+        <span class="n">preds</span> <span class="o">=</span> <span class="n">torch</span><span class="o">.</span><span class="n">argmax</span><span class="p">(</span><span class="n">logits</span><span class="p">,</span> <span class="n">dim</span><span class="o">=</span><span class="mi">1</span><span class="p">)</span><span class="o">.</span><span class="n">cpu</span><span class="p">()</span><span class="o">.</span><span class="n">numpy</span><span class="p">()</span>
 
-    <span class="c1"># === Define transform ===</span>
-    <span class="n">transform</span> <span class="o">=</span> <span class="n">T</span><span class="o">.</span><span class="n">Compose</span><span class="p">([</span>
-        <span class="n">T</span><span class="o">.</span><span class="n">ToTensor</span><span class="p">(),</span>
-        <span class="n">T</span><span class="o">.</span><span class="n">Normalize</span><span class="p">(</span><span class="n">mean</span><span class="o">=</span><span class="n">IMAGENET_MEAN</span><span class="p">,</span> <span class="n">std</span><span class="o">=</span><span class="n">IMAGENET_STD</span><span class="p">),</span>
-    <span class="p">])</span>
+        <span class="n">out</span> <span class="o">=</span> <span class="n">batch</span><span class="o">.</span><span class="n">copy</span><span class="p">()</span>
+        <span class="n">out</span><span class="p">[</span><span class="s2">"predicted_label"</span><span class="p">]</span> <span class="o">=</span> <span class="n">preds</span><span class="o">.</span><span class="n">astype</span><span class="p">(</span><span class="nb">int</span><span class="p">)</span>
+        <span class="k">return</span> <span class="n">out</span><span class="p">[[</span><span class="s2">"predicted_label"</span><span class="p">,</span> <span class="s2">"label"</span><span class="p">]]</span>
 
-    <span class="c1"># === Load dataset ===</span>
-    <span class="n">dataset</span> <span class="o">=</span> <span class="n">Food101Dataset</span><span class="p">(</span><span class="n">parquet_path</span><span class="p">,</span> <span class="n">transform</span><span class="o">=</span><span class="n">transform</span><span class="p">)</span>
-    <span class="n">img</span><span class="p">,</span> <span class="n">label</span> <span class="o">=</span> <span class="n">dataset</span><span class="p">[</span><span class="n">idx</span><span class="p">]</span>
-    <span class="n">img</span> <span class="o">=</span> <span class="n">img</span><span class="o">.</span><span class="n">unsqueeze</span><span class="p">(</span><span class="mi">0</span><span class="p">)</span><span class="o">.</span><span class="n">cuda</span><span class="p">()</span>  <span class="c1"># batch size 1</span>
+<span class="k">def</span><span class="w"> </span><span class="nf">build_inference_dataset</span><span class="p">(</span>
+    <span class="n">checkpoint_path</span><span class="p">:</span> <span class="nb">str</span><span class="p">,</span>
+    <span class="n">parquet_path</span><span class="p">:</span> <span class="nb">str</span><span class="p">,</span>
+    <span class="o">*</span><span class="p">,</span>
+    <span class="n">num_actors</span><span class="p">:</span> <span class="nb">int</span> <span class="o">=</span> <span class="mi">1</span><span class="p">,</span>
+    <span class="n">batch_size</span><span class="p">:</span> <span class="nb">int</span> <span class="o">=</span> <span class="mi">64</span><span class="p">,</span>
+    <span class="n">use_gpu_actors</span><span class="p">:</span> <span class="nb">bool</span> <span class="o">=</span> <span class="kc">True</span><span class="p">,</span>   <span class="c1"># &lt;— default to GPU actors on the cluster</span>
+<span class="p">):</span>
+<span class="w">    </span><span class="sd">"""</span>
+<span class="sd">    Create a Ray Dataset pipeline that performs batch inference using</span>
+<span class="sd">    stateful per-actor model loading. By default, requests 1 GPU per actor</span>
+<span class="sd">    so each actor runs on a GPU worker (driver may have no GPU).</span>
+<span class="sd">    """</span>
+    <span class="n">ds</span> <span class="o">=</span> <span class="n">rdata</span><span class="o">.</span><span class="n">read_parquet</span><span class="p">(</span><span class="n">parquet_path</span><span class="p">,</span> <span class="n">columns</span><span class="o">=</span><span class="p">[</span><span class="s2">"image_bytes"</span><span class="p">,</span> <span class="s2">"label"</span><span class="p">])</span>
 
-    <span class="k">with</span> <span class="n">torch</span><span class="o">.</span><span class="n">no_grad</span><span class="p">():</span>
-        <span class="n">logits</span> <span class="o">=</span> <span class="n">model</span><span class="p">(</span><span class="n">img</span><span class="p">)</span>
-        <span class="n">pred</span> <span class="o">=</span> <span class="n">torch</span><span class="o">.</span><span class="n">argmax</span><span class="p">(</span><span class="n">logits</span><span class="p">,</span> <span class="n">dim</span><span class="o">=</span><span class="mi">1</span><span class="p">)</span><span class="o">.</span><span class="n">item</span><span class="p">()</span>
-
-    <span class="k">return</span> <span class="p">{</span><span class="s2">"predicted_label"</span><span class="p">:</span> <span class="n">pred</span><span class="p">,</span> <span class="s2">"true_label"</span><span class="p">:</span> <span class="nb">int</span><span class="p">(</span><span class="n">label</span><span class="p">),</span> <span class="s2">"index"</span><span class="p">:</span> <span class="n">idx</span><span class="p">}</span>
+    <span class="n">pred_ds</span> <span class="o">=</span> <span class="n">ds</span><span class="o">.</span><span class="n">map_batches</span><span class="p">(</span>
+        <span class="n">ImageBatchPredictor</span><span class="p">,</span>                     <span class="c1"># pass the CLASS (stateful actors)</span>
+        <span class="n">fn_constructor_args</span><span class="o">=</span><span class="p">(</span><span class="n">checkpoint_path</span><span class="p">,),</span>  <span class="c1"># ctor args for each actor</span>
+        <span class="n">batch_size</span><span class="o">=</span><span class="n">batch_size</span><span class="p">,</span>
+        <span class="n">batch_format</span><span class="o">=</span><span class="s2">"pandas"</span><span class="p">,</span>
+        <span class="n">concurrency</span><span class="o">=</span><span class="n">num_actors</span><span class="p">,</span>                  <span class="c1"># number of actor workers</span>
+        <span class="n">num_gpus</span><span class="o">=</span><span class="mi">1</span> <span class="k">if</span> <span class="n">use_gpu_actors</span> <span class="k">else</span> <span class="mi">0</span><span class="p">,</span>     <span class="c1"># &lt;— force GPU placement on workers</span>
+    <span class="p">)</span>
+    <span class="k">return</span> <span class="n">pred_ds</span>
 </pre></div>
 </div>
 </div>
@@ -7576,7 +7611,8 @@ a.anchor-link {
 </div>
 <div class="jp-InputArea jp-Cell-inputArea"><div class="jp-InputPrompt jp-InputArea-prompt">
 </div><div class="jp-RenderedHTMLCommon jp-RenderedMarkdown jp-MarkdownOutput" data-mime-type="text/markdown">
-<h3 id="16-%C2%B7-Run-and-Visualise-Inference">16 · Run and Visualise Inference<a class="anchor-link" href="#16-%C2%B7-Run-and-Visualise-Inference">¶</a></h3><p>Using the checkpoint with the lowest validation loss, invoke your remote inference helper on a validation image. Then plot the image while displaying both the model’s prediction and the ground-truth class, giving you an immediate, intuitive sense of performance.</p>
+<h3 id="16.-Run-and-visualize-Ray-Data-inference">16. Run and visualize Ray Data inference<a class="anchor-link" href="#16.-Run-and-visualize-Ray-Data-inference">¶</a></h3><p>Use the best checkpoint to run <strong>Ray Data Inference</strong> on a validation sample.<br/>
+The model loads once per GPU actor, predictions are batched and parallelized, and the result is visualized alongside the ground-truth label for quick qualitative evaluation.</p>
 </div>
 </div>
 </div>
@@ -7588,8 +7624,8 @@ a.anchor-link {
 <div class="jp-InputPrompt jp-InputArea-prompt">In [ ]:</div>
 <div class="jp-CodeMirrorEditor jp-Editor jp-InputArea-editor" data-type="inline">
 <div class="cm-editor cm-s-jupyter">
-<div class="highlight hl-ipython3"><pre><span></span><span class="c1"># 16. Perform inference with best trained model (i.e. lowest validation loss for a checkpointed model)</span>
- 
+<div class="highlight hl-ipython3"><pre><span></span><span class="c1"># 16. Perform inference with Ray Data using the best checkpoint</span>
+
 <span class="n">checkpoint_root</span> <span class="o">=</span> <span class="s2">"/mnt/cluster_storage/food101_lite/results/food101_ft_resume"</span>
 
 <span class="n">checkpoint_dirs</span> <span class="o">=</span> <span class="nb">sorted</span><span class="p">(</span>
@@ -7603,30 +7639,44 @@ a.anchor-link {
 <span class="k">if</span> <span class="ow">not</span> <span class="n">checkpoint_dirs</span><span class="p">:</span>
     <span class="k">raise</span> <span class="ne">FileNotFoundError</span><span class="p">(</span><span class="s2">"No checkpoint directories found."</span><span class="p">)</span>
 
+<span class="c1"># Use the best checkpoint from the training result</span>
 <span class="k">with</span> <span class="n">result</span><span class="o">.</span><span class="n">checkpoint</span><span class="o">.</span><span class="n">as_directory</span><span class="p">()</span> <span class="k">as</span> <span class="n">ckpt_dir</span><span class="p">:</span>
     <span class="nb">print</span><span class="p">(</span><span class="s2">"Best checkpoint contents:"</span><span class="p">,</span> <span class="n">os</span><span class="o">.</span><span class="n">listdir</span><span class="p">(</span><span class="n">ckpt_dir</span><span class="p">))</span>
-    <span class="n">best_ckpt_path</span> <span class="o">=</span> <span class="n">ckpt_dir</span> 
+    <span class="n">best_ckpt_path</span> <span class="o">=</span> <span class="n">ckpt_dir</span>
+
 <span class="n">parquet_path</span> <span class="o">=</span> <span class="s2">"/mnt/cluster_storage/food101_lite/val.parquet"</span>
 
-<span class="c1"># Define which image to use</span>
+<span class="c1"># Which item to visualize</span>
 <span class="n">idx</span> <span class="o">=</span> <span class="mi">2</span>
 
-<span class="c1"># Launch GPU inference task with Ray</span>
-<span class="n">result</span> <span class="o">=</span> <span class="n">ray</span><span class="o">.</span><span class="n">get</span><span class="p">(</span><span class="n">run_inference_from_checkpoint</span><span class="o">.</span><span class="n">remote</span><span class="p">(</span><span class="n">best_ckpt_path</span><span class="p">,</span> <span class="n">parquet_path</span><span class="p">,</span> <span class="n">idx</span><span class="o">=</span><span class="n">idx</span><span class="p">))</span>
-<span class="nb">print</span><span class="p">(</span><span class="n">result</span><span class="p">)</span>
+<span class="c1"># Build a Ray Data inference pipeline (model is loaded once per GPU actor)</span>
+<span class="n">pred_ds</span> <span class="o">=</span> <span class="n">build_inference_dataset</span><span class="p">(</span>
+    <span class="n">checkpoint_path</span><span class="o">=</span><span class="n">best_ckpt_path</span><span class="p">,</span>
+    <span class="n">parquet_path</span><span class="o">=</span><span class="n">parquet_path</span><span class="p">,</span>
+    <span class="n">num_actors</span><span class="o">=</span><span class="mi">1</span><span class="p">,</span>       <span class="c1"># adjust to scale out</span>
+    <span class="n">batch_size</span><span class="o">=</span><span class="mi">64</span><span class="p">,</span>      <span class="c1"># adjust for throughput</span>
+<span class="p">)</span>
 
-<span class="c1"># Load label map from Hugging Face</span>
-<span class="n">ds</span> <span class="o">=</span> <span class="n">load_dataset</span><span class="p">(</span><span class="s2">"food101"</span><span class="p">,</span> <span class="n">split</span><span class="o">=</span><span class="s2">"train[:1%]"</span><span class="p">)</span>  <span class="c1"># load just to get label names</span>
-<span class="n">label_names</span> <span class="o">=</span> <span class="n">ds</span><span class="o">.</span><span class="n">features</span><span class="p">[</span><span class="s2">"label"</span><span class="p">]</span><span class="o">.</span><span class="n">names</span>
+<span class="c1"># Materialize predictions up to the desired index and grab the row</span>
+<span class="n">pred_rows</span> <span class="o">=</span> <span class="n">pred_ds</span><span class="o">.</span><span class="n">take</span><span class="p">(</span><span class="n">idx</span> <span class="o">+</span> <span class="mi">1</span><span class="p">)</span>
+<span class="n">inference_row</span> <span class="o">=</span> <span class="n">pred_rows</span><span class="p">[</span><span class="o">-</span><span class="mi">1</span><span class="p">]</span>  <span class="c1"># {"predicted_label": ..., "label": ...}</span>
+<span class="nb">print</span><span class="p">(</span><span class="n">inference_row</span><span class="p">)</span>
 
-<span class="c1"># Load image from the same dataset locally</span>
-<span class="n">dataset</span> <span class="o">=</span> <span class="n">Food101Dataset</span><span class="p">(</span><span class="n">parquet_path</span><span class="p">,</span> <span class="n">transform</span><span class="o">=</span><span class="kc">None</span><span class="p">)</span>  <span class="c1"># No transform = raw image</span>
+<span class="c1"># Load label map from Hugging Face (for pretty titles)</span>
+<span class="n">ds_tmp</span> <span class="o">=</span> <span class="n">load_dataset</span><span class="p">(</span><span class="s2">"food101"</span><span class="p">,</span> <span class="n">split</span><span class="o">=</span><span class="s2">"train[:1%]"</span><span class="p">)</span>  <span class="c1"># just to get label names</span>
+<span class="n">label_names</span> <span class="o">=</span> <span class="n">ds_tmp</span><span class="o">.</span><span class="n">features</span><span class="p">[</span><span class="s2">"label"</span><span class="p">]</span><span class="o">.</span><span class="n">names</span>
+
+<span class="c1"># Load the raw image locally for visualization</span>
+<span class="n">dataset</span> <span class="o">=</span> <span class="n">Food101Dataset</span><span class="p">(</span><span class="n">parquet_path</span><span class="p">,</span> <span class="n">transform</span><span class="o">=</span><span class="kc">None</span><span class="p">)</span>
 <span class="n">img</span><span class="p">,</span> <span class="n">_</span> <span class="o">=</span> <span class="n">dataset</span><span class="p">[</span><span class="n">idx</span><span class="p">]</span>
 
 <span class="c1"># Plot the image with predicted and true labels</span>
 <span class="n">plt</span><span class="o">.</span><span class="n">imshow</span><span class="p">(</span><span class="n">img</span><span class="p">)</span>
 <span class="n">plt</span><span class="o">.</span><span class="n">axis</span><span class="p">(</span><span class="s2">"off"</span><span class="p">)</span>
-<span class="n">plt</span><span class="o">.</span><span class="n">title</span><span class="p">(</span><span class="sa">f</span><span class="s2">"Pred: </span><span class="si">{</span><span class="n">label_names</span><span class="p">[</span><span class="n">result</span><span class="p">[</span><span class="s1">'predicted_label'</span><span class="p">]]</span><span class="si">}</span><span class="se">\n</span><span class="s2">True: </span><span class="si">{</span><span class="n">label_names</span><span class="p">[</span><span class="n">result</span><span class="p">[</span><span class="s1">'true_label'</span><span class="p">]]</span><span class="si">}</span><span class="s2">"</span><span class="p">)</span>
+<span class="n">plt</span><span class="o">.</span><span class="n">title</span><span class="p">(</span>
+    <span class="sa">f</span><span class="s2">"Pred: </span><span class="si">{</span><span class="n">label_names</span><span class="p">[</span><span class="nb">int</span><span class="p">(</span><span class="n">inference_row</span><span class="p">[</span><span class="s1">'predicted_label'</span><span class="p">])]</span><span class="si">}</span><span class="se">\n</span><span class="s2">"</span>
+    <span class="sa">f</span><span class="s2">"True: </span><span class="si">{</span><span class="n">label_names</span><span class="p">[</span><span class="nb">int</span><span class="p">(</span><span class="n">inference_row</span><span class="p">[</span><span class="s1">'label'</span><span class="p">])]</span><span class="si">}</span><span class="s2">"</span>
+<span class="p">)</span>
 <span class="n">plt</span><span class="o">.</span><span class="n">show</span><span class="p">()</span>
 </pre></div>
 </div>
@@ -7640,7 +7690,7 @@ a.anchor-link {
 </div>
 <div class="jp-InputArea jp-Cell-inputArea"><div class="jp-InputPrompt jp-InputArea-prompt">
 </div><div class="jp-RenderedHTMLCommon jp-RenderedMarkdown jp-MarkdownOutput" data-mime-type="text/markdown">
-<h3 id="17-%C2%B7-Cleanup">17 · Cleanup<a class="anchor-link" href="#17-%C2%B7-Cleanup">¶</a></h3><p>Finally, tidy up by deleting temporary checkpoint folders, the metrics CSV, and any intermediate result directories. Clearing out old artefacts frees disk space and leaves your workspace clean for whatever comes next.</p>
+<h3 id="17.-Clean-up">17. Clean up<a class="anchor-link" href="#17.-Clean-up">¶</a></h3><p>Finally, tidy up by deleting temporary checkpoint folders, the metrics CSV, and any intermediate result directories. Clearing out old artifacts frees disk space and leaves your workspace clean for whatever comes next.</p>
 </div>
 </div>
 </div>
@@ -7689,61 +7739,61 @@ a.anchor-link {
 </div>
 <div class="jp-InputArea jp-Cell-inputArea"><div class="jp-InputPrompt jp-InputArea-prompt">
 </div><div class="jp-RenderedHTMLCommon jp-RenderedMarkdown jp-MarkdownOutput" data-mime-type="text/markdown">
-<h3 id="%F0%9F%8E%89-Wrapping-Up-&amp;-Next-Steps">🎉 Wrapping Up &amp; Next Steps<a class="anchor-link" href="#%F0%9F%8E%89-Wrapping-Up-&amp;-Next-Steps">¶</a></h3><p>Great job making it to the end. You've taken a realistic computer-vision workload, from raw images all the way to distributed training and GPU inference, and run it on Ray Train with zero boilerplate around GPUs, data parallelism, or fault-tolerance. You should now feel comfortable:</p>
+<h3 id="Wrap-up-and-next-steps">Wrap up and next steps<a class="anchor-link" href="#Wrap-up-and-next-steps">¶</a></h3><p>You've taken a realistic computer-vision workload, from raw images all the way to distributed training and GPU inference, and run it on Ray Train with zero boilerplate around GPUs, data parallelism, or fault-tolerance. You should now feel comfortable:</p>
 <ul>
 <li>Using <strong>Ray Train’s TorchTrainer</strong> to scale PyTorch training across multiple GPUs and nodes with minimal code changes</li>
 <li>Wrapping models and data loaders with <strong><code>prepare_model()</code></strong> and <strong><code>prepare_data_loader()</code></strong> to enable Ray-managed device placement and distributed execution</li>
-<li>Sharding data across workers using <strong><code>DistributedSampler</code></strong>, and coordinating training epochs across Ray workers</li>
+<li>Sharding data across workers using and coordinating training epochs across Ray workers</li>
 <li>Configuring <strong>automatic checkpointing and failure recovery</strong> using Ray Train’s built-in <code>Checkpoint</code>, <code>RunConfig</code>, and <code>FailureConfig</code> APIs</li>
-<li>Running <strong>GPU-backed Ray tasks</strong> for distributed inference, showing how to serve and scale model predictions across a Ray cluster</li>
+<li>Running <strong>Ray Data based Inference</strong> for distributed inference, showing how to serve and scale model predictions across a Ray cluster</li>
 </ul>
 <hr/>
-<h3 id="%F0%9F%9A%80-Where-can-you-take-this-next?">🚀 Where can you take this next?<a class="anchor-link" href="#%F0%9F%9A%80-Where-can-you-take-this-next?">¶</a></h3><p>Below are a few directions you might explore to adapt or extend the pattern:</p>
+<h3 id="Where-can-you-take-this-next?">Where can you take this next?<a class="anchor-link" href="#Where-can-you-take-this-next?">¶</a></h3><p>Below are a few directions you might explore to adapt or extend the pattern:</p>
 <ol>
-<li><p><strong>Larger or Custom Datasets</strong></p>
+<li><p><strong>Larger or custom datasets</strong></p>
 <ul>
 <li>Swap in the full 75 k-image Food-101 split—or your own dataset in any storage backend (S3, GCS, Azure Blob).</li>
 <li>Add multi-file Parquet sharding and let each worker read a different shard.</li>
 </ul>
 </li>
-<li><p><strong>Model Architectures</strong></p>
+<li><p><strong>Model architectures</strong></p>
 <ul>
 <li>Drop in Vision Transformers (<code>vit_b_16</code>, <code>vit_l_32</code>) or ConvNeXt; the prepare helpers work exactly the same.</li>
-<li>Experiment with transfer learning vs. training from scratch.</li>
+<li>Experiment with transfer learning versus training from scratch.</li>
 </ul>
 </li>
-<li><p><strong>Mixed Precision &amp; Performance Tuning</strong></p>
+<li><p><strong>Mixed precision and performance tuning</strong></p>
 <ul>
 <li>Enable automatic mixed precision (<code>torch.cuda.amp</code>) or bfloat16 to speed up training and save memory.</li>
 <li>Profile data-loading throughput and play with <code>num_workers</code>, prefetching, and caching.</li>
 </ul>
 </li>
-<li><p><strong>Hyperparameter Sweeps</strong></p>
+<li><p><strong>Hyperparameter sweeps</strong></p>
 <ul>
-<li>Wrap the training loop in <strong>Ray Tune</strong> to search over learning rates, augmentations, or optimisers.</li>
+<li>Wrap the training loop in <strong>Ray Tune</strong> to search over learning rates, augmentations, or optimizers.</li>
 <li>Use Ray’s integrated reporting to schedule early stopping.</li>
 </ul>
 </li>
-<li><p><strong>Data Augmentation Pipelines</strong></p>
+<li><p><strong>Data augmentation pipelines</strong></p>
 <ul>
 <li>Integrate additional transforms inside the dataset class for image augmentation.</li>
-<li>Compare CPU vs. GPU-side augmentations for throughput.</li>
+<li>Compare CPU versus GPU-side augmentations for throughput.</li>
 </ul>
 </li>
-<li><p><strong>Distributed Validation &amp; Metrics</strong></p>
+<li><p><strong>Distributed validation and metrics</strong></p>
 <ul>
 <li>Replace your simple accuracy printout with more advanced metrics (F1, top-5 accuracy, confusion matrices).</li>
 </ul>
 </li>
-<li><p><strong>Model Serving</strong></p>
+<li><p><strong>Model serving</strong></p>
 <ul>
 <li>Convert the remote inference helper into a <strong>Ray Serve</strong> deployment for low-latency online predictions.</li>
 <li>Auto-scale replicas based on request volume.</li>
 </ul>
 </li>
-<li><p><strong>End-to-End MLOps</strong></p>
+<li><p><strong>End-to-end MLOps</strong></p>
 <ul>
-<li>Register checkpoints in a model registry (For example, MLflow, Weights &amp; Biases, or Ray’s built-in MLflow integration).</li>
+<li>Register checkpoints in a model registry (for example, MLflow, Weights &amp; Biases, or Ray’s built-in MLflow integration).</li>
 <li>Schedule the notebook as a Ray Job or CI/CD pipeline for regular retraining runs.</li>
 </ul>
 </li>

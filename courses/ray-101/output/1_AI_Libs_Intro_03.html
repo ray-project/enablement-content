@@ -7607,6 +7607,761 @@ a.anchor-link {
 </div>
 </div>
 </div>
+<div class="jp-Cell jp-MarkdownCell jp-Notebook-cell">
+<div class="jp-Cell-inputWrapper" tabindex="0">
+<div class="jp-Collapser jp-InputCollapser jp-Cell-inputCollapser">
+</div>
+<div class="jp-InputArea jp-Cell-inputArea"><div class="jp-InputPrompt jp-InputArea-prompt">
+</div><div class="jp-RenderedHTMLCommon jp-RenderedMarkdown jp-MarkdownOutput" data-mime-type="text/markdown">
+<h3 id="3.-Running-an-experiment-with-Ray-AI-libraries">3. Running an experiment with Ray AI libraries<a class="anchor-link" href="#3.-Running-an-experiment-with-Ray-AI-libraries">¶</a></h3><h3 id="Steps-to-run:">Steps to run:<a class="anchor-link" href="#Steps-to-run:">¶</a></h3><ul>
+<li>Read the dataset with Ray Data</li>
+<li>Split into train and test data</li>
+<li>Define and run a Trainer with Ray Train</li>
+<li>Optimize hyperparameters of this training run with Ray Tune</li>
+<li>Run batch inference on a trained model</li>
+<li>Compute online predictions for a model served with Ray Serve</li>
+</ul>
+</div>
+</div>
+</div>
+</div>
+<div class="jp-Cell jp-MarkdownCell jp-Notebook-cell">
+<div class="jp-Cell-inputWrapper" tabindex="0">
+<div class="jp-Collapser jp-InputCollapser jp-Cell-inputCollapser">
+</div>
+<div class="jp-InputArea jp-Cell-inputArea"><div class="jp-InputPrompt jp-InputArea-prompt">
+</div><div class="jp-RenderedHTMLCommon jp-RenderedMarkdown jp-MarkdownOutput" data-mime-type="text/markdown">
+<p><strong>Read, preprocess with Ray Data</strong></p>
+</div>
+</div>
+</div>
+</div><div class="jp-Cell jp-CodeCell jp-Notebook-cell">
+<div class="jp-Cell-inputWrapper" tabindex="0">
+<div class="jp-Collapser jp-InputCollapser jp-Cell-inputCollapser">
+</div>
+<div class="jp-InputArea jp-Cell-inputArea">
+<div class="jp-InputPrompt jp-InputArea-prompt">In [24]:</div>
+<div class="jp-CodeMirrorEditor jp-Editor jp-InputArea-editor" data-type="inline">
+<div class="cm-editor cm-s-jupyter">
+<div class="highlight hl-ipython3"><pre><span></span><span class="kn">import</span><span class="w"> </span><span class="nn">ray</span>
+
+<span class="c1"># Read the dataset from S3 (Parquet file)</span>
+<span class="n">dataset</span> <span class="o">=</span> <span class="n">ray</span><span class="o">.</span><span class="n">data</span><span class="o">.</span><span class="n">read_parquet</span><span class="p">(</span><span class="s2">"s3://anonymous@anyscale-training-data/intro-to-ray-air/nyc_taxi_2021.parquet"</span><span class="p">)</span>
+</pre></div>
+</div>
+</div>
+</div>
+</div>
+<div class="jp-Cell-outputWrapper">
+<div class="jp-Collapser jp-OutputCollapser jp-Cell-outputCollapser">
+</div>
+<div class="jp-OutputArea jp-Cell-outputArea">
+<div class="jp-OutputArea-child">
+<div class="jp-OutputPrompt jp-OutputArea-prompt"></div>
+<div class="jp-RenderedText jp-OutputArea-output" data-mime-type="text/plain" tabindex="0">
+<pre>Parquet Files Sample 0:   0%|          | 0/1 [00:00&lt;?, ? file/s]</pre>
+</div>
+</div>
+</div>
+</div>
+</div><div class="jp-Cell jp-CodeCell jp-Notebook-cell">
+<div class="jp-Cell-inputWrapper" tabindex="0">
+<div class="jp-Collapser jp-InputCollapser jp-Cell-inputCollapser">
+</div>
+<div class="jp-InputArea jp-Cell-inputArea">
+<div class="jp-InputPrompt jp-InputArea-prompt">In [25]:</div>
+<div class="jp-CodeMirrorEditor jp-Editor jp-InputArea-editor" data-type="inline">
+<div class="cm-editor cm-s-jupyter">
+<div class="highlight hl-ipython3"><pre><span></span><span class="c1"># Split the dataset into training and validation sets</span>
+<span class="n">train_dataset</span><span class="p">,</span> <span class="n">valid_dataset</span> <span class="o">=</span> <span class="n">dataset</span><span class="o">.</span><span class="n">train_test_split</span><span class="p">(</span><span class="n">test_size</span><span class="o">=</span><span class="mf">0.3</span><span class="p">)</span>
+</pre></div>
+</div>
+</div>
+</div>
+</div>
+<div class="jp-Cell-outputWrapper">
+<div class="jp-Collapser jp-OutputCollapser jp-Cell-outputCollapser">
+</div>
+<div class="jp-OutputArea jp-Cell-outputArea">
+<div class="jp-OutputArea-child">
+<div class="jp-OutputPrompt jp-OutputArea-prompt"></div>
+<div class="jp-RenderedText jp-OutputArea-output" data-mime-type="application/vnd.jupyter.stderr" tabindex="0">
+<pre>2024-11-15 15:50:21,044	INFO streaming_executor.py:108 -- Starting execution of Dataset. Full logs are in /tmp/ray/session_2024-11-15_08-44-25_924022_2383/logs/ray-data
+2024-11-15 15:50:21,044	INFO streaming_executor.py:109 -- Execution plan of Dataset: InputDataBuffer[Input] -&gt; TaskPoolMapOperator[ReadParquet]
+</pre>
+</div>
+</div>
+<div class="jp-OutputArea-child">
+<div class="jp-OutputPrompt jp-OutputArea-prompt"></div>
+<div class="jp-RenderedText jp-OutputArea-output" data-mime-type="text/plain" tabindex="0">
+<pre>- ReadParquet-&gt;SplitBlocks(32) 1: 0 bundle [00:00, ? bundle/s]</pre>
+</div>
+</div>
+<div class="jp-OutputArea-child">
+<div class="jp-OutputPrompt jp-OutputArea-prompt"></div>
+<div class="jp-RenderedText jp-OutputArea-output" data-mime-type="text/plain" tabindex="0">
+<pre>Running 0: 0 bundle [00:00, ? bundle/s]</pre>
+</div>
+</div>
+<div class="jp-OutputArea-child">
+<div class="jp-OutputPrompt jp-OutputArea-prompt"></div>
+<div class="jp-RenderedText jp-OutputArea-output" data-mime-type="application/vnd.jupyter.stderr" tabindex="0">
+<pre>2024-11-15 15:50:21,913	INFO streaming_executor.py:108 -- Starting execution of Dataset. Full logs are in /tmp/ray/session_2024-11-15_08-44-25_924022_2383/logs/ray-data
+2024-11-15 15:50:21,913	INFO streaming_executor.py:109 -- Execution plan of Dataset: InputDataBuffer[Input] -&gt; TaskPoolMapOperator[ReadParquet]
+</pre>
+</div>
+</div>
+<div class="jp-OutputArea-child">
+<div class="jp-OutputPrompt jp-OutputArea-prompt"></div>
+<div class="jp-RenderedText jp-OutputArea-output" data-mime-type="text/plain" tabindex="0">
+<pre>- ReadParquet-&gt;SplitBlocks(32) 1: 0 bundle [00:00, ? bundle/s]</pre>
+</div>
+</div>
+<div class="jp-OutputArea-child">
+<div class="jp-OutputPrompt jp-OutputArea-prompt"></div>
+<div class="jp-RenderedText jp-OutputArea-output" data-mime-type="text/plain" tabindex="0">
+<pre>Running 0: 0 bundle [00:00, ? bundle/s]</pre>
+</div>
+</div>
+</div>
+</div>
+</div>
+<div class="jp-Cell jp-MarkdownCell jp-Notebook-cell">
+<div class="jp-Cell-inputWrapper" tabindex="0">
+<div class="jp-Collapser jp-InputCollapser jp-Cell-inputCollapser">
+</div>
+<div class="jp-InputArea jp-Cell-inputArea"><div class="jp-InputPrompt jp-InputArea-prompt">
+</div><div class="jp-RenderedHTMLCommon jp-RenderedMarkdown jp-MarkdownOutput" data-mime-type="text/markdown">
+<p><strong>Fit model with Ray Train</strong></p>
+</div>
+</div>
+</div>
+</div><div class="jp-Cell jp-CodeCell jp-Notebook-cell">
+<div class="jp-Cell-inputWrapper" tabindex="0">
+<div class="jp-Collapser jp-InputCollapser jp-Cell-inputCollapser">
+</div>
+<div class="jp-InputArea jp-Cell-inputArea">
+<div class="jp-InputPrompt jp-InputArea-prompt">In [26]:</div>
+<div class="jp-CodeMirrorEditor jp-Editor jp-InputArea-editor" data-type="inline">
+<div class="cm-editor cm-s-jupyter">
+<div class="highlight hl-ipython3"><pre><span></span><span class="kn">from</span><span class="w"> </span><span class="nn">ray.train.xgboost</span><span class="w"> </span><span class="kn">import</span> <span class="n">XGBoostTrainer</span>
+<span class="kn">from</span><span class="w"> </span><span class="nn">ray.train</span><span class="w"> </span><span class="kn">import</span> <span class="n">ScalingConfig</span><span class="p">,</span> <span class="n">RunConfig</span>
+
+
+<span class="c1"># Define the Trainer (similar for other frameworks)</span>
+<span class="n">trainer</span> <span class="o">=</span> <span class="n">XGBoostTrainer</span><span class="p">(</span>
+    <span class="n">label_column</span><span class="o">=</span><span class="s2">"is_big_tip"</span><span class="p">,</span>
+    <span class="c1"># What resources to use?</span>
+    <span class="n">scaling_config</span><span class="o">=</span><span class="n">ScalingConfig</span><span class="p">(</span><span class="n">num_workers</span><span class="o">=</span><span class="mi">4</span><span class="p">,</span> <span class="n">use_gpu</span><span class="o">=</span><span class="kc">False</span><span class="p">),</span>
+    <span class="n">params</span><span class="o">=</span><span class="p">{</span><span class="s2">"objective"</span><span class="p">:</span> <span class="s2">"binary:logistic"</span><span class="p">},</span>
+    <span class="n">datasets</span><span class="o">=</span><span class="p">{</span><span class="s2">"train"</span><span class="p">:</span> <span class="n">train_dataset</span><span class="p">,</span> <span class="s2">"valid"</span><span class="p">:</span> <span class="n">valid_dataset</span><span class="p">},</span>
+    <span class="c1"># How to run training (e.g. where to store training data)?</span>
+    <span class="n">run_config</span><span class="o">=</span><span class="n">RunConfig</span><span class="p">(</span><span class="n">storage_path</span><span class="o">=</span><span class="s2">"/mnt/cluster_storage/"</span><span class="p">),</span>
+<span class="p">)</span>
+
+<span class="c1"># Fit the trainer:</span>
+<span class="c1">#   - Schedule resources for 1 training run (trial)</span>
+<span class="c1">#   - Trainer setup &amp; data provisioning</span>
+<span class="c1">#   - Train the model and report back</span>
+<span class="n">result</span> <span class="o">=</span> <span class="n">trainer</span><span class="o">.</span><span class="n">fit</span><span class="p">()</span>
+</pre></div>
+</div>
+</div>
+</div>
+</div>
+<div class="jp-Cell-outputWrapper">
+<div class="jp-Collapser jp-OutputCollapser jp-Cell-outputCollapser">
+</div>
+<div class="jp-OutputArea jp-Cell-outputArea">
+<div class="jp-OutputArea-child">
+<div class="jp-OutputPrompt jp-OutputArea-prompt"></div>
+<div class="jp-RenderedText jp-OutputArea-output" data-mime-type="application/vnd.jupyter.stderr" tabindex="0">
+<pre>2024-11-15 15:54:19,191	INFO tune.py:616 -- [output] This uses the legacy output and progress reporter, as Jupyter notebooks are not supported by the new engine, yet. For more information, please see https://github.com/ray-project/ray/issues/36949
+2024-11-15 15:54:19,206	INFO data_parallel_trainer.py:340 -- GPUs are detected in your Ray cluster, but GPU training is not enabled for this trainer. To enable GPU training, make sure to set `use_gpu` to True in your scaling config.
+</pre>
+</div>
+</div>
+<div class="jp-OutputArea-child">
+<div class="jp-OutputPrompt jp-OutputArea-prompt"></div>
+<div class="jp-RenderedText jp-OutputArea-output" data-mime-type="text/plain" tabindex="0">
+<pre>== Status ==
+Current time: 2024-11-15 15:54:19 (running for 00:00:00.11)
+Using FIFO scheduling algorithm.
+Logical resource usage: 5.0/16 CPUs, 0/2 GPUs (0.0/2.0 anyscale/region:us-west-2, 0.0/2.0 anyscale/accelerator_shape:1xT4, 0.0/2.0 accelerator_type:T4, 0.0/2.0 anyscale/provider:aws)
+Result logdir: /tmp/ray/session_2024-11-15_08-44-25_924022_2383/artifacts/2024-11-15_15-54-19/XGBoostTrainer_2024-11-15_15-54-19/driver_artifacts
+Number of trials: 1/1 (1 PENDING)
+
+
+</pre>
+</div>
+</div>
+<div class="jp-OutputArea-child">
+<div class="jp-OutputPrompt jp-OutputArea-prompt"></div>
+<div class="jp-RenderedText jp-OutputArea-output" data-mime-type="text/plain" tabindex="0">
+<pre>(pid=161686) - split(4, equal=True) 1:   0%|          | 0/26 [00:00&lt;?, ? bundle/s]</pre>
+</div>
+</div>
+<div class="jp-OutputArea-child">
+<div class="jp-OutputPrompt jp-OutputArea-prompt"></div>
+<div class="jp-RenderedText jp-OutputArea-output" data-mime-type="text/plain" tabindex="0">
+<pre>(pid=161686) Running 0:   0%|          | 0/26 [00:00&lt;?, ? bundle/s]</pre>
+</div>
+</div>
+<div class="jp-OutputArea-child">
+<div class="jp-OutputPrompt jp-OutputArea-prompt"></div>
+<div class="jp-RenderedText jp-OutputArea-output" data-mime-type="text/plain" tabindex="0">
+<pre>== Status ==
+Current time: 2024-11-15 15:54:24 (running for 00:00:05.20)
+Using FIFO scheduling algorithm.
+Logical resource usage: 5.0/16 CPUs, 0/2 GPUs (0.0/2.0 anyscale/region:us-west-2, 0.0/2.0 anyscale/accelerator_shape:1xT4, 0.0/2.0 accelerator_type:T4, 0.0/2.0 anyscale/provider:aws)
+Result logdir: /tmp/ray/session_2024-11-15_08-44-25_924022_2383/artifacts/2024-11-15_15-54-19/XGBoostTrainer_2024-11-15_15-54-19/driver_artifacts
+Number of trials: 1/1 (1 RUNNING)
+
+
+</pre>
+</div>
+</div>
+<div class="jp-OutputArea-child">
+<div class="jp-OutputPrompt jp-OutputArea-prompt"></div>
+<div class="jp-RenderedText jp-OutputArea-output" data-mime-type="text/plain" tabindex="0">
+<pre>(pid=161687) - split(4, equal=True) 1:   0%|          | 0/39 [00:00&lt;?, ? bundle/s]</pre>
+</div>
+</div>
+<div class="jp-OutputArea-child">
+<div class="jp-OutputPrompt jp-OutputArea-prompt"></div>
+<div class="jp-RenderedText jp-OutputArea-output" data-mime-type="text/plain" tabindex="0">
+<pre>(pid=161687) Running 0:   0%|          | 0/39 [00:00&lt;?, ? bundle/s]</pre>
+</div>
+</div>
+<div class="jp-OutputArea-child">
+<div class="jp-OutputPrompt jp-OutputArea-prompt"></div>
+<div class="jp-RenderedText jp-OutputArea-output" data-mime-type="text/plain" tabindex="0">
+<pre>== Status ==
+Current time: 2024-11-15 15:54:29 (running for 00:00:10.27)
+Using FIFO scheduling algorithm.
+Logical resource usage: 5.0/16 CPUs, 0/2 GPUs (0.0/2.0 anyscale/accelerator_shape:1xT4, 0.0/2.0 anyscale/provider:aws, 0.0/2.0 anyscale/region:us-west-2, 0.0/2.0 accelerator_type:T4)
+Result logdir: /tmp/ray/session_2024-11-15_08-44-25_924022_2383/artifacts/2024-11-15_15-54-19/XGBoostTrainer_2024-11-15_15-54-19/driver_artifacts
+Number of trials: 1/1 (1 RUNNING)
+
+
+</pre>
+</div>
+</div>
+<div class="jp-OutputArea-child">
+<div class="jp-OutputPrompt jp-OutputArea-prompt"></div>
+<div class="jp-RenderedText jp-OutputArea-output" data-mime-type="application/vnd.jupyter.stderr" tabindex="0">
+<pre>2024-11-15 15:54:31,784	INFO tune.py:1009 -- Wrote the latest version of all result files and experiment state to '/mnt/cluster_storage/XGBoostTrainer_2024-11-15_15-54-19' in 0.0222s.
+2024-11-15 15:54:31,786	INFO tune.py:1041 -- Total run time: 12.60 seconds (12.56 seconds for the tuning loop).
+</pre>
+</div>
+</div>
+<div class="jp-OutputArea-child">
+<div class="jp-OutputPrompt jp-OutputArea-prompt"></div>
+<div class="jp-RenderedText jp-OutputArea-output" data-mime-type="text/plain" tabindex="0">
+<pre>== Status ==
+Current time: 2024-11-15 15:54:31 (running for 00:00:12.58)
+Using FIFO scheduling algorithm.
+Logical resource usage: 5.0/16 CPUs, 0/2 GPUs (0.0/2.0 anyscale/accelerator_shape:1xT4, 0.0/2.0 anyscale/provider:aws, 0.0/2.0 anyscale/region:us-west-2, 0.0/2.0 accelerator_type:T4)
+Result logdir: /tmp/ray/session_2024-11-15_08-44-25_924022_2383/artifacts/2024-11-15_15-54-19/XGBoostTrainer_2024-11-15_15-54-19/driver_artifacts
+Number of trials: 1/1 (1 TERMINATED)
+
+
+</pre>
+</div>
+</div>
+</div>
+</div>
+</div>
+<div class="jp-Cell jp-MarkdownCell jp-Notebook-cell">
+<div class="jp-Cell-inputWrapper" tabindex="0">
+<div class="jp-Collapser jp-InputCollapser jp-Cell-inputCollapser">
+</div>
+<div class="jp-InputArea jp-Cell-inputArea"><div class="jp-InputPrompt jp-InputArea-prompt">
+</div><div class="jp-RenderedHTMLCommon jp-RenderedMarkdown jp-MarkdownOutput" data-mime-type="text/markdown">
+<p><strong>Optimize hyperparameters with Ray Tune</strong></p>
+<img alt="No description has been provided for this image" src="https://docs.ray.io/en/latest/_images/train-tuner.svg" width="600"/>
+</div>
+</div>
+</div>
+</div><div class="jp-Cell jp-CodeCell jp-Notebook-cell">
+<div class="jp-Cell-inputWrapper" tabindex="0">
+<div class="jp-Collapser jp-InputCollapser jp-Cell-inputCollapser">
+</div>
+<div class="jp-InputArea jp-Cell-inputArea">
+<div class="jp-InputPrompt jp-InputArea-prompt">In [27]:</div>
+<div class="jp-CodeMirrorEditor jp-Editor jp-InputArea-editor" data-type="inline">
+<div class="cm-editor cm-s-jupyter">
+<div class="highlight hl-ipython3"><pre><span></span><span class="kn">from</span><span class="w"> </span><span class="nn">ray</span><span class="w"> </span><span class="kn">import</span> <span class="n">tune</span>
+<span class="kn">from</span><span class="w"> </span><span class="nn">ray.tune</span><span class="w"> </span><span class="kn">import</span> <span class="n">Tuner</span><span class="p">,</span> <span class="n">TuneConfig</span>
+
+
+<span class="n">tuner</span> <span class="o">=</span> <span class="n">Tuner</span><span class="p">(</span>
+    <span class="c1"># Pass the Trainer instance</span>
+    <span class="n">trainer</span><span class="p">,</span>
+    <span class="c1"># Random search over max_depth</span>
+    <span class="n">param_space</span><span class="o">=</span><span class="p">{</span><span class="s2">"params"</span><span class="p">:</span> <span class="p">{</span><span class="s2">"max_depth"</span><span class="p">:</span> <span class="n">tune</span><span class="o">.</span><span class="n">randint</span><span class="p">(</span><span class="mi">2</span><span class="p">,</span> <span class="mi">12</span><span class="p">)}},</span>
+    <span class="c1"># 3 trials in total, minimize validation (log) loss</span>
+    <span class="n">tune_config</span><span class="o">=</span><span class="n">TuneConfig</span><span class="p">(</span><span class="n">num_samples</span><span class="o">=</span><span class="mi">3</span><span class="p">,</span> <span class="n">metric</span><span class="o">=</span><span class="s2">"valid-logloss"</span><span class="p">,</span> <span class="n">mode</span><span class="o">=</span><span class="s2">"min"</span><span class="p">),</span>
+    <span class="c1"># Might need a different config here</span>
+    <span class="n">run_config</span><span class="o">=</span><span class="n">RunConfig</span><span class="p">(</span><span class="n">storage_path</span><span class="o">=</span><span class="s2">"/mnt/cluster_storage/"</span><span class="p">),</span>
+<span class="p">)</span>
+
+<span class="c1"># Fit the tuner and get the best checkpoint</span>
+<span class="c1"># Takes about as long as the single run before.</span>
+<span class="n">checkpoint</span> <span class="o">=</span> <span class="n">tuner</span><span class="o">.</span><span class="n">fit</span><span class="p">()</span><span class="o">.</span><span class="n">get_best_result</span><span class="p">()</span><span class="o">.</span><span class="n">checkpoint</span>
+</pre></div>
+</div>
+</div>
+</div>
+</div>
+<div class="jp-Cell-outputWrapper">
+<div class="jp-Collapser jp-OutputCollapser jp-Cell-outputCollapser">
+</div>
+<div class="jp-OutputArea jp-Cell-outputArea">
+<div class="jp-OutputArea-child">
+<div class="jp-OutputPrompt jp-OutputArea-prompt"></div>
+<div class="jp-RenderedHTMLCommon jp-RenderedHTML jp-OutputArea-output" data-mime-type="text/html" tabindex="0">
+<div class="tuneStatus">
+<div style="display: flex;flex-direction: row">
+<div style="display: flex;flex-direction: column;">
+<h3>Tune Status</h3>
+<table>
+<tbody>
+<tr><td>Current time:</td><td>2024-11-15 15:59:03</td></tr>
+<tr><td>Running for: </td><td>00:00:13.29        </td></tr>
+<tr><td>Memory:      </td><td>5.2/31.0 GiB       </td></tr>
+</tbody>
+</table>
+</div>
+<div class="vDivider"></div>
+<div class="systemInfo">
+<h3>System Info</h3>
+      Using FIFO scheduling algorithm.<br/>Logical resource usage: 5.0/16 CPUs, 0/2 GPUs (0.0/2.0 anyscale/provider:aws, 0.0/2.0 anyscale/region:us-west-2, 0.0/2.0 anyscale/accelerator_shape:1xT4, 0.0/2.0 accelerator_type:T4)
+    </div>
+</div>
+<div class="hDivider"></div>
+<div class="trialStatus">
+<h3>Trial Status</h3>
+<table>
+<thead>
+<tr><th>Trial name                </th><th>status    </th><th>loc               </th><th style="text-align: right;">  params/max_depth</th><th style="text-align: right;">  iter</th><th style="text-align: right;">  total time (s)</th><th style="text-align: right;">  train-logloss</th><th style="text-align: right;">  valid-logloss</th></tr>
+</thead>
+<tbody>
+<tr><td>XGBoostTrainer_81312_00000</td><td>TERMINATED</td><td>10.0.17.156:163491</td><td style="text-align: right;">                 5</td><td style="text-align: right;">    11</td><td style="text-align: right;">        10.0242 </td><td style="text-align: right;">       0.66008 </td><td style="text-align: right;">       0.660569</td></tr>
+<tr><td>XGBoostTrainer_81312_00001</td><td>TERMINATED</td><td>10.0.17.156:163492</td><td style="text-align: right;">                 5</td><td style="text-align: right;">    11</td><td style="text-align: right;">        10.0059 </td><td style="text-align: right;">       0.66008 </td><td style="text-align: right;">       0.660569</td></tr>
+<tr><td>XGBoostTrainer_81312_00002</td><td>TERMINATED</td><td>10.0.25.71:43057  </td><td style="text-align: right;">                 3</td><td style="text-align: right;">    11</td><td style="text-align: right;">         9.93615</td><td style="text-align: right;">       0.662196</td><td style="text-align: right;">       0.662499</td></tr>
+</tbody>
+</table>
+</div>
+</div>
+<style>
+.tuneStatus {
+  color: var(--jp-ui-font-color1);
+}
+.tuneStatus .systemInfo {
+  display: flex;
+  flex-direction: column;
+}
+.tuneStatus td {
+  white-space: nowrap;
+}
+.tuneStatus .trialStatus {
+  display: flex;
+  flex-direction: column;
+}
+.tuneStatus h3 {
+  font-weight: bold;
+}
+.tuneStatus .hDivider {
+  border-bottom-width: var(--jp-border-width);
+  border-bottom-color: var(--jp-border-color0);
+  border-bottom-style: solid;
+}
+.tuneStatus .vDivider {
+  border-left-width: var(--jp-border-width);
+  border-left-color: var(--jp-border-color0);
+  border-left-style: solid;
+  margin: 0.5em 1em 0.5em 1em;
+}
+</style>
+</div>
+</div>
+<div class="jp-OutputArea-child">
+<div class="jp-OutputPrompt jp-OutputArea-prompt"></div>
+<div class="jp-RenderedText jp-OutputArea-output" data-mime-type="application/vnd.jupyter.stderr" tabindex="0">
+<pre>2024-11-15 15:58:50,120	INFO data_parallel_trainer.py:340 -- GPUs are detected in your Ray cluster, but GPU training is not enabled for this trainer. To enable GPU training, make sure to set `use_gpu` to True in your scaling config.
+2024-11-15 15:58:50,123	INFO data_parallel_trainer.py:340 -- GPUs are detected in your Ray cluster, but GPU training is not enabled for this trainer. To enable GPU training, make sure to set `use_gpu` to True in your scaling config.
+2024-11-15 15:58:50,127	INFO data_parallel_trainer.py:340 -- GPUs are detected in your Ray cluster, but GPU training is not enabled for this trainer. To enable GPU training, make sure to set `use_gpu` to True in your scaling config.
+</pre>
+</div>
+</div>
+<div class="jp-OutputArea-child">
+<div class="jp-OutputPrompt jp-OutputArea-prompt"></div>
+<div class="jp-RenderedText jp-OutputArea-output" data-mime-type="text/plain" tabindex="0">
+<pre>(pid=43373, ip=10.0.25.71) - split(4, equal=True) 1:   0%|          | 0/26 [00:00&lt;?, ? bundle/s]</pre>
+</div>
+</div>
+<div class="jp-OutputArea-child">
+<div class="jp-OutputPrompt jp-OutputArea-prompt"></div>
+<div class="jp-RenderedText jp-OutputArea-output" data-mime-type="text/plain" tabindex="0">
+<pre>(pid=43373, ip=10.0.25.71) Running 0:   0%|          | 0/26 [00:00&lt;?, ? bundle/s]</pre>
+</div>
+</div>
+<div class="jp-OutputArea-child">
+<div class="jp-OutputPrompt jp-OutputArea-prompt"></div>
+<div class="jp-RenderedText jp-OutputArea-output" data-mime-type="text/plain" tabindex="0">
+<pre>(pid=163874) - split(4, equal=True) 1:   0%|          | 0/26 [00:00&lt;?, ? bundle/s]</pre>
+</div>
+</div>
+<div class="jp-OutputArea-child">
+<div class="jp-OutputPrompt jp-OutputArea-prompt"></div>
+<div class="jp-RenderedText jp-OutputArea-output" data-mime-type="text/plain" tabindex="0">
+<pre>(pid=163874) Running 0:   0%|          | 0/26 [00:00&lt;?, ? bundle/s]</pre>
+</div>
+</div>
+<div class="jp-OutputArea-child">
+<div class="jp-OutputPrompt jp-OutputArea-prompt"></div>
+<div class="jp-RenderedText jp-OutputArea-output" data-mime-type="text/plain" tabindex="0">
+<pre>(pid=163879) - split(4, equal=True) 1:   0%|          | 0/26 [00:00&lt;?, ? bundle/s]</pre>
+</div>
+</div>
+<div class="jp-OutputArea-child">
+<div class="jp-OutputPrompt jp-OutputArea-prompt"></div>
+<div class="jp-RenderedText jp-OutputArea-output" data-mime-type="text/plain" tabindex="0">
+<pre>(pid=163879) Running 0:   0%|          | 0/26 [00:00&lt;?, ? bundle/s]</pre>
+</div>
+</div>
+<div class="jp-OutputArea-child">
+<div class="jp-OutputPrompt jp-OutputArea-prompt"></div>
+<div class="jp-RenderedText jp-OutputArea-output" data-mime-type="text/plain" tabindex="0">
+<pre>(pid=43374, ip=10.0.25.71) - split(4, equal=True) 1:   0%|          | 0/39 [00:00&lt;?, ? bundle/s]</pre>
+</div>
+</div>
+<div class="jp-OutputArea-child">
+<div class="jp-OutputPrompt jp-OutputArea-prompt"></div>
+<div class="jp-RenderedText jp-OutputArea-output" data-mime-type="text/plain" tabindex="0">
+<pre>(pid=43374, ip=10.0.25.71) Running 0:   0%|          | 0/39 [00:00&lt;?, ? bundle/s]</pre>
+</div>
+</div>
+<div class="jp-OutputArea-child">
+<div class="jp-OutputPrompt jp-OutputArea-prompt"></div>
+<div class="jp-RenderedText jp-OutputArea-output" data-mime-type="text/plain" tabindex="0">
+<pre>(pid=163880) - split(4, equal=True) 1:   0%|          | 0/39 [00:00&lt;?, ? bundle/s]</pre>
+</div>
+</div>
+<div class="jp-OutputArea-child">
+<div class="jp-OutputPrompt jp-OutputArea-prompt"></div>
+<div class="jp-RenderedText jp-OutputArea-output" data-mime-type="text/plain" tabindex="0">
+<pre>(pid=163880) Running 0:   0%|          | 0/39 [00:00&lt;?, ? bundle/s]</pre>
+</div>
+</div>
+<div class="jp-OutputArea-child">
+<div class="jp-OutputPrompt jp-OutputArea-prompt"></div>
+<div class="jp-RenderedText jp-OutputArea-output" data-mime-type="text/plain" tabindex="0">
+<pre>(pid=163877) - split(4, equal=True) 1:   0%|          | 0/39 [00:00&lt;?, ? bundle/s]</pre>
+</div>
+</div>
+<div class="jp-OutputArea-child">
+<div class="jp-OutputPrompt jp-OutputArea-prompt"></div>
+<div class="jp-RenderedText jp-OutputArea-output" data-mime-type="text/plain" tabindex="0">
+<pre>(pid=163877) Running 0:   0%|          | 0/39 [00:00&lt;?, ? bundle/s]</pre>
+</div>
+</div>
+<div class="jp-OutputArea-child">
+<div class="jp-OutputPrompt jp-OutputArea-prompt"></div>
+<div class="jp-RenderedText jp-OutputArea-output" data-mime-type="application/vnd.jupyter.stderr" tabindex="0">
+<pre>2024-11-15 15:59:03,410	INFO tune.py:1009 -- Wrote the latest version of all result files and experiment state to '/mnt/cluster_storage/XGBoostTrainer_2024-11-15_15-58-50' in 0.0516s.
+2024-11-15 15:59:03,415	INFO tune.py:1041 -- Total run time: 13.31 seconds (13.24 seconds for the tuning loop).
+</pre>
+</div>
+</div>
+</div>
+</div>
+</div>
+<div class="jp-Cell jp-MarkdownCell jp-Notebook-cell">
+<div class="jp-Cell-inputWrapper" tabindex="0">
+<div class="jp-Collapser jp-InputCollapser jp-Cell-inputCollapser">
+</div>
+<div class="jp-InputArea jp-Cell-inputArea"><div class="jp-InputPrompt jp-InputArea-prompt">
+</div><div class="jp-RenderedHTMLCommon jp-RenderedMarkdown jp-MarkdownOutput" data-mime-type="text/markdown">
+<p><strong>Batch inference with Ray Data</strong></p>
+</div>
+</div>
+</div>
+</div><div class="jp-Cell jp-CodeCell jp-Notebook-cell jp-mod-noOutputs">
+<div class="jp-Cell-inputWrapper" tabindex="0">
+<div class="jp-Collapser jp-InputCollapser jp-Cell-inputCollapser">
+</div>
+<div class="jp-InputArea jp-Cell-inputArea">
+<div class="jp-InputPrompt jp-InputArea-prompt">In [28]:</div>
+<div class="jp-CodeMirrorEditor jp-Editor jp-InputArea-editor" data-type="inline">
+<div class="cm-editor cm-s-jupyter">
+<div class="highlight hl-ipython3"><pre><span></span><span class="kn">import</span><span class="w"> </span><span class="nn">xgboost</span>
+<span class="kn">import</span><span class="w"> </span><span class="nn">pandas</span><span class="w"> </span><span class="k">as</span><span class="w"> </span><span class="nn">pd</span>
+
+
+<span class="k">class</span><span class="w"> </span><span class="nc">OfflinePredictor</span><span class="p">:</span>
+    <span class="k">def</span><span class="w"> </span><span class="fm">__init__</span><span class="p">(</span><span class="bp">self</span><span class="p">):</span>
+        <span class="c1"># Load model once (expensive, stateful operation)</span>
+        <span class="bp">self</span><span class="o">.</span><span class="n">_model</span> <span class="o">=</span> <span class="n">xgboost</span><span class="o">.</span><span class="n">Booster</span><span class="p">()</span>
+        <span class="bp">self</span><span class="o">.</span><span class="n">_model</span><span class="o">.</span><span class="n">load_model</span><span class="p">(</span><span class="n">checkpoint</span><span class="o">.</span><span class="n">path</span> <span class="o">+</span> <span class="s2">"/model.ubj"</span><span class="p">)</span>
+
+    <span class="k">def</span><span class="w"> </span><span class="fm">__call__</span><span class="p">(</span><span class="bp">self</span><span class="p">,</span> <span class="n">batch</span><span class="p">:</span> <span class="nb">dict</span><span class="p">)</span> <span class="o">-&gt;</span> <span class="nb">dict</span><span class="p">:</span>
+        <span class="c1"># Make prediction in batches</span>
+        <span class="n">dmatrix</span> <span class="o">=</span> <span class="n">xgboost</span><span class="o">.</span><span class="n">DMatrix</span><span class="p">(</span><span class="n">pd</span><span class="o">.</span><span class="n">DataFrame</span><span class="p">(</span><span class="n">batch</span><span class="p">))</span>
+        <span class="n">prediction</span> <span class="o">=</span> <span class="bp">self</span><span class="o">.</span><span class="n">_model</span><span class="o">.</span><span class="n">predict</span><span class="p">(</span><span class="n">dmatrix</span><span class="p">)</span>
+        <span class="k">return</span> <span class="p">{</span><span class="s2">"prediction"</span><span class="p">:</span> <span class="n">prediction</span><span class="p">}</span>
+</pre></div>
+</div>
+</div>
+</div>
+</div>
+</div><div class="jp-Cell jp-CodeCell jp-Notebook-cell">
+<div class="jp-Cell-inputWrapper" tabindex="0">
+<div class="jp-Collapser jp-InputCollapser jp-Cell-inputCollapser">
+</div>
+<div class="jp-InputArea jp-Cell-inputArea">
+<div class="jp-InputPrompt jp-InputArea-prompt">In [31]:</div>
+<div class="jp-CodeMirrorEditor jp-Editor jp-InputArea-editor" data-type="inline">
+<div class="cm-editor cm-s-jupyter">
+<div class="highlight hl-ipython3"><pre><span></span><span class="c1"># Apply the predictor to the validation dataset (minus the labels)</span>
+<span class="n">valid_dataset_features</span> <span class="o">=</span> <span class="n">valid_dataset</span><span class="o">.</span><span class="n">drop_columns</span><span class="p">([</span><span class="s1">'is_big_tip'</span><span class="p">])</span>
+
+<span class="c1"># Map batches of features over the predictor</span>
+<span class="n">predicted_probabilities</span> <span class="o">=</span> <span class="n">valid_dataset_features</span><span class="o">.</span><span class="n">map_batches</span><span class="p">(</span><span class="n">OfflinePredictor</span><span class="p">,</span> <span class="n">concurrency</span><span class="o">=</span><span class="mi">2</span><span class="p">)</span>
+
+<span class="c1"># Materialize ("take") a batch of 10 predictions from the cluster</span>
+<span class="n">predicted_probabilities</span><span class="o">.</span><span class="n">take_batch</span><span class="p">(</span><span class="mi">10</span><span class="p">)</span>
+</pre></div>
+</div>
+</div>
+</div>
+</div>
+<div class="jp-Cell-outputWrapper">
+<div class="jp-Collapser jp-OutputCollapser jp-Cell-outputCollapser">
+</div>
+<div class="jp-OutputArea jp-Cell-outputArea">
+<div class="jp-OutputArea-child">
+<div class="jp-OutputPrompt jp-OutputArea-prompt"></div>
+<div class="jp-RenderedText jp-OutputArea-output" data-mime-type="application/vnd.jupyter.stderr" tabindex="0">
+<pre>2024-11-15 16:05:08,459	INFO streaming_executor.py:108 -- Starting execution of Dataset. Full logs are in /tmp/ray/session_2024-11-15_08-44-25_924022_2383/logs/ray-data
+2024-11-15 16:05:08,460	INFO streaming_executor.py:109 -- Execution plan of Dataset: InputDataBuffer[Input] -&gt; ActorPoolMapOperator[MapBatches(drop_columns)-&gt;MapBatches(OfflinePredictor)] -&gt; LimitOperator[limit=10]
+</pre>
+</div>
+</div>
+<div class="jp-OutputArea-child">
+<div class="jp-OutputPrompt jp-OutputArea-prompt"></div>
+<div class="jp-RenderedText jp-OutputArea-output" data-mime-type="text/plain" tabindex="0">
+<pre>- MapBatches(drop_columns)-&gt;MapBatches(OfflinePredictor) 1: 0 bundle [00:00, ? bundle/s]</pre>
+</div>
+</div>
+<div class="jp-OutputArea-child">
+<div class="jp-OutputPrompt jp-OutputArea-prompt"></div>
+<div class="jp-RenderedText jp-OutputArea-output" data-mime-type="text/plain" tabindex="0">
+<pre>- limit=10 2: 0 bundle [00:00, ? bundle/s]</pre>
+</div>
+</div>
+<div class="jp-OutputArea-child">
+<div class="jp-OutputPrompt jp-OutputArea-prompt"></div>
+<div class="jp-RenderedText jp-OutputArea-output" data-mime-type="text/plain" tabindex="0">
+<pre>Running 0: 0 bundle [00:00, ? bundle/s]</pre>
+</div>
+</div>
+<div class="jp-OutputArea-child">
+<div class="jp-OutputPrompt jp-OutputArea-prompt"></div>
+<div class="jp-RenderedText jp-OutputArea-output" data-mime-type="application/vnd.jupyter.stderr" tabindex="0">
+<pre>2024-11-15 16:05:10,388	WARNING actor_pool_map_operator.py:265 -- To ensure full parallelization across an actor pool of size 2, the Dataset should consist of at least 2 distinct blocks. Consider increasing the parallelism when creating the Dataset.
+</pre>
+</div>
+</div>
+<div class="jp-OutputArea-child jp-OutputArea-executeResult">
+<div class="jp-OutputPrompt jp-OutputArea-prompt">Out[31]:</div>
+<div class="jp-RenderedText jp-OutputArea-output jp-OutputArea-executeResult" data-mime-type="text/plain" tabindex="0">
+<pre>{'prediction': array([0.6290559 , 0.6290559 , 0.5404948 , 0.6290559 , 0.5552995 ,
+        0.5529555 , 0.6290559 , 0.6290559 , 0.60417205, 0.5588189 ],
+       dtype=float32)}</pre>
+</div>
+</div>
+</div>
+</div>
+</div>
+<div class="jp-Cell jp-MarkdownCell jp-Notebook-cell">
+<div class="jp-Cell-inputWrapper" tabindex="0">
+<div class="jp-Collapser jp-InputCollapser jp-Cell-inputCollapser">
+</div>
+<div class="jp-InputArea jp-Cell-inputArea"><div class="jp-InputPrompt jp-InputArea-prompt">
+</div><div class="jp-RenderedHTMLCommon jp-RenderedMarkdown jp-MarkdownOutput" data-mime-type="text/markdown">
+<p><strong>Online prediction with Ray Serve</strong></p>
+</div>
+</div>
+</div>
+</div><div class="jp-Cell jp-CodeCell jp-Notebook-cell">
+<div class="jp-Cell-inputWrapper" tabindex="0">
+<div class="jp-Collapser jp-InputCollapser jp-Cell-inputCollapser">
+</div>
+<div class="jp-InputArea jp-Cell-inputArea">
+<div class="jp-InputPrompt jp-InputArea-prompt">In [32]:</div>
+<div class="jp-CodeMirrorEditor jp-Editor jp-InputArea-editor" data-type="inline">
+<div class="cm-editor cm-s-jupyter">
+<div class="highlight hl-ipython3"><pre><span></span><span class="kn">import</span><span class="w"> </span><span class="nn">json</span>
+<span class="kn">from</span><span class="w"> </span><span class="nn">ray</span><span class="w"> </span><span class="kn">import</span> <span class="n">serve</span>
+<span class="kn">from</span><span class="w"> </span><span class="nn">starlette.requests</span><span class="w"> </span><span class="kn">import</span> <span class="n">Request</span>
+
+
+<span class="nd">@serve</span><span class="o">.</span><span class="n">deployment</span>
+<span class="k">class</span><span class="w"> </span><span class="nc">OnlinePredictor</span><span class="p">:</span>
+    <span class="k">def</span><span class="w"> </span><span class="fm">__init__</span><span class="p">(</span><span class="bp">self</span><span class="p">,</span> <span class="n">checkpoint</span><span class="p">):</span>
+        <span class="c1"># Load model once (same as before)</span>
+        <span class="bp">self</span><span class="o">.</span><span class="n">_model</span> <span class="o">=</span> <span class="n">xgboost</span><span class="o">.</span><span class="n">Booster</span><span class="p">()</span>
+        <span class="bp">self</span><span class="o">.</span><span class="n">_model</span><span class="o">.</span><span class="n">load_model</span><span class="p">(</span><span class="n">checkpoint</span><span class="o">.</span><span class="n">path</span> <span class="o">+</span> <span class="s2">"/model.ubj"</span><span class="p">)</span>
+
+    <span class="k">async</span> <span class="k">def</span><span class="w"> </span><span class="fm">__call__</span><span class="p">(</span><span class="bp">self</span><span class="p">,</span> <span class="n">request</span><span class="p">:</span> <span class="n">Request</span><span class="p">)</span> <span class="o">-&gt;</span> <span class="nb">dict</span><span class="p">:</span>
+        <span class="n">request_data</span> <span class="o">=</span> <span class="k">await</span> <span class="n">request</span><span class="o">.</span><span class="n">json</span><span class="p">()</span>
+        <span class="n">data</span> <span class="o">=</span> <span class="n">json</span><span class="o">.</span><span class="n">loads</span><span class="p">(</span><span class="n">request_data</span><span class="p">)</span>
+        
+        <span class="c1"># Same structure as in offline prediction (different input data)</span>
+        <span class="n">dmatrix</span> <span class="o">=</span> <span class="n">xgboost</span><span class="o">.</span><span class="n">DMatrix</span><span class="p">(</span><span class="n">pd</span><span class="o">.</span><span class="n">DataFrame</span><span class="p">(</span><span class="n">data</span><span class="p">))</span>
+        <span class="k">return</span> <span class="p">{</span><span class="s2">"prediction"</span><span class="p">:</span> <span class="bp">self</span><span class="o">.</span><span class="n">_model</span><span class="o">.</span><span class="n">predict</span><span class="p">(</span><span class="n">dmatrix</span><span class="p">)}</span>
+
+
+<span class="c1"># Create the model deployment ("handle")</span>
+<span class="c1"># Binds to localhost:8000 by default</span>
+<span class="n">handle</span> <span class="o">=</span> <span class="n">serve</span><span class="o">.</span><span class="n">run</span><span class="p">(</span><span class="n">OnlinePredictor</span><span class="o">.</span><span class="n">bind</span><span class="p">(</span><span class="n">checkpoint</span><span class="o">=</span><span class="n">checkpoint</span><span class="p">))</span>
+</pre></div>
+</div>
+</div>
+</div>
+</div>
+<div class="jp-Cell-outputWrapper">
+<div class="jp-Collapser jp-OutputCollapser jp-Cell-outputCollapser">
+</div>
+<div class="jp-OutputArea jp-Cell-outputArea">
+<div class="jp-OutputArea-child">
+<div class="jp-OutputPrompt jp-OutputArea-prompt"></div>
+<div class="jp-RenderedText jp-OutputArea-output" data-mime-type="application/vnd.jupyter.stderr" tabindex="0">
+<pre>2024-11-15 16:08:47,352	WARNING api.py:346 -- The default value for `max_ongoing_requests` has changed from 100 to 5 in Ray 2.32.0.
+2024-11-15 16:08:47,354	WARNING api.py:397 -- The default value for `max_ongoing_requests` has changed from 100 to 5 in Ray 2.32.0.
+2024-11-15 16:08:51,404	INFO handle.py:126 -- Created DeploymentHandle 'dx5qijjx' for Deployment(name='OnlinePredictor', app='default').
+2024-11-15 16:08:51,405	INFO handle.py:126 -- Created DeploymentHandle 'bw4198ni' for Deployment(name='OnlinePredictor', app='default').
+2024-11-15 16:08:54,422	INFO handle.py:126 -- Created DeploymentHandle 'es3qaucg' for Deployment(name='OnlinePredictor', app='default').
+2024-11-15 16:08:54,423	INFO api.py:574 -- Deployed app 'default' successfully.
+</pre>
+</div>
+</div>
+</div>
+</div>
+</div><div class="jp-Cell jp-CodeCell jp-Notebook-cell">
+<div class="jp-Cell-inputWrapper" tabindex="0">
+<div class="jp-Collapser jp-InputCollapser jp-Cell-inputCollapser">
+</div>
+<div class="jp-InputArea jp-Cell-inputArea">
+<div class="jp-InputPrompt jp-InputArea-prompt">In [33]:</div>
+<div class="jp-CodeMirrorEditor jp-Editor jp-InputArea-editor" data-type="inline">
+<div class="cm-editor cm-s-jupyter">
+<div class="highlight hl-ipython3"><pre><span></span><span class="kn">import</span><span class="w"> </span><span class="nn">requests</span>
+
+<span class="c1"># Form payload</span>
+<span class="n">sample_batch</span> <span class="o">=</span> <span class="n">valid_dataset_features</span><span class="o">.</span><span class="n">take_batch</span><span class="p">(</span><span class="mi">1</span><span class="p">)</span>
+<span class="n">data</span> <span class="o">=</span> <span class="n">pd</span><span class="o">.</span><span class="n">DataFrame</span><span class="p">(</span><span class="n">sample_batch</span><span class="p">)</span><span class="o">.</span><span class="n">to_json</span><span class="p">(</span><span class="n">orient</span><span class="o">=</span><span class="s2">"records"</span><span class="p">)</span>
+
+<span class="c1"># Send HTTP request</span>
+<span class="n">requests</span><span class="o">.</span><span class="n">post</span><span class="p">(</span><span class="s2">"http://localhost:8000/"</span><span class="p">,</span> <span class="n">json</span><span class="o">=</span><span class="n">data</span><span class="p">)</span><span class="o">.</span><span class="n">json</span><span class="p">()</span>
+</pre></div>
+</div>
+</div>
+</div>
+</div>
+<div class="jp-Cell-outputWrapper">
+<div class="jp-Collapser jp-OutputCollapser jp-Cell-outputCollapser">
+</div>
+<div class="jp-OutputArea jp-Cell-outputArea">
+<div class="jp-OutputArea-child">
+<div class="jp-OutputPrompt jp-OutputArea-prompt"></div>
+<div class="jp-RenderedText jp-OutputArea-output" data-mime-type="application/vnd.jupyter.stderr" tabindex="0">
+<pre>2024-11-15 16:09:49,192	INFO streaming_executor.py:108 -- Starting execution of Dataset. Full logs are in /tmp/ray/session_2024-11-15_08-44-25_924022_2383/logs/ray-data
+2024-11-15 16:09:49,192	INFO streaming_executor.py:109 -- Execution plan of Dataset: InputDataBuffer[Input] -&gt; TaskPoolMapOperator[MapBatches(drop_columns)] -&gt; LimitOperator[limit=1]
+</pre>
+</div>
+</div>
+<div class="jp-OutputArea-child">
+<div class="jp-OutputPrompt jp-OutputArea-prompt"></div>
+<div class="jp-RenderedText jp-OutputArea-output" data-mime-type="text/plain" tabindex="0">
+<pre>- MapBatches(drop_columns) 1: 0 bundle [00:00, ? bundle/s]</pre>
+</div>
+</div>
+<div class="jp-OutputArea-child">
+<div class="jp-OutputPrompt jp-OutputArea-prompt"></div>
+<div class="jp-RenderedText jp-OutputArea-output" data-mime-type="text/plain" tabindex="0">
+<pre>- limit=1 2: 0 bundle [00:00, ? bundle/s]</pre>
+</div>
+</div>
+<div class="jp-OutputArea-child">
+<div class="jp-OutputPrompt jp-OutputArea-prompt"></div>
+<div class="jp-RenderedText jp-OutputArea-output" data-mime-type="text/plain" tabindex="0">
+<pre>Running 0: 0 bundle [00:00, ? bundle/s]</pre>
+</div>
+</div>
+<div class="jp-OutputArea-child jp-OutputArea-executeResult">
+<div class="jp-OutputPrompt jp-OutputArea-prompt">Out[33]:</div>
+<div class="jp-RenderedText jp-OutputArea-output jp-OutputArea-executeResult" data-mime-type="text/plain" tabindex="0">
+<pre>{'prediction': [0.629055917263031]}</pre>
+</div>
+</div>
+</div>
+</div>
+</div><div class="jp-Cell jp-CodeCell jp-Notebook-cell jp-mod-noOutputs">
+<div class="jp-Cell-inputWrapper" tabindex="0">
+<div class="jp-Collapser jp-InputCollapser jp-Cell-inputCollapser">
+</div>
+<div class="jp-InputArea jp-Cell-inputArea">
+<div class="jp-InputPrompt jp-InputArea-prompt">In [34]:</div>
+<div class="jp-CodeMirrorEditor jp-Editor jp-InputArea-editor" data-type="inline">
+<div class="cm-editor cm-s-jupyter">
+<div class="highlight hl-ipython3"><pre><span></span><span class="c1"># Shutdown Ray Serve</span>
+<span class="n">serve</span><span class="o">.</span><span class="n">shutdown</span><span class="p">()</span>
+</pre></div>
+</div>
+</div>
+</div>
+</div>
+</div><div class="jp-Cell jp-CodeCell jp-Notebook-cell jp-mod-noOutputs">
+<div class="jp-Cell-inputWrapper" tabindex="0">
+<div class="jp-Collapser jp-InputCollapser jp-Cell-inputCollapser">
+</div>
+<div class="jp-InputArea jp-Cell-inputArea">
+<div class="jp-InputPrompt jp-InputArea-prompt">In [35]:</div>
+<div class="jp-CodeMirrorEditor jp-Editor jp-InputArea-editor" data-type="inline">
+<div class="cm-editor cm-s-jupyter">
+<div class="highlight hl-ipython3"><pre><span></span><span class="c1"># Cleanup</span>
+<span class="o">!</span>rm<span class="w"> </span>-rf<span class="w"> </span>/mnt/cluster_storage/XGBoostTrainer*
+</pre></div>
+</div>
+</div>
+</div>
+</div>
+</div>
+<div class="jp-Cell jp-MarkdownCell jp-Notebook-cell">
+<div class="jp-Cell-inputWrapper" tabindex="0">
+<div class="jp-Collapser jp-InputCollapser jp-Cell-inputCollapser">
+</div>
+<div class="jp-InputArea jp-Cell-inputArea"><div class="jp-InputPrompt jp-InputArea-prompt">
+</div><div class="jp-RenderedHTMLCommon jp-RenderedMarkdown jp-MarkdownOutput" data-mime-type="text/markdown">
+<h3 id="Recap">Recap<a class="anchor-link" href="#Recap">¶</a></h3><table>
+<thead>
+<tr>
+<th style="text-align:center"><img alt="No description has been provided for this image" loading="lazy" src="https://technical-training-assets.s3.us-west-2.amazonaws.com/Introduction_to_Ray_AIR/e2e_air.png" width="100%"/></th>
+</tr>
+</thead>
+<tbody>
+<tr>
+<td style="text-align:center">Ray AI Libraries enable end-to-end ML development and provides multiple options for integrating with other tools and libraries form the MLOps ecosystem.</td>
+</tr>
+</tbody>
+</table>
+</div>
+</div>
+</div>
+</div>
 </main>
 </body>
 </html>

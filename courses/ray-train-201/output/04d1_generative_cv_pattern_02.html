@@ -7517,8 +7517,36 @@ a.anchor-link {
 </div>
 <div class="jp-InputArea jp-Cell-inputArea"><div class="jp-InputPrompt jp-InputArea-prompt">
 </div><div class="jp-RenderedHTMLCommon jp-RenderedMarkdown jp-MarkdownOutput" data-mime-type="text/markdown">
-<h2 id="01-%C2%B7-Imports-&amp;-Setup">01 · Imports &amp; Setup<a class="anchor-link" href="#01-%C2%B7-Imports-&amp;-Setup">¶</a></h2><p>Pull in standard Python utilities, Ray (core, Data, Train, Lightning), and PyTorch Lightning.<br/>
-Make sure you set the Anyscale cluster to Ray ≥ 2.48, so you get Ray Train V2 semantics automatically enabled.</p>
+<h2 id="1.-Imports-and-setup">1. Imports and setup<a class="anchor-link" href="#1.-Imports-and-setup">¶</a></h2><p>Pull in standard Python utilities, Ray (core, Data, Train, Lightning), and PyTorch Lightning.</p>
+</div>
+</div>
+</div>
+</div><div class="jp-Cell jp-CodeCell jp-Notebook-cell jp-mod-noOutputs">
+<div class="jp-Cell-inputWrapper" tabindex="0">
+<div class="jp-Collapser jp-InputCollapser jp-Cell-inputCollapser">
+</div>
+<div class="jp-InputArea jp-Cell-inputArea">
+<div class="jp-InputPrompt jp-InputArea-prompt">In [ ]:</div>
+<div class="jp-CodeMirrorEditor jp-Editor jp-InputArea-editor" data-type="inline">
+<div class="cm-editor cm-s-jupyter">
+<div class="highlight hl-ipython3"><pre><span></span><span class="c1"># 00. Runtime setup</span>
+<span class="kn">import</span><span class="w"> </span><span class="nn">os</span><span class="o">,</span><span class="w"> </span><span class="nn">sys</span><span class="o">,</span><span class="w"> </span><span class="nn">subprocess</span>
+
+<span class="c1"># Non-secret env var (safe to set here)</span>
+<span class="n">os</span><span class="o">.</span><span class="n">environ</span><span class="p">[</span><span class="s2">"RAY_TRAIN_V2_ENABLED"</span><span class="p">]</span> <span class="o">=</span> <span class="s2">"1"</span>
+
+<span class="c1"># Install Python dependencies (same pinned versions as build.sh)</span>
+<span class="n">subprocess</span><span class="o">.</span><span class="n">check_call</span><span class="p">([</span>
+    <span class="n">sys</span><span class="o">.</span><span class="n">executable</span><span class="p">,</span> <span class="s2">"-m"</span><span class="p">,</span> <span class="s2">"pip"</span><span class="p">,</span> <span class="s2">"install"</span><span class="p">,</span> <span class="s2">"--no-cache-dir"</span><span class="p">,</span>
+    <span class="s2">"torch==2.8.0"</span><span class="p">,</span>
+    <span class="s2">"torchvision==0.23.0"</span><span class="p">,</span>
+    <span class="s2">"matplotlib==3.10.6"</span><span class="p">,</span>
+    <span class="s2">"pyarrow==14.0.2"</span><span class="p">,</span>
+    <span class="s2">"datasets==2.19.2"</span><span class="p">,</span>
+    <span class="s2">"lightning==2.5.5"</span><span class="p">,</span>
+<span class="p">])</span>
+</pre></div>
+</div>
 </div>
 </div>
 </div>
@@ -7533,7 +7561,7 @@ Make sure you set the Anyscale cluster to Ray ≥ 2.48, so you get Ray Train V2 
 <div class="highlight hl-ipython3"><pre><span></span><span class="c1"># 01. Imports</span>
 
 <span class="c1"># Standard libraries</span>
-<span class="kn">import</span><span class="w"> </span><span class="nn">os</span><span class="o">,</span><span class="w"> </span><span class="nn">io</span><span class="o">,</span><span class="w"> </span><span class="nn">json</span><span class="o">,</span><span class="w"> </span><span class="nn">shutil</span>
+<span class="kn">import</span><span class="w"> </span><span class="nn">os</span><span class="o">,</span><span class="w"> </span><span class="nn">io</span><span class="o">,</span><span class="w"> </span><span class="nn">json</span><span class="o">,</span><span class="w"> </span><span class="nn">shutil</span><span class="o">,</span><span class="w"> </span><span class="nn">tempfile</span>
 <span class="kn">import</span><span class="w"> </span><span class="nn">numpy</span><span class="w"> </span><span class="k">as</span><span class="w"> </span><span class="nn">np</span>
 <span class="kn">import</span><span class="w"> </span><span class="nn">matplotlib.pyplot</span><span class="w"> </span><span class="k">as</span><span class="w"> </span><span class="nn">plt</span>
 <span class="kn">import</span><span class="w"> </span><span class="nn">pandas</span><span class="w"> </span><span class="k">as</span><span class="w"> </span><span class="nn">pd</span>
@@ -7569,8 +7597,7 @@ Make sure you set the Anyscale cluster to Ray ≥ 2.48, so you get Ray Train V2 
 </div>
 <div class="jp-InputArea jp-Cell-inputArea"><div class="jp-InputPrompt jp-InputArea-prompt">
 </div><div class="jp-RenderedHTMLCommon jp-RenderedMarkdown jp-MarkdownOutput" data-mime-type="text/markdown">
-<h3 id="02-%C2%B7-Load-10-%25-of-Food-101">02 · Load 10 % of Food-101<a class="anchor-link" href="#02-%C2%B7-Load-10-%25-of-Food-101">¶</a></h3><p>Next, grab roughly 7 500 images, exactly 10 % of Food-101—using a single call to <code>load_dataset</code>. This trimmed subset trains quickly while still being large enough to demonstrate Ray’s scaling behaviour.</p>
-<p>NOTE: skip cells 02-05 if the dataset is already downloaded, as this is the same dataset as in tutorial 04a.</p>
+<h3 id="2.-Load-10-%25-of-Food-101">2. Load 10 % of Food-101<a class="anchor-link" href="#2.-Load-10-%25-of-Food-101">¶</a></h3><p>Next, grab roughly 7 500 images, exactly 10 % of Food-101—using a single call to <code>load_dataset</code>. This trimmed subset trains quickly while still being large enough to demonstrate Ray’s scaling behaviour.</p>
 </div>
 </div>
 </div>
@@ -7583,7 +7610,7 @@ Make sure you set the Anyscale cluster to Ray ≥ 2.48, so you get Ray Train V2 
 <div class="jp-CodeMirrorEditor jp-Editor jp-InputArea-editor" data-type="inline">
 <div class="cm-editor cm-s-jupyter">
 <div class="highlight hl-ipython3"><pre><span></span><span class="c1"># 02. Load 10% of food101 (~7,500 images)</span>
-<span class="n">ds</span> <span class="o">=</span> <span class="n">load_dataset</span><span class="p">(</span><span class="s2">"food101"</span><span class="p">,</span> <span class="n">split</span><span class="o">=</span><span class="s2">"train[:10%]"</span><span class="p">)</span> 
+<span class="n">hf_ds</span> <span class="o">=</span> <span class="n">load_dataset</span><span class="p">(</span><span class="s2">"food101"</span><span class="p">,</span> <span class="n">split</span><span class="o">=</span><span class="s2">"train[:10%]"</span><span class="p">)</span> 
 </pre></div>
 </div>
 </div>
@@ -7596,7 +7623,9 @@ Make sure you set the Anyscale cluster to Ray ≥ 2.48, so you get Ray Train V2 
 </div>
 <div class="jp-InputArea jp-Cell-inputArea"><div class="jp-InputPrompt jp-InputArea-prompt">
 </div><div class="jp-RenderedHTMLCommon jp-RenderedMarkdown jp-MarkdownOutput" data-mime-type="text/markdown">
-<h3 id="03-%C2%B7-Resize-and-Encode-Images">03 · Resize and Encode Images<a class="anchor-link" href="#03-%C2%B7-Resize-and-Encode-Images">¶</a></h3><p>Preprocess each image: resize to 256 pixel, center-crop to 224 pixel (the size expected by most ImageNet models), and then convert the result to raw JPEG bytes. By storing bytes instead of full Python Imaging Library (PIL) objects, you keep the dataset compact and Parquet-friendly.</p>
+<h3 id="3.-Resize-and-encode-images">3. Resize and encode images<a class="anchor-link" href="#3.-Resize-and-encode-images">¶</a></h3><p>Use <strong>Ray Data</strong> to preprocess images in parallel across the cluster.<br/>
+Convert each image to raw JPEG bytes (a serializable format) and then decoded, resized to 256 pixels, center-cropped to 224 pixels, and re-encoded.<br/>
+Processing with Ray Data makes the pipeline distributed, fault-tolerant, and Parquet-friendly—keeping the dataset compact while scaling efficiently across workers.</p>
 </div>
 </div>
 </div>
@@ -7608,21 +7637,47 @@ Make sure you set the Anyscale cluster to Ray ≥ 2.48, so you get Ray Train V2 
 <div class="jp-InputPrompt jp-InputArea-prompt">In [ ]:</div>
 <div class="jp-CodeMirrorEditor jp-Editor jp-InputArea-editor" data-type="inline">
 <div class="cm-editor cm-s-jupyter">
-<div class="highlight hl-ipython3"><pre><span></span><span class="c1"># 03. Resize + encode as JPEG bytes</span>
+<div class="highlight hl-ipython3"><pre><span></span><span class="c1"># 03. Resize + encode as JPEG bytes (Ray Data; BYTES-BASED)</span>
+
+<span class="c1"># Build Ray items with RAW BYTES (serializable) + label</span>
+<span class="n">rows</span> <span class="o">=</span> <span class="p">[]</span>
+<span class="n">buf</span> <span class="o">=</span> <span class="n">io</span><span class="o">.</span><span class="n">BytesIO</span><span class="p">()</span>
+<span class="k">for</span> <span class="n">ex</span> <span class="ow">in</span> <span class="n">hf_ds</span><span class="p">:</span>
+    <span class="n">img</span> <span class="o">=</span> <span class="n">ex</span><span class="p">[</span><span class="s2">"image"</span><span class="p">]</span><span class="o">.</span><span class="n">convert</span><span class="p">(</span><span class="s2">"RGB"</span><span class="p">)</span>
+    <span class="n">buf</span><span class="o">.</span><span class="n">seek</span><span class="p">(</span><span class="mi">0</span><span class="p">);</span> <span class="n">buf</span><span class="o">.</span><span class="n">truncate</span><span class="p">(</span><span class="mi">0</span><span class="p">)</span>
+    <span class="n">img</span><span class="o">.</span><span class="n">save</span><span class="p">(</span><span class="n">buf</span><span class="p">,</span> <span class="nb">format</span><span class="o">=</span><span class="s2">"JPEG"</span><span class="p">)</span>
+    <span class="n">rows</span><span class="o">.</span><span class="n">append</span><span class="p">({</span><span class="s2">"image_bytes_raw"</span><span class="p">:</span> <span class="n">buf</span><span class="o">.</span><span class="n">getvalue</span><span class="p">(),</span> <span class="s2">"label"</span><span class="p">:</span> <span class="n">ex</span><span class="p">[</span><span class="s2">"label"</span><span class="p">]})</span>
+
+<span class="c1"># Create a Ray Dataset from serializable dicts</span>
+<span class="n">ds</span> <span class="o">=</span> <span class="n">ray</span><span class="o">.</span><span class="n">data</span><span class="o">.</span><span class="n">from_items</span><span class="p">(</span><span class="n">rows</span><span class="p">)</span>
+
+<span class="c1"># Define preprocessing (runs on Ray workers)</span>
 <span class="n">transform</span> <span class="o">=</span> <span class="n">Compose</span><span class="p">([</span><span class="n">Resize</span><span class="p">(</span><span class="mi">256</span><span class="p">),</span> <span class="n">CenterCrop</span><span class="p">(</span><span class="mi">224</span><span class="p">)])</span>
-<span class="n">records</span> <span class="o">=</span> <span class="p">[]</span>
 
-<span class="k">for</span> <span class="n">example</span> <span class="ow">in</span> <span class="n">tqdm</span><span class="p">(</span><span class="n">ds</span><span class="p">,</span> <span class="n">desc</span><span class="o">=</span><span class="s2">"Preprocessing images"</span><span class="p">,</span> <span class="n">unit</span><span class="o">=</span><span class="s2">"img"</span><span class="p">):</span>
-    <span class="k">try</span><span class="p">:</span>
-        <span class="n">img</span> <span class="o">=</span> <span class="n">transform</span><span class="p">(</span><span class="n">example</span><span class="p">[</span><span class="s2">"image"</span><span class="p">])</span>
-        <span class="n">buf</span> <span class="o">=</span> <span class="n">io</span><span class="o">.</span><span class="n">BytesIO</span><span class="p">()</span>
-        <span class="n">img</span><span class="o">.</span><span class="n">save</span><span class="p">(</span><span class="n">buf</span><span class="p">,</span> <span class="nb">format</span><span class="o">=</span><span class="s2">"JPEG"</span><span class="p">)</span>
-        <span class="n">records</span><span class="o">.</span><span class="n">append</span><span class="p">({</span>
-            <span class="s2">"image_bytes"</span><span class="p">:</span> <span class="n">buf</span><span class="o">.</span><span class="n">getvalue</span><span class="p">(),</span>
-            <span class="s2">"label"</span><span class="p">:</span> <span class="n">example</span><span class="p">[</span><span class="s2">"label"</span><span class="p">]</span>
-        <span class="p">})</span>
-    <span class="k">except</span> <span class="ne">Exception</span> <span class="k">as</span> <span class="n">e</span><span class="p">:</span>
-        <span class="k">continue</span>
+<span class="k">def</span><span class="w"> </span><span class="nf">preprocess_images</span><span class="p">(</span><span class="n">batch_df</span><span class="p">):</span>
+    <span class="n">out_img_bytes</span><span class="p">,</span> <span class="n">out_labels</span> <span class="o">=</span> <span class="p">[],</span> <span class="p">[]</span>
+    <span class="k">for</span> <span class="n">b</span><span class="p">,</span> <span class="n">lbl</span> <span class="ow">in</span> <span class="nb">zip</span><span class="p">(</span><span class="n">batch_df</span><span class="p">[</span><span class="s2">"image_bytes_raw"</span><span class="p">],</span> <span class="n">batch_df</span><span class="p">[</span><span class="s2">"label"</span><span class="p">]):</span>
+        <span class="k">try</span><span class="p">:</span>
+            <span class="n">img</span> <span class="o">=</span> <span class="n">Image</span><span class="o">.</span><span class="n">open</span><span class="p">(</span><span class="n">io</span><span class="o">.</span><span class="n">BytesIO</span><span class="p">(</span><span class="n">b</span><span class="p">))</span><span class="o">.</span><span class="n">convert</span><span class="p">(</span><span class="s2">"RGB"</span><span class="p">)</span>
+            <span class="n">img</span> <span class="o">=</span> <span class="n">transform</span><span class="p">(</span><span class="n">img</span><span class="p">)</span>
+            <span class="n">out</span> <span class="o">=</span> <span class="n">io</span><span class="o">.</span><span class="n">BytesIO</span><span class="p">()</span>
+            <span class="n">img</span><span class="o">.</span><span class="n">save</span><span class="p">(</span><span class="n">out</span><span class="p">,</span> <span class="nb">format</span><span class="o">=</span><span class="s2">"JPEG"</span><span class="p">)</span>
+            <span class="n">out_img_bytes</span><span class="o">.</span><span class="n">append</span><span class="p">(</span><span class="n">out</span><span class="o">.</span><span class="n">getvalue</span><span class="p">())</span>
+            <span class="n">out_labels</span><span class="o">.</span><span class="n">append</span><span class="p">(</span><span class="n">lbl</span><span class="p">)</span>
+        <span class="k">except</span> <span class="ne">Exception</span><span class="p">:</span>
+            <span class="c1"># Skip unreadable/corrupt rows but don't kill the batch</span>
+            <span class="k">continue</span>
+    <span class="k">return</span> <span class="p">{</span><span class="s2">"image_bytes"</span><span class="p">:</span> <span class="n">out_img_bytes</span><span class="p">,</span> <span class="s2">"label"</span><span class="p">:</span> <span class="n">out_labels</span><span class="p">}</span>
+
+<span class="c1"># Parallel preprocessing</span>
+<span class="n">processed_ds</span> <span class="o">=</span> <span class="n">ds</span><span class="o">.</span><span class="n">map_batches</span><span class="p">(</span>
+    <span class="n">preprocess_images</span><span class="p">,</span>
+    <span class="n">batch_format</span><span class="o">=</span><span class="s2">"pandas"</span><span class="p">,</span>
+    <span class="n">num_cpus</span><span class="o">=</span><span class="mi">1</span><span class="p">,</span>
+<span class="p">)</span>
+
+<span class="nb">print</span><span class="p">(</span><span class="s2">"✅ Processed records:"</span><span class="p">,</span> <span class="n">processed_ds</span><span class="o">.</span><span class="n">count</span><span class="p">())</span>
+<span class="n">processed_ds</span><span class="o">.</span><span class="n">show</span><span class="p">(</span><span class="mi">3</span><span class="p">)</span>
 </pre></div>
 </div>
 </div>
@@ -7635,7 +7690,7 @@ Make sure you set the Anyscale cluster to Ray ≥ 2.48, so you get Ray Train V2 
 </div>
 <div class="jp-InputArea jp-Cell-inputArea"><div class="jp-InputPrompt jp-InputArea-prompt">
 </div><div class="jp-RenderedHTMLCommon jp-RenderedMarkdown jp-MarkdownOutput" data-mime-type="text/markdown">
-<h3 id="04-%C2%B7-Visual-Sanity-Check">04 · Visual Sanity Check<a class="anchor-link" href="#04-%C2%B7-Visual-Sanity-Check">¶</a></h3><p>Before committing to hours of training, take nine random samples and plot them with their class names. This quick inspection lets you confirm that images are correctly resized and preprocessed.</p>
+<h3 id="4.-Visual-sanity-check">4. Visual sanity check<a class="anchor-link" href="#4.-Visual-sanity-check">¶</a></h3><p>Before committing to hours of training, take nine random samples and plot them with their class names. This quick inspection lets you confirm that images are correctly resized and preprocessed.</p>
 </div>
 </div>
 </div>
@@ -7647,20 +7702,18 @@ Make sure you set the Anyscale cluster to Ray ≥ 2.48, so you get Ray Train V2 
 <div class="jp-InputPrompt jp-InputArea-prompt">In [ ]:</div>
 <div class="jp-CodeMirrorEditor jp-Editor jp-InputArea-editor" data-type="inline">
 <div class="cm-editor cm-s-jupyter">
-<div class="highlight hl-ipython3"><pre><span></span><span class="c1"># 04. Visualize the dataset</span>
+<div class="highlight hl-ipython3"><pre><span></span><span class="c1"># 04. Visualize the dataset (Ray Data version)</span>
+<span class="n">label_names</span> <span class="o">=</span> <span class="n">hf_ds</span><span class="o">.</span><span class="n">features</span><span class="p">[</span><span class="s2">"label"</span><span class="p">]</span><span class="o">.</span><span class="n">names</span>  <span class="c1"># int -&gt; class name</span>
 
-<span class="n">label_names</span> <span class="o">=</span> <span class="n">ds</span><span class="o">.</span><span class="n">features</span><span class="p">[</span><span class="s2">"label"</span><span class="p">]</span><span class="o">.</span><span class="n">names</span>  <span class="c1"># maps int → string</span>
-
-<span class="n">samples</span> <span class="o">=</span> <span class="n">random</span><span class="o">.</span><span class="n">sample</span><span class="p">(</span><span class="n">records</span><span class="p">,</span> <span class="mi">9</span><span class="p">)</span>
+<span class="n">samples</span> <span class="o">=</span> <span class="n">processed_ds</span><span class="o">.</span><span class="n">random_shuffle</span><span class="p">()</span><span class="o">.</span><span class="n">take</span><span class="p">(</span><span class="mi">9</span><span class="p">)</span>
 
 <span class="n">fig</span><span class="p">,</span> <span class="n">axs</span> <span class="o">=</span> <span class="n">plt</span><span class="o">.</span><span class="n">subplots</span><span class="p">(</span><span class="mi">3</span><span class="p">,</span> <span class="mi">3</span><span class="p">,</span> <span class="n">figsize</span><span class="o">=</span><span class="p">(</span><span class="mi">8</span><span class="p">,</span> <span class="mi">8</span><span class="p">))</span>
 <span class="n">fig</span><span class="o">.</span><span class="n">suptitle</span><span class="p">(</span><span class="s2">"Sample Resized Images from food101-lite"</span><span class="p">,</span> <span class="n">fontsize</span><span class="o">=</span><span class="mi">16</span><span class="p">)</span>
 
 <span class="k">for</span> <span class="n">ax</span><span class="p">,</span> <span class="n">rec</span> <span class="ow">in</span> <span class="nb">zip</span><span class="p">(</span><span class="n">axs</span><span class="o">.</span><span class="n">flatten</span><span class="p">(),</span> <span class="n">samples</span><span class="p">):</span>
     <span class="n">img</span> <span class="o">=</span> <span class="n">Image</span><span class="o">.</span><span class="n">open</span><span class="p">(</span><span class="n">io</span><span class="o">.</span><span class="n">BytesIO</span><span class="p">(</span><span class="n">rec</span><span class="p">[</span><span class="s2">"image_bytes"</span><span class="p">]))</span>
-    <span class="n">label_name</span> <span class="o">=</span> <span class="n">label_names</span><span class="p">[</span><span class="n">rec</span><span class="p">[</span><span class="s2">"label"</span><span class="p">]]</span>
     <span class="n">ax</span><span class="o">.</span><span class="n">imshow</span><span class="p">(</span><span class="n">img</span><span class="p">)</span>
-    <span class="n">ax</span><span class="o">.</span><span class="n">set_title</span><span class="p">(</span><span class="n">label_name</span><span class="p">)</span>
+    <span class="n">ax</span><span class="o">.</span><span class="n">set_title</span><span class="p">(</span><span class="n">label_names</span><span class="p">[</span><span class="n">rec</span><span class="p">[</span><span class="s2">"label"</span><span class="p">]])</span>
     <span class="n">ax</span><span class="o">.</span><span class="n">axis</span><span class="p">(</span><span class="s2">"off"</span><span class="p">)</span>
 
 <span class="n">plt</span><span class="o">.</span><span class="n">tight_layout</span><span class="p">()</span>
@@ -7677,7 +7730,7 @@ Make sure you set the Anyscale cluster to Ray ≥ 2.48, so you get Ray Train V2 
 </div>
 <div class="jp-InputArea jp-Cell-inputArea"><div class="jp-InputPrompt jp-InputArea-prompt">
 </div><div class="jp-RenderedHTMLCommon jp-RenderedMarkdown jp-MarkdownOutput" data-mime-type="text/markdown">
-<h3 id="05-%C2%B7-Persist-to-Parquet">05 · Persist to Parquet<a class="anchor-link" href="#05-%C2%B7-Persist-to-Parquet">¶</a></h3><p>Now, write the images and labels to a Parquet file. Because Parquet is columnar, you can read just the columns you need during training, which speeds up IO---especially when multiple workers are reading in parallel under Ray.</p>
+<h3 id="5.-Persist-to-Parquet">5. Persist to Parquet<a class="anchor-link" href="#5.-Persist-to-Parquet">¶</a></h3><p>Now, write the images and labels to a Parquet file. Because Parquet is columnar, you can read just the columns you need during training, which speeds up IO---especially when multiple workers are reading in parallel under Ray.</p>
 </div>
 </div>
 </div>
@@ -7689,18 +7742,16 @@ Make sure you set the Anyscale cluster to Ray ≥ 2.48, so you get Ray Train V2 
 <div class="jp-InputPrompt jp-InputArea-prompt">In [ ]:</div>
 <div class="jp-CodeMirrorEditor jp-Editor jp-InputArea-editor" data-type="inline">
 <div class="cm-editor cm-s-jupyter">
-<div class="highlight hl-ipython3"><pre><span></span><span class="c1"># 05. Write Dataset to Parquet</span>
+<div class="highlight hl-ipython3"><pre><span></span><span class="c1"># 05. Persist Ray Dataset to Parquet</span>
+<span class="kn">import</span><span class="w"> </span><span class="nn">os</span>
 
 <span class="n">output_dir</span> <span class="o">=</span> <span class="s2">"/mnt/cluster_storage/food101_lite/parquet_256"</span>
 <span class="n">os</span><span class="o">.</span><span class="n">makedirs</span><span class="p">(</span><span class="n">output_dir</span><span class="p">,</span> <span class="n">exist_ok</span><span class="o">=</span><span class="kc">True</span><span class="p">)</span>
 
-<span class="n">table</span> <span class="o">=</span> <span class="n">pa</span><span class="o">.</span><span class="n">Table</span><span class="o">.</span><span class="n">from_pydict</span><span class="p">({</span>
-    <span class="s2">"image_bytes"</span><span class="p">:</span> <span class="p">[</span><span class="n">r</span><span class="p">[</span><span class="s2">"image_bytes"</span><span class="p">]</span> <span class="k">for</span> <span class="n">r</span> <span class="ow">in</span> <span class="n">records</span><span class="p">],</span>
-    <span class="s2">"label"</span><span class="p">:</span> <span class="p">[</span><span class="n">r</span><span class="p">[</span><span class="s2">"label"</span><span class="p">]</span> <span class="k">for</span> <span class="n">r</span> <span class="ow">in</span> <span class="n">records</span><span class="p">]</span>
-<span class="p">})</span>
-<span class="n">pq</span><span class="o">.</span><span class="n">write_table</span><span class="p">(</span><span class="n">table</span><span class="p">,</span> <span class="n">os</span><span class="o">.</span><span class="n">path</span><span class="o">.</span><span class="n">join</span><span class="p">(</span><span class="n">output_dir</span><span class="p">,</span> <span class="s2">"shard_0.parquet"</span><span class="p">))</span>
+<span class="c1"># Write each block as its own Parquet shard</span>
+<span class="n">processed_ds</span><span class="o">.</span><span class="n">write_parquet</span><span class="p">(</span><span class="n">output_dir</span><span class="p">)</span>
 
-<span class="nb">print</span><span class="p">(</span><span class="sa">f</span><span class="s2">"Wrote </span><span class="si">{</span><span class="nb">len</span><span class="p">(</span><span class="n">records</span><span class="p">)</span><span class="si">}</span><span class="s2"> records to </span><span class="si">{</span><span class="n">output_dir</span><span class="si">}</span><span class="s2">"</span><span class="p">)</span>
+<span class="nb">print</span><span class="p">(</span><span class="sa">f</span><span class="s2">"✅ Wrote </span><span class="si">{</span><span class="n">processed_ds</span><span class="o">.</span><span class="n">count</span><span class="p">()</span><span class="si">}</span><span class="s2"> records to </span><span class="si">{</span><span class="n">output_dir</span><span class="si">}</span><span class="s2">"</span><span class="p">)</span>
 </pre></div>
 </div>
 </div>
@@ -7713,8 +7764,8 @@ Make sure you set the Anyscale cluster to Ray ≥ 2.48, so you get Ray Train V2 
 </div>
 <div class="jp-InputArea jp-Cell-inputArea"><div class="jp-InputPrompt jp-InputArea-prompt">
 </div><div class="jp-RenderedHTMLCommon jp-RenderedMarkdown jp-MarkdownOutput" data-mime-type="text/markdown">
-<h3 id="06-%C2%B7-Load-&amp;-Decode-with-Ray-Data">06 · Load &amp; Decode with Ray Data<a class="anchor-link" href="#06-%C2%B7-Load-&amp;-Decode-with-Ray-Data">¶</a></h3><p>Read the Parquet shard into a <strong>Ray Dataset</strong>, decode the JPEG bytes to ** Channel-Height-Width (CHW) float32 tensors<strong>, scale to [-1, 1], and drop the original byte column.<br/>
-Because <code>decode_and_normalize</code> is stateless, the default **task-based</strong> execution is perfect.</p>
+<h3 id="6.-Load-and-decode-with-Ray-Data">6. Load and decode with Ray Data<a class="anchor-link" href="#6.-Load-and-decode-with-Ray-Data">¶</a></h3><p>Read the Parquet shard into a <strong>Ray Dataset</strong>, decode the JPEG bytes to <strong>Channel-Height-Width (CHW) float32 tensors</strong>, scale to [-1, 1], and drop the original byte column.<br/>
+Because <code>decode_and_normalize</code> is stateless, the default <strong>task-based</strong> execution is perfect.</p>
 </div>
 </div>
 </div>
@@ -7776,7 +7827,7 @@ Because <code>decode_and_normalize</code> is stateless, the default **task-based
 </div>
 <div class="jp-InputArea jp-Cell-inputArea"><div class="jp-InputPrompt jp-InputArea-prompt">
 </div><div class="jp-RenderedHTMLCommon jp-RenderedMarkdown jp-MarkdownOutput" data-mime-type="text/markdown">
-<h3 id="07-%C2%B7-Shuffle-&amp;-Train/Val-Split">07 · Shuffle &amp; Train/Val Split<a class="anchor-link" href="#07-%C2%B7-Shuffle-&amp;-Train/Val-Split">¶</a></h3><p>Perform a reproducible shuffle, then split 80 % / 20 % into <code>train_ds</code> and <code>val_ds</code>.<br/>
+<h3 id="7.-Shuffle-and-Train/Val-split">7. Shuffle and Train/Val split<a class="anchor-link" href="#7.-Shuffle-and-Train/Val-split">¶</a></h3><p>Perform a reproducible shuffle, then split 80 % / 20 % into <code>train_ds</code> and <code>val_ds</code>.<br/>
 Each split remains a first-class Ray Dataset, enabling distributed, sharded DataLoaders later on.</p>
 </div>
 </div>
@@ -7794,7 +7845,7 @@ Each split remains a first-class Ray Dataset, enabling distributed, sharded Data
 <span class="c1"># Typical 80 / 20 split</span>
 <span class="n">TOTAL</span> <span class="o">=</span> <span class="n">ds</span><span class="o">.</span><span class="n">count</span><span class="p">()</span>
 <span class="n">train_count</span> <span class="o">=</span> <span class="nb">int</span><span class="p">(</span><span class="n">TOTAL</span> <span class="o">*</span> <span class="mf">0.8</span><span class="p">)</span>
-<span class="n">ds</span> <span class="o">=</span> <span class="n">ds</span><span class="o">.</span><span class="n">random_shuffle</span><span class="p">()</span>
+<span class="n">ds</span> <span class="o">=</span> <span class="n">ds</span><span class="o">.</span><span class="n">random_shuffle</span><span class="p">()</span>  <span class="c1"># expensive operation -- for large datasets, consider file shuffling or local shuffling. Ray offers both options</span>
 <span class="n">train_ds</span><span class="p">,</span> <span class="n">val_ds</span> <span class="o">=</span> <span class="n">ds</span><span class="o">.</span><span class="n">split_at_indices</span><span class="p">([</span><span class="n">train_count</span><span class="p">])</span>
 <span class="nb">print</span><span class="p">(</span><span class="s2">"Train rows:"</span><span class="p">,</span> <span class="n">train_ds</span><span class="o">.</span><span class="n">count</span><span class="p">())</span>
 <span class="nb">print</span><span class="p">(</span><span class="s2">"Val rows:"</span><span class="p">,</span>   <span class="n">val_ds</span><span class="o">.</span><span class="n">count</span><span class="p">())</span>

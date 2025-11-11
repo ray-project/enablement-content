@@ -1,0 +1,17 @@
+# serve_my_qwen.yaml
+applications:
+- name: json-mode-app
+  route_prefix: "/"
+  import_path: ray.serve.llm:build_openai_app
+  args:
+    llm_configs:
+      - model_loading_config:
+          model_id: my-qwen
+          model_source: Qwen/Qwen2.5-3B-Instruct
+        accelerator_type: L4
+        ### Uncomment if your model is gated and need your Huggingface Token to access it
+        #runtime_env:
+        #  env_vars:
+        #    HF_TOKEN: <YOUR-TOKEN-HERE>
+        engine_kwargs:
+          max_model_len: 8192

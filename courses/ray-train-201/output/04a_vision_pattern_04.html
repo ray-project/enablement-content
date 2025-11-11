@@ -7517,7 +7517,8 @@ a.anchor-link {
 </div>
 <div class="jp-InputArea jp-Cell-inputArea"><div class="jp-InputPrompt jp-InputArea-prompt">
 </div><div class="jp-RenderedHTMLCommon jp-RenderedMarkdown jp-MarkdownOutput" data-mime-type="text/markdown">
-<h2 id="10-%C2%B7-Helper:-Ray-Prepared-DataLoaders">10 · Helper: Ray-Prepared DataLoaders<a class="anchor-link" href="#10-%C2%B7-Helper:-Ray-Prepared-DataLoaders">¶</a></h2><p>Wrap the DataLoader with <code>prepare_data_loader</code>. Ray injects a <code>DistributedSampler</code>, pins the loader to the correct GPU, and handles worker-rank bookkeeping. Thanks to this helper, your training loop can stay blissfully unaware of distributed details.</p>
+<h2 id="10.-Helper:-Ray-prepared-DataLoaders">10. Helper: Ray-prepared DataLoaders<a class="anchor-link" href="#10.-Helper:-Ray-prepared-DataLoaders">¶</a></h2><p>Wrap the DataLoader with <code>prepare_data_loader</code>.<br/>
+Ray automatically injects a <code>DistributedSampler</code>, pins the loader to the correct GPU, and manages all worker-rank bookkeeping. This means you don’t need to manually construct a <code>DistributedSampler</code>, as it’s handled internally by Ray.</p>
 </div>
 </div>
 </div>
@@ -7530,24 +7531,14 @@ a.anchor-link {
 <div class="jp-CodeMirrorEditor jp-Editor jp-InputArea-editor" data-type="inline">
 <div class="cm-editor cm-s-jupyter">
 <div class="highlight hl-ipython3"><pre><span></span><span class="c1"># 10. Define helper to create prepared DataLoader</span>
-<span class="kn">from</span><span class="w"> </span><span class="nn">torch.utils.data.distributed</span><span class="w"> </span><span class="kn">import</span> <span class="n">DistributedSampler</span>
-
 <span class="k">def</span><span class="w"> </span><span class="nf">build_dataloader</span><span class="p">(</span><span class="n">parquet_path</span><span class="p">:</span> <span class="nb">str</span><span class="p">,</span> <span class="n">batch_size</span><span class="p">:</span> <span class="nb">int</span><span class="p">,</span> <span class="n">shuffle</span><span class="o">=</span><span class="kc">True</span><span class="p">):</span>
     <span class="n">dataset</span> <span class="o">=</span> <span class="n">Food101Dataset</span><span class="p">(</span><span class="n">parquet_path</span><span class="p">,</span> <span class="n">transform</span><span class="o">=</span><span class="n">transform</span><span class="p">)</span>
 
-    <span class="c1"># Add a DistributedSampler to shard data across workers</span>
-    <span class="n">sampler</span> <span class="o">=</span> <span class="n">DistributedSampler</span><span class="p">(</span>
-        <span class="n">dataset</span><span class="p">,</span>
-        <span class="n">num_replicas</span><span class="o">=</span><span class="n">train</span><span class="o">.</span><span class="n">get_context</span><span class="p">()</span><span class="o">.</span><span class="n">get_world_size</span><span class="p">(),</span>
-        <span class="n">rank</span><span class="o">=</span><span class="n">train</span><span class="o">.</span><span class="n">get_context</span><span class="p">()</span><span class="o">.</span><span class="n">get_world_rank</span><span class="p">(),</span>
-        <span class="n">shuffle</span><span class="o">=</span><span class="n">shuffle</span><span class="p">,</span>
-        <span class="n">drop_last</span><span class="o">=</span><span class="n">shuffle</span><span class="p">,</span>
-    <span class="p">)</span>
-
+    <span class="c1"># Let Ray handle DistributedSampler and device placement via prepare_data_loader.</span>
     <span class="n">loader</span> <span class="o">=</span> <span class="n">DataLoader</span><span class="p">(</span>
         <span class="n">dataset</span><span class="p">,</span>
         <span class="n">batch_size</span><span class="o">=</span><span class="n">batch_size</span><span class="p">,</span>
-        <span class="n">sampler</span><span class="o">=</span><span class="n">sampler</span><span class="p">,</span>
+        <span class="n">shuffle</span><span class="o">=</span><span class="n">shuffle</span><span class="p">,</span>
         <span class="n">num_workers</span><span class="o">=</span><span class="mi">2</span><span class="p">,</span>
     <span class="p">)</span>
     <span class="k">return</span> <span class="n">prepare_data_loader</span><span class="p">(</span><span class="n">loader</span><span class="p">)</span>

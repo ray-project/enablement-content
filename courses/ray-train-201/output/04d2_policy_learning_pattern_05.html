@@ -7517,7 +7517,7 @@ a.anchor-link {
 </div>
 <div class="jp-InputArea jp-Cell-inputArea"><div class="jp-InputPrompt jp-InputArea-prompt">
 </div><div class="jp-RenderedHTMLCommon jp-RenderedMarkdown jp-MarkdownOutput" data-mime-type="text/markdown">
-<h2 id="08.-Reverse-Diffusion-Helper">08. Reverse Diffusion Helper<a class="anchor-link" href="#08.-Reverse-Diffusion-Helper">¶</a></h2><p>Iteratively de-noise a random action vector <strong>50 steps</strong> back to a feasible Pendulum command.</p>
+<h2 id="8.-Reverse-diffusion-helper">8. Reverse diffusion helper<a class="anchor-link" href="#8.-Reverse-diffusion-helper">¶</a></h2><p>Iteratively de-noise a random action vector <strong>50 steps</strong> back to a feasible Pendulum command.</p>
 </div>
 </div>
 </div>
@@ -7541,9 +7541,9 @@ a.anchor-link {
     <span class="n">model</span><span class="o">.</span><span class="n">eval</span><span class="p">()</span>
     <span class="k">with</span> <span class="n">torch</span><span class="o">.</span><span class="n">no_grad</span><span class="p">():</span>
         <span class="n">obs</span> <span class="o">=</span> <span class="n">obs</span><span class="o">.</span><span class="n">unsqueeze</span><span class="p">(</span><span class="mi">0</span><span class="p">)</span><span class="o">.</span><span class="n">to</span><span class="p">(</span><span class="n">device</span><span class="p">)</span>      <span class="c1"># [1, 3]</span>
-        <span class="n">obs</span> <span class="o">=</span> <span class="n">obs</span> <span class="o">/</span> <span class="n">np</span><span class="o">.</span><span class="n">pi</span>                      <span class="c1"># same normalization used in training</span>
+        <span class="n">obs</span> <span class="o">=</span> <span class="n">obs</span> <span class="o">/</span> <span class="n">np</span><span class="o">.</span><span class="n">pi</span>                      <span class="c1"># Same normalization used in training</span>
 
-        <span class="n">x</span> <span class="o">=</span> <span class="n">torch</span><span class="o">.</span><span class="n">randn</span><span class="p">(</span><span class="mi">1</span><span class="p">,</span> <span class="mi">1</span><span class="p">)</span><span class="o">.</span><span class="n">to</span><span class="p">(</span><span class="n">device</span><span class="p">)</span>       <span class="c1"># start from noise in action space</span>
+        <span class="n">x</span> <span class="o">=</span> <span class="n">torch</span><span class="o">.</span><span class="n">randn</span><span class="p">(</span><span class="mi">1</span><span class="p">,</span> <span class="mi">1</span><span class="p">)</span><span class="o">.</span><span class="n">to</span><span class="p">(</span><span class="n">device</span><span class="p">)</span>       <span class="c1"># Start from noise in action space</span>
 
         <span class="k">for</span> <span class="n">step</span> <span class="ow">in</span> <span class="nb">reversed</span><span class="p">(</span><span class="nb">range</span><span class="p">(</span><span class="n">n_steps</span><span class="p">)):</span>
             <span class="n">t</span> <span class="o">=</span> <span class="n">torch</span><span class="o">.</span><span class="n">tensor</span><span class="p">([</span><span class="n">step</span><span class="p">],</span> <span class="n">device</span><span class="o">=</span><span class="n">device</span><span class="p">)</span>
@@ -7563,7 +7563,7 @@ a.anchor-link {
 </div>
 <div class="jp-InputArea jp-Cell-inputArea"><div class="jp-InputPrompt jp-InputArea-prompt">
 </div><div class="jp-RenderedHTMLCommon jp-RenderedMarkdown jp-MarkdownOutput" data-mime-type="text/markdown">
-<h3 id="09.-Sample-an-Action-from-the-Trained-Policy">09. Sample an Action from the Trained Policy<a class="anchor-link" href="#09.-Sample-an-Action-from-the-Trained-Policy">¶</a></h3><p>Finally, load the <strong>latest epoch checkpoint</strong>, supply a sample state<br/>
+<h3 id="9.-Sample-an-action-from-the-trained-policy">9. Sample an action from the trained policy<a class="anchor-link" href="#9.-Sample-an-action-from-the-trained-policy">¶</a></h3><p>Finally, load the <strong>latest epoch checkpoint</strong>, supply a sample state<br/>
 <code>[cos θ = 1, sin θ = 0, θ̇ = 0]</code>, and generate a 1-D torque command.</p>
 </div>
 </div>
@@ -7576,27 +7576,49 @@ a.anchor-link {
 <div class="jp-InputPrompt jp-InputArea-prompt">In [ ]:</div>
 <div class="jp-CodeMirrorEditor jp-Editor jp-InputArea-editor" data-type="inline">
 <div class="cm-editor cm-s-jupyter">
-<div class="highlight hl-ipython3"><pre><span></span><span class="c1"># 09. In-notebook sampling from trained model</span>
+<div class="highlight hl-ipython3"><pre><span></span><span class="c1"># 09. In-notebook sampling from trained model (Ray Lightning checkpoint)</span>
 
 <span class="c1"># A plausible pendulum state: [cos(theta), sin(theta), theta_dot]</span>
 <span class="n">obs_sample</span> <span class="o">=</span> <span class="n">torch</span><span class="o">.</span><span class="n">tensor</span><span class="p">([</span><span class="mf">1.0</span><span class="p">,</span> <span class="mf">0.0</span><span class="p">,</span> <span class="mf">0.0</span><span class="p">],</span> <span class="n">dtype</span><span class="o">=</span><span class="n">torch</span><span class="o">.</span><span class="n">float32</span><span class="p">)</span>   <span class="c1"># shape (3,)</span>
 
-<span class="c1"># Load the most recent model checkpoint from the checkpoint directory</span>
-<span class="n">CKPT_DIR</span> <span class="o">=</span> <span class="s2">"/mnt/cluster_storage/pendulum_diffusion/pendulum_diffusion_ckpts"</span>
+<span class="k">assert</span> <span class="n">best_ckpt</span> <span class="ow">is</span> <span class="ow">not</span> <span class="kc">None</span><span class="p">,</span> <span class="s2">"No checkpoint found — did training complete successfully?"</span>
 
-<span class="c1"># Pick latest by sorted creation time (or filename if using uuid naming)</span>
-<span class="n">latest</span> <span class="o">=</span> <span class="nb">sorted</span><span class="p">(</span><span class="n">os</span><span class="o">.</span><span class="n">listdir</span><span class="p">(</span><span class="n">CKPT_DIR</span><span class="p">))[</span><span class="o">-</span><span class="mi">1</span><span class="p">]</span>
-<span class="n">model_path</span> <span class="o">=</span> <span class="n">os</span><span class="o">.</span><span class="n">path</span><span class="o">.</span><span class="n">join</span><span class="p">(</span><span class="n">CKPT_DIR</span><span class="p">,</span> <span class="n">latest</span><span class="p">,</span> <span class="s2">"model.pt"</span><span class="p">)</span>
-
+<span class="c1"># Load the trained model from Ray's latest Lightning checkpoint</span>
 <span class="n">model</span> <span class="o">=</span> <span class="n">DiffusionPolicy</span><span class="p">(</span><span class="n">obs_dim</span><span class="o">=</span><span class="mi">3</span><span class="p">,</span> <span class="n">act_dim</span><span class="o">=</span><span class="mi">1</span><span class="p">)</span>
-<span class="n">model</span><span class="o">.</span><span class="n">load_state_dict</span><span class="p">(</span><span class="n">torch</span><span class="o">.</span><span class="n">load</span><span class="p">(</span><span class="n">model_path</span><span class="p">,</span> <span class="n">map_location</span><span class="o">=</span><span class="s2">"cpu"</span><span class="p">))</span>
-<span class="n">model</span> <span class="o">=</span> <span class="n">model</span><span class="o">.</span><span class="n">to</span><span class="p">(</span><span class="s2">"cuda"</span> <span class="k">if</span> <span class="n">torch</span><span class="o">.</span><span class="n">cuda</span><span class="o">.</span><span class="n">is_available</span><span class="p">()</span> <span class="k">else</span> <span class="s2">"cpu"</span><span class="p">)</span>
+
+<span class="k">with</span> <span class="n">best_ckpt</span><span class="o">.</span><span class="n">as_directory</span><span class="p">()</span> <span class="k">as</span> <span class="n">ckpt_dir</span><span class="p">:</span>
+    <span class="c1"># RayTrainReportCallback saves a file named "checkpoint.ckpt"</span>
+    <span class="n">ckpt_file</span> <span class="o">=</span> <span class="n">os</span><span class="o">.</span><span class="n">path</span><span class="o">.</span><span class="n">join</span><span class="p">(</span><span class="n">ckpt_dir</span><span class="p">,</span> <span class="s2">"checkpoint.ckpt"</span><span class="p">)</span>
+    <span class="k">if</span> <span class="ow">not</span> <span class="n">os</span><span class="o">.</span><span class="n">path</span><span class="o">.</span><span class="n">exists</span><span class="p">(</span><span class="n">ckpt_file</span><span class="p">):</span>
+        <span class="c1"># Fallback: search any .ckpt file if name differs</span>
+        <span class="n">candidates</span> <span class="o">=</span> <span class="n">glob</span><span class="o">.</span><span class="n">glob</span><span class="p">(</span><span class="n">os</span><span class="o">.</span><span class="n">path</span><span class="o">.</span><span class="n">join</span><span class="p">(</span><span class="n">ckpt_dir</span><span class="p">,</span> <span class="s2">"*.ckpt"</span><span class="p">))</span>
+        <span class="n">ckpt_file</span> <span class="o">=</span> <span class="n">candidates</span><span class="p">[</span><span class="mi">0</span><span class="p">]</span> <span class="k">if</span> <span class="n">candidates</span> <span class="k">else</span> <span class="kc">None</span>
+
+    <span class="k">assert</span> <span class="n">ckpt_file</span> <span class="ow">is</span> <span class="ow">not</span> <span class="kc">None</span><span class="p">,</span> <span class="sa">f</span><span class="s2">"No Lightning checkpoint found in </span><span class="si">{</span><span class="n">ckpt_dir</span><span class="si">}</span><span class="s2">"</span>
+    <span class="n">state</span> <span class="o">=</span> <span class="n">torch</span><span class="o">.</span><span class="n">load</span><span class="p">(</span><span class="n">ckpt_file</span><span class="p">,</span> <span class="n">map_location</span><span class="o">=</span><span class="s2">"cpu"</span><span class="p">)</span>
+    <span class="n">model</span><span class="o">.</span><span class="n">load_state_dict</span><span class="p">(</span><span class="n">state</span><span class="o">.</span><span class="n">get</span><span class="p">(</span><span class="s2">"state_dict"</span><span class="p">,</span> <span class="n">state</span><span class="p">),</span> <span class="n">strict</span><span class="o">=</span><span class="kc">False</span><span class="p">)</span>
+
+<span class="c1"># Move to device</span>
+<span class="n">device</span> <span class="o">=</span> <span class="s2">"cuda"</span> <span class="k">if</span> <span class="n">torch</span><span class="o">.</span><span class="n">cuda</span><span class="o">.</span><span class="n">is_available</span><span class="p">()</span> <span class="k">else</span> <span class="s2">"cpu"</span>
+<span class="n">model</span> <span class="o">=</span> <span class="n">model</span><span class="o">.</span><span class="n">to</span><span class="p">(</span><span class="n">device</span><span class="p">)</span>
 
 <span class="c1"># Run reverse diffusion sampling</span>
-<span class="n">action</span> <span class="o">=</span> <span class="n">sample_action</span><span class="p">(</span><span class="n">model</span><span class="p">,</span> <span class="n">obs_sample</span><span class="p">,</span> <span class="n">n_steps</span><span class="o">=</span><span class="mi">50</span><span class="p">,</span> <span class="n">device</span><span class="o">=</span><span class="s2">"cpu"</span><span class="p">)</span>
+<span class="n">action</span> <span class="o">=</span> <span class="n">sample_action</span><span class="p">(</span><span class="n">model</span><span class="p">,</span> <span class="n">obs_sample</span><span class="p">,</span> <span class="n">n_steps</span><span class="o">=</span><span class="mi">50</span><span class="p">,</span> <span class="n">device</span><span class="o">=</span><span class="n">device</span><span class="p">)</span>
 <span class="nb">print</span><span class="p">(</span><span class="s2">"Sampled action:"</span><span class="p">,</span> <span class="n">action</span><span class="p">)</span>
 </pre></div>
 </div>
+</div>
+</div>
+</div>
+</div>
+<div class="jp-Cell jp-MarkdownCell jp-Notebook-cell">
+<div class="jp-Cell-inputWrapper" tabindex="0">
+<div class="jp-Collapser jp-InputCollapser jp-Cell-inputCollapser">
+</div>
+<div class="jp-InputArea jp-Cell-inputArea"><div class="jp-InputPrompt jp-InputArea-prompt">
+</div><div class="jp-RenderedHTMLCommon jp-RenderedMarkdown jp-MarkdownOutput" data-mime-type="text/markdown">
+<h3 id="10.-Clean-up">10. Clean up<a class="anchor-link" href="#10.-Clean-up">¶</a></h3><p>When you're finished, release Ray resources and clear any temporary files.<br/>
+This ensures the cluster is ready for other jobs and avoids unnecessary storage costs.</p>
 </div>
 </div>
 </div>
@@ -7629,61 +7651,62 @@ a.anchor-link {
 </div>
 <div class="jp-InputArea jp-Cell-inputArea"><div class="jp-InputPrompt jp-InputArea-prompt">
 </div><div class="jp-RenderedHTMLCommon jp-RenderedMarkdown jp-MarkdownOutput" data-mime-type="text/markdown">
-<h3 id="%F0%9F%8E%89-Wrapping-Up-&amp;-Next-Steps">🎉 Wrapping Up &amp; Next Steps<a class="anchor-link" href="#%F0%9F%8E%89-Wrapping-Up-&amp;-Next-Steps">¶</a></h3><p>Great job reaching the finish line. You’ve transformed a synthetic control demo into a <strong>Ray-native, real-data pipeline</strong>, training a diffusion policy across multiple GPUs, surviving worker restarts, and sampling feasible actions, all within a distributed Ray environment.</p>
+<h3 id="Wrap-up-and-next-steps">Wrap up and next steps<a class="anchor-link" href="#Wrap-up-and-next-steps">¶</a></h3><p>You transformed a synthetic control demo into a <strong>Ray-native, real-data pipeline</strong>, training a diffusion policy across multiple GPUs, surviving worker restarts, and sampling feasible actions, all within a distributed Ray environment.</p>
 <p>You should now feel confident:</p>
 <ul>
 <li>Logging continuous-control trajectories directly into a <strong>Ray Dataset</strong> for scalable preprocessing</li>
-<li>Streaming data into a <strong>Ray Train</strong> workload using Ray Data + Lightning with minimal integration overhead</li>
-<li>Saving structured checkpoints with <code>ray.train.report()</code> and leveraging <strong>Ray’s fault-tolerant recovery</strong></li>
-<li>Running reverse diffusion sampling directly in-notebook—or scaling it up as <strong>Ray remote tasks</strong></li>
+<li>Streaming data into a <strong>Ray Train</strong> workload using Ray Data and Lightning with minimal integration overhead</li>
+<li>Saving structured checkpoints automatically through <strong>Lightning + Ray Train callbacks</strong>, ensuring seamless <strong>fault-tolerant recovery</strong></li>
+<li>Running reverse diffusion sampling directly in-notebook</li>
 </ul>
 <hr/>
-<h3 id="%F0%9F%9A%80-Where-can-you-take-this-next?">🚀 Where can you take this next?<a class="anchor-link" href="#%F0%9F%9A%80-Where-can-you-take-this-next?">¶</a></h3><ol>
-<li><p><strong>Evaluate in the Environment</strong></p>
+<h3 id="Where-can-you-take-this-next?">Where can you take this next?<a class="anchor-link" href="#Where-can-you-take-this-next?">¶</a></h3><p>The following are a few directions you can explore to extend or adapt this workload:</p>
+<ol>
+<li><p><strong>Evaluate in the environment</strong></p>
 <ul>
 <li>Load the best checkpoint, deploy the policy in Gym’s <code>Pendulum-v1</code>, and log episode returns.</li>
 <li>Compare against baseline behavior cloning or TD3/TD3+BC.</li>
 </ul>
 </li>
-<li><p><strong>Larger &amp; Richer Datasets</strong></p>
+<li><p><strong>Larger and richer datasets</strong></p>
 <ul>
 <li>Generate 100 k+ steps with a scripted controller or collect data from a learned agent.</li>
 <li>Swap in other classic-control tasks like <code>CartPole</code> or <code>MountainCar</code>.</li>
 </ul>
 </li>
-<li><p><strong>Model &amp; Loss Upgrades</strong></p>
+<li><p><strong>Model and loss upgrades</strong></p>
 <ul>
 <li>Add timestep embeddings or a small transformer for better temporal reasoning.</li>
 <li>Experiment with different noise schedules or auxiliary consistency losses.</li>
 </ul>
 </li>
-<li><p><strong>Hyperparameter Sweeps</strong></p>
+<li><p><strong>Hyperparameter sweeps</strong></p>
 <ul>
 <li>Wrap the training loop in <strong>Ray Tune</strong> and grid-search learning rate, hidden size, or diffusion steps.</li>
 <li>Use Tune’s automatic checkpoint pruning to keep only the top-N runs.</li>
 </ul>
 </li>
-<li><p><strong>Mixed Precision &amp; Performance</strong></p>
+<li><p><strong>Mixed precision and performance</strong></p>
 <ul>
 <li>Enable <code>torch.set_float32_matmul_precision('high')</code> to leverage A10G Tensor Cores.</li>
 <li>Profile GPU utilization across workers and tune batch size accordingly.</li>
 </ul>
 </li>
-<li><p><strong>Real Robotics Logs</strong></p>
+<li><p><strong>Real robotics logs</strong></p>
 <ul>
-<li>Replace Pendulum with logs from a real robotic apparatus stored in Parquet; Ray Data shards them just the same.</li>
+<li>Replace Pendulum with logs from a real robotic apparatus stored in Parquet; Ray Data shards them the same way.</li>
 </ul>
 </li>
-<li><p><strong>Serving the Policy</strong></p>
+<li><p><strong>Serving the policy</strong></p>
 <ul>
 <li>Export the trained MLP to TorchScript and deploy with <strong>Ray Serve</strong> for low-latency inference.</li>
 <li>Hook it to a real-time simulator or a web dashboard.</li>
 </ul>
 </li>
-<li><p><strong>End-to-End MLOps</strong></p>
+<li><p><strong>End-to-end MLOps</strong></p>
 <ul>
 <li>Track checkpoints and metrics with MLflow or Weights &amp; Biases.</li>
-<li>Schedule nightly Ray Jobs on Anyscale to retrain as new data arrives.</li>
+<li>Schedule nightly Ray jobs on Anyscale to retrain as new data arrives.</li>
 </ul>
 </li>
 </ol>

@@ -7517,7 +7517,7 @@ a.anchor-link {
 </div>
 <div class="jp-InputArea jp-Cell-inputArea"><div class="jp-InputPrompt jp-InputArea-prompt">
 </div><div class="jp-RenderedHTMLCommon jp-RenderedMarkdown jp-MarkdownOutput" data-mime-type="text/markdown">
-<h2 id="12-%C2%B7-Evaluate-the-trained-model">12 · Evaluate the trained model<a class="anchor-link" href="#12-%C2%B7-Evaluate-the-trained-model">¶</a></h2><p>Pull the XGBoost <code>Booster</code> back from the checkpoint, run predictions on the entire validation set, and compute overall accuracy. Converting the Ray Dataset to pandas keeps the example short; in production you could stream batches instead of materialising the whole frame.</p>
+<h2 id="12.-Confusion-matrix-visualization">12. Confusion matrix visualization<a class="anchor-link" href="#12.-Confusion-matrix-visualization">¶</a></h2><p>Raw counts and row-normalized ratios highlight which cover types the model confuses most often. Diagonal dominance indicates good performance; off-diagonal hot spots may suggest a need for more data or feature engineering for those specific classes.</p>
 </div>
 </div>
 </div>
@@ -7529,42 +7529,7 @@ a.anchor-link {
 <div class="jp-InputPrompt jp-InputArea-prompt">In [ ]:</div>
 <div class="jp-CodeMirrorEditor jp-Editor jp-InputArea-editor" data-type="inline">
 <div class="cm-editor cm-s-jupyter">
-<div class="highlight hl-ipython3"><pre><span></span><span class="c1"># 12. Retrieve Booster object from Ray Checkpoint</span>
-<span class="n">booster</span> <span class="o">=</span> <span class="n">RayTrainReportCallback</span><span class="o">.</span><span class="n">get_model</span><span class="p">(</span><span class="n">best_ckpt</span><span class="p">)</span>
-
-<span class="c1"># Convert Ray Dataset → pandas for quick local scoring</span>
-<span class="n">val_pd</span> <span class="o">=</span> <span class="n">val_ds</span><span class="o">.</span><span class="n">to_pandas</span><span class="p">()</span>
-<span class="n">dmatrix</span> <span class="o">=</span> <span class="n">xgb</span><span class="o">.</span><span class="n">DMatrix</span><span class="p">(</span><span class="n">val_pd</span><span class="p">[</span><span class="n">feature_columns</span><span class="p">])</span>
-<span class="n">pred_prob</span> <span class="o">=</span> <span class="n">booster</span><span class="o">.</span><span class="n">predict</span><span class="p">(</span><span class="n">dmatrix</span><span class="p">)</span>
-<span class="n">pred_labels</span> <span class="o">=</span> <span class="n">np</span><span class="o">.</span><span class="n">argmax</span><span class="p">(</span><span class="n">pred_prob</span><span class="p">,</span> <span class="n">axis</span><span class="o">=</span><span class="mi">1</span><span class="p">)</span>
-
-<span class="n">acc</span> <span class="o">=</span> <span class="n">accuracy_score</span><span class="p">(</span><span class="n">val_pd</span><span class="o">.</span><span class="n">label</span><span class="p">,</span> <span class="n">pred_labels</span><span class="p">)</span>
-<span class="nb">print</span><span class="p">(</span><span class="sa">f</span><span class="s2">"Validation accuracy: </span><span class="si">{</span><span class="n">acc</span><span class="si">:</span><span class="s2">.3f</span><span class="si">}</span><span class="s2">"</span><span class="p">)</span>
-</pre></div>
-</div>
-</div>
-</div>
-</div>
-</div>
-<div class="jp-Cell jp-MarkdownCell jp-Notebook-cell">
-<div class="jp-Cell-inputWrapper" tabindex="0">
-<div class="jp-Collapser jp-InputCollapser jp-Cell-inputCollapser">
-</div>
-<div class="jp-InputArea jp-Cell-inputArea"><div class="jp-InputPrompt jp-InputArea-prompt">
-</div><div class="jp-RenderedHTMLCommon jp-RenderedMarkdown jp-MarkdownOutput" data-mime-type="text/markdown">
-<h3 id="13-%C2%B7-Confusion-matrix-visualisation">13 · Confusion matrix visualisation<a class="anchor-link" href="#13-%C2%B7-Confusion-matrix-visualisation">¶</a></h3><p>Raw counts and row-normalised ratios highlight which cover types the model confuses most often. Diagonal dominance indicates good performance; off-diagonal hot spots may suggest a need for more data or feature engineering for those specific classes.</p>
-</div>
-</div>
-</div>
-</div><div class="jp-Cell jp-CodeCell jp-Notebook-cell jp-mod-noOutputs">
-<div class="jp-Cell-inputWrapper" tabindex="0">
-<div class="jp-Collapser jp-InputCollapser jp-Cell-inputCollapser">
-</div>
-<div class="jp-InputArea jp-Cell-inputArea">
-<div class="jp-InputPrompt jp-InputArea-prompt">In [ ]:</div>
-<div class="jp-CodeMirrorEditor jp-Editor jp-InputArea-editor" data-type="inline">
-<div class="cm-editor cm-s-jupyter">
-<div class="highlight hl-ipython3"><pre><span></span><span class="c1"># 13. Confusion matrix</span>
+<div class="highlight hl-ipython3"><pre><span></span><span class="c1"># 12. Confusion matrix</span>
 
 <span class="n">cm</span> <span class="o">=</span> <span class="n">confusion_matrix</span><span class="p">(</span><span class="n">val_pd</span><span class="o">.</span><span class="n">label</span><span class="p">,</span> <span class="n">pred_labels</span><span class="p">)</span>  <span class="c1"># or sample_batch.label if used</span>
 
@@ -7592,7 +7557,9 @@ a.anchor-link {
 </div>
 <div class="jp-InputArea jp-Cell-inputArea"><div class="jp-InputPrompt jp-InputArea-prompt">
 </div><div class="jp-RenderedHTMLCommon jp-RenderedMarkdown jp-MarkdownOutput" data-mime-type="text/markdown">
-<h3 id="14-%C2%B7-CPU-batch-inference-with-Ray-remote-tasks">14 · CPU batch inference with Ray remote tasks<a class="anchor-link" href="#14-%C2%B7-CPU-batch-inference-with-Ray-remote-tasks">¶</a></h3><p>To demonstrate scalable inference, send a 1024-row pandas batch to a <strong>single CPU worker</strong>.  The remote function loads the model once per task, converts the batch to <code>DMatrix</code>, and returns class indices. Measure accuracy on the fly to confirm that out-of-process inference matches earlier results.</p>
+<h3 id="13.-CPU-batch-inference-with-Ray-Data">13. CPU batch inference with Ray Data<a class="anchor-link" href="#13.-CPU-batch-inference-with-Ray-Data">¶</a></h3><p>Use <strong>Ray Data</strong> for scalable, parallel inference.<br/>
+Each actor loads the trained model once and processes data batches in parallel,<br/>
+providing better throughput than ad-hoc remote tasks and avoiding repeated model loads.</p>
 </div>
 </div>
 </div>
@@ -7604,32 +7571,45 @@ a.anchor-link {
 <div class="jp-InputPrompt jp-InputArea-prompt">In [ ]:</div>
 <div class="jp-CodeMirrorEditor jp-Editor jp-InputArea-editor" data-type="inline">
 <div class="cm-editor cm-s-jupyter">
-<div class="highlight hl-ipython3"><pre><span></span><span class="c1"># 14. Example: Run batch inference using Ray remote task on a CPU worker</span>
+<div class="highlight hl-ipython3"><pre><span></span><span class="c1"># 13. CPU batch inference with Ray Data </span>
 
-<span class="c1"># This remote function is scheduled on a CPU-enabled Ray worker.</span>
-<span class="c1"># It loads a trained XGBoost model from a Ray checkpoint and runs predictions on a pandas DataFrame.</span>
-<span class="nd">@ray</span><span class="o">.</span><span class="n">remote</span><span class="p">(</span><span class="n">num_cpus</span><span class="o">=</span><span class="mi">1</span><span class="p">)</span>
-<span class="k">def</span><span class="w"> </span><span class="nf">predict_batch</span><span class="p">(</span><span class="n">ckpt</span><span class="p">,</span> <span class="n">batch_pd</span><span class="p">):</span>
-    <span class="c1"># Load the trained XGBoost Booster model from the checkpoint.</span>
-    <span class="n">model</span> <span class="o">=</span> <span class="n">RayTrainReportCallback</span><span class="o">.</span><span class="n">get_model</span><span class="p">(</span><span class="n">ckpt</span><span class="p">)</span>
+<span class="c1"># Assumes: val_ds, feature_columns, best_ckpt already defined.</span>
 
-    <span class="c1"># Convert the input batch (pandas DataFrame) to DMatrix, required by XGBoost for inference.</span>
-    <span class="n">dmatrix</span> <span class="o">=</span> <span class="n">xgb</span><span class="o">.</span><span class="n">DMatrix</span><span class="p">(</span><span class="n">batch_pd</span><span class="p">[</span><span class="n">feature_columns</span><span class="p">])</span>
+<span class="k">class</span><span class="w"> </span><span class="nc">XGBPredictor</span><span class="p">:</span>
+<span class="w">    </span><span class="sd">"""Stateful actor: load Booster once, reuse across batches."""</span>
+    <span class="k">def</span><span class="w"> </span><span class="fm">__init__</span><span class="p">(</span><span class="bp">self</span><span class="p">,</span> <span class="n">ckpt</span><span class="p">,</span> <span class="n">feature_cols</span><span class="p">):</span>
+        <span class="bp">self</span><span class="o">.</span><span class="n">model</span> <span class="o">=</span> <span class="n">RayTrainReportCallback</span><span class="o">.</span><span class="n">get_model</span><span class="p">(</span><span class="n">ckpt</span><span class="p">)</span>
+        <span class="bp">self</span><span class="o">.</span><span class="n">feature_cols</span> <span class="o">=</span> <span class="n">feature_cols</span>
 
-    <span class="c1"># Predict class probabilities for each row in the batch.</span>
-    <span class="n">preds</span> <span class="o">=</span> <span class="n">model</span><span class="o">.</span><span class="n">predict</span><span class="p">(</span><span class="n">dmatrix</span><span class="p">)</span>
+    <span class="k">def</span><span class="w"> </span><span class="fm">__call__</span><span class="p">(</span><span class="bp">self</span><span class="p">,</span> <span class="n">batch</span><span class="p">:</span> <span class="n">pd</span><span class="o">.</span><span class="n">DataFrame</span><span class="p">)</span> <span class="o">-&gt;</span> <span class="n">pd</span><span class="o">.</span><span class="n">DataFrame</span><span class="p">:</span>
+        <span class="n">dmatrix</span> <span class="o">=</span> <span class="n">xgb</span><span class="o">.</span><span class="n">DMatrix</span><span class="p">(</span><span class="n">batch</span><span class="p">[</span><span class="bp">self</span><span class="o">.</span><span class="n">feature_cols</span><span class="p">])</span>
+        <span class="n">probs</span> <span class="o">=</span> <span class="bp">self</span><span class="o">.</span><span class="n">model</span><span class="o">.</span><span class="n">predict</span><span class="p">(</span><span class="n">dmatrix</span><span class="p">)</span>
+        <span class="n">preds</span> <span class="o">=</span> <span class="n">np</span><span class="o">.</span><span class="n">argmax</span><span class="p">(</span><span class="n">probs</span><span class="p">,</span> <span class="n">axis</span><span class="o">=</span><span class="mi">1</span><span class="p">)</span>
+        <span class="k">return</span> <span class="n">pd</span><span class="o">.</span><span class="n">DataFrame</span><span class="p">(</span>
+            <span class="p">{</span><span class="s2">"pred"</span><span class="p">:</span> <span class="n">preds</span><span class="o">.</span><span class="n">astype</span><span class="p">(</span><span class="n">np</span><span class="o">.</span><span class="n">int32</span><span class="p">),</span> <span class="s2">"label"</span><span class="p">:</span> <span class="n">batch</span><span class="p">[</span><span class="s2">"label"</span><span class="p">]</span><span class="o">.</span><span class="n">astype</span><span class="p">(</span><span class="n">np</span><span class="o">.</span><span class="n">int32</span><span class="p">)}</span>
+        <span class="p">)</span>
 
-    <span class="c1"># Select the class with highest predicted probability for each row.</span>
-    <span class="k">return</span> <span class="n">np</span><span class="o">.</span><span class="n">argmax</span><span class="p">(</span><span class="n">preds</span><span class="p">,</span> <span class="n">axis</span><span class="o">=</span><span class="mi">1</span><span class="p">)</span>
+<span class="c1"># Use an ActorPoolStrategy instead of compute="actors"</span>
+<span class="n">pred_ds</span> <span class="o">=</span> <span class="n">val_ds</span><span class="o">.</span><span class="n">map_batches</span><span class="p">(</span>
+    <span class="n">XGBPredictor</span><span class="p">,</span>
+    <span class="n">fn_constructor_args</span><span class="o">=</span><span class="p">(</span><span class="n">best_ckpt</span><span class="p">,</span> <span class="n">feature_columns</span><span class="p">),</span>
+    <span class="n">batch_format</span><span class="o">=</span><span class="s2">"pandas"</span><span class="p">,</span>
+    <span class="n">compute</span><span class="o">=</span><span class="n">ActorPoolStrategy</span><span class="p">(),</span>   
+    <span class="n">num_cpus</span><span class="o">=</span><span class="mi">1</span><span class="p">,</span>                    <span class="c1"># per-actor CPU; tune as needed</span>
+<span class="p">)</span>
 
-<span class="c1"># Take a random sample of 1024 rows from the validation set to use as input.</span>
-<span class="n">sample_batch</span> <span class="o">=</span> <span class="n">val_pd</span><span class="o">.</span><span class="n">sample</span><span class="p">(</span><span class="mi">1024</span><span class="p">,</span> <span class="n">random_state</span><span class="o">=</span><span class="mi">0</span><span class="p">)</span>
+<span class="c1"># Aggregate accuracy without collecting to driver</span>
+<span class="n">stats_ds</span> <span class="o">=</span> <span class="n">pred_ds</span><span class="o">.</span><span class="n">map_batches</span><span class="p">(</span>
+    <span class="k">lambda</span> <span class="n">df</span><span class="p">:</span> <span class="n">pd</span><span class="o">.</span><span class="n">DataFrame</span><span class="p">({</span>
+        <span class="s2">"correct"</span><span class="p">:</span> <span class="p">[</span><span class="nb">int</span><span class="p">((</span><span class="n">df</span><span class="p">[</span><span class="s2">"pred"</span><span class="p">]</span><span class="o">.</span><span class="n">to_numpy</span><span class="p">()</span> <span class="o">==</span> <span class="n">df</span><span class="p">[</span><span class="s2">"label"</span><span class="p">]</span><span class="o">.</span><span class="n">to_numpy</span><span class="p">())</span><span class="o">.</span><span class="n">sum</span><span class="p">())],</span>
+        <span class="s2">"n"</span><span class="p">:</span> <span class="p">[</span><span class="nb">int</span><span class="p">(</span><span class="nb">len</span><span class="p">(</span><span class="n">df</span><span class="p">))]</span>
+    <span class="p">}),</span>
+    <span class="n">batch_format</span><span class="o">=</span><span class="s2">"pandas"</span><span class="p">,</span>
+<span class="p">)</span>
 
-<span class="c1"># Submit the batch inference task to a Ray worker and block until it finishes.</span>
-<span class="n">preds</span> <span class="o">=</span> <span class="n">ray</span><span class="o">.</span><span class="n">get</span><span class="p">(</span><span class="n">predict_batch</span><span class="o">.</span><span class="n">remote</span><span class="p">(</span><span class="n">best_ckpt</span><span class="p">,</span> <span class="n">sample_batch</span><span class="p">))</span>
-
-<span class="c1"># Compute and print classification accuracy by comparing predictions to true labels.</span>
-<span class="nb">print</span><span class="p">(</span><span class="s2">"Sample batch accuracy:"</span><span class="p">,</span> <span class="n">accuracy_score</span><span class="p">(</span><span class="n">sample_batch</span><span class="o">.</span><span class="n">label</span><span class="p">,</span> <span class="n">preds</span><span class="p">))</span>
+<span class="n">correct</span> <span class="o">=</span> <span class="nb">int</span><span class="p">(</span><span class="n">stats_ds</span><span class="o">.</span><span class="n">sum</span><span class="p">(</span><span class="s2">"correct"</span><span class="p">))</span>
+<span class="n">n</span> <span class="o">=</span> <span class="nb">int</span><span class="p">(</span><span class="n">stats_ds</span><span class="o">.</span><span class="n">sum</span><span class="p">(</span><span class="s2">"n"</span><span class="p">))</span>
+<span class="nb">print</span><span class="p">(</span><span class="sa">f</span><span class="s2">"Validation accuracy (Ray Data inference): </span><span class="si">{</span><span class="n">correct</span><span class="w"> </span><span class="o">/</span><span class="w"> </span><span class="n">n</span><span class="si">:</span><span class="s2">.3f</span><span class="si">}</span><span class="s2">"</span><span class="p">)</span>
 </pre></div>
 </div>
 </div>
@@ -7642,7 +7622,7 @@ a.anchor-link {
 </div>
 <div class="jp-InputArea jp-Cell-inputArea"><div class="jp-InputPrompt jp-InputArea-prompt">
 </div><div class="jp-RenderedHTMLCommon jp-RenderedMarkdown jp-MarkdownOutput" data-mime-type="text/markdown">
-<h3 id="15-%C2%B7-Feature-importance-diagnostics">15 · Feature-importance diagnostics<a class="anchor-link" href="#15-%C2%B7-Feature-importance-diagnostics">¶</a></h3><p>XGBoost’s built-in <code>get_score(importance_type="gain")</code> ranks each feature by its average gain across all splits. Visualising the top-15 helps connect model behaviour back to domain knowledge. For example, elevation, and soil-type often dominate forest-cover prediction.</p>
+<h3 id="14.-Feature-importance-diagnostics">14. Feature-importance diagnostics<a class="anchor-link" href="#14.-Feature-importance-diagnostics">¶</a></h3><p>XGBoost’s built-in <code>get_score(importance_type="gain")</code> ranks each feature by its average gain across all splits. Visualizing the top-15 helps connect model behaviour back to domain knowledge. For example, elevation, and soil-type often dominate forest-cover prediction.</p>
 </div>
 </div>
 </div>
@@ -7654,7 +7634,7 @@ a.anchor-link {
 <div class="jp-InputPrompt jp-InputArea-prompt">In [ ]:</div>
 <div class="jp-CodeMirrorEditor jp-Editor jp-InputArea-editor" data-type="inline">
 <div class="cm-editor cm-s-jupyter">
-<div class="highlight hl-ipython3"><pre><span></span><span class="c1"># 15. Gain‑based feature importance</span>
+<div class="highlight hl-ipython3"><pre><span></span><span class="c1"># 14. Gain‑based feature importance</span>
 <span class="n">importances</span> <span class="o">=</span> <span class="n">booster</span><span class="o">.</span><span class="n">get_score</span><span class="p">(</span><span class="n">importance_type</span><span class="o">=</span><span class="s2">"gain"</span><span class="p">)</span>
 <span class="n">keys</span><span class="p">,</span> <span class="n">gains</span> <span class="o">=</span> <span class="nb">zip</span><span class="p">(</span><span class="o">*</span><span class="nb">sorted</span><span class="p">(</span><span class="n">importances</span><span class="o">.</span><span class="n">items</span><span class="p">(),</span> <span class="n">key</span><span class="o">=</span><span class="k">lambda</span> <span class="n">kv</span><span class="p">:</span> <span class="n">kv</span><span class="p">[</span><span class="mi">1</span><span class="p">],</span> <span class="n">reverse</span><span class="o">=</span><span class="kc">True</span><span class="p">)[:</span><span class="mi">15</span><span class="p">])</span>
 

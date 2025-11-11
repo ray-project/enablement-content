@@ -7517,8 +7517,9 @@ a.anchor-link {
 </div>
 <div class="jp-InputArea jp-Cell-inputArea"><div class="jp-InputPrompt jp-InputArea-prompt">
 </div><div class="jp-RenderedHTMLCommon jp-RenderedMarkdown jp-MarkdownOutput" data-mime-type="text/markdown">
-<h2 id="15-%C2%B7-Run-inference-and-visualise-prediction">15 · Run inference and visualise prediction<a class="anchor-link" href="#15-%C2%B7-Run-inference-and-visualise-prediction">¶</a></h2><p>Grab the most recent week of taxi data, run it through your trained model, and plot the predicted future demand against the actual values. This gives you a visual check of model quality and allows you to verify whether the model has learned temporal patterns like daily or weekly cycles.</p>
-<p>Due to the small size of the dataset, the model in this tutorial learns the mean of the data (a constant solution). To improve these results requires more training data.</p>
+<h2 id="14.-Inference-helper-%E2%80%94-Ray-Data-batch-predictor-on-GPU">14. Inference helper — Ray Data batch predictor on GPU<a class="anchor-link" href="#14.-Inference-helper-%E2%80%94-Ray-Data-batch-predictor-on-GPU">¶</a></h2><p>Define a Ray Data based batch predictor class that loads the trained <code>TimeSeriesTransformer</code> once per GPU actor and keeps it resident in memory for efficient inference.<br/>
+Each actor processes batches of input windows (e.g., recent time series segments) in parallel, producing forecasts for the next horizon.</p>
+<p>Ray Data inference enables scalable, fault-tolerant prediction pipelines that reuse loaded models across many requests, making it ideal for large-scale batch or near-real-time forecasting workloads.</p>
 </div>
 </div>
 </div>
@@ -7530,32 +7531,50 @@ a.anchor-link {
 <div class="jp-InputPrompt jp-InputArea-prompt">In [ ]:</div>
 <div class="jp-CodeMirrorEditor jp-Editor jp-InputArea-editor" data-type="inline">
 <div class="cm-editor cm-s-jupyter">
-<div class="highlight hl-ipython3"><pre><span></span><span class="c1"># 15. Run inference on the latest window &amp; plot</span>
+<div class="highlight hl-ipython3"><pre><span></span><span class="c1"># 14. Ray Data inference helper — stateful per-actor predictor</span>
 
-<span class="c1"># Get last week of data</span>
-<span class="n">past_norm</span> <span class="o">=</span> <span class="n">hourly</span><span class="p">[</span><span class="s2">"norm"</span><span class="p">]</span><span class="o">.</span><span class="n">iloc</span><span class="p">[</span><span class="o">-</span><span class="n">INPUT_WINDOW</span><span class="p">:]</span><span class="o">.</span><span class="n">to_numpy</span><span class="p">()</span>
-<span class="n">future_true</span> <span class="o">=</span> <span class="n">hourly</span><span class="p">[</span><span class="s2">"passengers"</span><span class="p">]</span><span class="o">.</span><span class="n">iloc</span><span class="p">[</span><span class="o">-</span><span class="n">HORIZON</span><span class="p">:]</span><span class="o">.</span><span class="n">to_numpy</span><span class="p">()</span>
+<span class="k">class</span><span class="w"> </span><span class="nc">TimeSeriesBatchPredictor</span><span class="p">:</span>
+<span class="w">    </span><span class="sd">"""</span>
+<span class="sd">    Keeps the TimeSeriesTransformer in memory per actor (GPU if available).</span>
+<span class="sd">    Expects a Pandas batch with a 'past' column containing np.ndarray of shape (INPUT_WINDOW,).</span>
+<span class="sd">    Returns a batch with a 'pred' column (np.ndarray of shape (HORIZON,)).</span>
+<span class="sd">    """</span>
+    <span class="k">def</span><span class="w"> </span><span class="fm">__init__</span><span class="p">(</span><span class="bp">self</span><span class="p">,</span> <span class="n">checkpoint_path</span><span class="p">:</span> <span class="nb">str</span><span class="p">,</span> <span class="n">model_kwargs</span><span class="p">:</span> <span class="nb">dict</span><span class="p">):</span>
+        <span class="bp">self</span><span class="o">.</span><span class="n">device</span> <span class="o">=</span> <span class="n">torch</span><span class="o">.</span><span class="n">device</span><span class="p">(</span><span class="s2">"cuda"</span> <span class="k">if</span> <span class="n">torch</span><span class="o">.</span><span class="n">cuda</span><span class="o">.</span><span class="n">is_available</span><span class="p">()</span> <span class="k">else</span> <span class="s2">"cpu"</span><span class="p">)</span>
 
-<span class="k">with</span> <span class="n">best_ckpt</span><span class="o">.</span><span class="n">as_directory</span><span class="p">()</span> <span class="k">as</span> <span class="n">p</span><span class="p">:</span>
-    <span class="n">pred_norm</span> <span class="o">=</span> <span class="n">ray</span><span class="o">.</span><span class="n">get</span><span class="p">(</span><span class="n">forecast_from_checkpoint</span><span class="o">.</span><span class="n">remote</span><span class="p">(</span><span class="n">p</span><span class="p">,</span> <span class="n">past_norm</span><span class="p">))</span>
+        <span class="c1"># Recreate model with the *same* hyperparams used during training</span>
+        <span class="bp">self</span><span class="o">.</span><span class="n">model</span> <span class="o">=</span> <span class="n">TimeSeriesTransformer</span><span class="p">(</span>
+            <span class="n">input_window</span><span class="o">=</span><span class="n">model_kwargs</span><span class="p">[</span><span class="s2">"input_window"</span><span class="p">],</span>
+            <span class="n">horizon</span><span class="o">=</span><span class="n">model_kwargs</span><span class="p">[</span><span class="s2">"horizon"</span><span class="p">],</span>
+            <span class="n">d_model</span><span class="o">=</span><span class="n">model_kwargs</span><span class="p">[</span><span class="s2">"d_model"</span><span class="p">],</span>
+            <span class="n">nhead</span><span class="o">=</span><span class="n">model_kwargs</span><span class="p">[</span><span class="s2">"nhead"</span><span class="p">],</span>
+            <span class="n">num_layers</span><span class="o">=</span><span class="n">model_kwargs</span><span class="p">[</span><span class="s2">"num_layers"</span><span class="p">],</span>
+        <span class="p">)</span><span class="o">.</span><span class="n">to</span><span class="p">(</span><span class="bp">self</span><span class="o">.</span><span class="n">device</span><span class="p">)</span><span class="o">.</span><span class="n">eval</span><span class="p">()</span>
 
-<span class="c1"># de-normalise</span>
-<span class="n">mean</span><span class="p">,</span> <span class="n">std</span> <span class="o">=</span> <span class="n">hourly</span><span class="p">[</span><span class="s2">"passengers"</span><span class="p">]</span><span class="o">.</span><span class="n">mean</span><span class="p">(),</span> <span class="n">hourly</span><span class="p">[</span><span class="s2">"passengers"</span><span class="p">]</span><span class="o">.</span><span class="n">std</span><span class="p">()</span>
-<span class="n">pred</span> <span class="o">=</span> <span class="n">pred_norm</span> <span class="o">*</span> <span class="n">std</span> <span class="o">+</span> <span class="n">mean</span>
-<span class="n">past</span> <span class="o">=</span> <span class="n">past_norm</span> <span class="o">*</span> <span class="n">std</span> <span class="o">+</span> <span class="n">mean</span>
+        <span class="c1"># Load checkpoint weights once per actor</span>
+        <span class="n">ckpt</span> <span class="o">=</span> <span class="n">Checkpoint</span><span class="o">.</span><span class="n">from_directory</span><span class="p">(</span><span class="n">checkpoint_path</span><span class="p">)</span>
+        <span class="k">with</span> <span class="n">ckpt</span><span class="o">.</span><span class="n">as_directory</span><span class="p">()</span> <span class="k">as</span> <span class="n">ckpt_dir</span><span class="p">:</span>
+            <span class="n">state_dict</span> <span class="o">=</span> <span class="n">torch</span><span class="o">.</span><span class="n">load</span><span class="p">(</span><span class="n">os</span><span class="o">.</span><span class="n">path</span><span class="o">.</span><span class="n">join</span><span class="p">(</span><span class="n">ckpt_dir</span><span class="p">,</span> <span class="s2">"model.pt"</span><span class="p">),</span> <span class="n">map_location</span><span class="o">=</span><span class="s2">"cpu"</span><span class="p">)</span>
+            <span class="c1"># Strip DDP prefix if present</span>
+            <span class="n">state_dict</span> <span class="o">=</span> <span class="p">{</span><span class="n">k</span><span class="o">.</span><span class="n">replace</span><span class="p">(</span><span class="s2">"module."</span><span class="p">,</span> <span class="s2">""</span><span class="p">,</span> <span class="mi">1</span><span class="p">):</span> <span class="n">v</span> <span class="k">for</span> <span class="n">k</span><span class="p">,</span> <span class="n">v</span> <span class="ow">in</span> <span class="n">state_dict</span><span class="o">.</span><span class="n">items</span><span class="p">()}</span>
+            <span class="bp">self</span><span class="o">.</span><span class="n">model</span><span class="o">.</span><span class="n">load_state_dict</span><span class="p">(</span><span class="n">state_dict</span><span class="p">)</span>
 
-<span class="c1"># Plot</span>
-<span class="kn">import</span><span class="w"> </span><span class="nn">matplotlib.pyplot</span><span class="w"> </span><span class="k">as</span><span class="w"> </span><span class="nn">plt</span>
-<span class="n">t_past</span>   <span class="o">=</span> <span class="n">np</span><span class="o">.</span><span class="n">arange</span><span class="p">(</span><span class="o">-</span><span class="n">INPUT_WINDOW</span><span class="p">,</span> <span class="mi">0</span><span class="p">)</span>
-<span class="n">STEP_SIZE_HOURS</span> <span class="o">=</span> <span class="mf">0.5</span>  <span class="c1"># because you're now using 30min data</span>
-<span class="n">t_future</span> <span class="o">=</span> <span class="n">np</span><span class="o">.</span><span class="n">arange</span><span class="p">(</span><span class="mi">0</span><span class="p">,</span> <span class="n">HORIZON</span><span class="p">)</span> <span class="o">*</span> <span class="n">STEP_SIZE_HOURS</span>
+        <span class="n">torch</span><span class="o">.</span><span class="n">set_grad_enabled</span><span class="p">(</span><span class="kc">False</span><span class="p">)</span>
 
-<span class="n">plt</span><span class="o">.</span><span class="n">figure</span><span class="p">(</span><span class="n">figsize</span><span class="o">=</span><span class="p">(</span><span class="mi">10</span><span class="p">,</span><span class="mi">4</span><span class="p">))</span>
-<span class="n">plt</span><span class="o">.</span><span class="n">plot</span><span class="p">(</span><span class="n">t_past</span><span class="p">,</span> <span class="n">past</span><span class="p">,</span> <span class="n">label</span><span class="o">=</span><span class="s2">"History"</span><span class="p">)</span>
-<span class="n">plt</span><span class="o">.</span><span class="n">plot</span><span class="p">(</span><span class="n">t_future</span><span class="p">,</span> <span class="n">future_true</span><span class="p">,</span> <span class="s2">"--"</span><span class="p">,</span> <span class="n">label</span><span class="o">=</span><span class="s2">"Ground Truth"</span><span class="p">)</span>
-<span class="n">plt</span><span class="o">.</span><span class="n">plot</span><span class="p">(</span><span class="n">t_future</span><span class="p">,</span> <span class="n">pred</span><span class="p">,</span>  <span class="s2">"-."</span><span class="p">,</span> <span class="n">label</span><span class="o">=</span><span class="s2">"Forecast"</span><span class="p">)</span>
-<span class="n">plt</span><span class="o">.</span><span class="n">axvline</span><span class="p">(</span><span class="mi">0</span><span class="p">,</span> <span class="n">color</span><span class="o">=</span><span class="s2">"black"</span><span class="p">);</span> <span class="n">plt</span><span class="o">.</span><span class="n">xlabel</span><span class="p">(</span><span class="s2">"Hours relative"</span><span class="p">);</span> <span class="n">plt</span><span class="o">.</span><span class="n">ylabel</span><span class="p">(</span><span class="s2">"# trips"</span><span class="p">)</span>
-<span class="n">plt</span><span class="o">.</span><span class="n">title</span><span class="p">(</span><span class="s2">"NYC-Taxi 24 h Forecast"</span><span class="p">);</span> <span class="n">plt</span><span class="o">.</span><span class="n">legend</span><span class="p">();</span> <span class="n">plt</span><span class="o">.</span><span class="n">grid</span><span class="p">();</span> <span class="n">plt</span><span class="o">.</span><span class="n">tight_layout</span><span class="p">();</span> <span class="n">plt</span><span class="o">.</span><span class="n">show</span><span class="p">()</span>
+    <span class="k">def</span><span class="w"> </span><span class="fm">__call__</span><span class="p">(</span><span class="bp">self</span><span class="p">,</span> <span class="n">batch</span><span class="p">):</span>
+        <span class="kn">import</span><span class="w"> </span><span class="nn">pandas</span><span class="w"> </span><span class="k">as</span><span class="w"> </span><span class="nn">pd</span>
+
+        <span class="n">past_list</span> <span class="o">=</span> <span class="n">batch</span><span class="p">[</span><span class="s2">"past"</span><span class="p">]</span>  <span class="c1"># each entry: np.ndarray shape (INPUT_WINDOW,)</span>
+        <span class="c1"># Stack into (B, T, 1)</span>
+        <span class="n">x</span> <span class="o">=</span> <span class="n">np</span><span class="o">.</span><span class="n">stack</span><span class="p">([</span><span class="n">p</span><span class="o">.</span><span class="n">astype</span><span class="p">(</span><span class="n">np</span><span class="o">.</span><span class="n">float32</span><span class="p">)</span> <span class="k">for</span> <span class="n">p</span> <span class="ow">in</span> <span class="n">past_list</span><span class="p">],</span> <span class="n">axis</span><span class="o">=</span><span class="mi">0</span><span class="p">)</span>
+        <span class="n">x</span> <span class="o">=</span> <span class="n">torch</span><span class="o">.</span><span class="n">from_numpy</span><span class="p">(</span><span class="n">x</span><span class="p">)</span><span class="o">.</span><span class="n">unsqueeze</span><span class="p">(</span><span class="o">-</span><span class="mi">1</span><span class="p">)</span><span class="o">.</span><span class="n">to</span><span class="p">(</span><span class="bp">self</span><span class="o">.</span><span class="n">device</span><span class="p">)</span>  <span class="c1"># (B, INPUT_WINDOW, 1)</span>
+
+        <span class="c1"># Inference path uses the model's "zeros as decoder input" forward</span>
+        <span class="n">preds</span> <span class="o">=</span> <span class="bp">self</span><span class="o">.</span><span class="n">model</span><span class="p">(</span><span class="n">x</span><span class="p">)</span><span class="o">.</span><span class="n">detach</span><span class="p">()</span><span class="o">.</span><span class="n">cpu</span><span class="p">()</span><span class="o">.</span><span class="n">numpy</span><span class="p">()</span>  <span class="c1"># (B, HORIZON)</span>
+
+        <span class="n">out</span> <span class="o">=</span> <span class="n">batch</span><span class="o">.</span><span class="n">copy</span><span class="p">()</span>
+        <span class="n">out</span><span class="p">[</span><span class="s2">"pred"</span><span class="p">]</span> <span class="o">=</span> <span class="nb">list</span><span class="p">(</span><span class="n">preds</span><span class="p">)</span>  <span class="c1"># each row: np.ndarray (HORIZON,)</span>
+        <span class="k">return</span> <span class="n">out</span><span class="p">[[</span><span class="s2">"pred"</span><span class="p">]]</span>
 </pre></div>
 </div>
 </div>
@@ -7568,7 +7587,10 @@ a.anchor-link {
 </div>
 <div class="jp-InputArea jp-Cell-inputArea"><div class="jp-InputPrompt jp-InputArea-prompt">
 </div><div class="jp-RenderedHTMLCommon jp-RenderedMarkdown jp-MarkdownOutput" data-mime-type="text/markdown">
-<h3 id="16-%C2%B7-Cleanup:-remove-all-training-artifacts">16 · Cleanup: remove all training artifacts<a class="anchor-link" href="#16-%C2%B7-Cleanup:-remove-all-training-artifacts">¶</a></h3><p>Finally, tidy up by deleting temporary checkpoint folders, the metrics CSV, and any intermediate result directories. Clearing out old artefacts frees disk space and leaves your workspace clean for whatever comes next.</p>
+<h3 id="15.-Run-distributed-inference-and-visualize-results">15. Run distributed inference and visualize results<a class="anchor-link" href="#15.-Run-distributed-inference-and-visualize-results">¶</a></h3><p>Use <strong>Ray Data</strong> to perform GPU-based batch inference with the trained model.<br/>
+The model runs on a Ray worker, generates a forecast for the latest input window, and returns predictions to the driver.<br/>
+De-normalize and plot the forecast against the ground truth to visually assess model performance.
+This tutorial uses a very small amount of data. As a result, you can see that the model learns a near-constant solution.</p>
 </div>
 </div>
 </div>
@@ -7580,7 +7602,86 @@ a.anchor-link {
 <div class="jp-InputPrompt jp-InputArea-prompt">In [ ]:</div>
 <div class="jp-CodeMirrorEditor jp-Editor jp-InputArea-editor" data-type="inline">
 <div class="cm-editor cm-s-jupyter">
-<div class="highlight hl-ipython3"><pre><span></span><span class="c1"># 16. Cleanup – optionally remove all artefacts to free space</span>
+<div class="highlight hl-ipython3"><pre><span></span><span class="c1"># 15. Run inference on the latest window with Ray Data and plot</span>
+
+<span class="c1"># 1) Prepare the latest window on the driver</span>
+<span class="n">past_norm</span> <span class="o">=</span> <span class="n">hourly</span><span class="p">[</span><span class="s2">"norm"</span><span class="p">]</span><span class="o">.</span><span class="n">iloc</span><span class="p">[</span><span class="o">-</span><span class="n">INPUT_WINDOW</span><span class="p">:]</span><span class="o">.</span><span class="n">to_numpy</span><span class="p">()</span><span class="o">.</span><span class="n">astype</span><span class="p">(</span><span class="n">np</span><span class="o">.</span><span class="n">float32</span><span class="p">)</span>
+<span class="n">future_true</span> <span class="o">=</span> <span class="n">hourly</span><span class="p">[</span><span class="s2">"passengers"</span><span class="p">]</span><span class="o">.</span><span class="n">iloc</span><span class="p">[</span><span class="o">-</span><span class="n">HORIZON</span><span class="p">:]</span><span class="o">.</span><span class="n">to_numpy</span><span class="p">()</span>  <span class="c1"># for visualization only</span>
+
+<span class="c1"># 2) Get the best checkpoint directory selected by Ray</span>
+<span class="k">with</span> <span class="n">result</span><span class="o">.</span><span class="n">checkpoint</span><span class="o">.</span><span class="n">as_directory</span><span class="p">()</span> <span class="k">as</span> <span class="n">ckpt_dir</span><span class="p">:</span>
+    <span class="n">best_ckpt_path</span> <span class="o">=</span> <span class="n">ckpt_dir</span>  <span class="c1"># path visible to workers</span>
+
+<span class="c1"># 3) Build a tiny Ray Dataset and run inference on a GPU actor</span>
+<span class="n">model_kwargs</span> <span class="o">=</span> <span class="p">{</span>
+    <span class="s2">"input_window"</span><span class="p">:</span> <span class="n">INPUT_WINDOW</span><span class="p">,</span>
+    <span class="s2">"horizon"</span><span class="p">:</span> <span class="n">HORIZON</span><span class="p">,</span>
+    <span class="s2">"d_model"</span><span class="p">:</span> <span class="mi">128</span><span class="p">,</span>
+    <span class="s2">"nhead"</span><span class="p">:</span> <span class="mi">4</span><span class="p">,</span>
+    <span class="s2">"num_layers"</span><span class="p">:</span> <span class="mi">3</span><span class="p">,</span>
+<span class="p">}</span>
+
+<span class="n">ds</span> <span class="o">=</span> <span class="n">rdata</span><span class="o">.</span><span class="n">from_items</span><span class="p">([{</span><span class="s2">"past"</span><span class="p">:</span> <span class="n">past_norm</span><span class="p">}])</span>
+<span class="n">pred_ds</span> <span class="o">=</span> <span class="n">ds</span><span class="o">.</span><span class="n">map_batches</span><span class="p">(</span>
+    <span class="n">TimeSeriesBatchPredictor</span><span class="p">,</span>
+    <span class="n">fn_constructor_args</span><span class="o">=</span><span class="p">(</span><span class="n">best_ckpt_path</span><span class="p">,</span> <span class="n">model_kwargs</span><span class="p">),</span>
+    <span class="n">batch_size</span><span class="o">=</span><span class="mi">1</span><span class="p">,</span>
+    <span class="n">batch_format</span><span class="o">=</span><span class="s2">"pandas"</span><span class="p">,</span>
+    <span class="n">concurrency</span><span class="o">=</span><span class="mi">1</span><span class="p">,</span>
+    <span class="n">num_gpus</span><span class="o">=</span><span class="mi">1</span><span class="p">,</span>  <span class="c1"># force placement on a GPU worker if available</span>
+<span class="p">)</span>
+
+<span class="n">pred_row</span> <span class="o">=</span> <span class="n">pred_ds</span><span class="o">.</span><span class="n">take</span><span class="p">(</span><span class="mi">1</span><span class="p">)[</span><span class="mi">0</span><span class="p">]</span>
+<span class="n">pred_norm</span> <span class="o">=</span> <span class="n">pred_row</span><span class="p">[</span><span class="s2">"pred"</span><span class="p">]</span>  <span class="c1"># np.ndarray (HORIZON,)</span>
+
+<span class="c1"># 4) De-normalize on the driver</span>
+<span class="n">mean</span><span class="p">,</span> <span class="n">std</span> <span class="o">=</span> <span class="n">hourly</span><span class="p">[</span><span class="s2">"passengers"</span><span class="p">]</span><span class="o">.</span><span class="n">mean</span><span class="p">(),</span> <span class="n">hourly</span><span class="p">[</span><span class="s2">"passengers"</span><span class="p">]</span><span class="o">.</span><span class="n">std</span><span class="p">()</span>
+<span class="n">pred</span> <span class="o">=</span> <span class="n">pred_norm</span> <span class="o">*</span> <span class="n">std</span> <span class="o">+</span> <span class="n">mean</span>
+<span class="n">past</span> <span class="o">=</span> <span class="n">past_norm</span> <span class="o">*</span> <span class="n">std</span> <span class="o">+</span> <span class="n">mean</span>
+
+<span class="c1"># 5) Plot</span>
+
+<span class="n">t_past</span>   <span class="o">=</span> <span class="n">np</span><span class="o">.</span><span class="n">arange</span><span class="p">(</span><span class="o">-</span><span class="n">INPUT_WINDOW</span><span class="p">,</span> <span class="mi">0</span><span class="p">)</span>
+<span class="n">STEP_SIZE_HOURS</span> <span class="o">=</span> <span class="mf">0.5</span>  <span class="c1"># you mentioned 30-min data</span>
+<span class="n">t_future</span> <span class="o">=</span> <span class="n">np</span><span class="o">.</span><span class="n">arange</span><span class="p">(</span><span class="mi">0</span><span class="p">,</span> <span class="n">HORIZON</span><span class="p">)</span> <span class="o">*</span> <span class="n">STEP_SIZE_HOURS</span>
+
+<span class="n">plt</span><span class="o">.</span><span class="n">figure</span><span class="p">(</span><span class="n">figsize</span><span class="o">=</span><span class="p">(</span><span class="mi">10</span><span class="p">,</span> <span class="mi">4</span><span class="p">))</span>
+<span class="n">plt</span><span class="o">.</span><span class="n">plot</span><span class="p">(</span><span class="n">t_past</span><span class="p">,</span> <span class="n">past</span><span class="p">,</span> <span class="n">label</span><span class="o">=</span><span class="s2">"History"</span><span class="p">,</span> <span class="n">marker</span><span class="o">=</span><span class="s2">"o"</span><span class="p">)</span>
+<span class="n">plt</span><span class="o">.</span><span class="n">plot</span><span class="p">(</span><span class="n">t_future</span><span class="p">,</span> <span class="n">future_true</span><span class="p">,</span> <span class="s2">"--"</span><span class="p">,</span> <span class="n">label</span><span class="o">=</span><span class="s2">"Ground Truth"</span><span class="p">)</span>
+<span class="n">plt</span><span class="o">.</span><span class="n">plot</span><span class="p">(</span><span class="n">t_future</span><span class="p">,</span> <span class="n">pred</span><span class="p">,</span> <span class="s2">"-."</span><span class="p">,</span> <span class="n">label</span><span class="o">=</span><span class="s2">"Forecast"</span><span class="p">)</span>
+<span class="n">plt</span><span class="o">.</span><span class="n">axvline</span><span class="p">(</span><span class="mi">0</span><span class="p">)</span>
+<span class="n">plt</span><span class="o">.</span><span class="n">xlabel</span><span class="p">(</span><span class="s2">"Hours relative"</span><span class="p">)</span>
+<span class="n">plt</span><span class="o">.</span><span class="n">ylabel</span><span class="p">(</span><span class="s2">"# trips"</span><span class="p">)</span>
+<span class="n">plt</span><span class="o">.</span><span class="n">title</span><span class="p">(</span><span class="s2">"NYC-Taxi Forecast (Ray Data Inference)"</span><span class="p">)</span>
+<span class="n">plt</span><span class="o">.</span><span class="n">legend</span><span class="p">()</span>
+<span class="n">plt</span><span class="o">.</span><span class="n">grid</span><span class="p">(</span><span class="kc">True</span><span class="p">)</span>
+<span class="n">plt</span><span class="o">.</span><span class="n">tight_layout</span><span class="p">()</span>
+<span class="n">plt</span><span class="o">.</span><span class="n">show</span><span class="p">()</span>
+</pre></div>
+</div>
+</div>
+</div>
+</div>
+</div>
+<div class="jp-Cell jp-MarkdownCell jp-Notebook-cell">
+<div class="jp-Cell-inputWrapper" tabindex="0">
+<div class="jp-Collapser jp-InputCollapser jp-Cell-inputCollapser">
+</div>
+<div class="jp-InputArea jp-Cell-inputArea"><div class="jp-InputPrompt jp-InputArea-prompt">
+</div><div class="jp-RenderedHTMLCommon jp-RenderedMarkdown jp-MarkdownOutput" data-mime-type="text/markdown">
+<h3 id="16.-Cleanup:-remove-all-training-artifacts">16. Cleanup: remove all training artifacts<a class="anchor-link" href="#16.-Cleanup:-remove-all-training-artifacts">¶</a></h3><p>Finally, tidy up by deleting temporary checkpoint folders and any intermediate result directories. Clearing out old artifacts frees disk space and leaves your workspace clean for whatever comes next.</p>
+</div>
+</div>
+</div>
+</div><div class="jp-Cell jp-CodeCell jp-Notebook-cell jp-mod-noOutputs">
+<div class="jp-Cell-inputWrapper" tabindex="0">
+<div class="jp-Collapser jp-InputCollapser jp-Cell-inputCollapser">
+</div>
+<div class="jp-InputArea jp-Cell-inputArea">
+<div class="jp-InputPrompt jp-InputArea-prompt">In [ ]:</div>
+<div class="jp-CodeMirrorEditor jp-Editor jp-InputArea-editor" data-type="inline">
+<div class="cm-editor cm-s-jupyter">
+<div class="highlight hl-ipython3"><pre><span></span><span class="c1"># 16. Cleanup – optionally remove all artifacts to free space</span>
 <span class="k">if</span> <span class="n">os</span><span class="o">.</span><span class="n">path</span><span class="o">.</span><span class="n">exists</span><span class="p">(</span><span class="n">DATA_DIR</span><span class="p">):</span>
     <span class="n">shutil</span><span class="o">.</span><span class="n">rmtree</span><span class="p">(</span><span class="n">DATA_DIR</span><span class="p">)</span>
     <span class="nb">print</span><span class="p">(</span><span class="sa">f</span><span class="s2">"Deleted </span><span class="si">{</span><span class="n">DATA_DIR</span><span class="si">}</span><span class="s2">"</span><span class="p">)</span>
@@ -7596,53 +7697,54 @@ a.anchor-link {
 </div>
 <div class="jp-InputArea jp-Cell-inputArea"><div class="jp-InputPrompt jp-InputArea-prompt">
 </div><div class="jp-RenderedHTMLCommon jp-RenderedMarkdown jp-MarkdownOutput" data-mime-type="text/markdown">
-<h3 id="%F0%9F%8E%89-Wrapping-Up-&amp;-Next-Steps">🎉 Wrapping Up &amp; Next Steps<a class="anchor-link" href="#%F0%9F%8E%89-Wrapping-Up-&amp;-Next-Steps">¶</a></h3><p>Nice work. You've built a robust, distributed forecasting workflow using <strong>Ray Train on Anyscale</strong> that:</p>
+<h3 id="Wrap-up-and-next-steps">Wrap up and next steps<a class="anchor-link" href="#Wrap-up-and-next-steps">¶</a></h3><p>You built a robust, distributed forecasting workflow using <strong>Ray Train on Anyscale</strong> that:</p>
 <ul>
 <li>Trains a Transformer model across <strong>multiple GPUs</strong> using <strong>Ray Train with Distributed Data Parallel (DDP)</strong>, abstracting away low-level orchestration.</li>
 <li>Recovers automatically from failures with <strong>built-in checkpointing and resume</strong>, even across re-launches or node churn.</li>
 <li>Logs and reports per-epoch metrics using <strong>Ray Train’s reporting APIs</strong>, enabling real-time monitoring and seamless plotting.</li>
-<li>Performs inference using <strong>Ray remote tasks</strong>, allowing you to scale forecasting across GPUs or nodes without changing model code.</li>
+<li>Performs inference using <strong>Ray Data</strong>. This allows you to scale forecasting across GPUs or nodes without changing model code.</li>
 </ul>
 <hr/>
-<h3 id="%F0%9F%9A%80-Where-can-you-take-this-next?">🚀 Where can you take this next?<a class="anchor-link" href="#%F0%9F%9A%80-Where-can-you-take-this-next?">¶</a></h3><ol>
-<li><p><strong>Hyperparameter Sweeps</strong></p>
+<h3 id="Where-can-you-take-this-next?">Where can you take this next?<a class="anchor-link" href="#Where-can-you-take-this-next?">¶</a></h3><p>The following are a few directions you can explore to extend or adapt this workload:</p>
+<ol>
+<li><p><strong>Hyperparameter sweeps</strong></p>
 <ul>
 <li>Wrap the <code>TorchTrainer</code> with <strong>Ray Tune</strong> to search over <code>d_model</code>, <code>nhead</code>, learning rate, and window sizes.</li>
 </ul>
 </li>
-<li><p><strong>Probabilistic Forecasting</strong></p>
+<li><p><strong>Probabilistic forecasting</strong></p>
 <ul>
-<li>Output percentiles or fit a distribution head (For example, Gaussian) to capture prediction uncertainty.</li>
+<li>Output percentiles or fit a distribution head (for example, Gaussian) to capture prediction uncertainty.</li>
 </ul>
 </li>
-<li><p><strong>Multivariate &amp; Exogenous Features</strong></p>
+<li><p><strong>Multivariate and exogenous features</strong></p>
 <ul>
 <li>Add weather, holidays, or ride-sharing surge multipliers as extra input channels.</li>
 </ul>
 </li>
-<li><p><strong>Early-Stopping &amp; LR Scheduling</strong></p>
+<li><p><strong>Early-stopping and LR scheduling</strong></p>
 <ul>
 <li>Monitor val-loss and reduce LR on plateau, or stop when improvement &lt; 1 %.</li>
 </ul>
 </li>
-<li><p><strong>Model Compression</strong></p>
+<li><p><strong>Model compression</strong></p>
 <ul>
-<li>Distil the large Transformer into a lightweight LSTM or Tiny-Transformer for edge deployment.</li>
+<li>Distill the large Transformer into a lightweight LSTM or Tiny-Transformer for edge deployment.</li>
 </ul>
 </li>
-<li><p><strong>Streaming / Online Learning</strong></p>
+<li><p><strong>Streaming and online learning</strong></p>
 <ul>
 <li>Use <strong>Ray Serve</strong> to deploy the model and update weights periodically with the latest data.</li>
 </ul>
 </li>
 <li><p><strong>Interpretability</strong></p>
 <ul>
-<li>Visualise attention maps to see which time lags the model focuses on—great for stakeholder trust.</li>
+<li>Visualize attention maps to see which time lags the model focuses on—effective for stakeholder trust.</li>
 </ul>
 </li>
-<li><p><strong>End-to-End MLOps</strong></p>
+<li><p><strong>End-to-end MLOps</strong></p>
 <ul>
-<li>Schedule nightly retraining with <strong>Ray Jobs</strong>, log artifacts to MLflow or Weights &amp; Biases, and automate model promotion.</li>
+<li>Schedule nightly retraining with <strong>Ray jobs</strong>, log artifacts to MLflow or Weights &amp; Biases, and automate model promotion.</li>
 </ul>
 </li>
 </ol>

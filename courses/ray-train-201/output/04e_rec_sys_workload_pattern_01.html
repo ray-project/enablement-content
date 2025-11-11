@@ -7517,14 +7517,14 @@ a.anchor-link {
 </div>
 <div class="jp-InputArea jp-Cell-inputArea"><div class="jp-InputPrompt jp-InputArea-prompt">
 </div><div class="jp-RenderedHTMLCommon jp-RenderedMarkdown jp-MarkdownOutput" data-mime-type="text/markdown">
-<h2 id="%F0%9F%A7%A0-04e-%C2%B7-Recommendation-System-Pattern-with-Ray-Train">🧠 04e · Recommendation System Pattern with Ray Train<a class="anchor-link" href="#%F0%9F%A7%A0-04e-%C2%B7-Recommendation-System-Pattern-with-Ray-Train">¶</a></h2><p>In this notebook you build a <strong>scalable matrix factorization recommendation system</strong> using the <strong>MovieLens 100K</strong> dataset, fully distributed on an Anyscale cluster with <strong>Ray Train V2</strong> and <strong>Ray Data</strong>.</p>
-<h3 id="What-you%E2%80%99ll-learn-&amp;-take-away">What you’ll learn &amp; take away<a class="anchor-link" href="#What-you%E2%80%99ll-learn-&amp;-take-away">¶</a></h3><ul>
+<h1 id="04e-Recommendation-system-pattern-with-Ray-Train">04e Recommendation system pattern with Ray Train<a class="anchor-link" href="#04e-Recommendation-system-pattern-with-Ray-Train">¶</a></h1><p>This notebook builds a <strong>scalable matrix factorization recommendation system</strong> using the <strong>MovieLens 100K</strong> dataset, fully distributed on an Anyscale cluster with <strong>Ray Train V2</strong> and <strong>Ray Data</strong>. For larger scale recommendation use-cases we additionally have an integration with TorchRec. An example can be found <a href="https://github.com/ray-project/ray/tree/d84d0fd0e88f116302c3fa22ed80fbc3d358c4a3/release/train_tests/benchmark/recsys">here</a>.</p>
+<h3 id="What-you-learn-and-take-away">What you learn and take away<a class="anchor-link" href="#What-you-learn-and-take-away">¶</a></h3><ul>
 <li>How to use <strong>Ray Data</strong> to load, encode, and shard tabular datasets across many workers</li>
 <li>How to <strong>stream training data</strong> directly into PyTorch using <code>iter_torch_batches()</code></li>
 <li>How to build a <strong>custom training loop with validation and checkpointing</strong> using <code>ray.train.report()</code></li>
 <li>How to use <strong>Ray Train V2's fault-tolerant trainer</strong> to resume training from the latest checkpoint with no extra logic</li>
 <li>How to separate <strong>training, evaluation, and inference</strong> while keeping all code modular and distributed-ready</li>
-<li>How to run real-world recommendation workloads with <strong>no changes to your model code</strong>, thanks to Ray’s orchestration</li>
+<li>How to run real-world recommendation workloads with <strong>no changes to your model code</strong>, using Ray’s orchestration</li>
 </ul>
 </div>
 </div>
@@ -7536,19 +7536,19 @@ a.anchor-link {
 </div>
 <div class="jp-InputArea jp-Cell-inputArea"><div class="jp-InputPrompt jp-InputArea-prompt">
 </div><div class="jp-RenderedHTMLCommon jp-RenderedMarkdown jp-MarkdownOutput" data-mime-type="text/markdown">
-<h3 id="%F0%9F%94%A2-What-problem-are-you-solving?-(Matrix-factorization-for-recommendations)">🔢 What problem are you solving? (Matrix factorization for recommendations)<a class="anchor-link" href="#%F0%9F%94%A2-What-problem-are-you-solving?-(Matrix-factorization-for-recommendations)">¶</a></h3><p>You’re building a <strong>collaborative filtering recommendation system</strong> that predicts how much a user likes an item<br/>
-based on <strong>historical interaction data</strong> — in this case, user ratings from the MovieLens 100K dataset.</p>
+<h3 id="What-problem-are-you-solving?-(matrix-factorization-for-recommendations)">What problem are you solving? (matrix factorization for recommendations)<a class="anchor-link" href="#What-problem-are-you-solving?-(matrix-factorization-for-recommendations)">¶</a></h3><p>Build a <strong>collaborative filtering recommendation system</strong> that predicts how much a user likes an item<br/>
+based on <strong>historical interaction data</strong>—in this case, user ratings from the MovieLens 100K dataset.</p>
 <p>Use <strong>matrix factorization</strong>, a classic yet scalable approach where you embed each user and item in a latent space.<br/>
 The model learns to represent users and items as vectors and predicts ratings by computing their dot product.</p>
 <hr/>
-<h3 id="Input:-User%E2%80%93Item%E2%80%93Rating-triples">Input: User–Item–Rating triples<a class="anchor-link" href="#Input:-User%E2%80%93Item%E2%80%93Rating-triples">¶</a></h3><p>Each row in the dataset represents a user’s explicit rating of a movie:</p>
+<h3 id="Input:-user%E2%80%93item%E2%80%93rating-triples">Input: user–item–rating triples<a class="anchor-link" href="#Input:-user%E2%80%93item%E2%80%93rating-triples">¶</a></h3><p>Each row in the dataset represents a user’s explicit rating of a movie:</p>
 <p>$$
 (u, {i}, r) \in \{\text{users}\} \times \{\text{items}\} \times \{1, 2, 3, 4, 5\}
 $$</p>
 <p>Encode these using contiguous integer indices (<code>user_idx</code>, <code>item_idx</code>)<br/>
 and normalize them for efficient embedding lookup and training.</p>
 <hr/>
-<h3 id="Model:-Embedding-based-matrix-factorization">Model: Embedding-based matrix factorization<a class="anchor-link" href="#Model:-Embedding-based-matrix-factorization">¶</a></h3><p>Learn an embedding vector for each user and each item:</p>
+<h3 id="Model:-embedding-based-matrix-factorization">Model: embedding-based matrix factorization<a class="anchor-link" href="#Model:-embedding-based-matrix-factorization">¶</a></h3><p>Learn an embedding vector for each user and each item:</p>
 <p>$$
 U_{u} \in \mathbb{R}^d, \quad V_{i} \in \mathbb{R}^d
 $$</p>
@@ -7564,8 +7564,8 @@ $$</p>
 $$</p>
 <p>This encourages the model to assign higher scores to user–item pairs that historically received high ratings.</p>
 <hr/>
-<h3 id="Inference:-ranking-items-per-user">Inference: ranking items per user<a class="anchor-link" href="#Inference:-ranking-items-per-user">¶</a></h3><p>Once trained, you can recommend items by computing predicted scores for a target user<br/>
-against <strong>all items in the catalog</strong>:</p>
+<h3 id="Inference:-ranking-items-per-user">Inference: ranking items per user<a class="anchor-link" href="#Inference:-ranking-items-per-user">¶</a></h3><p>Once the model is trained, you can recommend items by computing predicted scores for a target user<br/>
+against <strong>all items in the catalog</strong> (approximate methods can later be applied at scale):</p>
 <p>$$
 \hat{r}_{u, *} = U_{u}^\top V^\top
 $$</p>
@@ -7581,25 +7581,25 @@ $$</p>
 </div>
 <div class="jp-InputArea jp-Cell-inputArea"><div class="jp-InputPrompt jp-InputArea-prompt">
 </div><div class="jp-RenderedHTMLCommon jp-RenderedMarkdown jp-MarkdownOutput" data-mime-type="text/markdown">
-<h3 id="%F0%9F%A7%AD-How-you%E2%80%99ll-migrate-this-recommendation-system-workload-to-a-distributed-setup-using-Ray-on-Anyscale">🧭 How you’ll migrate this recommendation system workload to a distributed setup using Ray on Anyscale<a class="anchor-link" href="#%F0%9F%A7%AD-How-you%E2%80%99ll-migrate-this-recommendation-system-workload-to-a-distributed-setup-using-Ray-on-Anyscale">¶</a></h3><p>This tutorial walks through how to <strong>migrate a local matrix factorization pipeline for recommendation into a distributed, fault-tolerant training loop using Ray Train and Ray Data on Anyscale</strong>.</p>
-<p>Here’s how you approach the transition:</p>
+<h3 id="How-to-migrate-this-recommendation-system-workload-to-a-distributed-setup-using-Ray-on-Anyscale">How to migrate this recommendation system workload to a distributed setup using Ray on Anyscale<a class="anchor-link" href="#How-to-migrate-this-recommendation-system-workload-to-a-distributed-setup-using-Ray-on-Anyscale">¶</a></h3><p>This tutorial <strong>migrates a local matrix factorization pipeline for recommendation into a distributed, fault-tolerant training loop using Ray Train and Ray Data on Anyscale</strong>.</p>
+<p>Approach the transition with the following steps:</p>
 <ol>
-<li><p><strong>Pandas DataFrame → Sharded Ray Dataset</strong><br/>
-Load MovieLens 100K as a pandas DataFrame, encode the IDs, and use <code>ray.data.from_pandas_refs()</code> to create a <strong>multi-block Ray Dataset</strong>. Each block is a training shard that Ray can distribute across workers.</p>
+<li><p><strong>Convert parquet files to sharded Ray Dataset</strong><br/>
+Load MovieLens 100K to parquet, encode the IDs to create a <strong>multi-block Ray Dataset</strong>. Each block is a training shard that Ray can distribute across workers.</p>
 </li>
-<li><p><strong>Manual Batching → Streaming Torch Data loaders</strong><br/>
+<li><p><strong>Stream Torch data loaders</strong><br/>
 Instead of manually writing PyTorch <code>Dataset</code> logic, use <code>iter_torch_batches()</code> from <strong>Ray Data</strong> to stream batches directly into each worker. Ray handles all the parallelism and sharding behind the scenes.</p>
 </li>
-<li><p><strong>Single-node PyTorch → Multi-GPU Distributed Training</strong><br/>
-Write a minimal <code>train_loop_per_worker</code> that runs on each Ray worker. Using <code>TorchTrainer</code> and <code>prepare_model()</code>, scale this loop across 8 GPU workers automatically, where each working on its own data shard.</p>
+<li><p><strong>Convert a single-node PyTorch process to a multi-GPU distributed training</strong><br/>
+Write a minimal <code>train_loop_per_worker</code> that runs on each Ray worker. Using <code>TorchTrainer</code> and <code>prepare_model()</code>, scale this loop across 8 GPU workers automatically, where each works on its own data shard.</p>
 </li>
-<li><p><strong>Ad-hoc Logging → Structured Epoch Logging and Checkpoints</strong><br/>
-Each epoch logs <code>train_loss</code> and <code>val_loss</code> to a shared JSON file, and report checkpoints with <code>ray.train.report(checkpoint=...)</code>. This enables <strong>automatic recovery and metric tracking</strong> without any additional code.</p>
+<li><p><strong>Configure structured epoch logging and checkpoints</strong><br/>
+Each epoch logs <code>train_loss</code> and <code>val_loss</code> and report checkpoints with <code>ray.train.report(checkpoint=...)</code>. This enables <strong>automatic recovery and metric tracking</strong> without any additional code.</p>
 </li>
-<li><p><strong>Resume and Scaling → Declarative Configuration</strong><br/>
-Configure fault tolerance, checkpointing, and scaling using <code>ScalingConfig</code>, <code>CheckpointConfig</code>, and <code>FailureConfig</code>. This lets Ray + Anyscale handle retries, recovery, and GPU orchestration.</p>
+<li><p><strong>Declaratively configure tolerance, checkpointing and scaling</strong><br/>
+Configure fault tolerance, checkpointing, and scaling using <code>ScalingConfig</code>, <code>CheckpointConfig</code>, and <code>FailureConfig</code>. This lets Ray and Anyscale handle retries, recovery, and GPU orchestration.</p>
 </li>
-<li><p><strong>Post-training Inference → Lightweight Python Function</strong><br/>
+<li><p><strong>Write lightweight Python functions for post- inferfence</strong><br/>
 After training, load the latest checkpoint and generate top-N recommendations for any user with a simple forward pass. No retraining, no re-initialization, just pure PyTorch inference.</p>
 </li>
 </ol>

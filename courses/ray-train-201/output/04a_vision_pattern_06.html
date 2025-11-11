@@ -7517,7 +7517,7 @@ a.anchor-link {
 </div>
 <div class="jp-InputArea jp-Cell-inputArea"><div class="jp-InputPrompt jp-InputArea-prompt">
 </div><div class="jp-RenderedHTMLCommon jp-RenderedMarkdown jp-MarkdownOutput" data-mime-type="text/markdown">
-<h2 id="12-%C2%B7-Launch-Distributed-Training-with-TorchTrainer">12 · Launch Distributed Training with <code>TorchTrainer</code><a class="anchor-link" href="#12-%C2%B7-Launch-Distributed-Training-with-TorchTrainer">¶</a></h2><p>Now, instantiate a <code>TorchTrainer</code>. Ask for eight GPU workers, enable up to three automatic retries, and tell Ray to keep the five checkpoints with the lowest validation loss. One call to <code>trainer.fit()</code> kicks off a fault-tolerant job on your Anyscale cluster.</p>
+<h2 id="12.-Launch-distributed-training-with-TorchTrainer">12. Launch distributed training with <code>TorchTrainer</code><a class="anchor-link" href="#12.-Launch-distributed-training-with-TorchTrainer">¶</a></h2><p>Instantiate a <code>TorchTrainer</code>. Ask for eight GPU workers, enable up to three automatic retries, and tell Ray to keep the five checkpoints with the lowest validation loss. One call to <code>trainer.fit()</code> kicks off a fault-tolerant job on your Anyscale cluster.</p>
 </div>
 </div>
 </div>
@@ -7533,7 +7533,7 @@ a.anchor-link {
 
 <span class="n">trainer</span> <span class="o">=</span> <span class="n">TorchTrainer</span><span class="p">(</span>
     <span class="n">train_loop_per_worker</span><span class="o">=</span><span class="n">train_loop_per_worker</span><span class="p">,</span>
-    <span class="n">train_loop_config</span><span class="o">=</span><span class="p">{</span><span class="s2">"lr"</span><span class="p">:</span> <span class="mf">1e-3</span><span class="p">,</span> <span class="s2">"batch_size"</span><span class="p">:</span> <span class="mi">64</span><span class="p">,</span> <span class="s2">"epochs"</span><span class="p">:</span> <span class="mi">10</span><span class="p">},</span>
+    <span class="n">train_loop_config</span><span class="o">=</span><span class="p">{</span><span class="s2">"lr"</span><span class="p">:</span> <span class="mf">1e-3</span><span class="p">,</span> <span class="s2">"batch_size"</span><span class="p">:</span> <span class="mi">64</span><span class="p">,</span> <span class="s2">"epochs"</span><span class="p">:</span> <span class="mi">5</span><span class="p">},</span>
     <span class="n">scaling_config</span><span class="o">=</span><span class="n">ScalingConfig</span><span class="p">(</span><span class="n">num_workers</span><span class="o">=</span><span class="mi">8</span><span class="p">,</span> <span class="n">use_gpu</span><span class="o">=</span><span class="kc">True</span><span class="p">),</span>
     <span class="n">run_config</span><span class="o">=</span><span class="n">RunConfig</span><span class="p">(</span>
         <span class="n">name</span><span class="o">=</span><span class="s2">"food101_ft_resume"</span><span class="p">,</span>

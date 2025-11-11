@@ -7517,7 +7517,34 @@ a.anchor-link {
 </div>
 <div class="jp-InputArea jp-Cell-inputArea"><div class="jp-InputPrompt jp-InputArea-prompt">
 </div><div class="jp-RenderedHTMLCommon jp-RenderedMarkdown jp-MarkdownOutput" data-mime-type="text/markdown">
-<h2 id="1-%C2%B7-Imports">1 · Imports<a class="anchor-link" href="#1-%C2%B7-Imports">¶</a></h2><p>This cell loads all required libraries for the tutorial: PyData tools for data processing, PyTorch for model building and training, and Ray Train for distributed orchestration. <code>TorchTrainer</code> is the main training engine, while <code>prepare_model</code> and <code>prepare_data_loader</code> help convert vanilla PyTorch code into Ray-aware components that scale seamlessly across nodes.</p>
+<h2 id="1.-Imports">1. Imports<a class="anchor-link" href="#1.-Imports">¶</a></h2><p>This cell loads all required libraries for the tutorial: PyData tools for data processing, PyTorch for model building and training, and Ray Train for distributed orchestration. <code>TorchTrainer</code> is the main training engine, while <code>prepare_model</code> and <code>prepare_data_loader</code> help convert vanilla PyTorch code into Ray-aware components that scale seamlessly across nodes.</p>
+</div>
+</div>
+</div>
+</div><div class="jp-Cell jp-CodeCell jp-Notebook-cell jp-mod-noOutputs">
+<div class="jp-Cell-inputWrapper" tabindex="0">
+<div class="jp-Collapser jp-InputCollapser jp-Cell-inputCollapser">
+</div>
+<div class="jp-InputArea jp-Cell-inputArea">
+<div class="jp-InputPrompt jp-InputArea-prompt">In [ ]:</div>
+<div class="jp-CodeMirrorEditor jp-Editor jp-InputArea-editor" data-type="inline">
+<div class="cm-editor cm-s-jupyter">
+<div class="highlight hl-ipython3"><pre><span></span><span class="c1"># 00. Runtime setup </span>
+<span class="kn">import</span><span class="w"> </span><span class="nn">os</span><span class="o">,</span><span class="w"> </span><span class="nn">sys</span><span class="o">,</span><span class="w"> </span><span class="nn">subprocess</span>
+
+<span class="c1"># Non-secret env var </span>
+<span class="n">os</span><span class="o">.</span><span class="n">environ</span><span class="p">[</span><span class="s2">"RAY_TRAIN_V2_ENABLED"</span><span class="p">]</span> <span class="o">=</span> <span class="s2">"1"</span>
+
+<span class="c1"># Install Python dependencies </span>
+<span class="n">subprocess</span><span class="o">.</span><span class="n">check_call</span><span class="p">([</span>
+    <span class="n">sys</span><span class="o">.</span><span class="n">executable</span><span class="p">,</span> <span class="s2">"-m"</span><span class="p">,</span> <span class="s2">"pip"</span><span class="p">,</span> <span class="s2">"install"</span><span class="p">,</span> <span class="s2">"--no-cache-dir"</span><span class="p">,</span>
+    <span class="s2">"torch==2.8.0"</span><span class="p">,</span>
+    <span class="s2">"matplotlib==3.10.6"</span><span class="p">,</span>
+    <span class="s2">"pyarrow==14.0.2"</span><span class="p">,</span>
+    <span class="s2">"datasets==2.19.2"</span><span class="p">,</span>
+<span class="p">])</span>
+</pre></div>
+</div>
 </div>
 </div>
 </div>
@@ -7548,6 +7575,7 @@ a.anchor-link {
 <span class="kn">import</span><span class="w"> </span><span class="nn">torch.optim</span><span class="w"> </span><span class="k">as</span><span class="w"> </span><span class="nn">optim</span>
 
 <span class="kn">import</span><span class="w"> </span><span class="nn">ray</span>
+<span class="kn">import</span><span class="w"> </span><span class="nn">ray.data</span><span class="w"> </span><span class="k">as</span><span class="w"> </span><span class="nn">rdata</span>
 <span class="kn">import</span><span class="w"> </span><span class="nn">ray.train</span><span class="w"> </span><span class="k">as</span><span class="w"> </span><span class="nn">train</span>
 <span class="kn">from</span><span class="w"> </span><span class="nn">ray.train</span><span class="w"> </span><span class="kn">import</span> <span class="p">(</span>
     <span class="n">ScalingConfig</span><span class="p">,</span> <span class="n">RunConfig</span><span class="p">,</span> <span class="n">FailureConfig</span><span class="p">,</span>
@@ -7566,7 +7594,7 @@ a.anchor-link {
 </div>
 <div class="jp-InputArea jp-Cell-inputArea"><div class="jp-InputPrompt jp-InputArea-prompt">
 </div><div class="jp-RenderedHTMLCommon jp-RenderedMarkdown jp-MarkdownOutput" data-mime-type="text/markdown">
-<h3 id="2-%C2%B7-Load-NYC-Taxi-passenger-counts-(30-min)">2 · Load NYC-Taxi passenger counts (30-min)<a class="anchor-link" href="#2-%C2%B7-Load-NYC-Taxi-passenger-counts-(30-min)">¶</a></h3><p>Download and cache a lightweight NYC taxi demand dataset from GitHub. store the file under the shared <code>/mnt/cluster_storage</code> directory so that all Ray workers can read it without duplication. Parse the timestamps and used as the DataFrame index, making the data time-series ready.</p>
+<h3 id="2.-Load-NYC-taxi-passenger-counts-(30-min)">2. Load NYC taxi passenger counts (30-min)<a class="anchor-link" href="#2.-Load-NYC-taxi-passenger-counts-(30-min)">¶</a></h3><p>Download and cache a lightweight NYC taxi demand dataset from GitHub. Store the file under the shared <code>/mnt/cluster_storage</code> directory so that all Ray workers can read it without duplication. Parse the timestamps and used as the DataFrame index, making the data time-series ready.</p>
 </div>
 </div>
 </div>
@@ -7578,7 +7606,7 @@ a.anchor-link {
 <div class="jp-InputPrompt jp-InputArea-prompt">In [ ]:</div>
 <div class="jp-CodeMirrorEditor jp-Editor jp-InputArea-editor" data-type="inline">
 <div class="cm-editor cm-s-jupyter">
-<div class="highlight hl-ipython3"><pre><span></span><span class="c1"># 02. Load NYC-Taxi passenger counts (30-min) from GitHub raw – no auth, ~1 MB</span>
+<div class="highlight hl-ipython3"><pre><span></span><span class="c1"># 02. Load NYC taxi passenger counts (30-min) from GitHub raw – no auth, ~1 MB</span>
 
 <span class="n">DATA_DIR</span> <span class="o">=</span> <span class="s2">"/mnt/cluster_storage/nyc_taxi_ts"</span>
 <span class="n">os</span><span class="o">.</span><span class="n">makedirs</span><span class="p">(</span><span class="n">DATA_DIR</span><span class="p">,</span> <span class="n">exist_ok</span><span class="o">=</span><span class="kc">True</span><span class="p">)</span>
@@ -7594,7 +7622,7 @@ a.anchor-link {
     <span class="nb">print</span><span class="p">(</span><span class="s2">"File already present."</span><span class="p">)</span>
     <span class="n">df</span> <span class="o">=</span> <span class="n">pd</span><span class="o">.</span><span class="n">read_csv</span><span class="p">(</span><span class="n">csv_path</span><span class="p">)</span>
 
-<span class="c1"># Parse timestamp + tidy</span>
+<span class="c1"># Parse timestamp and tidy</span>
 <span class="n">df</span><span class="p">[</span><span class="s2">"timestamp"</span><span class="p">]</span> <span class="o">=</span> <span class="n">pd</span><span class="o">.</span><span class="n">to_datetime</span><span class="p">(</span><span class="n">df</span><span class="p">[</span><span class="s2">"timestamp"</span><span class="p">])</span>
 <span class="n">df</span> <span class="o">=</span> <span class="n">df</span><span class="o">.</span><span class="n">set_index</span><span class="p">(</span><span class="s2">"timestamp"</span><span class="p">)</span><span class="o">.</span><span class="n">rename</span><span class="p">(</span><span class="n">columns</span><span class="o">=</span><span class="p">{</span><span class="s2">"value"</span><span class="p">:</span> <span class="s2">"passengers"</span><span class="p">})</span>
 
@@ -7612,7 +7640,7 @@ a.anchor-link {
 </div>
 <div class="jp-InputArea jp-Cell-inputArea"><div class="jp-InputPrompt jp-InputArea-prompt">
 </div><div class="jp-RenderedHTMLCommon jp-RenderedMarkdown jp-MarkdownOutput" data-mime-type="text/markdown">
-<h3 id="3-%C2%B7-Resample-to-hourly,-then-normalise">3 · Resample to hourly, then normalise<a class="anchor-link" href="#3-%C2%B7-Resample-to-hourly,-then-normalise">¶</a></h3><p>Resample the dataset to 30-minute intervals (if it wasn’t already), then z-score the <code>passengers</code> column to get a standardised signal. This helps with training stability, gradient scale, and ensures the model doesn’t learn absolute magnitudes too early. You reverse the normalisation after inference.</p>
+<h3 id="3.-Resample-to-hourly,-then-normalize">3. Resample to hourly, then normalize<a class="anchor-link" href="#3.-Resample-to-hourly,-then-normalize">¶</a></h3><p>Resample the dataset to 30-minute intervals (if it wasn’t already), then z-score the <code>passengers</code> column to get a standardized signal. This helps with training stability, gradient scale, and ensures the model doesn’t learn absolute magnitudes too early. You reverse the normalization after inference.</p>
 </div>
 </div>
 </div>
@@ -7624,7 +7652,7 @@ a.anchor-link {
 <div class="jp-InputPrompt jp-InputArea-prompt">In [ ]:</div>
 <div class="jp-CodeMirrorEditor jp-Editor jp-InputArea-editor" data-type="inline">
 <div class="cm-editor cm-s-jupyter">
-<div class="highlight hl-ipython3"><pre><span></span><span class="c1"># 03. Resample to hourly, then normalise</span>
+<div class="highlight hl-ipython3"><pre><span></span><span class="c1"># 03. Resample to hourly, then normalize</span>
 <span class="n">hourly</span> <span class="o">=</span> <span class="n">df</span><span class="o">.</span><span class="n">resample</span><span class="p">(</span><span class="s2">"30min"</span><span class="p">)</span><span class="o">.</span><span class="n">mean</span><span class="p">()</span>
 
 <span class="n">mean</span><span class="p">,</span> <span class="n">std</span> <span class="o">=</span> <span class="n">hourly</span><span class="p">[</span><span class="s2">"passengers"</span><span class="p">]</span><span class="o">.</span><span class="n">mean</span><span class="p">(),</span> <span class="n">hourly</span><span class="p">[</span><span class="s2">"passengers"</span><span class="p">]</span><span class="o">.</span><span class="n">std</span><span class="p">()</span>
@@ -7644,7 +7672,7 @@ a.anchor-link {
 </div>
 <div class="jp-InputArea jp-Cell-inputArea"><div class="jp-InputPrompt jp-InputArea-prompt">
 </div><div class="jp-RenderedHTMLCommon jp-RenderedMarkdown jp-MarkdownOutput" data-mime-type="text/markdown">
-<h3 id="4-%C2%B7-Quick-visual-sanity-check">4 · Quick visual sanity-check<a class="anchor-link" href="#4-%C2%B7-Quick-visual-sanity-check">¶</a></h3><p>Before moving to training, it’s good practice to visualise the raw data. Plot the first two weeks of half-hourly taxi demand. This helps confirm that the series exhibits strong seasonality and contains no unexpected gaps or noise.</p>
+<h3 id="4.-Quick-visual-sanity-check">4. Quick visual sanity-check<a class="anchor-link" href="#4.-Quick-visual-sanity-check">¶</a></h3><p>Before moving to training, it’s good practice to visualise the raw data. Plot the first two weeks of half-hourly taxi demand. This helps confirm that the series exhibits strong seasonality and contains no unexpected gaps or noise.</p>
 </div>
 </div>
 </div>
@@ -7676,7 +7704,7 @@ a.anchor-link {
 </div>
 <div class="jp-InputArea jp-Cell-inputArea"><div class="jp-InputPrompt jp-InputArea-prompt">
 </div><div class="jp-RenderedHTMLCommon jp-RenderedMarkdown jp-MarkdownOutput" data-mime-type="text/markdown">
-<h3 id="5-%C2%B7-Sliding-window-dataset-%E2%86%92-Parquet">5 · Sliding-window dataset → Parquet<a class="anchor-link" href="#5-%C2%B7-Sliding-window-dataset-%E2%86%92-Parquet">¶</a></h3><p>Convert the time-series into a supervised learning format using sliding windows. Each sample consists of a fixed-length input sequence (1 week of past data) and a prediction target (next 24 hours). You write these to columnar Parquet files on shared storage to enable efficient streaming in distributed training.</p>
+<h3 id="5.-Sliding-window-dataset-to-Parquet">5. Sliding-window dataset to Parquet<a class="anchor-link" href="#5.-Sliding-window-dataset-to-Parquet">¶</a></h3><p>Convert the time-series into a supervised learning format using sliding windows. Each sample consists of a fixed-length input sequence (1 week of past data) and a prediction target (next 24 hours). Write these to columnar Parquet files on shared storage to enable efficient streaming in distributed training.</p>
 </div>
 </div>
 </div>
@@ -7711,11 +7739,11 @@ a.anchor-link {
         <span class="s2">"future"</span><span class="p">:</span> <span class="n">future</span><span class="o">.</span><span class="n">tolist</span><span class="p">(),</span>
     <span class="p">}</span>
 
-    <span class="k">if</span> <span class="n">end</span> <span class="o">&lt;=</span> <span class="n">cut</span><span class="p">:</span>         <span class="c1"># entire window ends before the cut → train</span>
+    <span class="k">if</span> <span class="n">end</span> <span class="o">&lt;=</span> <span class="n">cut</span><span class="p">:</span>         <span class="c1"># Entire window ends before the cut to train</span>
         <span class="n">train_records</span><span class="o">.</span><span class="n">append</span><span class="p">(</span><span class="n">rec</span><span class="p">)</span>
-    <span class="k">elif</span> <span class="n">s</span> <span class="o">&gt;=</span> <span class="n">cut</span><span class="p">:</span>         <span class="c1"># window starts after the cut → val</span>
+    <span class="k">elif</span> <span class="n">s</span> <span class="o">&gt;=</span> <span class="n">cut</span><span class="p">:</span>         <span class="c1"># Window starts after the cut to val</span>
         <span class="n">val_records</span><span class="o">.</span><span class="n">append</span><span class="p">(</span><span class="n">rec</span><span class="p">)</span>
-    <span class="c1"># else: window crosses the cut → drop to prevent leakage</span>
+    <span class="c1"># else: window crosses the cut to drop to prevent leakage</span>
 
 <span class="nb">print</span><span class="p">(</span><span class="sa">f</span><span class="s2">"Windows → train: </span><span class="si">{</span><span class="nb">len</span><span class="p">(</span><span class="n">train_records</span><span class="p">)</span><span class="si">}</span><span class="s2">, val: </span><span class="si">{</span><span class="nb">len</span><span class="p">(</span><span class="n">val_records</span><span class="p">)</span><span class="si">}</span><span class="s2">"</span><span class="p">)</span>
 
@@ -7748,7 +7776,7 @@ a.anchor-link {
 </div>
 <div class="jp-InputArea jp-Cell-inputArea"><div class="jp-InputPrompt jp-InputArea-prompt">
 </div><div class="jp-RenderedHTMLCommon jp-RenderedMarkdown jp-MarkdownOutput" data-mime-type="text/markdown">
-<h3 id="6-%C2%B7-PyTorch-Dataset-over-Parquet">6 · PyTorch Dataset over Parquet<a class="anchor-link" href="#6-%C2%B7-PyTorch-Dataset-over-Parquet">¶</a></h3><p>Define a lightweight PyTorch <code>Dataset</code> class that reads each window from the Parquet shard. This makes the model training logic agnostic to how you store the data. Your DataLoader receives standard PyTorch tensors.</p>
+<h3 id="6.-PyTorch-Dataset-over-Parquet">6. PyTorch Dataset over Parquet<a class="anchor-link" href="#6.-PyTorch-Dataset-over-Parquet">¶</a></h3><p>Define a lightweight PyTorch <code>Dataset</code> class that reads each window from the Parquet shard. This makes the model training logic agnostic to how you store the data. Your DataLoader receives standard PyTorch tensors.</p>
 </div>
 </div>
 </div>
@@ -7787,7 +7815,7 @@ a.anchor-link {
 </div>
 <div class="jp-InputArea jp-Cell-inputArea"><div class="jp-InputPrompt jp-InputArea-prompt">
 </div><div class="jp-RenderedHTMLCommon jp-RenderedMarkdown jp-MarkdownOutput" data-mime-type="text/markdown">
-<h3 id="7-%C2%B7-Inspect-one-random-batch">7 · Inspect one random batch<a class="anchor-link" href="#7-%C2%B7-Inspect-one-random-batch">¶</a></h3><p>Always verify shapes before diving into training. This cell uses a basic <code>DataLoader</code> to fetch one random batch and prints the dimensions of the input and target tensors. This ensures the encoder and decoder receive tensors of the correct size and shape.</p>
+<h3 id="7.-Inspect-one-random-batch">7. Inspect one random batch<a class="anchor-link" href="#7.-Inspect-one-random-batch">¶</a></h3><p>Always verify shapes before diving into training. This cell uses a basic <code>DataLoader</code> to fetch one random batch and prints the dimensions of the input and target tensors. This ensures the encoder and decoder receive tensors of the correct size and shape.</p>
 </div>
 </div>
 </div>
@@ -7816,7 +7844,7 @@ a.anchor-link {
 </div>
 <div class="jp-InputArea jp-Cell-inputArea"><div class="jp-InputPrompt jp-InputArea-prompt">
 </div><div class="jp-RenderedHTMLCommon jp-RenderedMarkdown jp-MarkdownOutput" data-mime-type="text/markdown">
-<h3 id="8-%C2%B7-Ray-prepared-DataLoader">8 · Ray-prepared DataLoader<a class="anchor-link" href="#8-%C2%B7-Ray-prepared-DataLoader">¶</a></h3><p>Ray Train provides a helper to wrap your <code>DataLoader</code> so that it integrates seamlessly with distributed training. <code>prepare_data_loader</code> takes care of sharding and worker setup, ensuring each process only loads a subset of the data and communicates correctly.</p>
+<h3 id="8.-Ray-prepared-DataLoader">8. Ray-prepared DataLoader<a class="anchor-link" href="#8.-Ray-prepared-DataLoader">¶</a></h3><p>Ray Train provides a helper to wrap your <code>DataLoader</code> so that it integrates seamlessly with distributed training. <code>prepare_data_loader</code> takes care of sharding and worker setup, ensuring each process only loads a subset of the data and communicates correctly.</p>
 </div>
 </div>
 </div>
