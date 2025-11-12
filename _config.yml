@@ -12,24 +12,11 @@ html:
 sphinx:
     config:
         html_show_copyright: false
-        exclude_patterns:
-            - "venv/**"
-            - "_build/**"
-            - "__pycache__/**"
-            - ".git/**"
-            - "**/venv/**"
-            - "**/_build/**"
-            - "**/__pycache__/**"
-            - "**/.git/**"
 jupyter_execute_notebooks: "off"
 execute:
     execute_notebooks: "off"
     allow_errors: false
-    exclude_patterns:
-        - "**/venv/**"
-        - "**/_build/**"
-        - "**/__pycache__/**"
-        - "**/.git/**"
+    exclude_patterns: []
     timeout: 30
     stderr_output: remove
     stdout_output: remove
