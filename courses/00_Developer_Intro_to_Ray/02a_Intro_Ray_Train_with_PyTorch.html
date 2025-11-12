@@ -1,0 +1,1663 @@
+
+<!DOCTYPE html>
+
+
+<html lang="en" data-content_root="../../" >
+
+  <head>
+    <meta charset="utf-8" />
+    <meta name="viewport" content="width=device-width, initial-scale=1.0" /><meta name="viewport" content="width=device-width, initial-scale=1" />
+
+    <title>Introduction to Ray Train + PyTorch &#8212; Course Notebooks</title>
+  
+  
+  
+  <script data-cfasync="false">
+    document.documentElement.dataset.mode = localStorage.getItem("mode") || "";
+    document.documentElement.dataset.theme = localStorage.getItem("theme") || "";
+  </script>
+  
+  <!-- Loaded before other Sphinx assets -->
+  <link href="../../_static/styles/theme.css?digest=dfe6caa3a7d634c4db9b" rel="stylesheet" />
+<link href="../../_static/styles/bootstrap.css?digest=dfe6caa3a7d634c4db9b" rel="stylesheet" />
+<link href="../../_static/styles/pydata-sphinx-theme.css?digest=dfe6caa3a7d634c4db9b" rel="stylesheet" />
+
+  
+  <link href="../../_static/vendor/fontawesome/6.5.2/css/all.min.css?digest=dfe6caa3a7d634c4db9b" rel="stylesheet" />
+  <link rel="preload" as="font" type="font/woff2" crossorigin href="../../_static/vendor/fontawesome/6.5.2/webfonts/fa-solid-900.woff2" />
+<link rel="preload" as="font" type="font/woff2" crossorigin href="../../_static/vendor/fontawesome/6.5.2/webfonts/fa-brands-400.woff2" />
+<link rel="preload" as="font" type="font/woff2" crossorigin href="../../_static/vendor/fontawesome/6.5.2/webfonts/fa-regular-400.woff2" />
+
+    <link rel="stylesheet" type="text/css" href="../../_static/pygments.css?v=03e43079" />
+    <link rel="stylesheet" type="text/css" href="../../_static/styles/sphinx-book-theme.css?v=eba8b062" />
+    <link rel="stylesheet" type="text/css" href="../../_static/togglebutton.css?v=13237357" />
+    <link rel="stylesheet" type="text/css" href="../../_static/copybutton.css?v=76b2166b" />
+    <link rel="stylesheet" type="text/css" href="../../_static/mystnb.8ecb98da25f57f5357bf6f572d296f466b2cfe2517ffebfabe82451661e28f02.css" />
+    <link rel="stylesheet" type="text/css" href="../../_static/sphinx-thebe.css?v=4fa983c6" />
+    <link rel="stylesheet" type="text/css" href="../../_static/sphinx-design.min.css?v=95c83b7e" />
+    <link rel="stylesheet" type="text/css" href="../../_static/custom_hide.css?v=af9667c8" />
+  
+  <!-- Pre-loaded scripts that we'll load fully later -->
+  <link rel="preload" as="script" href="../../_static/scripts/bootstrap.js?digest=dfe6caa3a7d634c4db9b" />
+<link rel="preload" as="script" href="../../_static/scripts/pydata-sphinx-theme.js?digest=dfe6caa3a7d634c4db9b" />
+  <script src="../../_static/vendor/fontawesome/6.5.2/js/all.min.js?digest=dfe6caa3a7d634c4db9b"></script>
+
+    <script src="../../_static/documentation_options.js?v=9eb32ce0"></script>
+    <script src="../../_static/doctools.js?v=9a2dae69"></script>
+    <script src="../../_static/sphinx_highlight.js?v=dc90522c"></script>
+    <script src="../../_static/clipboard.min.js?v=a7894cd8"></script>
+    <script src="../../_static/copybutton.js?v=f281be69"></script>
+    <script src="../../_static/scripts/sphinx-book-theme.js?v=887ef09a"></script>
+    <script>let toggleHintShow = 'Click to show';</script>
+    <script>let toggleHintHide = 'Click to hide';</script>
+    <script>let toggleOpenOnPrint = 'true';</script>
+    <script src="../../_static/togglebutton.js?v=4a39c7ea"></script>
+    <script>var togglebuttonSelector = '.toggle, .admonition.dropdown';</script>
+    <script src="../../_static/design-tabs.js?v=f930bc37"></script>
+    <script>const THEBE_JS_URL = "https://unpkg.com/thebe@0.8.2/lib/index.js"; const thebe_selector = ".thebe,.cell"; const thebe_selector_input = "pre"; const thebe_selector_output = ".output, .cell_output"</script>
+    <script async="async" src="../../_static/sphinx-thebe.js?v=c100c467"></script>
+    <script>var togglebuttonSelector = '.toggle, .admonition.dropdown';</script>
+    <script>const THEBE_JS_URL = "https://unpkg.com/thebe@0.8.2/lib/index.js"; const thebe_selector = ".thebe,.cell"; const thebe_selector_input = "pre"; const thebe_selector_output = ".output, .cell_output"</script>
+    <script>DOCUMENTATION_OPTIONS.pagename = 'courses/00_Developer_Intro_to_Ray/02a_Intro_Ray_Train_with_PyTorch';</script>
+    <script src="../../_static/custom_toggle.js?v=1235ef5b"></script>
+    <link rel="index" title="Index" href="../../genindex.html" />
+    <link rel="search" title="Search" href="../../search.html" />
+  <meta name="viewport" content="width=device-width, initial-scale=1"/>
+  <meta name="docsearch:language" content="en"/>
+  </head>
+  
+  
+  <body data-bs-spy="scroll" data-bs-target=".bd-toc-nav" data-offset="180" data-bs-root-margin="0px 0px -60%" data-default-mode="">
+
+  
+  
+  <div id="pst-skip-link" class="skip-link d-print-none"><a href="#main-content">Skip to main content</a></div>
+  
+  <div id="pst-scroll-pixel-helper"></div>
+  
+  <button type="button" class="btn rounded-pill" id="pst-back-to-top">
+    <i class="fa-solid fa-arrow-up"></i>Back to top</button>
+
+  
+  <input type="checkbox"
+          class="sidebar-toggle"
+          id="pst-primary-sidebar-checkbox"/>
+  <label class="overlay overlay-primary" for="pst-primary-sidebar-checkbox"></label>
+  
+  <input type="checkbox"
+          class="sidebar-toggle"
+          id="pst-secondary-sidebar-checkbox"/>
+  <label class="overlay overlay-secondary" for="pst-secondary-sidebar-checkbox"></label>
+  
+  <div class="search-button__wrapper">
+    <div class="search-button__overlay"></div>
+    <div class="search-button__search-container">
+<form class="bd-search d-flex align-items-center"
+      action="../../search.html"
+      method="get">
+  <i class="fa-solid fa-magnifying-glass"></i>
+  <input type="search"
+         class="form-control"
+         name="q"
+         id="search-input"
+         placeholder="Search this book..."
+         aria-label="Search this book..."
+         autocomplete="off"
+         autocorrect="off"
+         autocapitalize="off"
+         spellcheck="false"/>
+  <span class="search-button__kbd-shortcut"><kbd class="kbd-shortcut__modifier">Ctrl</kbd>+<kbd>K</kbd></span>
+</form></div>
+  </div>
+
+  <div class="pst-async-banner-revealer d-none">
+  <aside id="bd-header-version-warning" class="d-none d-print-none" aria-label="Version warning"></aside>
+</div>
+
+  
+    <header class="bd-header navbar navbar-expand-lg bd-navbar d-print-none">
+    </header>
+  
+
+  <div class="bd-container">
+    <div class="bd-container__inner bd-page-width">
+      
+      
+      
+        
+      
+      <div class="bd-sidebar-primary bd-sidebar">
+        
+
+  
+  <div class="sidebar-header-items sidebar-primary__section">
+    
+    
+    
+    
+  </div>
+  
+    <div class="sidebar-primary-items__start sidebar-primary__section">
+        <div class="sidebar-primary-item">
+
+  
+    
+  
+
+<a class="navbar-brand logo" href="../../index.html">
+  
+  
+  
+  
+  
+  
+    <p class="title logo__title">Course Notebooks</p>
+  
+</a></div>
+        <div class="sidebar-primary-item">
+
+ <script>
+ document.write(`
+   <button class="btn search-button-field search-button__button" title="Search" aria-label="Search" data-bs-placement="bottom" data-bs-toggle="tooltip">
+    <i class="fa-solid fa-magnifying-glass"></i>
+    <span class="search-button__default-text">Search</span>
+    <span class="search-button__kbd-shortcut"><kbd class="kbd-shortcut__modifier">Ctrl</kbd>+<kbd class="kbd-shortcut__modifier">K</kbd></span>
+   </button>
+ `);
+ </script></div>
+        <div class="sidebar-primary-item"><nav class="bd-links bd-docs-nav" aria-label="Main">
+    <div class="bd-toc-item navbar-nav active">
+        
+        <ul class="nav bd-sidenav bd-sidenav__home-link">
+            <li class="toctree-l1">
+                <a class="reference internal" href="../../index.html">
+                    Ray Enablement Content
+                </a>
+            </li>
+        </ul>
+        <p aria-level="2" class="caption" role="heading"><span class="caption-text">Developer Intro to Ray</span></p>
+<ul class="nav bd-sidenav">
+<li class="toctree-l1"><a class="reference internal" href="output/00_Intro_Ray_Core_Basics_01.html">Introduction to Ray Core: Getting Started</a></li>
+<li class="toctree-l1"><a class="reference internal" href="output/00_Intro_Ray_Core_Basics_02.html">0. Overview</a></li>
+<li class="toctree-l1"><a class="reference internal" href="output/00_Intro_Ray_Core_Basics_03.html">1. Creating Remote Functions</a></li>
+<li class="toctree-l1"><a class="reference internal" href="output/00_Intro_Ray_Core_Basics_04.html">2. Executing Remote Functions</a></li>
+<li class="toctree-l1"><a class="reference internal" href="output/00_Intro_Ray_Core_Basics_05.html">4. Putting It All Together</a></li>
+<li class="toctree-l1"><a class="reference internal" href="output/00a_Intro_Ray_Core_Advancement_01.html">Introduction to Ray Core (Advancement): Object store, Tasks, Actors</a></li>
+<li class="toctree-l1"><a class="reference internal" href="output/00a_Intro_Ray_Core_Advancement_02.html">1. Object store</a></li>
+<li class="toctree-l1"><a class="reference internal" href="output/00a_Intro_Ray_Core_Advancement_03.html">2. Chaining Tasks and Passing Data</a></li>
+<li class="toctree-l1"><a class="reference internal" href="output/00a_Intro_Ray_Core_Advancement_04.html">3. Task retries</a></li>
+<li class="toctree-l1"><a class="reference internal" href="output/00a_Intro_Ray_Core_Advancement_05.html">4. Task Runtime Environments</a></li>
+<li class="toctree-l1"><a class="reference internal" href="output/00a_Intro_Ray_Core_Advancement_06.html">5. Resource allocation and management</a></li>
+<li class="toctree-l1"><a class="reference internal" href="output/00a_Intro_Ray_Core_Advancement_07.html">6. Nested Tasks</a></li>
+<li class="toctree-l1"><a class="reference internal" href="output/00a_Intro_Ray_Core_Advancement_08.html">7. Pattern: Pipeline data processing and waiting for results</a></li>
+<li class="toctree-l1"><a class="reference internal" href="output/00a_Intro_Ray_Core_Advancement_09.html">8. Ray Actors</a></li>
+<li class="toctree-l1"><a class="reference internal" href="output/01_Intro_Ray_AI_Libs_Overview_01.html">Introduction to the Ray AI Libraries: An example of using Ray data, Ray Train, Ray Tune, Ray Serve to implement a XGBoost regression model</a></li>
+<li class="toctree-l1"><a class="reference internal" href="output/01_Intro_Ray_AI_Libs_Overview_02.html">1. Overview of the Ray AI Libraries</a></li>
+<li class="toctree-l1"><a class="reference internal" href="output/01_Intro_Ray_AI_Libs_Overview_03.html">2. Quick end-to-end example</a></li>
+<li class="toctree-l1"><a class="reference internal" href="output/02a_Intro_Ray_Train_with_PyTorch_01.html">Introduction to Ray Train + PyTorch</a></li>
+<li class="toctree-l1"><a class="reference internal" href="output/02a_Intro_Ray_Train_with_PyTorch_02.html">1. When to use Ray Train</a></li>
+<li class="toctree-l1"><a class="reference internal" href="output/02a_Intro_Ray_Train_with_PyTorch_03.html">2. Single GPU Training with PyTorch</a></li>
+<li class="toctree-l1"><a class="reference internal" href="output/02a_Intro_Ray_Train_with_PyTorch_04.html">3. Distributed Data Parallel Training with Ray Train and PyTorch</a></li>
+<li class="toctree-l1"><a class="reference internal" href="output/02b_Intro_Ray_Train_with_PyTorch_Lightning_01.html">Introduction to Ray Train: Ray Train + PyTorch Lightning</a></li>
+<li class="toctree-l1"><a class="reference internal" href="output/02b_Intro_Ray_Train_with_PyTorch_Lightning_02.html">1. When to use Ray Train</a></li>
+<li class="toctree-l1"><a class="reference internal" href="output/02b_Intro_Ray_Train_with_PyTorch_Lightning_03.html">2. Single GPU Training with PyTorch Lightning</a></li>
+<li class="toctree-l1"><a class="reference internal" href="output/02b_Intro_Ray_Train_with_PyTorch_Lightning_04.html">3. Distributed Training with Ray Train and PyTorch Lightning</a></li>
+<li class="toctree-l1"><a class="reference internal" href="output/02b_Intro_Ray_Train_with_PyTorch_Lightning_05.html">4. Ray Train in Production</a></li>
+<li class="toctree-l1"><a class="reference internal" href="output/03_Intro_Ray_Tune_01.html">Introduction to Ray Tune</a></li>
+<li class="toctree-l1"><a class="reference internal" href="output/03_Intro_Ray_Tune_02.html">1. Loading the data</a></li>
+<li class="toctree-l1"><a class="reference internal" href="output/03_Intro_Ray_Tune_03.html">2. Starting out with vanilla PyTorch</a></li>
+<li class="toctree-l1"><a class="reference internal" href="output/03_Intro_Ray_Tune_04.html">3. Hyperparameter tuning with Ray Tune</a></li>
+<li class="toctree-l1"><a class="reference internal" href="output/03_Intro_Ray_Tune_05.html">4. Ray Tune in Production</a></li>
+<li class="toctree-l1"><a class="reference internal" href="output/04a_Intro_Ray_Data_Industry_Landscape_01.html">Introduction to Ray Data: Industry Landscape</a></li>
+
+<li class="toctree-l1"><a class="reference internal" href="output/04a_Intro_Ray_Data_Industry_Landscape_02.html">The Compute Layer</a></li>
+<li class="toctree-l1"><a class="reference internal" href="output/04a_Intro_Ray_Data_Industry_Landscape_03.html">The Orchestration Layer</a></li>
+<li class="toctree-l1"><a class="reference internal" href="output/04a_Intro_Ray_Data_Industry_Landscape_04.html">Distributed Computing Frameworks</a></li>
+<li class="toctree-l1"><a class="reference internal" href="output/04a_Intro_Ray_Data_Industry_Landscape_05.html">Data Processing with Ray Data</a></li>
+<li class="toctree-l1"><a class="reference internal" href="output/04a_Intro_Ray_Data_Industry_Landscape_06.html">Ray Serve</a></li>
+<li class="toctree-l1"><a class="reference internal" href="output/04b_Intro_Ray_Data_Structured_01.html">Introduction to Ray Data: Ray Data + Structured Data</a></li>
+<li class="toctree-l1"><a class="reference internal" href="output/04b_Intro_Ray_Data_Structured_02.html">0. What is Ray Data?</a></li>
+<li class="toctree-l1"><a class="reference internal" href="output/04b_Intro_Ray_Data_Structured_03.html">2. Loading Data</a></li>
+<li class="toctree-l1"><a class="reference internal" href="output/04b_Intro_Ray_Data_Structured_04.html">3. Transforming Data</a></li>
+<li class="toctree-l1"><a class="reference internal" href="output/04b_Intro_Ray_Data_Structured_05.html">4. Writing Data</a></li>
+<li class="toctree-l1"><a class="reference internal" href="output/04b_Intro_Ray_Data_Structured_06.html">5. Data Operations: Shuffling, Grouping and Aggregation</a></li>
+<li class="toctree-l1"><a class="reference internal" href="output/04b_Intro_Ray_Data_Structured_07.html">6. When to use Ray Data</a></li>
+<li class="toctree-l1"><a class="reference internal" href="output/04c_Intro_Ray_Data_Unstructured_01.html">Intro to Ray Data:  Ray Data + Unstructured Data</a></li>
+<li class="toctree-l1"><a class="reference internal" href="output/04c_Intro_Ray_Data_Unstructured_02.html">1. When to Consider Ray Data</a></li>
+<li class="toctree-l1"><a class="reference internal" href="output/04c_Intro_Ray_Data_Unstructured_03.html">2. How to work with Ray Data</a></li>
+<li class="toctree-l1"><a class="reference internal" href="output/04c_Intro_Ray_Data_Unstructured_04.html">3. Loading data</a></li>
+<li class="toctree-l1"><a class="reference internal" href="output/04c_Intro_Ray_Data_Unstructured_05.html">3. Lazy execution mode</a></li>
+<li class="toctree-l1"><a class="reference internal" href="output/04c_Intro_Ray_Data_Unstructured_06.html">4. Transforming data</a></li>
+<li class="toctree-l1"><a class="reference internal" href="output/04c_Intro_Ray_Data_Unstructured_07.html">5. Stateful transformations with Ray Actors</a></li>
+<li class="toctree-l1"><a class="reference internal" href="output/04c_Intro_Ray_Data_Unstructured_08.html">6. Materializing data</a></li>
+<li class="toctree-l1"><a class="reference internal" href="output/04c_Intro_Ray_Data_Unstructured_09.html">7. Data Operations: grouping, aggregation, and shuffling</a></li>
+<li class="toctree-l1"><a class="reference internal" href="output/04c_Intro_Ray_Data_Unstructured_10.html">8. Persisting data</a></li>
+<li class="toctree-l1"><a class="reference internal" href="output/04c_Intro_Ray_Data_Unstructured_11.html">9. Ray Data in production</a></li>
+<li class="toctree-l1"><a class="reference internal" href="output/05_Intro_Ray_Serve_PyTorch_01.html">Introduction to Ray Serve with PyTorch</a></li>
+<li class="toctree-l1"><a class="reference internal" href="output/05_Intro_Ray_Serve_PyTorch_02.html">1. When to Consider Ray Serve</a></li>
+<li class="toctree-l1"><a class="reference internal" href="output/05_Intro_Ray_Serve_PyTorch_03.html">2. Overview of Ray Serve</a></li>
+<li class="toctree-l1"><a class="reference internal" href="output/05_Intro_Ray_Serve_PyTorch_04.html">3. Implement an image classification service</a></li>
+<li class="toctree-l1"><a class="reference internal" href="output/05_Intro_Ray_Serve_PyTorch_05.html">4. Development workflow</a></li>
+<li class="toctree-l1"><a class="reference internal" href="output/README_01.html">Introduction to Ray: Developer</a></li>
+</ul>
+<p aria-level="2" class="caption" role="heading"><span class="caption-text">01 Examples</span></p>
+<ul class="nav bd-sidenav">
+<li class="toctree-l1"><a class="reference internal" href="../01_examples/output/01_Ray_Data_batch_inference_01.html">Batch Inference with Ray Data</a></li>
+<li class="toctree-l1"><a class="reference internal" href="../01_examples/output/01_Ray_Data_batch_inference_02.html">Architecture</a></li>
+<li class="toctree-l1"><a class="reference internal" href="../01_examples/output/01_Ray_Data_batch_inference_03.html">Load a dataset</a></li>
+<li class="toctree-l1"><a class="reference internal" href="../01_examples/output/01_Ray_Data_batch_inference_04.html">Batch Inference Class</a></li>
+<li class="toctree-l1"><a class="reference internal" href="../01_examples/output/01_Ray_Data_batch_inference_05.html">Create a batch data and call the model</a></li>
+<li class="toctree-l1"><a class="reference internal" href="../01_examples/output/01_Ray_Data_batch_inference_06.html">Run inference on the entire dataset</a></li>
+<li class="toctree-l1"><a class="reference internal" href="../01_examples/output/02_Ray_Data_data_processing_01.html">Data Processing with Ray Data</a></li>
+<li class="toctree-l1"><a class="reference internal" href="../01_examples/output/02_Ray_Data_data_processing_02.html">Library Imports</a></li>
+<li class="toctree-l1"><a class="reference internal" href="../01_examples/output/02_Ray_Data_data_processing_03.html">Convert to Ray Dataset</a></li>
+<li class="toctree-l1"><a class="reference internal" href="../01_examples/output/02_Ray_Data_data_processing_04.html">Filter Ray Dataset</a></li>
+<li class="toctree-l1"><a class="reference internal" href="../01_examples/output/02_Ray_Data_data_processing_05.html">Join Two Ray Datasets</a></li>
+<li class="toctree-l1"><a class="reference internal" href="../01_examples/output/02_Ray_Data_data_processing_06.html">Preprocessing with a Tokenizer</a></li>
+<li class="toctree-l1"><a class="reference internal" href="../01_examples/output/03_Ray_Serve_online_serving_01.html">Online Model Serving with Ray Serve</a></li>
+<li class="toctree-l1"><a class="reference internal" href="../01_examples/output/03_Ray_Serve_online_serving_02.html">Architecture</a></li>
+<li class="toctree-l1"><a class="reference internal" href="../01_examples/output/03_Ray_Serve_online_serving_03.html">FastAPI webservice and deploy a model</a></li>
+<li class="toctree-l1"><a class="reference internal" href="../01_examples/output/03_Ray_Serve_online_serving_04.html">Simulate Client: Send test requests</a></li>
+<li class="toctree-l1"><a class="reference internal" href="../01_examples/output/04_Ray_Train_distributed_training_01.html">Distributed training with Ray Train, PyTorch and Hugging Face</a></li>
+<li class="toctree-l1"><a class="reference internal" href="../01_examples/output/04_Ray_Train_distributed_training_02.html">1. Architecture</a></li>
+<li class="toctree-l1"><a class="reference internal" href="../01_examples/output/04_Ray_Train_distributed_training_03.html">3. Metrics Setup</a></li>
+<li class="toctree-l1"><a class="reference internal" href="../01_examples/output/04_Ray_Train_distributed_training_04.html">4. Training function per worker</a></li>
+<li class="toctree-l1"><a class="reference internal" href="../01_examples/output/04_Ray_Train_distributed_training_05.html">5. Main Training Function</a></li>
+<li class="toctree-l1"><a class="reference internal" href="../01_examples/output/04_Ray_Train_distributed_training_06.html">6. Start Training</a></li>
+</ul>
+<p aria-level="2" class="caption" role="heading"><span class="caption-text">02 Anyscale Admin</span></p>
+<ul class="nav bd-sidenav">
+<li class="toctree-l1"><a class="reference internal" href="../02_Anyscale_Admin/02_00_Anyscale_Admin_Overview/output/anyscale_administrator_overview_01.html">Anyscale Administrator Overview</a></li>
+<li class="toctree-l1"><a class="reference internal" href="../02_Anyscale_Admin/02_00_Anyscale_Admin_Overview/output/anyscale_administrator_overview_02.html">1. What is an Anyscale Cloud?</a></li>
+<li class="toctree-l1"><a class="reference internal" href="../02_Anyscale_Admin/02_00_Anyscale_Admin_Overview/output/anyscale_administrator_overview_03.html">2. Cloud Deployment Types</a></li>
+<li class="toctree-l1"><a class="reference internal" href="../02_Anyscale_Admin/02_00_Anyscale_Admin_Overview/output/anyscale_administrator_overview_04.html">3. A Demonstrative Example of Resource Creation with AWS EC2</a></li>
+<li class="toctree-l1"><a class="reference internal" href="../02_Anyscale_Admin/02_00_Anyscale_Admin_Overview/output/anyscale_administrator_overview_05.html">3.1 IAM Role Definition</a></li>
+<li class="toctree-l1"><a class="reference internal" href="../02_Anyscale_Admin/02_00_Anyscale_Admin_Overview/output/anyscale_administrator_overview_06.html">4. Register Anyscale Cloud to Your Cloud Provider</a></li>
+<li class="toctree-l1"><a class="reference internal" href="../02_Anyscale_Admin/02_01_VM_vs_K8s/output/anyscale_vm_vs_k8s_01.html">Deployment Options: Virtual Machines vs. Kubernetes</a></li>
+<li class="toctree-l1"><a class="reference internal" href="../02_Anyscale_Admin/02_01_VM_vs_K8s/output/anyscale_vm_vs_k8s_02.html">2. Virtual Machines (VM) vs. Kubernetes (K8s)</a></li>
+<li class="toctree-l1"><a class="reference internal" href="../02_Anyscale_Admin/02_01_VM_vs_K8s/output/anyscale_vm_vs_k8s_03.html">3. (Optional) More Kubernetes Deployments Components</a></li>
+<li class="toctree-l1"><a class="reference internal" href="../02_Anyscale_Admin/02_02a_Deploy_to_VM_AWS_EC2/output/deploy_to_ec2_01.html">Introduction: Deploy Anyscale Ray on AWS EC2 Instances</a></li>
+<li class="toctree-l1"><a class="reference internal" href="../02_Anyscale_Admin/02_02a_Deploy_to_VM_AWS_EC2/output/deploy_to_ec2_02.html">1. Create Anyscale Resources with Terraform</a></li>
+<li class="toctree-l1"><a class="reference internal" href="../02_Anyscale_Admin/02_02a_Deploy_to_VM_AWS_EC2/output/deploy_to_ec2_03.html">2. Register the Anyscale Cloud</a></li>
+<li class="toctree-l1"><a class="reference internal" href="../02_Anyscale_Admin/02_02a_Deploy_to_VM_AWS_EC2/output/deploy_to_ec2_04.html">3. Test</a></li>
+<li class="toctree-l1"><a class="reference internal" href="../02_Anyscale_Admin/02_02a_Deploy_to_VM_AWS_EC2/output/deploy_to_ec2_05.html">4. Cleanup</a></li>
+<li class="toctree-l1"><a class="reference internal" href="../02_Anyscale_Admin/02_02a_Deploy_to_VM_AWS_EC2/output/deploy_to_ec2_06.html">5. Conclusion</a></li>
+<li class="toctree-l1"><a class="reference internal" href="../02_Anyscale_Admin/02_02b_Deploy_to_VM_GCP_GCE/output/deploy_to_GCE_01.html">Introduction: Deploy Anyscale Ray on GCP Compute Engine Instances (GCE)</a></li>
+<li class="toctree-l1"><a class="reference internal" href="../02_Anyscale_Admin/02_02b_Deploy_to_VM_GCP_GCE/output/deploy_to_GCE_02.html">Prerequisites</a></li>
+<li class="toctree-l1"><a class="reference internal" href="../02_Anyscale_Admin/02_02b_Deploy_to_VM_GCP_GCE/output/deploy_to_GCE_03.html">1. Installation</a></li>
+<li class="toctree-l1"><a class="reference internal" href="../02_Anyscale_Admin/02_02b_Deploy_to_VM_GCP_GCE/output/deploy_to_GCE_04.html">2. Create Anyscale Resources with Terraform</a></li>
+<li class="toctree-l1"><a class="reference internal" href="../02_Anyscale_Admin/02_02b_Deploy_to_VM_GCP_GCE/output/deploy_to_GCE_05.html">3. Register the Anyscale Cloud</a></li>
+<li class="toctree-l1"><a class="reference internal" href="../02_Anyscale_Admin/02_02b_Deploy_to_VM_GCP_GCE/output/deploy_to_GCE_06.html">4. Test</a></li>
+<li class="toctree-l1"><a class="reference internal" href="../02_Anyscale_Admin/02_02b_Deploy_to_VM_GCP_GCE/output/deploy_to_GCE_07.html">5. Cleanup</a></li>
+<li class="toctree-l1"><a class="reference internal" href="../02_Anyscale_Admin/02_03a_Deploy_to_K8s_New_AWS_EKS/output/deploy_to_a_new_EKS_01.html">Introduction: Deploy Anyscale Ray on A New AWS EKS Cluster</a></li>
+<li class="toctree-l1"><a class="reference internal" href="../02_Anyscale_Admin/02_03a_Deploy_to_K8s_New_AWS_EKS/output/deploy_to_a_new_EKS_02.html">1. Create Anyscale Resources with Terraform</a></li>
+<li class="toctree-l1"><a class="reference internal" href="../02_Anyscale_Admin/02_03a_Deploy_to_K8s_New_AWS_EKS/output/deploy_to_a_new_EKS_03.html">2. Install Kubernetes Components</a></li>
+<li class="toctree-l1"><a class="reference internal" href="../02_Anyscale_Admin/02_03a_Deploy_to_K8s_New_AWS_EKS/output/deploy_to_a_new_EKS_04.html">3. Register the Anyscale Cloud</a></li>
+<li class="toctree-l1"><a class="reference internal" href="../02_Anyscale_Admin/02_03a_Deploy_to_K8s_New_AWS_EKS/output/deploy_to_a_new_EKS_05.html">4. Install the Anyscale Operator</a></li>
+<li class="toctree-l1"><a class="reference internal" href="../02_Anyscale_Admin/02_03a_Deploy_to_K8s_New_AWS_EKS/output/deploy_to_a_new_EKS_06.html">5. Verify the Installation</a></li>
+<li class="toctree-l1"><a class="reference internal" href="../02_Anyscale_Admin/02_03a_Deploy_to_K8s_New_AWS_EKS/output/deploy_to_a_new_EKS_07.html">6. Test</a></li>
+<li class="toctree-l1"><a class="reference internal" href="../02_Anyscale_Admin/02_03a_Deploy_to_K8s_New_AWS_EKS/output/deploy_to_a_new_EKS_08.html">7. Clean up</a></li>
+<li class="toctree-l1"><a class="reference internal" href="../02_Anyscale_Admin/02_03a_Deploy_to_K8s_New_AWS_EKS/output/deploy_to_a_new_EKS_09.html">8. Conclusion</a></li>
+<li class="toctree-l1"><a class="reference internal" href="../02_Anyscale_Admin/02_03b_Deploy_to_K8s_Existing_AWS_EKS/output/deploy_to_an_existing_EKS_01.html">Introduction: Deploy Anyscale Ray on An Existing AWS EKS Cluster</a></li>
+<li class="toctree-l1"><a class="reference internal" href="../02_Anyscale_Admin/02_03b_Deploy_to_K8s_Existing_AWS_EKS/output/deploy_to_an_existing_EKS_02.html">Prerequisites</a></li>
+<li class="toctree-l1"><a class="reference internal" href="../02_Anyscale_Admin/02_03b_Deploy_to_K8s_Existing_AWS_EKS/output/deploy_to_an_existing_EKS_03.html">1. Create Anyscale Resources with Terraform</a></li>
+<li class="toctree-l1"><a class="reference internal" href="../02_Anyscale_Admin/02_03b_Deploy_to_K8s_Existing_AWS_EKS/output/deploy_to_an_existing_EKS_04.html">2. Attach Required IAM Policies to Your existing EKS’s Node Role</a></li>
+<li class="toctree-l1"><a class="reference internal" href="../02_Anyscale_Admin/02_03b_Deploy_to_K8s_Existing_AWS_EKS/output/deploy_to_an_existing_EKS_05.html">3. Install Kubernetes Components</a></li>
+<li class="toctree-l1"><a class="reference internal" href="../02_Anyscale_Admin/02_03b_Deploy_to_K8s_Existing_AWS_EKS/output/deploy_to_an_existing_EKS_06.html">4. Register the Anyscale Cloud</a></li>
+<li class="toctree-l1"><a class="reference internal" href="../02_Anyscale_Admin/02_03b_Deploy_to_K8s_Existing_AWS_EKS/output/deploy_to_an_existing_EKS_07.html">5. Install the Anyscale Operator</a></li>
+<li class="toctree-l1"><a class="reference internal" href="../02_Anyscale_Admin/02_03b_Deploy_to_K8s_Existing_AWS_EKS/output/deploy_to_an_existing_EKS_08.html">6. Verify the Installation</a></li>
+<li class="toctree-l1"><a class="reference internal" href="../02_Anyscale_Admin/02_03b_Deploy_to_K8s_Existing_AWS_EKS/output/deploy_to_an_existing_EKS_09.html">7. Test</a></li>
+<li class="toctree-l1"><a class="reference internal" href="../02_Anyscale_Admin/02_03b_Deploy_to_K8s_Existing_AWS_EKS/output/deploy_to_an_existing_EKS_10.html">8. Troubleshooting</a></li>
+<li class="toctree-l1"><a class="reference internal" href="../02_Anyscale_Admin/02_03b_Deploy_to_K8s_Existing_AWS_EKS/output/deploy_to_an_existing_EKS_11.html">9. Clean up</a></li>
+<li class="toctree-l1"><a class="reference internal" href="../02_Anyscale_Admin/02_03b_Deploy_to_K8s_Existing_AWS_EKS/output/deploy_to_an_existing_EKS_12.html">10. Conclusion</a></li>
+<li class="toctree-l1"><a class="reference internal" href="../02_Anyscale_Admin/02_03c_Deploy_to_K8s_New_GCP_GKE/output/deploy_to_new_GKE_01.html">Introduction: Deploy Anyscale Ray on A New Google Kubernetes Engine (GKE) Cluster</a></li>
+<li class="toctree-l1"><a class="reference internal" href="../02_Anyscale_Admin/02_03c_Deploy_to_K8s_New_GCP_GKE/output/deploy_to_new_GKE_02.html">Prerequisites</a></li>
+<li class="toctree-l1"><a class="reference internal" href="../02_Anyscale_Admin/02_03c_Deploy_to_K8s_New_GCP_GKE/output/deploy_to_new_GKE_03.html">1. Installation</a></li>
+<li class="toctree-l1"><a class="reference internal" href="../02_Anyscale_Admin/02_03c_Deploy_to_K8s_New_GCP_GKE/output/deploy_to_new_GKE_04.html">2. Create Anyscale Resources with Terraform</a></li>
+<li class="toctree-l1"><a class="reference internal" href="../02_Anyscale_Admin/02_03c_Deploy_to_K8s_New_GCP_GKE/output/deploy_to_new_GKE_05.html">3. Troubleshooting GPU Availability</a></li>
+<li class="toctree-l1"><a class="reference internal" href="../02_Anyscale_Admin/02_03c_Deploy_to_K8s_New_GCP_GKE/output/deploy_to_new_GKE_06.html">4. kubectl Configuration</a></li>
+<li class="toctree-l1"><a class="reference internal" href="../02_Anyscale_Admin/02_03c_Deploy_to_K8s_New_GCP_GKE/output/deploy_to_new_GKE_07.html">5. Install NGINX Ingress Controller</a></li>
+<li class="toctree-l1"><a class="reference internal" href="../02_Anyscale_Admin/02_03c_Deploy_to_K8s_New_GCP_GKE/output/deploy_to_new_GKE_08.html">6. (Optional) Upgrade Anyscale Dependencies</a></li>
+<li class="toctree-l1"><a class="reference internal" href="../02_Anyscale_Admin/02_03c_Deploy_to_K8s_New_GCP_GKE/output/deploy_to_new_GKE_09.html">7. Register the Anyscale Cloud</a></li>
+<li class="toctree-l1"><a class="reference internal" href="../02_Anyscale_Admin/02_03c_Deploy_to_K8s_New_GCP_GKE/output/deploy_to_new_GKE_10.html">8. Install the Anyscale Operator</a></li>
+<li class="toctree-l1"><a class="reference internal" href="../02_Anyscale_Admin/02_03c_Deploy_to_K8s_New_GCP_GKE/output/deploy_to_new_GKE_11.html">8. Test</a></li>
+<li class="toctree-l1"><a class="reference internal" href="../02_Anyscale_Admin/02_03c_Deploy_to_K8s_New_GCP_GKE/output/deploy_to_new_GKE_12.html">9. Cleanup</a></li>
+</ul>
+<p aria-level="2" class="caption" role="heading"><span class="caption-text">03 Observability</span></p>
+<ul class="nav bd-sidenav">
+<li class="toctree-l1"><a class="reference internal" href="../03_Observability/output/01_general_intro_and_setup_01.html">Observability Introduction</a></li>
+<li class="toctree-l1"><a class="reference internal" href="../03_Observability/output/01_general_intro_and_setup_02.html">Observability Overview</a></li>
+<li class="toctree-l1"><a class="reference internal" href="../03_Observability/output/01_general_intro_and_setup_03.html">Setting Up Local Ray Observability</a></li>
+<li class="toctree-l1"><a class="reference internal" href="../03_Observability/02_Ray_Anyscale_Introduction/output/2_Ray_Anyscale_Observability_Overview_01.html">Ray and Anyscale Observability Introduction</a></li>
+<li class="toctree-l1"><a class="reference internal" href="../03_Observability/02_Ray_Anyscale_Introduction/output/2_Ray_Anyscale_Observability_Overview_02.html">Ray Observability</a></li>
+<li class="toctree-l1"><a class="reference internal" href="../03_Observability/02_Ray_Anyscale_Introduction/output/2_Ray_Anyscale_Observability_Overview_03.html">Anyscale Observability</a></li>
+<li class="toctree-l1"><a class="reference internal" href="../03_Observability/02_Ray_Anyscale_Introduction/output/2_Ray_Anyscale_Observability_Overview_04.html">Example</a></li>
+<li class="toctree-l1"><a class="reference internal" href="../03_Observability/03_Ray_Anyscale_Observability_in_Detail/output/03_Ray_Anyscale_Observability_in_Details_01.html">Ray and Anyscale Observability in Detail</a></li>
+<li class="toctree-l1"><a class="reference internal" href="../03_Observability/03_Ray_Anyscale_Observability_in_Detail/output/03_Ray_Anyscale_Observability_in_Details_02.html">Data Pipeline Observability (Ray Data)</a></li>
+<li class="toctree-l1"><a class="reference internal" href="../03_Observability/03_Ray_Anyscale_Observability_in_Detail/output/03_Ray_Anyscale_Observability_in_Details_03.html">Web Application Observability (Ray Serve)</a></li>
+</ul>
+<p aria-level="2" class="caption" role="heading"><span class="caption-text">Gettingstarted</span></p>
+<ul class="nav bd-sidenav">
+<li class="toctree-l1"><a class="reference internal" href="../GettingStarted/output/101_01_anyscale_intro_workspace_01.html">101 — Introduction to Anyscale Workspaces</a></li>
+<li class="toctree-l1"><a class="reference internal" href="../GettingStarted/output/101_02_anyscale_development_intro_01.html">101 – Developing Application with Anyscale</a></li>
+<li class="toctree-l1"><a class="reference internal" href="../GettingStarted/output/101_03_anyscale_compute_runtime_intro_01.html">101 – Compute Configs and Execution Environments in Anyscale</a></li>
+<li class="toctree-l1"><a class="reference internal" href="../GettingStarted/output/101_04_anyscale_storage_options_01.html">101 – Storage Options in the Anyscale Platform</a></li>
+<li class="toctree-l1"><a class="reference internal" href="../GettingStarted/output/101_05_anyscale_logging_metrics_01.html">101 – Debug and Monitor Your Anyscale Application</a></li>
+<li class="toctree-l1"><a class="reference internal" href="../GettingStarted/output/101_06_anyscale_intro_jobs_01.html">101 – Introduction to Anyscale Jobs</a></li>
+<li class="toctree-l1"><a class="reference internal" href="../GettingStarted/output/101_07_anyscale_intro_services_01.html">101 –  Introduction to Anyscale Services</a></li>
+<li class="toctree-l1"><a class="reference internal" href="../GettingStarted/output/101_08_anyscale_collaboration_01.html">101 – Collaboration on Anyscale</a></li>
+<li class="toctree-l1"><a class="reference internal" href="../GettingStarted/output/101_09_anyscale_org_setup_01.html">101 - Anyscale Organization and Cloud Setup</a></li>
+<li class="toctree-l1"><a class="reference internal" href="../GettingStarted/output/101_09_anyscale_org_setup_02.html">📌 Overview of Structure</a></li>
+<li class="toctree-l1"><a class="reference internal" href="../GettingStarted/output/101_09_anyscale_org_setup_03.html">🧠 Summary</a></li>
+<li class="toctree-l1"><a class="reference internal" href="../GettingStarted/output/101_anyscale_intro_jobs_01.html">Content Used</a></li>
+
+<li class="toctree-l1"><a class="reference internal" href="../GettingStarted/output/101_anyscale_intro_jobs_02.html">Part 1. Creating and Submitting your first job</a></li>
+<li class="toctree-l1"><a class="reference internal" href="../GettingStarted/output/101_anyscale_intro_jobs_03.html">Part 2. Automation and Scheduling</a></li>
+<li class="toctree-l1"><a class="reference internal" href="../GettingStarted/output/101_anyscale_intro_services_01.html">Sources</a></li>
+
+<li class="toctree-l1"><a class="reference internal" href="../GettingStarted/output/101_anyscale_intro_services_02.html">Part 1: Starting your first Anyscale Service</a></li>
+</ul>
+<p aria-level="2" class="caption" role="heading"><span class="caption-text">Anyscale 101</span></p>
+<ul class="nav bd-sidenav">
+<li class="toctree-l1"><a class="reference internal" href="../anyscale_101/output/101_anyscale_intro_jobs_01.html">Content Used</a></li>
+
+<li class="toctree-l1"><a class="reference internal" href="../anyscale_101/output/101_anyscale_intro_jobs_02.html">Part 1. Creating and Submitting your first job</a></li>
+<li class="toctree-l1"><a class="reference internal" href="../anyscale_101/output/101_anyscale_intro_jobs_03.html">Part 2. Automation and Scheduling</a></li>
+<li class="toctree-l1"><a class="reference internal" href="../anyscale_101/output/101_anyscale_intro_services_01.html">Sources</a></li>
+
+<li class="toctree-l1"><a class="reference internal" href="../anyscale_101/output/101_anyscale_intro_services_02.html">Part 1: Starting your first Anyscale Service</a></li>
+</ul>
+<p aria-level="2" class="caption" role="heading"><span class="caption-text">Llm Serving</span></p>
+<ul class="nav bd-sidenav">
+<li class="toctree-l1"><a class="reference internal" href="../llm_serving/00_intro_serve_llm/output/notebook_01.html">Introduction to Ray Serve LLM: Foundations of Large Language Model Serving</a></li>
+<li class="toctree-l1"><a class="reference internal" href="../llm_serving/00_intro_serve_llm/output/notebook_02.html">What is LLM Serving?</a></li>
+<li class="toctree-l1"><a class="reference internal" href="../llm_serving/00_intro_serve_llm/output/notebook_03.html">Key Concepts and Optimizations</a></li>
+<li class="toctree-l1"><a class="reference internal" href="../llm_serving/00_intro_serve_llm/output/notebook_04.html">Challenges in LLM Serving</a></li>
+<li class="toctree-l1"><a class="reference internal" href="../llm_serving/00_intro_serve_llm/output/notebook_05.html">Ray Serve LLM + Anyscale Architecture</a></li>
+<li class="toctree-l1"><a class="reference internal" href="../llm_serving/00_intro_serve_llm/output/notebook_06.html">Getting Started with Ray Serve LLM</a></li>
+<li class="toctree-l1"><a class="reference internal" href="../llm_serving/00_intro_serve_llm/output/notebook_07.html">Key Takeaways</a></li>
+<li class="toctree-l1"><a class="reference internal" href="../llm_serving/01_deploy_medium_llm/output/notebook_01.html">Deploy a Medium-Sized LLM with Ray Serve LLM</a></li>
+<li class="toctree-l1"><a class="reference internal" href="../llm_serving/01_deploy_medium_llm/output/notebook_02.html">Overview: Why Medium-Sized Models?</a></li>
+<li class="toctree-l1"><a class="reference internal" href="../llm_serving/01_deploy_medium_llm/output/notebook_03.html">Setting up Ray Serve LLM</a></li>
+<li class="toctree-l1"><a class="reference internal" href="../llm_serving/01_deploy_medium_llm/output/notebook_04.html">Local Deployment &amp; Inference</a></li>
+<li class="toctree-l1"><a class="reference internal" href="../llm_serving/01_deploy_medium_llm/output/notebook_05.html">Deploying to Anyscale Services</a></li>
+<li class="toctree-l1"><a class="reference internal" href="../llm_serving/01_deploy_medium_llm/output/notebook_06.html">Advanced Topics: Monitoring &amp; Optimization</a></li>
+<li class="toctree-l1"><a class="reference internal" href="../llm_serving/01_deploy_medium_llm/output/notebook_07.html">Summary &amp; Outlook</a></li>
+<li class="toctree-l1"><a class="reference internal" href="../llm_serving/02_advanced_llm_features/output/notebook_01.html">Advanced LLM Features with Ray Serve LLM</a></li>
+<li class="toctree-l1"><a class="reference internal" href="../llm_serving/02_advanced_llm_features/output/notebook_02.html">Overview: Advanced Features Preview</a></li>
+<li class="toctree-l1"><a class="reference internal" href="../llm_serving/02_advanced_llm_features/output/notebook_03.html">Example: Deploying LoRA Adapters</a></li>
+<li class="toctree-l1"><a class="reference internal" href="../llm_serving/02_advanced_llm_features/output/notebook_04.html">Example: Getting Structured JSON Output</a></li>
+<li class="toctree-l1"><a class="reference internal" href="../llm_serving/02_advanced_llm_features/output/notebook_05.html">Example: Setting up Tool Calling</a></li>
+<li class="toctree-l1"><a class="reference internal" href="../llm_serving/02_advanced_llm_features/output/notebook_06.html">How to Choose an LLM?</a></li>
+<li class="toctree-l1"><a class="reference internal" href="../llm_serving/02_advanced_llm_features/output/notebook_07.html">Conclusion: Next Steps</a></li>
+</ul>
+<p aria-level="2" class="caption" role="heading"><span class="caption-text">Ray 101</span></p>
+<ul class="nav bd-sidenav">
+<li class="toctree-l1"><a class="reference internal" href="../ray-101/output/1_AI_Libs_Intro_01.html">Introduction to the Ray AI Libraries</a></li>
+<li class="toctree-l1"><a class="reference internal" href="../ray-101/output/1_AI_Libs_Intro_02.html">1. Overview of the Ray AI Libraries</a></li>
+<li class="toctree-l1"><a class="reference internal" href="../ray-101/output/1_AI_Libs_Intro_03.html">2. End-to-end example: predicting taxi tips in New York</a></li>
+<li class="toctree-l1"><a class="reference internal" href="../ray-101/output/2_Intro_Train_01.html">Introduction to Ray Train</a></li>
+<li class="toctree-l1"><a class="reference internal" href="../ray-101/output/2_Intro_Train_02.html">1. PyTorch introductory example (single GPU)</a></li>
+<li class="toctree-l1"><a class="reference internal" href="../ray-101/output/2_Intro_Train_03.html">2. Distributed Data Parallel Training with Ray Train and PyTorch (multiple GPUs)</a></li>
+<li class="toctree-l1"><a class="reference internal" href="../ray-101/output/2_Intro_Train_04.html">3. Overview of the training loop in Ray Train</a></li>
+<li class="toctree-l1"><a class="reference internal" href="../ray-101/output/2_Intro_Train_05.html">4. Migrating the model and dataset to Ray Train</a></li>
+<li class="toctree-l1"><a class="reference internal" href="../ray-101/output/2_Intro_Train_06.html">5. Reporting checkpoints and metrics</a></li>
+<li class="toctree-l1"><a class="reference internal" href="../ray-101/output/2_Intro_Train_07.html">6. Launching the distributed training job</a></li>
+<li class="toctree-l1"><a class="reference internal" href="../ray-101/output/2_Intro_Train_08.html">7. Accessing the training results</a></li>
+<li class="toctree-l1"><a class="reference internal" href="../ray-101/output/2_Intro_Train_09.html">8. Ray Train in Production</a></li>
+<li class="toctree-l1"><a class="reference internal" href="../ray-101/output/3_Intro_Tune_01.html">Intro to Ray Tune</a></li>
+<li class="toctree-l1"><a class="reference internal" href="../ray-101/output/3_Intro_Tune_02.html">1. Loading and visualizing data</a></li>
+<li class="toctree-l1"><a class="reference internal" href="../ray-101/output/3_Intro_Tune_03.html">2. Setting up a PyTorch model</a></li>
+<li class="toctree-l1"><a class="reference internal" href="../ray-101/output/3_Intro_Tune_04.html">3. Introduction to Ray Tune</a></li>
+<li class="toctree-l1"><a class="reference internal" href="../ray-101/output/3_Intro_Tune_05.html">4. Diving deeper into Ray Tune concepts</a></li>
+<li class="toctree-l1"><a class="reference internal" href="../ray-101/output/3_Intro_Tune_06.html">5. Hyperparameter tuning the PyTorch model using Ray Tune</a></li>
+<li class="toctree-l1"><a class="reference internal" href="../ray-101/output/4_Intro_Data_01.html">Intro to Ray Data</a></li>
+<li class="toctree-l1"><a class="reference internal" href="../ray-101/output/4_Intro_Data_02.html">1. When to use Ray Data</a></li>
+<li class="toctree-l1"><a class="reference internal" href="../ray-101/output/4_Intro_Data_03.html">2. Loading Data</a></li>
+<li class="toctree-l1"><a class="reference internal" href="../ray-101/output/4_Intro_Data_04.html">3. Transforming Data</a></li>
+<li class="toctree-l1"><a class="reference internal" href="../ray-101/output/4_Intro_Data_05.html">4. Data Operations: Grouping, Aggregation, and Shuffling</a></li>
+<li class="toctree-l1"><a class="reference internal" href="../ray-101/output/4_Intro_Data_06.html">5. Persisting Data</a></li>
+<li class="toctree-l1"><a class="reference internal" href="../ray-101/output/5_Intro_Serve_01.html">Intro to Ray Serve</a></li>
+<li class="toctree-l1"><a class="reference internal" href="../ray-101/output/5_Intro_Serve_02.html">1. Overview of Ray Serve</a></li>
+<li class="toctree-l1"><a class="reference internal" href="../ray-101/output/5_Intro_Serve_03.html">2. Implement an Classifier service</a></li>
+<li class="toctree-l1"><a class="reference internal" href="../ray-101/output/5_Intro_Serve_04.html">3. Advanced features of Ray Serve</a></li>
+<li class="toctree-l1"><a class="reference internal" href="../ray-101/output/5_Intro_Serve_05.html">4. Ray Serve in Production</a></li>
+<li class="toctree-l1"><a class="reference internal" href="../ray-101/output/5_Intro_Serve_06.html">Clean up</a></li>
+</ul>
+<p aria-level="2" class="caption" role="heading"><span class="caption-text">Ray Train 201</span></p>
+<ul class="nav bd-sidenav">
+<li class="toctree-l1"><a class="reference internal" href="../ray-train-201/output/01_02_03_intro_to_ray_train_01.html">📚 01 · Introduction to Ray Train</a></li>
+<li class="toctree-l1"><a class="reference internal" href="../ray-train-201/output/01_02_03_intro_to_ray_train_02.html">01 · Imports</a></li>
+<li class="toctree-l1"><a class="reference internal" href="../ray-train-201/output/01_02_03_intro_to_ray_train_03.html">04 · Define ResNet-18 Model for MNIST</a></li>
+<li class="toctree-l1"><a class="reference internal" href="../ray-train-201/output/01_02_03_intro_to_ray_train_04.html">05 · Define the Ray Train Loop (DDP per-worker)</a></li>
+<li class="toctree-l1"><a class="reference internal" href="../ray-train-201/output/01_02_03_intro_to_ray_train_05.html">06 · Define <code class="docutils literal notranslate"><span class="pre">train_loop_config</span></code></a></li>
+<li class="toctree-l1"><a class="reference internal" href="../ray-train-201/output/01_02_03_intro_to_ray_train_06.html">07 · Configure Scaling with <code class="docutils literal notranslate"><span class="pre">ScalingConfig</span></code></a></li>
+<li class="toctree-l1"><a class="reference internal" href="../ray-train-201/output/01_02_03_intro_to_ray_train_07.html">08 · Wrap the Model with <code class="docutils literal notranslate"><span class="pre">prepare_model()</span></code></a></li>
+<li class="toctree-l1"><a class="reference internal" href="../ray-train-201/output/01_02_03_intro_to_ray_train_08.html">09 · Build the DataLoader with <code class="docutils literal notranslate"><span class="pre">prepare_data_loader()</span></code></a></li>
+<li class="toctree-l1"><a class="reference internal" href="../ray-train-201/output/01_02_03_intro_to_ray_train_09.html">10 · Report Training Metrics</a></li>
+<li class="toctree-l1"><a class="reference internal" href="../ray-train-201/output/01_02_03_intro_to_ray_train_10.html">11 · Save Checkpoints and Report Metrics</a></li>
+<li class="toctree-l1"><a class="reference internal" href="../ray-train-201/output/01_02_03_intro_to_ray_train_11.html">14 · Create the <code class="docutils literal notranslate"><span class="pre">TorchTrainer</span></code></a></li>
+<li class="toctree-l1"><a class="reference internal" href="../ray-train-201/output/01_02_03_intro_to_ray_train_12.html">16 · Inspect the Training Results</a></li>
+<li class="toctree-l1"><a class="reference internal" href="../ray-train-201/output/01_02_03_intro_to_ray_train_13.html">18 · Load a Checkpoint for Inference</a></li>
+<li class="toctree-l1"><a class="reference internal" href="../ray-train-201/output/01_02_03_intro_to_ray_train_14.html">🔄 02 · Integrating Ray Train with Ray Data</a></li>
+<li class="toctree-l1"><a class="reference internal" href="../ray-train-201/output/01_02_03_intro_to_ray_train_15.html">01 · Define Training Loop with Ray Data</a></li>
+<li class="toctree-l1"><a class="reference internal" href="../ray-train-201/output/01_02_03_intro_to_ray_train_16.html">02 · Build DataLoader from Ray Data</a></li>
+<li class="toctree-l1"><a class="reference internal" href="../ray-train-201/output/01_02_03_intro_to_ray_train_17.html">03 · Prepare Dataset for Ray Data</a></li>
+<li class="toctree-l1"><a class="reference internal" href="../ray-train-201/output/01_02_03_intro_to_ray_train_18.html">05 · Define Image Transformation</a></li>
+<li class="toctree-l1"><a class="reference internal" href="../ray-train-201/output/01_02_03_intro_to_ray_train_19.html">07 · Configure <code class="docutils literal notranslate"><span class="pre">TorchTrainer</span></code> with Ray Data</a></li>
+<li class="toctree-l1"><a class="reference internal" href="../ray-train-201/output/01_02_03_intro_to_ray_train_20.html">🛡️ 03 · Fault Tolerance in Ray Train</a></li>
+<li class="toctree-l1"><a class="reference internal" href="../ray-train-201/output/01_02_03_intro_to_ray_train_21.html">01 · Modify Training Loop to Enable Checkpoint Loading</a></li>
+<li class="toctree-l1"><a class="reference internal" href="../ray-train-201/output/01_02_03_intro_to_ray_train_22.html">02 · Save Full Checkpoint with Extra State</a></li>
+<li class="toctree-l1"><a class="reference internal" href="../ray-train-201/output/01_02_03_intro_to_ray_train_23.html">04 · Launch Fault-Tolerant Training</a></li>
+<li class="toctree-l1"><a class="reference internal" href="../ray-train-201/output/01_02_03_intro_to_ray_train_24.html">05 · Manual Restoration from Checkpoints</a></li>
+<li class="toctree-l1"><a class="reference internal" href="../ray-train-201/output/01_02_03_intro_to_ray_train_25.html">07 · Clean Up Cluster Storage</a></li>
+<li class="toctree-l1"><a class="reference internal" href="../ray-train-201/output/01_02_03_intro_to_ray_train_26.html">🎉 Wrapping Up &amp; Next Steps</a></li>
+<li class="toctree-l1"><a class="reference internal" href="../ray-train-201/output/04a_vision_pattern_01.html">04a Computer-vision pattern with Ray Train</a></li>
+<li class="toctree-l1"><a class="reference internal" href="../ray-train-201/output/04a_vision_pattern_02.html">1. Imports</a></li>
+<li class="toctree-l1"><a class="reference internal" href="../ray-train-201/output/04a_vision_pattern_03.html">6. Custom <code class="docutils literal notranslate"><span class="pre">Food101Dataset</span></code> for Parquet</a></li>
+<li class="toctree-l1"><a class="reference internal" href="../ray-train-201/output/04a_vision_pattern_04.html">10. Helper: Ray-prepared DataLoaders</a></li>
+<li class="toctree-l1"><a class="reference internal" href="../ray-train-201/output/04a_vision_pattern_05.html">11. <code class="docutils literal notranslate"><span class="pre">train_loop_per_worker</span></code></a></li>
+<li class="toctree-l1"><a class="reference internal" href="../ray-train-201/output/04a_vision_pattern_06.html">12. Launch distributed training with <code class="docutils literal notranslate"><span class="pre">TorchTrainer</span></code></a></li>
+<li class="toctree-l1"><a class="reference internal" href="../ray-train-201/output/04a_vision_pattern_07.html">13. Plot training and validation loss curves</a></li>
+<li class="toctree-l1"><a class="reference internal" href="../ray-train-201/output/04a_vision_pattern_08.html">14. Demonstrate fault-tolerant resumption</a></li>
+<li class="toctree-l1"><a class="reference internal" href="../ray-train-201/output/04a_vision_pattern_09.html">15. Batch inference with Ray Data</a></li>
+<li class="toctree-l1"><a class="reference internal" href="../ray-train-201/output/04b_tabular_workload_pattern_01.html">04b Tabular workload pattern with Ray Train</a></li>
+<li class="toctree-l1"><a class="reference internal" href="../ray-train-201/output/04b_tabular_workload_pattern_02.html">1. Imports</a></li>
+<li class="toctree-l1"><a class="reference internal" href="../ray-train-201/output/04b_tabular_workload_pattern_03.html">8. Define the Ray Train worker loop (Arrow-based, memory-efficient)</a></li>
+<li class="toctree-l1"><a class="reference internal" href="../ray-train-201/output/04b_tabular_workload_pattern_04.html">12. Confusion matrix visualization</a></li>
+<li class="toctree-l1"><a class="reference internal" href="../ray-train-201/output/04b_tabular_workload_pattern_05.html">15. Continue training from the latest checkpoint</a></li>
+<li class="toctree-l1"><a class="reference internal" href="../ray-train-201/output/04c_time_series_workload_pattern_01.html">04c Time-Series workload pattern with Ray Train</a></li>
+<li class="toctree-l1"><a class="reference internal" href="../ray-train-201/output/04c_time_series_workload_pattern_02.html">1. Imports</a></li>
+<li class="toctree-l1"><a class="reference internal" href="../ray-train-201/output/04c_time_series_workload_pattern_03.html">9. PositionalEncoding and Transformer model</a></li>
+<li class="toctree-l1"><a class="reference internal" href="../ray-train-201/output/04c_time_series_workload_pattern_04.html">10. Ray Train training loop (with teacher forcing)</a></li>
+<li class="toctree-l1"><a class="reference internal" href="../ray-train-201/output/04c_time_series_workload_pattern_05.html">13. Resume training from checkpoint</a></li>
+<li class="toctree-l1"><a class="reference internal" href="../ray-train-201/output/04c_time_series_workload_pattern_06.html">14. Inference helper — Ray Data batch predictor on GPU</a></li>
+<li class="toctree-l1"><a class="reference internal" href="../ray-train-201/output/04d1_generative_cv_pattern_01.html">04-d1 Generative computer-vision pattern with Ray Train</a></li>
+<li class="toctree-l1"><a class="reference internal" href="../ray-train-201/output/04d1_generative_cv_pattern_02.html">1. Imports and setup</a></li>
+<li class="toctree-l1"><a class="reference internal" href="../ray-train-201/output/04d1_generative_cv_pattern_03.html">8. Pixel diffusion LightningModule</a></li>
+<li class="toctree-l1"><a class="reference internal" href="../ray-train-201/output/04d1_generative_cv_pattern_04.html">9. Ray Train <code class="docutils literal notranslate"><span class="pre">train_loop</span></code> (Lightning + Ray integration)</a></li>
+<li class="toctree-l1"><a class="reference internal" href="../ray-train-201/output/04d1_generative_cv_pattern_05.html">12. Resume from latest checkpoint</a></li>
+<li class="toctree-l1"><a class="reference internal" href="../ray-train-201/output/04d1_generative_cv_pattern_06.html">13. Reverse diffusion sampler</a></li>
+<li class="toctree-l1"><a class="reference internal" href="../ray-train-201/output/04d2_policy_learning_pattern_01.html">04-d2 Diffusion-Policy Pattern with Ray Train</a></li>
+<li class="toctree-l1"><a class="reference internal" href="../ray-train-201/output/04d2_policy_learning_pattern_02.html">1. Imports and setup</a></li>
+<li class="toctree-l1"><a class="reference internal" href="../ray-train-201/output/04d2_policy_learning_pattern_03.html">4. DiffusionPolicy LightningModule</a></li>
+<li class="toctree-l1"><a class="reference internal" href="../ray-train-201/output/04d2_policy_learning_pattern_04.html">5. Distributed Train loop with checkpointing</a></li>
+<li class="toctree-l1"><a class="reference internal" href="../ray-train-201/output/04d2_policy_learning_pattern_05.html">8. Reverse diffusion helper</a></li>
+<li class="toctree-l1"><a class="reference internal" href="../ray-train-201/output/04e_rec_sys_workload_pattern_01.html">04e Recommendation system pattern with Ray Train</a></li>
+<li class="toctree-l1"><a class="reference internal" href="../ray-train-201/output/04e_rec_sys_workload_pattern_02.html">1. Imports</a></li>
+<li class="toctree-l1"><a class="reference internal" href="../ray-train-201/output/04e_rec_sys_workload_pattern_03.html">7. Define matrix factorization model</a></li>
+<li class="toctree-l1"><a class="reference internal" href="../ray-train-201/output/04e_rec_sys_workload_pattern_04.html">8. Define Ray Train loop (with validation, checkpointing, and Ray-managed metrics)</a></li>
+<li class="toctree-l1"><a class="reference internal" href="../ray-train-201/output/04e_rec_sys_workload_pattern_05.html">11. Resume training from checkpoint</a></li>
+<li class="toctree-l1"><a class="reference internal" href="../ray-train-201/output/04e_rec_sys_workload_pattern_06.html">12. Inference: recommend top-N items for a user</a></li>
+</ul>
+
+    </div>
+</nav></div>
+    </div>
+  
+  
+  <div class="sidebar-primary-items__end sidebar-primary__section">
+  </div>
+  
+  <div id="rtd-footer-container"></div>
+
+
+      </div>
+      
+      <main id="main-content" class="bd-main" role="main">
+        
+        
+
+<div class="sbt-scroll-pixel-helper"></div>
+
+          <div class="bd-content">
+            <div class="bd-article-container">
+              
+              <div class="bd-header-article d-print-none">
+<div class="header-article-items header-article__inner">
+  
+    <div class="header-article-items__start">
+      
+        <div class="header-article-item"><button class="sidebar-toggle primary-toggle btn btn-sm" title="Toggle primary sidebar" data-bs-placement="bottom" data-bs-toggle="tooltip">
+  <span class="fa-solid fa-bars"></span>
+</button></div>
+      
+    </div>
+  
+  
+    <div class="header-article-items__end">
+      
+        <div class="header-article-item">
+
+<div class="article-header-buttons">
+
+
+
+
+
+<div class="dropdown dropdown-download-buttons">
+  <button class="btn dropdown-toggle" type="button" data-bs-toggle="dropdown" aria-expanded="false" aria-label="Download this page">
+    <i class="fas fa-download"></i>
+  </button>
+  <ul class="dropdown-menu">
+      
+      
+      
+      <li><a href="../../_sources/courses/00_Developer_Intro_to_Ray/02a_Intro_Ray_Train_with_PyTorch.ipynb" target="_blank"
+   class="btn btn-sm btn-download-source-button dropdown-item"
+   title="Download source file"
+   data-bs-placement="left" data-bs-toggle="tooltip"
+>
+  
+
+<span class="btn__icon-container">
+  <i class="fas fa-file"></i>
+  </span>
+<span class="btn__text-container">.ipynb</span>
+</a>
+</li>
+      
+      
+      
+      
+      <li>
+<button onclick="window.print()"
+  class="btn btn-sm btn-download-pdf-button dropdown-item"
+  title="Print to PDF"
+  data-bs-placement="left" data-bs-toggle="tooltip"
+>
+  
+
+<span class="btn__icon-container">
+  <i class="fas fa-file-pdf"></i>
+  </span>
+<span class="btn__text-container">.pdf</span>
+</button>
+</li>
+      
+  </ul>
+</div>
+
+
+
+
+<button onclick="toggleFullScreen()"
+  class="btn btn-sm btn-fullscreen-button"
+  title="Fullscreen mode"
+  data-bs-placement="bottom" data-bs-toggle="tooltip"
+>
+  
+
+<span class="btn__icon-container">
+  <i class="fas fa-expand"></i>
+  </span>
+
+</button>
+
+
+
+<script>
+document.write(`
+  <button class="btn btn-sm nav-link pst-navbar-icon theme-switch-button" title="light/dark" aria-label="light/dark" data-bs-placement="bottom" data-bs-toggle="tooltip">
+    <i class="theme-switch fa-solid fa-sun fa-lg" data-mode="light"></i>
+    <i class="theme-switch fa-solid fa-moon fa-lg" data-mode="dark"></i>
+    <i class="theme-switch fa-solid fa-circle-half-stroke fa-lg" data-mode="auto"></i>
+  </button>
+`);
+</script>
+
+
+<script>
+document.write(`
+  <button class="btn btn-sm pst-navbar-icon search-button search-button__button" title="Search" aria-label="Search" data-bs-placement="bottom" data-bs-toggle="tooltip">
+    <i class="fa-solid fa-magnifying-glass fa-lg"></i>
+  </button>
+`);
+</script>
+<button class="sidebar-toggle secondary-toggle btn btn-sm" title="Toggle secondary sidebar" data-bs-placement="bottom" data-bs-toggle="tooltip">
+    <span class="fa-solid fa-list"></span>
+</button>
+</div></div>
+      
+    </div>
+  
+</div>
+</div>
+              
+              
+
+<div id="jb-print-docs-body" class="onlyprint">
+    <h1>Introduction to Ray Train + PyTorch</h1>
+    <!-- Table of contents -->
+    <div id="print-main-content">
+        <div id="jb-print-toc">
+            
+            <div>
+                <h2> Contents </h2>
+            </div>
+            <nav aria-label="Page">
+                <ul class="visible nav section-nav flex-column">
+<li class="toc-h2 nav-item toc-entry"><a class="reference internal nav-link" href="#when-to-use-ray-train">1. When to use Ray Train</a></li>
+<li class="toc-h2 nav-item toc-entry"><a class="reference internal nav-link" href="#single-gpu-training-with-pytorch">2. Single GPU Training with PyTorch</a><ul class="nav section-nav flex-column">
+<li class="toc-h3 nav-item toc-entry"><a class="reference internal nav-link" href="#overview">2.1. Overview</a></li>
+<li class="toc-h3 nav-item toc-entry"><a class="reference internal nav-link" href="#build-model-and-load-it-on-the-gpu">2.2. Build model and load it on the GPU</a></li>
+<li class="toc-h3 nav-item toc-entry"><a class="reference internal nav-link" href="#create-dataset-and-dataloader">2.3. Create Dataset and DataLoader</a></li>
+<li class="toc-h3 nav-item toc-entry"><a class="reference internal nav-link" href="#create-metrics-and-checkpointing">2.4. Create metrics and checkpointing</a></li>
+<li class="toc-h3 nav-item toc-entry"><a class="reference internal nav-link" href="#run-the-training-loop">2.5. Run the training loop</a></li>
+<li class="toc-h3 nav-item toc-entry"><a class="reference internal nav-link" href="#use-checkpointed-model-to-generate-predictions">2.6. Use checkpointed model to generate predictions</a></li>
+</ul>
+</li>
+<li class="toc-h2 nav-item toc-entry"><a class="reference internal nav-link" href="#distributed-data-parallel-training-with-ray-train-and-pytorch">3. Distributed Data Parallel Training with Ray Train and PyTorch</a><ul class="nav section-nav flex-column">
+<li class="toc-h3 nav-item toc-entry"><a class="reference internal nav-link" href="#overview-of-the-training-loop-in-ray-train">3.1. Overview of the training loop in Ray Train</a></li>
+<li class="toc-h3 nav-item toc-entry"><a class="reference internal nav-link" href="#configure-scale-and-gpus">3.2. Configure scale and GPUs</a><ul class="nav section-nav flex-column">
+<li class="toc-h4 nav-item toc-entry"><a class="reference internal nav-link" href="#note-on-ray-train-key-concepts">3.2.1. Note on Ray Train key concepts</a></li>
+</ul>
+</li>
+<li class="toc-h3 nav-item toc-entry"><a class="reference internal nav-link" href="#migrating-the-model-to-ray-train">3.3. Migrating the model to Ray Train</a></li>
+<li class="toc-h3 nav-item toc-entry"><a class="reference internal nav-link" href="#migrating-the-dataset-to-ray-train">3.4. Migrating the dataset to Ray Train</a></li>
+<li class="toc-h3 nav-item toc-entry"><a class="reference internal nav-link" href="#reporting-checkpoints-and-metrics">3.5. Reporting checkpoints and metrics</a><ul class="nav section-nav flex-column">
+<li class="toc-h4 nav-item toc-entry"><a class="reference internal nav-link" href="#note-on-the-checkpoint-lifecycle">3.5.1. Note on the checkpoint lifecycle</a></li>
+</ul>
+</li>
+<li class="toc-h3 nav-item toc-entry"><a class="reference internal nav-link" href="#configure-remote-storage">3.6. Configure remote storage</a></li>
+<li class="toc-h3 nav-item toc-entry"><a class="reference internal nav-link" href="#launching-the-distributed-training-job">3.7. Launching the distributed training job</a></li>
+<li class="toc-h3 nav-item toc-entry"><a class="reference internal nav-link" href="#access-the-training-results">3.8. Access the training results</a></li>
+<li class="toc-h3 nav-item toc-entry"><a class="reference internal nav-link" href="#id1">3.9. Use checkpointed model to generate predictions</a></li>
+<li class="toc-h3 nav-item toc-entry"><a class="reference internal nav-link" href="#activity-run-the-distributed-training-with-more-workers">3.10. Activity: Run the distributed training with more workers</a></li>
+<li class="toc-h3 nav-item toc-entry"><a class="reference internal nav-link" href="#ray-train-in-production">4. Ray Train in Production</a></li>
+</ul>
+</li>
+</ul>
+            </nav>
+        </div>
+    </div>
+</div>
+
+              
+                
+<div id="searchbox"></div>
+                <article class="bd-article">
+                  
+  <section class="tex2jax_ignore mathjax_ignore" id="introduction-to-ray-train-pytorch">
+<h1>Introduction to Ray Train + PyTorch<a class="headerlink" href="#introduction-to-ray-train-pytorch" title="Link to this heading">#</a></h1>
+<p>© 2025, Anyscale. All Rights Reserved</p>
+<p>💻 <strong>Launch Locally</strong>: Not recommended. You may encounter out-of-memory (OOM) errors when running certain cells locally.</p>
+<p>🚀 <strong>Cloud Required</strong>: A Ray Cluster with 4 GPUs (Click <a class="reference external" href="http://console.anyscale.com/register">here</a> to easily start a Ray cluster on Anyscale) is recommended to run this notebook.</p>
+<p>This notebook will walk you through the basics of distributed training with Ray Train and PyTorch.</p>
+<div class="alert alert-block alert-info">
+<p><b> Here is the roadmap for this notebook </b></p>
+<ol>
+  <li>When to use Ray Train</li>
+  <li>Single GPU Training with PyTorch</li>
+  <li>Distributed Training with Ray Train and PyTorch</li>
+  <li>Ray Train in Production</li>
+</ol>
+</div><p><strong>Imports</strong></p>
+<div class="cell docutils container">
+<div class="cell_input docutils container">
+<div class="highlight-ipython3 notranslate"><div class="highlight"><pre><span></span><span class="kn">import</span><span class="w"> </span><span class="nn">csv</span>
+<span class="kn">import</span><span class="w"> </span><span class="nn">datetime</span>
+<span class="kn">import</span><span class="w"> </span><span class="nn">os</span>   
+<span class="kn">import</span><span class="w"> </span><span class="nn">tempfile</span>
+
+<span class="kn">from</span><span class="w"> </span><span class="nn">pathlib</span><span class="w"> </span><span class="kn">import</span> <span class="n">Path</span>
+
+<span class="kn">import</span><span class="w"> </span><span class="nn">matplotlib.pyplot</span><span class="w"> </span><span class="k">as</span><span class="w"> </span><span class="nn">plt</span>
+<span class="kn">from</span><span class="w"> </span><span class="nn">PIL</span><span class="w"> </span><span class="kn">import</span> <span class="n">Image</span>
+<span class="kn">import</span><span class="w"> </span><span class="nn">numpy</span><span class="w"> </span><span class="k">as</span><span class="w"> </span><span class="nn">np</span>
+<span class="kn">import</span><span class="w"> </span><span class="nn">pandas</span><span class="w"> </span><span class="k">as</span><span class="w"> </span><span class="nn">pd</span>
+<span class="kn">import</span><span class="w"> </span><span class="nn">torch</span>
+<span class="kn">from</span><span class="w"> </span><span class="nn">torch.nn</span><span class="w"> </span><span class="kn">import</span> <span class="n">CrossEntropyLoss</span>
+<span class="kn">from</span><span class="w"> </span><span class="nn">torch.optim</span><span class="w"> </span><span class="kn">import</span> <span class="n">Adam</span>
+<span class="kn">from</span><span class="w"> </span><span class="nn">torchvision.models</span><span class="w"> </span><span class="kn">import</span> <span class="n">resnet18</span>
+<span class="kn">from</span><span class="w"> </span><span class="nn">torchvision.datasets</span><span class="w"> </span><span class="kn">import</span> <span class="n">MNIST</span>
+<span class="kn">from</span><span class="w"> </span><span class="nn">torchvision.transforms</span><span class="w"> </span><span class="kn">import</span> <span class="n">ToTensor</span><span class="p">,</span> <span class="n">Normalize</span><span class="p">,</span> <span class="n">Compose</span>
+
+<span class="kn">import</span><span class="w"> </span><span class="nn">ray</span>
+<span class="kn">from</span><span class="w"> </span><span class="nn">ray.train</span><span class="w"> </span><span class="kn">import</span> <span class="n">ScalingConfig</span><span class="p">,</span> <span class="n">RunConfig</span>
+<span class="kn">from</span><span class="w"> </span><span class="nn">ray.train.torch</span><span class="w"> </span><span class="kn">import</span> <span class="n">TorchTrainer</span>
+</pre></div>
+</div>
+</div>
+</div>
+<section id="when-to-use-ray-train">
+<h2>1. When to use Ray Train<a class="headerlink" href="#when-to-use-ray-train" title="Link to this heading">#</a></h2>
+<p>Use Ray Train when you face one of the following challenges:</p>
+<div class="pst-scrollable-table-container"><table class="table">
+<thead>
+<tr class="row-odd"><th class="head"><p>Challenge</p></th>
+<th class="head"><p>Detail</p></th>
+<th class="head"><p>Solution</p></th>
+</tr>
+</thead>
+<tbody>
+<tr class="row-even"><td><p><strong>Need to speed up or scale up training</strong></p></td>
+<td><p>Training jobs might take a long time to complete, or require a lot of compute</p></td>
+<td><p>Ray Train provides a <strong>distributed training</strong> framework that allows engineers to scale training jobs to multiple GPUs</p></td>
+</tr>
+<tr class="row-odd"><td><p><strong>Minimize overhead of setting up clusters</strong></p></td>
+<td><p>Engineers need to manage the underlying infrastructure</p></td>
+<td><p>Ray Train <strong>provisions the underlying infrastructure</strong> via Ray’s cluster autoscaler.</p></td>
+</tr>
+<tr class="row-even"><td><p><strong>Achieve observability</strong></p></td>
+<td><p>Engineers need to connect to different nodes and GPUs to find the root cause of failures, fetch logs, traces, etc</p></td>
+<td><p>Ray Train <strong>provides observability</strong> via Ray’s dashboard, metrics, and traces that allow engineers to monitor the training job</p></td>
+</tr>
+<tr class="row-odd"><td><p><strong>Ensure reliable training</strong></p></td>
+<td><p>Training jobs can fail due to hardware failures, network issues, or other unexpected events</p></td>
+<td><p>Ray Train <strong>ensures fault tolerance</strong> via checkpointing, automatic retries, and the ability to resume training from the last checkpoint</p></td>
+</tr>
+<tr class="row-even"><td><p><strong>Avoid significant code rewrite</strong></p></td>
+<td><p>Engineers might need to fully rewrite their training loop to support distributed training</p></td>
+<td><p>Ray Train has <strong>built-in integrations</strong> with the PyTorch ecosystem (Torch, Lightning, Huggingface), Tree-based methods (XGB, LGBM), and more to minimize the amount of code changes needed</p></td>
+</tr>
+</tbody>
+</table>
+</div>
+</section>
+<section id="single-gpu-training-with-pytorch">
+<h2>2. Single GPU Training with PyTorch<a class="headerlink" href="#single-gpu-training-with-pytorch" title="Link to this heading">#</a></h2>
+<section id="overview">
+<h3>2.1. Overview<a class="headerlink" href="#overview" title="Link to this heading">#</a></h3>
+<p>We will start by fitting a <code class="docutils literal notranslate"><span class="pre">ResNet18</span></code> model to an <code class="docutils literal notranslate"><span class="pre">MNIST</span></code> dataset. Conceptually we will follow the below recipe presented below.</p>
+<div class="pst-scrollable-table-container"><table class="table">
+<thead>
+<tr class="row-odd"><th class="head text-left"><p><img src="https://anyscale-public-materials.s3.us-west-2.amazonaws.com/ray-ai-libraries/diagrams/single_gpu_pytorch_v3.png" width="70%" loading="lazy"></p></th>
+</tr>
+</thead>
+<tbody>
+<tr class="row-even"><td class="text-left"><p>An overview of the single GPU training process. At a high level, here is how training loop in PyTorch looks like. The key stages include loading the dataset; run the training on mini-batches on a single GPU; saving the model checkpoint to the persistent storage.</p></td>
+</tr>
+</tbody>
+</table>
+</div>
+<div class="cell docutils container">
+<div class="cell_input docutils container">
+<div class="highlight-ipython3 notranslate"><div class="highlight"><pre><span></span><span class="kn">from</span><span class="w"> </span><span class="nn">tqdm.notebook</span><span class="w"> </span><span class="kn">import</span> <span class="n">tqdm</span>
+<span class="kn">from</span><span class="w"> </span><span class="nn">pathlib</span><span class="w"> </span><span class="kn">import</span> <span class="n">Path</span>
+<span class="kn">import</span><span class="w"> </span><span class="nn">torch</span>
+<span class="kn">from</span><span class="w"> </span><span class="nn">torch.nn</span><span class="w"> </span><span class="kn">import</span> <span class="n">CrossEntropyLoss</span>
+<span class="kn">from</span><span class="w"> </span><span class="nn">torch.optim</span><span class="w"> </span><span class="kn">import</span> <span class="n">Adam</span>
+
+<span class="k">def</span><span class="w"> </span><span class="nf">train_loop_torch</span><span class="p">(</span><span class="n">num_epochs</span><span class="p">:</span> <span class="nb">int</span> <span class="o">=</span> <span class="mi">2</span><span class="p">,</span> <span class="n">batch_size</span><span class="p">:</span> <span class="nb">int</span> <span class="o">=</span> <span class="mi">128</span><span class="p">,</span> <span class="n">local_path</span><span class="p">:</span> <span class="nb">str</span> <span class="o">=</span> <span class="s2">&quot;./checkpoints&quot;</span><span class="p">):</span>
+    <span class="n">device</span> <span class="o">=</span> <span class="s2">&quot;cuda&quot;</span> <span class="k">if</span> <span class="n">torch</span><span class="o">.</span><span class="n">cuda</span><span class="o">.</span><span class="n">is_available</span><span class="p">()</span> <span class="k">else</span> <span class="s2">&quot;cpu&quot;</span>
+    <span class="nb">print</span><span class="p">(</span><span class="sa">f</span><span class="s2">&quot;Using device: </span><span class="si">{</span><span class="n">device</span><span class="si">}</span><span class="s2">&quot;</span><span class="p">)</span>
+
+    <span class="n">criterion</span> <span class="o">=</span> <span class="n">CrossEntropyLoss</span><span class="p">()</span>
+    <span class="n">model</span> <span class="o">=</span> <span class="n">load_model_torch</span><span class="p">()</span><span class="o">.</span><span class="n">to</span><span class="p">(</span><span class="n">device</span><span class="p">)</span>
+    <span class="n">optimizer</span> <span class="o">=</span> <span class="n">Adam</span><span class="p">(</span><span class="n">model</span><span class="o">.</span><span class="n">parameters</span><span class="p">(),</span> <span class="n">lr</span><span class="o">=</span><span class="mf">1e-5</span><span class="p">)</span>
+    <span class="n">data_loader</span> <span class="o">=</span> <span class="n">build_data_loader_torch</span><span class="p">(</span><span class="n">batch_size</span><span class="o">=</span><span class="n">batch_size</span><span class="p">)</span>
+
+    <span class="k">for</span> <span class="n">epoch</span> <span class="ow">in</span> <span class="n">tqdm</span><span class="p">(</span><span class="nb">range</span><span class="p">(</span><span class="n">num_epochs</span><span class="p">),</span> <span class="n">desc</span><span class="o">=</span><span class="s2">&quot;Epochs&quot;</span><span class="p">):</span>
+        <span class="n">epoch_loss</span> <span class="o">=</span> <span class="mf">0.0</span>
+
+        <span class="k">for</span> <span class="n">images</span><span class="p">,</span> <span class="n">labels</span> <span class="ow">in</span> <span class="n">tqdm</span><span class="p">(</span><span class="n">data_loader</span><span class="p">,</span> <span class="n">desc</span><span class="o">=</span><span class="sa">f</span><span class="s2">&quot;Epoch </span><span class="si">{</span><span class="n">epoch</span><span class="o">+</span><span class="mi">1</span><span class="si">}</span><span class="s2">/</span><span class="si">{</span><span class="n">num_epochs</span><span class="si">}</span><span class="s2">&quot;</span><span class="p">,</span> <span class="n">leave</span><span class="o">=</span><span class="kc">False</span><span class="p">):</span>
+            <span class="n">images</span><span class="p">,</span> <span class="n">labels</span> <span class="o">=</span> <span class="n">images</span><span class="o">.</span><span class="n">to</span><span class="p">(</span><span class="n">device</span><span class="p">),</span> <span class="n">labels</span><span class="o">.</span><span class="n">to</span><span class="p">(</span><span class="n">device</span><span class="p">)</span>
+            <span class="n">outputs</span> <span class="o">=</span> <span class="n">model</span><span class="p">(</span><span class="n">images</span><span class="p">)</span>
+            <span class="n">loss</span> <span class="o">=</span> <span class="n">criterion</span><span class="p">(</span><span class="n">outputs</span><span class="p">,</span> <span class="n">labels</span><span class="p">)</span>
+
+            <span class="n">optimizer</span><span class="o">.</span><span class="n">zero_grad</span><span class="p">()</span>
+            <span class="n">loss</span><span class="o">.</span><span class="n">backward</span><span class="p">()</span>
+            <span class="n">optimizer</span><span class="o">.</span><span class="n">step</span><span class="p">()</span>
+
+            <span class="n">epoch_loss</span> <span class="o">+=</span> <span class="n">loss</span><span class="o">.</span><span class="n">item</span><span class="p">()</span>
+
+        <span class="n">avg_loss</span> <span class="o">=</span> <span class="n">epoch_loss</span> <span class="o">/</span> <span class="nb">len</span><span class="p">(</span><span class="n">data_loader</span><span class="p">)</span>
+
+        <span class="n">metrics</span> <span class="o">=</span> <span class="n">report_metrics_torch</span><span class="p">(</span><span class="n">loss</span><span class="o">=</span><span class="n">avg_loss</span><span class="p">,</span> <span class="n">epoch</span><span class="o">=</span><span class="n">epoch</span><span class="p">)</span>
+        <span class="n">Path</span><span class="p">(</span><span class="n">local_path</span><span class="p">)</span><span class="o">.</span><span class="n">mkdir</span><span class="p">(</span><span class="n">parents</span><span class="o">=</span><span class="kc">True</span><span class="p">,</span> <span class="n">exist_ok</span><span class="o">=</span><span class="kc">True</span><span class="p">)</span>
+        <span class="n">save_checkpoint_and_metrics_torch</span><span class="p">(</span><span class="n">metrics</span><span class="o">=</span><span class="n">metrics</span><span class="p">,</span> <span class="n">model</span><span class="o">=</span><span class="n">model</span><span class="p">,</span> <span class="n">local_path</span><span class="o">=</span><span class="n">local_path</span><span class="p">)</span>
+</pre></div>
+</div>
+</div>
+</div>
+<div class="alert alert-block alert-info">
+<p>Quick notes:</p>
+<ul>
+    <li><code>report_metrics_torch</code> and <code>save_checkpoint_and_metrics_torch</code> are defined below,</li>
+    <li><code>local_path</code> is used for checkpointing. (default) Current working directory simply points to the notebook location (check <code>pwd</code> below).</li>
+</ul>
+</div><div class="cell docutils container">
+<div class="cell_input docutils container">
+<div class="highlight-ipython3 notranslate"><div class="highlight"><pre><span></span><span class="o">!</span>pwd
+</pre></div>
+</div>
+</div>
+</div>
+</section>
+<section id="build-model-and-load-it-on-the-gpu">
+<h3>2.2. Build model and load it on the GPU<a class="headerlink" href="#build-model-and-load-it-on-the-gpu" title="Link to this heading">#</a></h3>
+<p>Build <a class="reference external" href="https://pytorch.org/vision/main/models/resnet.html#resnet">Resnet18</a></p>
+<div class="cell docutils container">
+<div class="cell_input docutils container">
+<div class="highlight-ipython3 notranslate"><div class="highlight"><pre><span></span><span class="k">def</span><span class="w"> </span><span class="nf">build_resnet18</span><span class="p">():</span>
+    <span class="n">model</span> <span class="o">=</span> <span class="n">resnet18</span><span class="p">(</span><span class="n">num_classes</span><span class="o">=</span><span class="mi">10</span><span class="p">)</span>
+    <span class="n">model</span><span class="o">.</span><span class="n">conv1</span> <span class="o">=</span> <span class="n">torch</span><span class="o">.</span><span class="n">nn</span><span class="o">.</span><span class="n">Conv2d</span><span class="p">(</span>
+        <span class="n">in_channels</span><span class="o">=</span><span class="mi">1</span><span class="p">,</span> <span class="c1"># grayscale MNIST images</span>
+        <span class="n">out_channels</span><span class="o">=</span><span class="mi">64</span><span class="p">,</span>
+        <span class="n">kernel_size</span><span class="o">=</span><span class="p">(</span><span class="mi">7</span><span class="p">,</span> <span class="mi">7</span><span class="p">),</span>
+        <span class="n">stride</span><span class="o">=</span><span class="p">(</span><span class="mi">2</span><span class="p">,</span> <span class="mi">2</span><span class="p">),</span>
+        <span class="n">padding</span><span class="o">=</span><span class="p">(</span><span class="mi">3</span><span class="p">,</span> <span class="mi">3</span><span class="p">),</span>
+        <span class="n">bias</span><span class="o">=</span><span class="kc">False</span><span class="p">,</span>
+    <span class="p">)</span>
+    <span class="k">return</span> <span class="n">model</span>
+</pre></div>
+</div>
+</div>
+</div>
+<div class="alert alert-block alert-info">
+<p>resnet18’s <code>model.conv1</code> has <code>in_channels=3</code> by default. Here, we work with the <a href="https://pytorch.org/vision/main/generated/torchvision.datasets.MNIST.html#mnist" target="_blank">MNIST</a> grayscale images, thus <code>in_channels=1</code>.</p>
+</div><p>Load the model on a single GPU</p>
+<div class="cell docutils container">
+<div class="cell_input docutils container">
+<div class="highlight-ipython3 notranslate"><div class="highlight"><pre><span></span><span class="k">def</span><span class="w"> </span><span class="nf">load_model_torch</span><span class="p">()</span> <span class="o">-&gt;</span> <span class="n">torch</span><span class="o">.</span><span class="n">nn</span><span class="o">.</span><span class="n">Module</span><span class="p">:</span>
+    <span class="n">model</span> <span class="o">=</span> <span class="n">build_resnet18</span><span class="p">()</span>
+
+    <span class="c1"># Move to the GPU device if available, otherwise use CPU</span>
+    <span class="n">device</span> <span class="o">=</span> <span class="s2">&quot;cuda&quot;</span> <span class="k">if</span> <span class="n">torch</span><span class="o">.</span><span class="n">cuda</span><span class="o">.</span><span class="n">is_available</span><span class="p">()</span> <span class="k">else</span> <span class="s2">&quot;cpu&quot;</span>
+    <span class="n">model</span><span class="o">.</span><span class="n">to</span><span class="p">(</span><span class="n">device</span><span class="p">)</span>
+    <span class="k">return</span> <span class="n">model</span>
+</pre></div>
+</div>
+</div>
+</div>
+</section>
+<section id="create-dataset-and-dataloader">
+<h3>2.3. Create Dataset and DataLoader<a class="headerlink" href="#create-dataset-and-dataloader" title="Link to this heading">#</a></h3>
+<div class="cell docutils container">
+<div class="cell_input docutils container">
+<div class="highlight-ipython3 notranslate"><div class="highlight"><pre><span></span><span class="n">dataset</span> <span class="o">=</span> <span class="n">MNIST</span><span class="p">(</span><span class="n">root</span><span class="o">=</span><span class="s2">&quot;./data&quot;</span><span class="p">,</span> <span class="n">train</span><span class="o">=</span><span class="kc">True</span><span class="p">,</span> <span class="n">download</span><span class="o">=</span><span class="kc">True</span><span class="p">)</span>
+</pre></div>
+</div>
+</div>
+</div>
+<div class="cell docutils container">
+<div class="cell_input docutils container">
+<div class="highlight-ipython3 notranslate"><div class="highlight"><pre><span></span><span class="o">!</span>tree<span class="w"> </span>./data
+</pre></div>
+</div>
+</div>
+</div>
+<p>Let’s display 9 example (image, target) pairs:</p>
+<div class="cell docutils container">
+<div class="cell_input docutils container">
+<div class="highlight-ipython3 notranslate"><div class="highlight"><pre><span></span><span class="n">figure</span> <span class="o">=</span> <span class="n">plt</span><span class="o">.</span><span class="n">figure</span><span class="p">(</span><span class="n">figsize</span><span class="o">=</span><span class="p">(</span><span class="mi">8</span><span class="p">,</span> <span class="mi">8</span><span class="p">))</span>
+<span class="n">cols</span><span class="p">,</span> <span class="n">rows</span> <span class="o">=</span> <span class="mi">3</span><span class="p">,</span> <span class="mi">3</span>
+
+<span class="k">for</span> <span class="n">i</span> <span class="ow">in</span> <span class="nb">range</span><span class="p">(</span><span class="mi">1</span><span class="p">,</span> <span class="n">cols</span> <span class="o">*</span> <span class="n">rows</span> <span class="o">+</span> <span class="mi">1</span><span class="p">):</span>
+    <span class="n">sample_idx</span> <span class="o">=</span> <span class="n">np</span><span class="o">.</span><span class="n">random</span><span class="o">.</span><span class="n">randint</span><span class="p">(</span><span class="mi">0</span><span class="p">,</span> <span class="nb">len</span><span class="p">(</span><span class="n">dataset</span><span class="o">.</span><span class="n">data</span><span class="p">))</span>
+    <span class="n">img</span><span class="p">,</span> <span class="n">label</span> <span class="o">=</span> <span class="n">dataset</span><span class="p">[</span><span class="n">sample_idx</span><span class="p">]</span>
+    <span class="n">figure</span><span class="o">.</span><span class="n">add_subplot</span><span class="p">(</span><span class="n">rows</span><span class="p">,</span> <span class="n">cols</span><span class="p">,</span> <span class="n">i</span><span class="p">)</span>
+    <span class="n">plt</span><span class="o">.</span><span class="n">title</span><span class="p">(</span><span class="n">label</span><span class="p">)</span>
+    <span class="n">plt</span><span class="o">.</span><span class="n">axis</span><span class="p">(</span><span class="s2">&quot;off&quot;</span><span class="p">)</span>
+    <span class="n">plt</span><span class="o">.</span><span class="n">imshow</span><span class="p">(</span><span class="n">img</span><span class="p">,</span> <span class="n">cmap</span><span class="o">=</span><span class="s2">&quot;gray&quot;</span><span class="p">)</span>
+</pre></div>
+</div>
+</div>
+</div>
+<p>Define a DataLoader to apply transformations and load data in batches</p>
+<div class="cell docutils container">
+<div class="cell_input docutils container">
+<div class="highlight-ipython3 notranslate"><div class="highlight"><pre><span></span><span class="k">def</span><span class="w"> </span><span class="nf">build_data_loader_torch</span><span class="p">(</span><span class="n">batch_size</span><span class="p">:</span> <span class="nb">int</span><span class="p">)</span> <span class="o">-&gt;</span> <span class="n">torch</span><span class="o">.</span><span class="n">utils</span><span class="o">.</span><span class="n">data</span><span class="o">.</span><span class="n">DataLoader</span><span class="p">:</span>
+    <span class="n">transform</span> <span class="o">=</span> <span class="n">Compose</span><span class="p">([</span><span class="n">ToTensor</span><span class="p">(),</span> <span class="n">Normalize</span><span class="p">((</span><span class="mf">0.5</span><span class="p">,),</span> <span class="p">(</span><span class="mf">0.5</span><span class="p">,))])</span>
+    <span class="n">dataset</span> <span class="o">=</span> <span class="n">MNIST</span><span class="p">(</span><span class="n">root</span><span class="o">=</span><span class="s2">&quot;./data&quot;</span><span class="p">,</span> <span class="n">train</span><span class="o">=</span><span class="kc">True</span><span class="p">,</span> <span class="n">download</span><span class="o">=</span><span class="kc">True</span><span class="p">,</span> <span class="n">transform</span><span class="o">=</span><span class="n">transform</span><span class="p">)</span>
+    <span class="n">train_loader</span> <span class="o">=</span> <span class="n">torch</span><span class="o">.</span><span class="n">utils</span><span class="o">.</span><span class="n">data</span><span class="o">.</span><span class="n">DataLoader</span><span class="p">(</span><span class="n">dataset</span><span class="p">,</span> <span class="n">batch_size</span><span class="o">=</span><span class="n">batch_size</span><span class="p">,</span> <span class="n">shuffle</span><span class="o">=</span><span class="kc">True</span><span class="p">,</span> <span class="n">drop_last</span><span class="o">=</span><span class="kc">True</span><span class="p">)</span>
+    <span class="k">return</span> <span class="n">train_loader</span>
+</pre></div>
+</div>
+</div>
+</div>
+</section>
+<section id="create-metrics-and-checkpointing">
+<h3>2.4. Create metrics and checkpointing<a class="headerlink" href="#create-metrics-and-checkpointing" title="Link to this heading">#</a></h3>
+<p>Compute and report the metrics using a simple print statement, and also save them to a CSV file.</p>
+<div class="cell docutils container">
+<div class="cell_input docutils container">
+<div class="highlight-ipython3 notranslate"><div class="highlight"><pre><span></span><span class="k">def</span><span class="w"> </span><span class="nf">report_metrics_torch</span><span class="p">(</span><span class="n">loss</span><span class="p">:</span> <span class="n">torch</span><span class="o">.</span><span class="n">Tensor</span><span class="p">,</span> <span class="n">epoch</span><span class="p">:</span> <span class="nb">int</span><span class="p">)</span> <span class="o">-&gt;</span> <span class="kc">None</span><span class="p">:</span>
+    <span class="n">metrics</span> <span class="o">=</span> <span class="p">{</span><span class="s2">&quot;loss&quot;</span><span class="p">:</span> <span class="n">loss</span><span class="p">,</span> <span class="s2">&quot;epoch&quot;</span><span class="p">:</span> <span class="n">epoch</span><span class="p">}</span>
+    <span class="nb">print</span><span class="p">(</span><span class="n">metrics</span><span class="p">)</span>
+    <span class="k">return</span> <span class="n">metrics</span>
+</pre></div>
+</div>
+</div>
+</div>
+<p>Save the checkpoint in a previously defined local directory.</p>
+<div class="cell docutils container">
+<div class="cell_input docutils container">
+<div class="highlight-ipython3 notranslate"><div class="highlight"><pre><span></span><span class="k">def</span><span class="w"> </span><span class="nf">save_checkpoint_and_metrics_torch</span><span class="p">(</span><span class="n">metrics</span><span class="p">:</span> <span class="nb">dict</span><span class="p">[</span><span class="nb">str</span><span class="p">,</span> <span class="nb">float</span><span class="p">],</span> <span class="n">model</span><span class="p">:</span> <span class="n">torch</span><span class="o">.</span><span class="n">nn</span><span class="o">.</span><span class="n">Module</span><span class="p">,</span> <span class="n">local_path</span><span class="p">:</span> <span class="nb">str</span><span class="p">)</span> <span class="o">-&gt;</span> <span class="kc">None</span><span class="p">:</span>
+
+    <span class="c1"># Save the metrics</span>
+    <span class="k">with</span> <span class="nb">open</span><span class="p">(</span><span class="n">os</span><span class="o">.</span><span class="n">path</span><span class="o">.</span><span class="n">join</span><span class="p">(</span><span class="n">local_path</span><span class="p">,</span> <span class="s2">&quot;metrics.csv&quot;</span><span class="p">),</span> <span class="s2">&quot;a&quot;</span><span class="p">)</span> <span class="k">as</span> <span class="n">f</span><span class="p">:</span>
+        <span class="n">writer</span> <span class="o">=</span> <span class="n">csv</span><span class="o">.</span><span class="n">writer</span><span class="p">(</span><span class="n">f</span><span class="p">)</span>
+        <span class="n">writer</span><span class="o">.</span><span class="n">writerow</span><span class="p">(</span><span class="n">metrics</span><span class="o">.</span><span class="n">values</span><span class="p">())</span>
+
+    <span class="c1"># Save the model</span>
+    <span class="n">checkpoint_path</span> <span class="o">=</span> <span class="n">os</span><span class="o">.</span><span class="n">path</span><span class="o">.</span><span class="n">join</span><span class="p">(</span><span class="n">local_path</span><span class="p">,</span> <span class="s2">&quot;model.pt&quot;</span><span class="p">)</span>
+    <span class="n">torch</span><span class="o">.</span><span class="n">save</span><span class="p">(</span><span class="n">model</span><span class="o">.</span><span class="n">state_dict</span><span class="p">(),</span> <span class="n">checkpoint_path</span><span class="p">)</span>
+</pre></div>
+</div>
+</div>
+</div>
+</section>
+<section id="run-the-training-loop">
+<h3>2.5. Run the training loop<a class="headerlink" href="#run-the-training-loop" title="Link to this heading">#</a></h3>
+<p>Schedule the training loop on a single GPU</p>
+<div class="cell docutils container">
+<div class="cell_input docutils container">
+<div class="highlight-ipython3 notranslate"><div class="highlight"><pre><span></span><span class="n">timestamp</span> <span class="o">=</span> <span class="n">datetime</span><span class="o">.</span><span class="n">datetime</span><span class="o">.</span><span class="n">now</span><span class="p">()</span><span class="o">.</span><span class="n">strftime</span><span class="p">(</span><span class="s2">&quot;%Y-%m-</span><span class="si">%d</span><span class="s2">_%H-%M-%S&quot;</span><span class="p">)</span>
+<span class="n">storage_folder</span> <span class="o">=</span> <span class="s2">&quot;/mnt/cluster_storage&quot;</span>  <span class="c1"># Modify this path to your local folder if it runs on your local environment</span>
+<span class="n">local_path</span> <span class="o">=</span> <span class="sa">f</span><span class="s2">&quot;</span><span class="si">{</span><span class="n">storage_folder</span><span class="si">}</span><span class="s2">/torch_</span><span class="si">{</span><span class="n">timestamp</span><span class="si">}</span><span class="s2">/&quot;</span>
+</pre></div>
+</div>
+</div>
+</div>
+<div class="alert alert-info">
+<p><b>Note about Anyscale storage options</b></p>
+<p>In this example <code>local_path</code> points to the Anyscale’s <a href="https://docs.anyscale.com/configuration/storage/#local-storage-for-a-node" target="_blank">local storage</a>. It’s a convenient and quick access location for this basic example.</p>
+<ul class="simple">
+<li><p>Anyscale provides each node with its own volume and disk and doesn’t share them with other nodes.</p></li>
+<li><p>Local storage is very fast - Anyscale supports the Non-Volatile Memory Express (NVMe) interface.</p></li>
+<li><p>This is not a persistent storage, Anyscale deletes data in the local storage after instances are terminated.</p></li>
+</ul>
+<p>Read more about available <a href="https://docs.anyscale.com/configuration/storage" target="_blank">storage</a> options.</p>
+</div><p>Start the training:
+If you run it on your local, it can take up to 15 minutes.</p>
+<div class="cell docutils container">
+<div class="cell_input docutils container">
+<div class="highlight-ipython3 notranslate"><div class="highlight"><pre><span></span><span class="n">train_loop_torch</span><span class="p">(</span>
+    <span class="n">num_epochs</span><span class="o">=</span><span class="mi">3</span><span class="p">,</span>
+    <span class="n">local_path</span><span class="o">=</span><span class="n">local_path</span>
+<span class="p">)</span>
+</pre></div>
+</div>
+</div>
+</div>
+<p>Let’s inspect the produced checkpoints and metrics</p>
+<div class="cell docutils container">
+<div class="cell_input docutils container">
+<div class="highlight-ipython3 notranslate"><div class="highlight"><pre><span></span><span class="o">!</span>ls<span class="w"> </span>-l<span class="w"> </span><span class="o">{</span>local_path<span class="o">}</span>
+</pre></div>
+</div>
+</div>
+</div>
+<div class="cell docutils container">
+<div class="cell_input docutils container">
+<div class="highlight-ipython3 notranslate"><div class="highlight"><pre><span></span><span class="n">metrics</span> <span class="o">=</span> <span class="n">pd</span><span class="o">.</span><span class="n">read_csv</span><span class="p">(</span>
+    <span class="n">os</span><span class="o">.</span><span class="n">path</span><span class="o">.</span><span class="n">join</span><span class="p">(</span><span class="n">local_path</span><span class="p">,</span> <span class="s2">&quot;metrics.csv&quot;</span><span class="p">),</span>
+    <span class="n">header</span><span class="o">=</span><span class="kc">None</span><span class="p">,</span>
+    <span class="n">names</span><span class="o">=</span><span class="p">[</span><span class="s2">&quot;loss&quot;</span><span class="p">,</span> <span class="s2">&quot;epoch&quot;</span><span class="p">],</span>
+<span class="p">)</span>
+
+<span class="n">metrics</span>
+</pre></div>
+</div>
+</div>
+</div>
+</section>
+<section id="use-checkpointed-model-to-generate-predictions">
+<h3>2.6. Use checkpointed model to generate predictions<a class="headerlink" href="#use-checkpointed-model-to-generate-predictions" title="Link to this heading">#</a></h3>
+<p>Load model checkpoint to the device</p>
+<p>Generate predictions on randomly selected 9 images from the MNIST dataset.</p>
+<div class="cell docutils container">
+<div class="cell_input docutils container">
+<div class="highlight-ipython3 notranslate"><div class="highlight"><pre><span></span><span class="n">device</span> <span class="o">=</span> <span class="s2">&quot;cuda&quot;</span> <span class="k">if</span> <span class="n">torch</span><span class="o">.</span><span class="n">cuda</span><span class="o">.</span><span class="n">is_available</span><span class="p">()</span> <span class="k">else</span> <span class="s2">&quot;cpu&quot;</span>
+<span class="n">loaded_model</span> <span class="o">=</span> <span class="n">build_resnet18</span><span class="p">()</span>
+<span class="n">loaded_model</span><span class="o">.</span><span class="n">load_state_dict</span><span class="p">(</span><span class="n">torch</span><span class="o">.</span><span class="n">load</span><span class="p">(</span><span class="n">os</span><span class="o">.</span><span class="n">path</span><span class="o">.</span><span class="n">join</span><span class="p">(</span><span class="n">local_path</span><span class="p">,</span> <span class="s2">&quot;model.pt&quot;</span><span class="p">)))</span>
+<span class="n">loaded_model</span><span class="o">.</span><span class="n">to</span><span class="p">(</span><span class="n">device</span><span class="p">)</span>
+<span class="n">loaded_model</span><span class="o">.</span><span class="n">eval</span><span class="p">()</span>
+</pre></div>
+</div>
+</div>
+</div>
+<div class="cell docutils container">
+<div class="cell_input docutils container">
+<div class="highlight-ipython3 notranslate"><div class="highlight"><pre><span></span><span class="n">figure</span> <span class="o">=</span> <span class="n">plt</span><span class="o">.</span><span class="n">figure</span><span class="p">(</span><span class="n">figsize</span><span class="o">=</span><span class="p">(</span><span class="mi">8</span><span class="p">,</span> <span class="mi">8</span><span class="p">))</span>
+<span class="n">cols</span><span class="p">,</span> <span class="n">rows</span> <span class="o">=</span> <span class="mi">3</span><span class="p">,</span> <span class="mi">3</span>
+
+<span class="k">for</span> <span class="n">i</span> <span class="ow">in</span> <span class="nb">range</span><span class="p">(</span><span class="mi">1</span><span class="p">,</span> <span class="n">cols</span> <span class="o">*</span> <span class="n">rows</span> <span class="o">+</span> <span class="mi">1</span><span class="p">):</span>
+    <span class="n">sample_idx</span> <span class="o">=</span> <span class="n">np</span><span class="o">.</span><span class="n">random</span><span class="o">.</span><span class="n">randint</span><span class="p">(</span><span class="mi">0</span><span class="p">,</span> <span class="nb">len</span><span class="p">(</span><span class="n">dataset</span><span class="o">.</span><span class="n">data</span><span class="p">))</span>
+    <span class="n">img</span><span class="p">,</span> <span class="n">label</span> <span class="o">=</span> <span class="n">dataset</span><span class="p">[</span><span class="n">sample_idx</span><span class="p">]</span>
+    <span class="n">normalized_img</span> <span class="o">=</span> <span class="n">Normalize</span><span class="p">((</span><span class="mf">0.5</span><span class="p">,),</span> <span class="p">(</span><span class="mf">0.5</span><span class="p">,))(</span><span class="n">ToTensor</span><span class="p">()(</span><span class="n">img</span><span class="p">))</span>
+    <span class="n">normalized_img</span> <span class="o">=</span> <span class="n">normalized_img</span><span class="o">.</span><span class="n">to</span><span class="p">(</span><span class="n">device</span><span class="p">)</span>
+
+    <span class="c1"># use loaded model to generate preds</span>
+    <span class="k">with</span> <span class="n">torch</span><span class="o">.</span><span class="n">no_grad</span><span class="p">():</span>        
+        <span class="n">prediction</span> <span class="o">=</span> <span class="n">loaded_model</span><span class="p">(</span><span class="n">normalized_img</span><span class="o">.</span><span class="n">unsqueeze</span><span class="p">(</span><span class="mi">0</span><span class="p">))</span><span class="o">.</span><span class="n">argmax</span><span class="p">()</span><span class="o">.</span><span class="n">cpu</span><span class="p">()</span>
+
+    <span class="n">figure</span><span class="o">.</span><span class="n">add_subplot</span><span class="p">(</span><span class="n">rows</span><span class="p">,</span> <span class="n">cols</span><span class="p">,</span> <span class="n">i</span><span class="p">)</span>
+    <span class="n">plt</span><span class="o">.</span><span class="n">title</span><span class="p">(</span><span class="sa">f</span><span class="s2">&quot;label: </span><span class="si">{</span><span class="n">label</span><span class="si">}</span><span class="s2">; pred: </span><span class="si">{</span><span class="nb">int</span><span class="p">(</span><span class="n">prediction</span><span class="p">)</span><span class="si">}</span><span class="s2">&quot;</span><span class="p">)</span>
+    <span class="n">plt</span><span class="o">.</span><span class="n">axis</span><span class="p">(</span><span class="s2">&quot;off&quot;</span><span class="p">)</span>
+    <span class="n">plt</span><span class="o">.</span><span class="n">imshow</span><span class="p">(</span><span class="n">img</span><span class="p">,</span> <span class="n">cmap</span><span class="o">=</span><span class="s2">&quot;gray&quot;</span><span class="p">)</span>
+</pre></div>
+</div>
+</div>
+</div>
+</section>
+</section>
+<section id="distributed-data-parallel-training-with-ray-train-and-pytorch">
+<h2>3. Distributed Data Parallel Training with Ray Train and PyTorch<a class="headerlink" href="#distributed-data-parallel-training-with-ray-train-and-pytorch" title="Link to this heading">#</a></h2>
+<p>Let’s consider the case where we have a very large dataset of images that would take a long time to train on a single GPU. We would now like to scale this training job to run on multiple GPUs.</p>
+<div class="pst-scrollable-table-container"><table class="table">
+<thead>
+<tr class="row-odd"><th class="head text-left"><p><img src="https://anyscale-public-materials.s3.us-west-2.amazonaws.com/ray-ai-libraries/diagrams/multi_gpu_pytorch_v4.png" width="900px" loading="lazy"></p></th>
+</tr>
+</thead>
+<tbody>
+<tr class="row-even"><td class="text-left"><p>Schematic overview of DistributedDataParallel (DDP) training: (1) the model is replicated from the <code>GPU rank 0</code> to all other workers; (2) each worker receives a shard of the dataset and processes a mini-batch; (3) during the backward pass, gradients are averaged across GPUs; (4) checkpoint and metrics from rank 0 GPU are saved to the persistent storage.</p></td>
+</tr>
+</tbody>
+</table>
+</div>
+<div class="alert alert-block alert-info">
+<b>Here is a migration roadmap: from PyTorch DDP to PyTorch with Ray Train</b>
+<ol>
+    <li>Configure scale and GPUs</li>
+    <li>Migrate the model to Ray Train</li>
+    <li>Migrate the dataset to Ray Train</li>
+    <li>Build checkpoints and metrics reporting</li>
+    <li>Configure persistent storage</li>
+</ol>
+</div><section id="overview-of-the-training-loop-in-ray-train">
+<h3>3.1. Overview of the training loop in Ray Train<a class="headerlink" href="#overview-of-the-training-loop-in-ray-train" title="Link to this heading">#</a></h3>
+<p>Let’s see how this data-parallel training loop will look like with Ray Train and PyTorch.</p>
+<div class="cell docutils container">
+<div class="cell_input docutils container">
+<div class="highlight-ipython3 notranslate"><div class="highlight"><pre><span></span><span class="k">def</span><span class="w"> </span><span class="nf">train_loop_ray_train</span><span class="p">(</span><span class="n">config</span><span class="p">:</span> <span class="nb">dict</span><span class="p">):</span>  <span class="c1"># pass in hyperparameters in config</span>
+
+    <span class="n">criterion</span> <span class="o">=</span> <span class="n">CrossEntropyLoss</span><span class="p">()</span>
+
+    <span class="c1"># Use Ray Train to wrap the model with DistributedDataParallel</span>
+    <span class="n">model</span> <span class="o">=</span> <span class="n">load_model_ray_train</span><span class="p">()</span>
+    <span class="n">optimizer</span> <span class="o">=</span> <span class="n">Adam</span><span class="p">(</span><span class="n">model</span><span class="o">.</span><span class="n">parameters</span><span class="p">(),</span> <span class="n">lr</span><span class="o">=</span><span class="mf">1e-5</span><span class="p">)</span>
+
+    <span class="c1"># Calculate the batch size for each worker</span>
+    <span class="n">global_batch_size</span> <span class="o">=</span> <span class="n">config</span><span class="p">[</span><span class="s2">&quot;global_batch_size&quot;</span><span class="p">]</span>
+    <span class="n">world_size</span> <span class="o">=</span> <span class="n">ray</span><span class="o">.</span><span class="n">train</span><span class="o">.</span><span class="n">get_context</span><span class="p">()</span><span class="o">.</span><span class="n">get_world_size</span><span class="p">()</span>
+    <span class="n">batch_size</span> <span class="o">=</span> <span class="n">global_batch_size</span> <span class="o">//</span> <span class="n">world_size</span>
+    <span class="nb">print</span><span class="p">(</span><span class="sa">f</span><span class="s2">&quot;</span><span class="si">{</span><span class="n">world_size</span><span class="si">=}</span><span class="se">\n</span><span class="si">{</span><span class="n">batch_size</span><span class="si">=}</span><span class="s2">&quot;</span><span class="p">)</span>
+
+    <span class="c1"># Use Ray Train to wrap the data loader as a DistributedSampler</span>
+    <span class="n">data_loader</span> <span class="o">=</span> <span class="n">build_data_loader_ray_train</span><span class="p">(</span><span class="n">batch_size</span><span class="o">=</span><span class="n">batch_size</span><span class="p">)</span>
+
+    <span class="c1"># Main training loop</span>
+    <span class="k">for</span> <span class="n">epoch</span> <span class="ow">in</span> <span class="nb">range</span><span class="p">(</span><span class="n">config</span><span class="p">[</span><span class="s2">&quot;num_epochs&quot;</span><span class="p">]):</span>
+
+        <span class="c1"># Ensure data is on the correct device</span>
+        <span class="n">data_loader</span><span class="o">.</span><span class="n">sampler</span><span class="o">.</span><span class="n">set_epoch</span><span class="p">(</span><span class="n">epoch</span><span class="p">)</span>
+
+        <span class="c1"># images, labels are now sharded across the workers</span>
+        <span class="k">for</span> <span class="n">images</span><span class="p">,</span> <span class="n">labels</span> <span class="ow">in</span> <span class="n">data_loader</span><span class="p">:</span>
+            <span class="n">outputs</span> <span class="o">=</span> <span class="n">model</span><span class="p">(</span><span class="n">images</span><span class="p">)</span>
+            <span class="n">loss</span> <span class="o">=</span> <span class="n">criterion</span><span class="p">(</span><span class="n">outputs</span><span class="p">,</span> <span class="n">labels</span><span class="p">)</span>
+            <span class="n">optimizer</span><span class="o">.</span><span class="n">zero_grad</span><span class="p">()</span>
+
+            <span class="c1"># gradients are now accumulated across the workers</span>
+            <span class="n">loss</span><span class="o">.</span><span class="n">backward</span><span class="p">()</span>
+            <span class="n">optimizer</span><span class="o">.</span><span class="n">step</span><span class="p">()</span>
+
+        <span class="c1"># Use Ray Train to report metrics</span>
+        <span class="n">metrics</span> <span class="o">=</span> <span class="n">print_metrics_ray_train</span><span class="p">(</span><span class="n">loss</span><span class="p">,</span> <span class="n">epoch</span><span class="p">)</span>
+
+        <span class="c1"># Use Ray Train to save checkpoint and metrics</span>
+        <span class="n">save_checkpoint_and_metrics_ray_train</span><span class="p">(</span><span class="n">model</span><span class="p">,</span> <span class="n">metrics</span><span class="p">)</span>
+</pre></div>
+</div>
+</div>
+</div>
+<div class="alert alert-block alert-info">
+<p><b>Main training loop</b></p>
+<ul>
+  <li><strong>global_batch_size</strong>: the total number of samples processed in a single training step of the entire training job.
+    <ul>
+      <li>It's estimated like this: <code>batch size * DDP workers * gradient accumulation steps</code>.</li>
+    </ul>
+  </li>
+  <li>Notice that images and labels are no longer manually moved to device (<code>images.to("cuda")</code>). This is done by 
+    <a href="https://docs.ray.io/en/latest/train/api/doc/ray.train.torch.prepare_data_loader.html#ray-train-torch-prepare-data-loader" target="_blank">
+      prepare_data_loader()
+    </a>.
+  </li>
+  <li>Config that will be passed here, is defined below. It will be passed to the Ray Train's <a href="https://docs.ray.io/en/latest/train/api/doc/ray.train.torch.TorchTrainer.html#ray-train-torch-torchtrainer" target="_blank">TorchTrainer</a>.</li>
+  <li>
+    <a href="https://docs.ray.io/en/latest/train/api/doc/ray.train.v2.api.context.TrainContext.html#ray-train-v2-api-context-traincontext" target="_blank">
+      TrainContext
+    </a> lets users get useful information about the training i.e. node rank, world size, world rank, experiment name.
+  </li>
+  <li><code>load_model_ray_train</code> and <code>build_data_loader_ray_train</code> are implemented below.</li>
+</ul>
+</div><div class="cell docutils container">
+<div class="cell_input docutils container">
+<div class="highlight-ipython3 notranslate"><div class="highlight"><pre><span></span><span class="n">train_loop_config</span> <span class="o">=</span> <span class="p">{</span>
+    <span class="s2">&quot;num_epochs&quot;</span><span class="p">:</span> <span class="mi">2</span><span class="p">,</span> 
+    <span class="s2">&quot;global_batch_size&quot;</span><span class="p">:</span> <span class="mi">128</span>
+<span class="p">}</span>
+</pre></div>
+</div>
+</div>
+</div>
+</section>
+<section id="configure-scale-and-gpus">
+<h3>3.2. Configure scale and GPUs<a class="headerlink" href="#configure-scale-and-gpus" title="Link to this heading">#</a></h3>
+<p>Outside of our training function, we create a <code class="docutils literal notranslate"><span class="pre">ScalingConfig</span></code>.</p>
+<div class="cell docutils container">
+<div class="cell_input docutils container">
+<div class="highlight-ipython3 notranslate"><div class="highlight"><pre><span></span><span class="n">scaling_config</span> <span class="o">=</span> <span class="n">ScalingConfig</span><span class="p">(</span><span class="n">num_workers</span><span class="o">=</span><span class="mi">2</span><span class="p">,</span> <span class="n">use_gpu</span><span class="o">=</span><span class="kc">False</span><span class="p">)</span> <span class="c1"># Set it to False if you don&#39;t have GPU</span>
+</pre></div>
+</div>
+</div>
+</div>
+<div class="alert alert-block alert-info">
+<p><a href="https://docs.ray.io/en/latest/train/api/doc/ray.train.ScalingConfig.html#ray-train-scalingconfig" target="_blank">ScalingConfig</a> configures:</p>
+<ul>
+  <li><code>num_workers</code>: The number of distributed training worker processes.</li>
+  <li><code>use_gpu</code>: Whether each worker should use a GPU (or CPU).</li>
+</ul>
+<p>See docs on configuring <a href="https://docs.ray.io/en/latest/train/user-guides/using-gpus.html" target="_blank">scale and GPUs</a> for more details.</p>
+</div><section id="note-on-ray-train-key-concepts">
+<h4>3.2.1. Note on Ray Train key concepts<a class="headerlink" href="#note-on-ray-train-key-concepts" title="Link to this heading">#</a></h4>
+<p>Ray Train is built around <a class="reference external" href="https://docs.ray.io/en/latest/train/overview.html">four key concepts</a>:</p>
+<ol class="arabic simple">
+<li><p><strong>Training function</strong>: (implemented above <code class="docutils literal notranslate"><span class="pre">train_loop_ray_train</span></code>): A Python function that contains your model training logic.</p></li>
+<li><p><strong>Worker</strong>: A process that runs the training function.</p></li>
+<li><p><strong>Scaling config</strong>: specifies number of workers and compute resources (CPUs or GPUs, TPUs).</p></li>
+<li><p><strong>Trainer</strong>: A Python class (Ray Actor) that ties together the training function, workers, and scaling configuration to execute a distributed training job.</p></li>
+</ol>
+<div class="pst-scrollable-table-container"><table class="table">
+<thead>
+<tr class="row-odd"><th class="head text-left"><p><img src="https://docs.ray.io/en/latest/_images/overview.png" width="700px" loading="lazy"></p></th>
+</tr>
+</thead>
+<tbody>
+<tr class="row-even"><td class="text-left"><p>High-level architecture of how Ray Train</p></td>
+</tr>
+</tbody>
+</table>
+</div>
+</section>
+</section>
+<section id="migrating-the-model-to-ray-train">
+<h3>3.3. Migrating the model to Ray Train<a class="headerlink" href="#migrating-the-model-to-ray-train" title="Link to this heading">#</a></h3>
+<p>Use the <a class="reference external" href="https://docs.ray.io/en/latest/train/api/doc/ray.train.torch.prepare_model.html#ray-train-torch-prepare-model"><code class="docutils literal notranslate"><span class="pre">prepare_model()</span></code></a> utility function to:</p>
+<ul class="simple">
+<li><p>automatically move your model to the correct device,</p></li>
+<li><p>wrap the model in PyTorch’s DDP or FSDP.</p></li>
+</ul>
+<div class="cell docutils container">
+<div class="cell_input docutils container">
+<div class="highlight-ipython3 notranslate"><div class="highlight"><pre><span></span><span class="k">def</span><span class="w"> </span><span class="nf">load_model_ray_train</span><span class="p">()</span> <span class="o">-&gt;</span> <span class="n">torch</span><span class="o">.</span><span class="n">nn</span><span class="o">.</span><span class="n">Module</span><span class="p">:</span>
+    <span class="n">model</span> <span class="o">=</span> <span class="n">build_resnet18</span><span class="p">()</span>
+    <span class="n">model</span> <span class="o">=</span> <span class="n">ray</span><span class="o">.</span><span class="n">train</span><span class="o">.</span><span class="n">torch</span><span class="o">.</span><span class="n">prepare_model</span><span class="p">(</span><span class="n">model</span><span class="p">)</span> <span class="c1"># Instead of model = model.to(&quot;cuda&quot;)</span>
+    <span class="k">return</span> <span class="n">model</span>
+</pre></div>
+</div>
+</div>
+</div>
+<div class="alert alert-block alert-info">
+  <a href="https://docs.ray.io/en/latest/train/api/doc/ray.train.torch.prepare_model.html#ray-train-torch-prepare-model" target="_blank">
+    prepare_model()
+  </a> allows users to specify additional parameters:
+  <ul>
+    <li><code>parallel_strategy</code>: "ddp", "fsdp" – wrap models in <code>DistributedDataParallel</code> or <code>FullyShardedDataParallel</code></li>
+    <li><code>parallel_strategy_kwargs</code>: pass additional arguments to "ddp" or "fsdp"</li>
+  </ul>
+  <p>
+    With <a href="https://docs.ray.io/en/latest/train/api/doc/ray.train.torch.prepare_model.html#ray-train-torch-prepare-model" target="_blank">
+      prepare_model()
+    </a> you can use the same code regardless of number of workers or the device type being used (CPU, GPU).
+  </p>
+</div></section>
+<section id="migrating-the-dataset-to-ray-train">
+<h3>3.4. Migrating the dataset to Ray Train<a class="headerlink" href="#migrating-the-dataset-to-ray-train" title="Link to this heading">#</a></h3>
+<p>Use the <a class="reference external" href="https://docs.ray.io/en/latest/train/api/doc/ray.train.torch.prepare_data_loader.html#ray-train-torch-prepare-data-loader"><code class="docutils literal notranslate"><span class="pre">prepare_data_loader()</span></code></a> utility function, to automatically:</p>
+<ul class="simple">
+<li><p>move the batches to the right device,</p></li>
+<li><p>copy data from host (CPU) memory to device (GPU) memory,</p></li>
+<li><p>pass PyTorch’s <a class="reference external" href="https://pytorch.org/docs/stable/data.html#torch.utils.data.distributed.DistributedSampler"><code class="docutils literal notranslate"><span class="pre">DistributedSampler</span></code></a> to the DataLoader, if using more than 1 worker. Each worker will load a subset of the original dataset that is exclusive to it.</p></li>
+</ul>
+<p><a class="reference external" href="https://docs.ray.io/en/latest/train/api/doc/ray.train.torch.prepare_data_loader.html#ray-train-torch-prepare-data-loader"><code class="docutils literal notranslate"><span class="pre">prepare_data_loader()</span></code></a> allows users to use the same code regardless of number of workers or the device type being used (CPU, GPU).</p>
+<div class="cell docutils container">
+<div class="cell_input docutils container">
+<div class="highlight-ipython3 notranslate"><div class="highlight"><pre><span></span><span class="k">def</span><span class="w"> </span><span class="nf">build_data_loader_ray_train</span><span class="p">(</span><span class="n">batch_size</span><span class="p">:</span> <span class="nb">int</span><span class="p">)</span> <span class="o">-&gt;</span> <span class="n">torch</span><span class="o">.</span><span class="n">utils</span><span class="o">.</span><span class="n">data</span><span class="o">.</span><span class="n">DataLoader</span><span class="p">:</span>
+    <span class="n">transform</span> <span class="o">=</span> <span class="n">Compose</span><span class="p">([</span><span class="n">ToTensor</span><span class="p">(),</span> <span class="n">Normalize</span><span class="p">((</span><span class="mf">0.5</span><span class="p">,),</span> <span class="p">(</span><span class="mf">0.5</span><span class="p">,))])</span>
+    <span class="n">train_data</span> <span class="o">=</span> <span class="n">MNIST</span><span class="p">(</span><span class="n">root</span><span class="o">=</span><span class="s2">&quot;./data&quot;</span><span class="p">,</span> <span class="n">train</span><span class="o">=</span><span class="kc">True</span><span class="p">,</span> <span class="n">download</span><span class="o">=</span><span class="kc">True</span><span class="p">,</span> <span class="n">transform</span><span class="o">=</span><span class="n">transform</span><span class="p">)</span>
+    <span class="n">train_loader</span> <span class="o">=</span> <span class="n">torch</span><span class="o">.</span><span class="n">utils</span><span class="o">.</span><span class="n">data</span><span class="o">.</span><span class="n">DataLoader</span><span class="p">(</span><span class="n">train_data</span><span class="p">,</span> <span class="n">batch_size</span><span class="o">=</span><span class="n">batch_size</span><span class="p">,</span> <span class="n">shuffle</span><span class="o">=</span><span class="kc">True</span><span class="p">,</span> <span class="n">drop_last</span><span class="o">=</span><span class="kc">True</span><span class="p">)</span>
+
+    <span class="c1"># Automatically pass a DistributedSampler instance as a DataLoader sampler</span>
+    <span class="n">train_loader</span> <span class="o">=</span> <span class="n">ray</span><span class="o">.</span><span class="n">train</span><span class="o">.</span><span class="n">torch</span><span class="o">.</span><span class="n">prepare_data_loader</span><span class="p">(</span><span class="n">train_loader</span><span class="p">)</span>
+    <span class="k">return</span> <span class="n">train_loader</span>
+</pre></div>
+</div>
+</div>
+</div>
+<div class="alert alert-block alert-warning">
+<p><b>Ray Data integration</b></p>
+<p>This step isn’t necessary if you are integrating your Ray Train workload with Ray Data. It’s especially useful if preprocessing is CPU-heavy and user wants to run preprocessing and training of separate instances.</p>
+</div></section>
+<section id="reporting-checkpoints-and-metrics">
+<h3>3.5. Reporting checkpoints and metrics<a class="headerlink" href="#reporting-checkpoints-and-metrics" title="Link to this heading">#</a></h3>
+<p>To monitor progress, we can continue to print/log metrics as before. This time we chose to log from all workers.</p>
+<div class="cell docutils container">
+<div class="cell_input docutils container">
+<div class="highlight-ipython3 notranslate"><div class="highlight"><pre><span></span><span class="k">def</span><span class="w"> </span><span class="nf">print_metrics_ray_train</span><span class="p">(</span><span class="n">loss</span><span class="p">:</span> <span class="n">torch</span><span class="o">.</span><span class="n">Tensor</span><span class="p">,</span> <span class="n">epoch</span><span class="p">:</span> <span class="nb">int</span><span class="p">)</span> <span class="o">-&gt;</span> <span class="kc">None</span><span class="p">:</span>
+    <span class="n">metrics</span> <span class="o">=</span> <span class="p">{</span><span class="s2">&quot;loss&quot;</span><span class="p">:</span> <span class="n">loss</span><span class="o">.</span><span class="n">item</span><span class="p">(),</span> <span class="s2">&quot;epoch&quot;</span><span class="p">:</span> <span class="n">epoch</span><span class="p">}</span>
+    <span class="n">world_rank</span> <span class="o">=</span> <span class="n">ray</span><span class="o">.</span><span class="n">train</span><span class="o">.</span><span class="n">get_context</span><span class="p">()</span><span class="o">.</span><span class="n">get_world_rank</span><span class="p">()</span> <span class="c1"># report from all workers</span>
+    <span class="nb">print</span><span class="p">(</span><span class="sa">f</span><span class="s2">&quot;</span><span class="si">{</span><span class="n">metrics</span><span class="si">=}</span><span class="s2"> </span><span class="si">{</span><span class="n">world_rank</span><span class="si">=}</span><span class="s2">&quot;</span><span class="p">)</span>
+    <span class="k">return</span> <span class="n">metrics</span>
+</pre></div>
+</div>
+</div>
+</div>
+<div class="alert alert-block alert-info">
+<p>If you want to log only from the rank 0 worker, use this code:</p>
+<div class="highlight-python notranslate"><div class="highlight"><pre><span></span><span class="k">def</span><span class="w"> </span><span class="nf">print_metrics_ray_train</span><span class="p">(</span><span class="n">loss</span><span class="p">:</span> <span class="n">torch</span><span class="o">.</span><span class="n">Tensor</span><span class="p">,</span> <span class="n">epoch</span><span class="p">:</span> <span class="nb">int</span><span class="p">)</span> <span class="o">-&gt;</span> <span class="kc">None</span><span class="p">:</span>
+    <span class="n">metrics</span> <span class="o">=</span> <span class="p">{</span><span class="s2">&quot;loss&quot;</span><span class="p">:</span> <span class="n">loss</span><span class="o">.</span><span class="n">item</span><span class="p">(),</span> <span class="s2">&quot;epoch&quot;</span><span class="p">:</span> <span class="n">epoch</span><span class="p">}</span>
+    <span class="k">if</span> <span class="n">ray</span><span class="o">.</span><span class="n">train</span><span class="o">.</span><span class="n">get_context</span><span class="p">()</span><span class="o">.</span><span class="n">get_world_rank</span><span class="p">()</span> <span class="o">==</span> <span class="mi">0</span><span class="p">:</span>  <span class="c1"># report only from the rank 0 worker</span>
+        <span class="nb">print</span><span class="p">(</span><span class="sa">f</span><span class="s2">&quot;</span><span class="si">{</span><span class="n">metrics</span><span class="si">=}</span><span class="s2"> </span><span class="si">{</span><span class="n">world_rank</span><span class="si">=}</span><span class="s2">&quot;</span><span class="p">)</span>
+    <span class="k">return</span> <span class="n">metrics</span>
+</pre></div>
+</div>
+</div><p>We will report intermediate metrics and checkpoints using the <a class="reference external" href="https://docs.ray.io/en/latest/train/api/doc/ray.train.report.html#ray.train.report"><code class="docutils literal notranslate"><span class="pre">ray.train.report</span></code></a> utility function.</p>
+<div class="cell docutils container">
+<div class="cell_input docutils container">
+<div class="highlight-ipython3 notranslate"><div class="highlight"><pre><span></span><span class="k">def</span><span class="w"> </span><span class="nf">save_checkpoint_and_metrics_ray_train</span><span class="p">(</span>
+    <span class="n">model</span><span class="p">:</span> <span class="n">torch</span><span class="o">.</span><span class="n">nn</span><span class="o">.</span><span class="n">Module</span><span class="p">,</span> <span class="n">metrics</span><span class="p">:</span> <span class="nb">dict</span><span class="p">[</span><span class="nb">str</span><span class="p">,</span> <span class="nb">float</span><span class="p">]</span>
+<span class="p">)</span> <span class="o">-&gt;</span> <span class="kc">None</span><span class="p">:</span>
+    <span class="k">with</span> <span class="n">tempfile</span><span class="o">.</span><span class="n">TemporaryDirectory</span><span class="p">()</span> <span class="k">as</span> <span class="n">temp_checkpoint_dir</span><span class="p">:</span>
+        <span class="n">torch</span><span class="o">.</span><span class="n">save</span><span class="p">(</span>
+            <span class="n">model</span><span class="o">.</span><span class="n">module</span><span class="o">.</span><span class="n">state_dict</span><span class="p">(),</span>  <span class="c1"># note the `.module` to unwrap the DistributedDataParallel</span>
+            <span class="n">os</span><span class="o">.</span><span class="n">path</span><span class="o">.</span><span class="n">join</span><span class="p">(</span><span class="n">temp_checkpoint_dir</span><span class="p">,</span> <span class="s2">&quot;model.pt&quot;</span><span class="p">),</span>
+        <span class="p">)</span>
+
+        <span class="n">ray</span><span class="o">.</span><span class="n">train</span><span class="o">.</span><span class="n">report</span><span class="p">(</span>
+            <span class="n">metrics</span><span class="p">,</span>
+            <span class="n">checkpoint</span><span class="o">=</span><span class="n">ray</span><span class="o">.</span><span class="n">train</span><span class="o">.</span><span class="n">Checkpoint</span><span class="o">.</span><span class="n">from_directory</span><span class="p">(</span><span class="n">temp_checkpoint_dir</span><span class="p">),</span>
+        <span class="p">)</span>
+</pre></div>
+</div>
+</div>
+</div>
+<div class="alert alert-block alert-info">
+  <p><strong>Quick notes:</strong></p>
+  <ul>
+    <li>
+      Use 
+      <a href="https://docs.ray.io/en/latest/train/api/doc/ray.train.report.html#ray.train.report" target="_blank">
+        ray.train.report
+      </a> to save the metrics and checkpoint.
+    </li>
+    <li>Only metrics from the rank 0 worker are reported.</li>
+  </ul>
+</div><section id="note-on-the-checkpoint-lifecycle">
+<h4>3.5.1. Note on the checkpoint lifecycle<a class="headerlink" href="#note-on-the-checkpoint-lifecycle" title="Link to this heading">#</a></h4>
+<p>Here is the lifecycle of a checkpoint from being created using a local path to being uploaded to persistent storage.</p>
+<img src="https://docs.ray.io/en/latest/_images/checkpoint_lifecycle.png" width=800>
+<div class="alert alert-block alert-info">
+  <p><strong>Notes:</strong></p>
+  <ul>
+    <li>
+      Given it is the same model across all workers, we can instead only build the checkpoint on the worker of rank 0.
+      Note that we will still need to call 
+      <a href="https://docs.ray.io/en/latest/train/api/doc/ray.train.report.html#ray.train.report" target="_blank">
+        ray.train.report
+      </a> on all workers to ensure that the training loop is synchronized.
+    </li>
+    <li>Ray Train expects all workers to be able to write files to the same persistent storage location.</li>
+    <li>Cloud storage is the recommended persistent storage location.</li>
+  </ul>
+</div><div class="cell docutils container">
+<div class="cell_input docutils container">
+<div class="highlight-ipython3 notranslate"><div class="highlight"><pre><span></span><span class="k">def</span><span class="w"> </span><span class="nf">save_checkpoint_and_metrics_ray_train</span><span class="p">(</span>
+    <span class="n">model</span><span class="p">:</span> <span class="n">torch</span><span class="o">.</span><span class="n">nn</span><span class="o">.</span><span class="n">Module</span><span class="p">,</span> <span class="n">metrics</span><span class="p">:</span> <span class="nb">dict</span><span class="p">[</span><span class="nb">str</span><span class="p">,</span> <span class="nb">float</span><span class="p">]</span>
+<span class="p">)</span> <span class="o">-&gt;</span> <span class="kc">None</span><span class="p">:</span>
+    <span class="k">with</span> <span class="n">tempfile</span><span class="o">.</span><span class="n">TemporaryDirectory</span><span class="p">()</span> <span class="k">as</span> <span class="n">temp_checkpoint_dir</span><span class="p">:</span>
+        <span class="n">checkpoint</span> <span class="o">=</span> <span class="kc">None</span>
+
+        <span class="c1"># checkpoint only from rank 0 worker</span>
+        <span class="k">if</span> <span class="n">ray</span><span class="o">.</span><span class="n">train</span><span class="o">.</span><span class="n">get_context</span><span class="p">()</span><span class="o">.</span><span class="n">get_world_rank</span><span class="p">()</span> <span class="o">==</span> <span class="mi">0</span><span class="p">:</span>
+            <span class="n">torch</span><span class="o">.</span><span class="n">save</span><span class="p">(</span>
+                <span class="n">model</span><span class="o">.</span><span class="n">module</span><span class="o">.</span><span class="n">state_dict</span><span class="p">(),</span> <span class="n">os</span><span class="o">.</span><span class="n">path</span><span class="o">.</span><span class="n">join</span><span class="p">(</span><span class="n">temp_checkpoint_dir</span><span class="p">,</span> <span class="s2">&quot;model.pt&quot;</span><span class="p">)</span>
+            <span class="p">)</span>
+            <span class="n">checkpoint</span> <span class="o">=</span> <span class="n">ray</span><span class="o">.</span><span class="n">train</span><span class="o">.</span><span class="n">Checkpoint</span><span class="o">.</span><span class="n">from_directory</span><span class="p">(</span><span class="n">temp_checkpoint_dir</span><span class="p">)</span>
+
+        <span class="n">ray</span><span class="o">.</span><span class="n">train</span><span class="o">.</span><span class="n">report</span><span class="p">(</span>
+            <span class="n">metrics</span><span class="p">,</span>
+            <span class="n">checkpoint</span><span class="o">=</span><span class="n">checkpoint</span><span class="p">,</span>
+        <span class="p">)</span>
+</pre></div>
+</div>
+</div>
+</div>
+<p>Check our guide on <a class="reference external" href="https://docs.ray.io/en/latest/train/user-guides/checkpoints.html">saving and loading checkpoints</a> for more details and best practices.</p>
+<p>You can also configure the <a class="reference external" href="https://docs.ray.io/en/latest/train/user-guides/experiment-tracking.html">experiment tracking libraries</a> to work out-of-the-box with Ray Train.</p>
+</section>
+</section>
+<section id="configure-remote-storage">
+<h3>3.6. Configure remote storage<a class="headerlink" href="#configure-remote-storage" title="Link to this heading">#</a></h3>
+<p>Create a <code class="docutils literal notranslate"><span class="pre">RunConfig</span></code> object to specify the path where results (including checkpoints and artifacts) will be saved.</p>
+<div class="cell docutils container">
+<div class="cell_input docutils container">
+<div class="highlight-ipython3 notranslate"><div class="highlight"><pre><span></span><span class="c1"># If local path is used, add the file:// prefix to the storage path, if relative path is used make sure it is absolute by resolving it</span>
+<span class="c1">#storage_path = f&quot;file://{Path(storage_folder).resolve()}/training/&quot; # Use local path if it runs on local</span>
+<span class="n">storage_path</span> <span class="o">=</span> <span class="sa">f</span><span class="s2">&quot;</span><span class="si">{</span><span class="n">storage_folder</span><span class="si">}</span><span class="s2">/training/&quot;</span> 
+<span class="n">run_config</span> <span class="o">=</span> <span class="n">RunConfig</span><span class="p">(</span><span class="n">storage_path</span><span class="o">=</span><span class="n">storage_path</span><span class="p">,</span> <span class="n">name</span><span class="o">=</span><span class="s2">&quot;distributed-mnist-resnet18&quot;</span><span class="p">)</span>
+</pre></div>
+</div>
+</div>
+</div>
+</section>
+<section id="launching-the-distributed-training-job">
+<h3>3.7. Launching the distributed training job<a class="headerlink" href="#launching-the-distributed-training-job" title="Link to this heading">#</a></h3>
+<p>Distributed data-parallel training, but now using Ray Train.</p>
+<div class="pst-scrollable-table-container"><table class="table">
+<thead>
+<tr class="row-odd"><th class="head text-left"><p><img src="https://anyscale-public-materials.s3.us-west-2.amazonaws.com/ray-ai-libraries/diagrams/multi_gpu_pytorch_annotated_v5.png" width="70%" loading="lazy"></p></th>
+</tr>
+</thead>
+<tbody>
+<tr class="row-even"><td class="text-left"><p></p></td>
+</tr>
+</tbody>
+</table>
+</div>
+<p>We can now launch a distributed training job with a <a class="reference external" href="https://docs.ray.io/en/latest/train/api/doc/ray.train.torch.TorchTrainer.html#ray.train.torch.TorchTrainer"><code class="docutils literal notranslate"><span class="pre">TorchTrainer</span></code></a>.</p>
+<div class="cell docutils container">
+<div class="cell_input docutils container">
+<div class="highlight-ipython3 notranslate"><div class="highlight"><pre><span></span><span class="n">trainer</span> <span class="o">=</span> <span class="n">TorchTrainer</span><span class="p">(</span>
+    <span class="n">train_loop_ray_train</span><span class="p">,</span>
+    <span class="n">scaling_config</span><span class="o">=</span><span class="n">scaling_config</span><span class="p">,</span>
+    <span class="n">run_config</span><span class="o">=</span><span class="n">run_config</span><span class="p">,</span>
+    <span class="n">train_loop_config</span><span class="o">=</span><span class="n">train_loop_config</span><span class="p">,</span>
+<span class="p">)</span>
+</pre></div>
+</div>
+</div>
+</div>
+<p>Calling <code class="docutils literal notranslate"><span class="pre">trainer.fit()</span></code> will start the run and block until it completes.</p>
+<p>We’ll be able to observe relevant logs</p>
+<div class="pst-scrollable-table-container"><table class="table">
+<thead>
+<tr class="row-odd"><th class="head text-left"><p><img src="https://assets-training.s3.us-west-2.amazonaws.com/ray-intro/ray-train-intro-logs.png" width="80%" loading="lazy"></p></th>
+</tr>
+</thead>
+<tbody>
+<tr class="row-even"><td class="text-left"><p></p></td>
+</tr>
+</tbody>
+</table>
+</div>
+<div class="cell docutils container">
+<div class="cell_input docutils container">
+<div class="highlight-ipython3 notranslate"><div class="highlight"><pre><span></span><span class="n">result</span> <span class="o">=</span> <span class="n">trainer</span><span class="o">.</span><span class="n">fit</span><span class="p">()</span>
+</pre></div>
+</div>
+</div>
+</div>
+</section>
+<section id="access-the-training-results">
+<h3>3.8. Access the training results<a class="headerlink" href="#access-the-training-results" title="Link to this heading">#</a></h3>
+<p>After training completes, a <code class="docutils literal notranslate"><span class="pre">Result</span></code> object is returned which contains information about the training run, including the metrics and checkpoints reported during training.</p>
+<div class="cell docutils container">
+<div class="cell_input docutils container">
+<div class="highlight-ipython3 notranslate"><div class="highlight"><pre><span></span><span class="n">result</span>
+</pre></div>
+</div>
+</div>
+</div>
+<div class="cell docutils container">
+<div class="cell_input docutils container">
+<div class="highlight-ipython3 notranslate"><div class="highlight"><pre><span></span><span class="o">!</span>ls<span class="w"> </span><span class="o">{</span>storage_folder<span class="o">}</span>/training/distributed-mnist-resnet18/
+</pre></div>
+</div>
+</div>
+</div>
+<p>We can check the metrics produced by the training job.</p>
+<div class="cell docutils container">
+<div class="cell_input docutils container">
+<div class="highlight-ipython3 notranslate"><div class="highlight"><pre><span></span><span class="n">result</span><span class="o">.</span><span class="n">metrics_dataframe</span>
+</pre></div>
+</div>
+</div>
+</div>
+</section>
+<section id="id1">
+<h3>3.9. Use checkpointed model to generate predictions<a class="headerlink" href="#id1" title="Link to this heading">#</a></h3>
+<p>We can also take the latest checkpoint and load it to inspect the model.</p>
+<div class="cell docutils container">
+<div class="cell_input docutils container">
+<div class="highlight-ipython3 notranslate"><div class="highlight"><pre><span></span><span class="n">device</span> <span class="o">=</span> <span class="s2">&quot;cuda&quot;</span> <span class="k">if</span> <span class="n">torch</span><span class="o">.</span><span class="n">cuda</span><span class="o">.</span><span class="n">is_available</span><span class="p">()</span> <span class="k">else</span> <span class="s2">&quot;cpu&quot;</span>
+
+<span class="n">ckpt</span> <span class="o">=</span> <span class="n">result</span><span class="o">.</span><span class="n">checkpoint</span>
+<span class="k">with</span> <span class="n">ckpt</span><span class="o">.</span><span class="n">as_directory</span><span class="p">()</span> <span class="k">as</span> <span class="n">ckpt_dir</span><span class="p">:</span>
+    <span class="n">model_path</span> <span class="o">=</span> <span class="n">os</span><span class="o">.</span><span class="n">path</span><span class="o">.</span><span class="n">join</span><span class="p">(</span><span class="n">ckpt_dir</span><span class="p">,</span> <span class="s2">&quot;model.pt&quot;</span><span class="p">)</span>
+    <span class="n">loaded_model_ray_train</span> <span class="o">=</span> <span class="n">build_resnet18</span><span class="p">()</span>
+    <span class="n">state_dict</span> <span class="o">=</span> <span class="n">torch</span><span class="o">.</span><span class="n">load</span><span class="p">(</span><span class="n">model_path</span><span class="p">,</span> <span class="n">map_location</span><span class="o">=</span><span class="n">torch</span><span class="o">.</span><span class="n">device</span><span class="p">(</span><span class="n">device</span><span class="p">),</span> <span class="n">weights_only</span><span class="o">=</span><span class="kc">True</span><span class="p">)</span>
+    <span class="n">loaded_model_ray_train</span><span class="o">.</span><span class="n">load_state_dict</span><span class="p">(</span><span class="n">state_dict</span><span class="p">)</span>
+    <span class="n">loaded_model_ray_train</span><span class="o">.</span><span class="n">to</span><span class="p">(</span><span class="n">device</span><span class="p">)</span>
+    <span class="n">loaded_model_ray_train</span><span class="o">.</span><span class="n">eval</span><span class="p">()</span>
+
+<span class="n">loaded_model_ray_train</span>
+</pre></div>
+</div>
+</div>
+</div>
+<div class="alert alert-block alert-info">
+  <p>
+    To learn more about the training results, see this 
+    <a href="https://docs.ray.io/en/latest/train/user-guides/results.html" target="_blank">
+      docs
+    </a> on inspecting the training results.
+  </p>
+</div><p>Generate predictions on randomly selected 9 images from the MNIST dataset.</p>
+<div class="cell docutils container">
+<div class="cell_input docutils container">
+<div class="highlight-ipython3 notranslate"><div class="highlight"><pre><span></span><span class="n">figure</span> <span class="o">=</span> <span class="n">plt</span><span class="o">.</span><span class="n">figure</span><span class="p">(</span><span class="n">figsize</span><span class="o">=</span><span class="p">(</span><span class="mi">8</span><span class="p">,</span> <span class="mi">8</span><span class="p">))</span>
+<span class="n">cols</span><span class="p">,</span> <span class="n">rows</span> <span class="o">=</span> <span class="mi">3</span><span class="p">,</span> <span class="mi">3</span>
+
+<span class="k">for</span> <span class="n">i</span> <span class="ow">in</span> <span class="nb">range</span><span class="p">(</span><span class="mi">1</span><span class="p">,</span> <span class="n">cols</span> <span class="o">*</span> <span class="n">rows</span> <span class="o">+</span> <span class="mi">1</span><span class="p">):</span>
+    <span class="n">sample_idx</span> <span class="o">=</span> <span class="n">np</span><span class="o">.</span><span class="n">random</span><span class="o">.</span><span class="n">randint</span><span class="p">(</span><span class="mi">0</span><span class="p">,</span> <span class="nb">len</span><span class="p">(</span><span class="n">dataset</span><span class="o">.</span><span class="n">data</span><span class="p">))</span>
+    <span class="n">img</span><span class="p">,</span> <span class="n">label</span> <span class="o">=</span> <span class="n">dataset</span><span class="p">[</span><span class="n">sample_idx</span><span class="p">]</span>
+    <span class="n">normalized_img</span> <span class="o">=</span> <span class="n">Normalize</span><span class="p">((</span><span class="mf">0.5</span><span class="p">,),</span> <span class="p">(</span><span class="mf">0.5</span><span class="p">,))(</span><span class="n">ToTensor</span><span class="p">()(</span><span class="n">img</span><span class="p">))</span>
+    <span class="n">normalized_img</span> <span class="o">=</span> <span class="n">normalized_img</span><span class="o">.</span><span class="n">to</span><span class="p">(</span><span class="n">device</span><span class="p">)</span>
+
+    <span class="c1"># use loaded model to generate preds</span>
+    <span class="k">with</span> <span class="n">torch</span><span class="o">.</span><span class="n">no_grad</span><span class="p">():</span>        
+        <span class="n">prediction</span> <span class="o">=</span> <span class="n">loaded_model_ray_train</span><span class="p">(</span><span class="n">normalized_img</span><span class="o">.</span><span class="n">unsqueeze</span><span class="p">(</span><span class="mi">0</span><span class="p">))</span><span class="o">.</span><span class="n">argmax</span><span class="p">()</span><span class="o">.</span><span class="n">cpu</span><span class="p">()</span>
+
+    <span class="n">figure</span><span class="o">.</span><span class="n">add_subplot</span><span class="p">(</span><span class="n">rows</span><span class="p">,</span> <span class="n">cols</span><span class="p">,</span> <span class="n">i</span><span class="p">)</span>
+    <span class="n">plt</span><span class="o">.</span><span class="n">title</span><span class="p">(</span><span class="sa">f</span><span class="s2">&quot;label: </span><span class="si">{</span><span class="n">label</span><span class="si">}</span><span class="s2">; pred: </span><span class="si">{</span><span class="nb">int</span><span class="p">(</span><span class="n">prediction</span><span class="p">)</span><span class="si">}</span><span class="s2">&quot;</span><span class="p">)</span>
+    <span class="n">plt</span><span class="o">.</span><span class="n">axis</span><span class="p">(</span><span class="s2">&quot;off&quot;</span><span class="p">)</span>
+    <span class="n">plt</span><span class="o">.</span><span class="n">imshow</span><span class="p">(</span><span class="n">img</span><span class="p">,</span> <span class="n">cmap</span><span class="o">=</span><span class="s2">&quot;gray&quot;</span><span class="p">)</span>
+</pre></div>
+</div>
+</div>
+</div>
+</section>
+<section id="activity-run-the-distributed-training-with-more-workers">
+<h3>3.10. Activity: Run the distributed training with more workers<a class="headerlink" href="#activity-run-the-distributed-training-with-more-workers" title="Link to this heading">#</a></h3>
+<div class="alert alert-block alert-info">
+<ol class="arabic simple">
+<li><p>Update the scaling configuration to make use of 4 GPU workers</p></li>
+<li><p>Run the trainer using the same hyperparameters</p></li>
+</ol>
+<p>Use the following code snippets to guide you:</p>
+<div class="highlight-python notranslate"><div class="highlight"><pre><span></span><span class="c1"># Hint: Update the scaling configuration</span>
+<span class="n">scaling_config</span> <span class="o">=</span> <span class="o">...</span>
+
+<span class="n">trainer</span> <span class="o">=</span> <span class="n">ray</span><span class="o">.</span><span class="n">train</span><span class="o">.</span><span class="n">torch</span><span class="o">.</span><span class="n">TorchTrainer</span><span class="p">(</span>
+    <span class="n">train_loop_ray_train</span><span class="p">,</span>
+    <span class="n">scaling_config</span><span class="o">=</span><span class="n">scaling_config</span><span class="p">,</span>
+    <span class="n">run_config</span><span class="o">=</span><span class="n">run_config</span><span class="p">,</span>
+    <span class="n">train_loop_config</span><span class="o">=</span><span class="p">{</span><span class="s2">&quot;num_epochs&quot;</span><span class="p">:</span> <span class="mi">2</span><span class="p">,</span> <span class="s2">&quot;global_batch_size&quot;</span><span class="p">:</span> <span class="mi">128</span><span class="p">},</span>
+<span class="p">)</span>
+<span class="n">result</span> <span class="o">=</span> <span class="n">trainer</span><span class="o">.</span><span class="n">fit</span><span class="p">()</span>
+<span class="n">result</span><span class="o">.</span><span class="n">metrics_dataframe</span>
+</pre></div>
+</div>
+</div><div class="cell docutils container">
+<div class="cell_input docutils container">
+<div class="highlight-ipython3 notranslate"><div class="highlight"><pre><span></span><span class="c1"># Write your solution here</span>
+</pre></div>
+</div>
+</div>
+</div>
+<div class="alert alert-block alert-info">
+<details>
+<summary> Click here to see the solution </summary>
+<div class="highlight-python notranslate"><div class="highlight"><pre><span></span><span class="n">scaling_config</span> <span class="o">=</span> <span class="n">ScalingConfig</span><span class="p">(</span><span class="n">num_workers</span><span class="o">=</span><span class="mi">4</span><span class="p">,</span> <span class="n">use_gpu</span><span class="o">=</span><span class="kc">True</span><span class="p">)</span>
+
+<span class="n">trainer</span> <span class="o">=</span> <span class="n">ray</span><span class="o">.</span><span class="n">train</span><span class="o">.</span><span class="n">torch</span><span class="o">.</span><span class="n">TorchTrainer</span><span class="p">(</span>
+    <span class="n">train_loop_ray_train</span><span class="p">,</span>
+    <span class="n">scaling_config</span><span class="o">=</span><span class="n">scaling_config</span><span class="p">,</span>
+    <span class="n">run_config</span><span class="o">=</span><span class="n">run_config</span><span class="p">,</span>
+    <span class="n">train_loop_config</span><span class="o">=</span><span class="p">{</span><span class="s2">&quot;num_epochs&quot;</span><span class="p">:</span> <span class="mi">2</span><span class="p">,</span> <span class="s2">&quot;global_batch_size&quot;</span><span class="p">:</span> <span class="mi">128</span><span class="p">},</span>
+<span class="p">)</span>
+<span class="n">result</span> <span class="o">=</span> <span class="n">trainer</span><span class="o">.</span><span class="n">fit</span><span class="p">()</span>
+<span class="n">result</span><span class="o">.</span><span class="n">metrics_dataframe</span>
+</pre></div>
+</div>
+</details></section>
+<section id="ray-train-in-production">
+<h3>4. Ray Train in Production<a class="headerlink" href="#ray-train-in-production" title="Link to this heading">#</a></h3>
+<p>Here are some use-cases of using Ray Train in production:</p>
+<ol class="arabic simple">
+<li><p>Canva uses Ray Train + Ray Data to cut down Stable Diffusion training costs by 3.7x. Read this <a class="reference external" href="https://www.anyscale.com/blog/scalable-and-cost-efficient-stable-diffusion-pre-training-with-ray">Anyscale blog post here</a> and the <a class="reference external" href="https://www.anyscale.com/resources/case-study/how-canva-built-a-modern-ai-platform-using-anyscale">Canva  case study here</a></p></li>
+<li><p>Anyscale uses Ray Train + Deepspeed to finetune language models. Read more <a class="reference external" href="https://github.com/ray-project/ray/tree/master/doc/source/templates/04_finetuning_llms_with_deepspeed">here</a>.</p></li>
+</ol>
+<div class="cell docutils container">
+<div class="cell_input docutils container">
+<div class="highlight-ipython3 notranslate"><div class="highlight"><pre><span></span><span class="c1"># Run this cell for file cleanup </span>
+<span class="o">!</span>rm<span class="w"> </span>-rf<span class="w"> </span><span class="o">{</span>storage_folder<span class="o">}</span>/training/
+<span class="o">!</span>rm<span class="w"> </span>-rf<span class="w"> </span><span class="o">{</span>local_path<span class="o">}</span>
+<span class="o">!</span>rm<span class="w"> </span>-rf<span class="w"> </span><span class="o">{</span>storage_folder<span class="o">}</span>/data
+</pre></div>
+</div>
+</div>
+</div>
+</section>
+</section>
+</section>
+
+    <script type="text/x-thebe-config">
+    {
+        requestKernel: true,
+        binderOptions: {
+            repo: "binder-examples/jupyter-stacks-datascience",
+            ref: "master",
+        },
+        codeMirrorConfig: {
+            theme: "abcdef",
+            mode: "python"
+        },
+        kernelOptions: {
+            name: "python3",
+            path: "./courses/00_Developer_Intro_to_Ray"
+        },
+        predefinedOutput: true
+    }
+    </script>
+    <script>kernelName = 'python3'</script>
+
+                </article>
+              
+
+              
+              
+              
+              
+                <footer class="prev-next-footer d-print-none">
+                  
+<div class="prev-next-area">
+</div>
+                </footer>
+              
+            </div>
+            
+            
+              
+                <div class="bd-sidebar-secondary bd-toc"><div class="sidebar-secondary-items sidebar-secondary__inner">
+
+
+  <div class="sidebar-secondary-item">
+  <div class="page-toc tocsection onthispage">
+    <i class="fa-solid fa-list"></i> Contents
+  </div>
+  <nav class="bd-toc-nav page-toc">
+    <ul class="visible nav section-nav flex-column">
+<li class="toc-h2 nav-item toc-entry"><a class="reference internal nav-link" href="#when-to-use-ray-train">1. When to use Ray Train</a></li>
+<li class="toc-h2 nav-item toc-entry"><a class="reference internal nav-link" href="#single-gpu-training-with-pytorch">2. Single GPU Training with PyTorch</a><ul class="nav section-nav flex-column">
+<li class="toc-h3 nav-item toc-entry"><a class="reference internal nav-link" href="#overview">2.1. Overview</a></li>
+<li class="toc-h3 nav-item toc-entry"><a class="reference internal nav-link" href="#build-model-and-load-it-on-the-gpu">2.2. Build model and load it on the GPU</a></li>
+<li class="toc-h3 nav-item toc-entry"><a class="reference internal nav-link" href="#create-dataset-and-dataloader">2.3. Create Dataset and DataLoader</a></li>
+<li class="toc-h3 nav-item toc-entry"><a class="reference internal nav-link" href="#create-metrics-and-checkpointing">2.4. Create metrics and checkpointing</a></li>
+<li class="toc-h3 nav-item toc-entry"><a class="reference internal nav-link" href="#run-the-training-loop">2.5. Run the training loop</a></li>
+<li class="toc-h3 nav-item toc-entry"><a class="reference internal nav-link" href="#use-checkpointed-model-to-generate-predictions">2.6. Use checkpointed model to generate predictions</a></li>
+</ul>
+</li>
+<li class="toc-h2 nav-item toc-entry"><a class="reference internal nav-link" href="#distributed-data-parallel-training-with-ray-train-and-pytorch">3. Distributed Data Parallel Training with Ray Train and PyTorch</a><ul class="nav section-nav flex-column">
+<li class="toc-h3 nav-item toc-entry"><a class="reference internal nav-link" href="#overview-of-the-training-loop-in-ray-train">3.1. Overview of the training loop in Ray Train</a></li>
+<li class="toc-h3 nav-item toc-entry"><a class="reference internal nav-link" href="#configure-scale-and-gpus">3.2. Configure scale and GPUs</a><ul class="nav section-nav flex-column">
+<li class="toc-h4 nav-item toc-entry"><a class="reference internal nav-link" href="#note-on-ray-train-key-concepts">3.2.1. Note on Ray Train key concepts</a></li>
+</ul>
+</li>
+<li class="toc-h3 nav-item toc-entry"><a class="reference internal nav-link" href="#migrating-the-model-to-ray-train">3.3. Migrating the model to Ray Train</a></li>
+<li class="toc-h3 nav-item toc-entry"><a class="reference internal nav-link" href="#migrating-the-dataset-to-ray-train">3.4. Migrating the dataset to Ray Train</a></li>
+<li class="toc-h3 nav-item toc-entry"><a class="reference internal nav-link" href="#reporting-checkpoints-and-metrics">3.5. Reporting checkpoints and metrics</a><ul class="nav section-nav flex-column">
+<li class="toc-h4 nav-item toc-entry"><a class="reference internal nav-link" href="#note-on-the-checkpoint-lifecycle">3.5.1. Note on the checkpoint lifecycle</a></li>
+</ul>
+</li>
+<li class="toc-h3 nav-item toc-entry"><a class="reference internal nav-link" href="#configure-remote-storage">3.6. Configure remote storage</a></li>
+<li class="toc-h3 nav-item toc-entry"><a class="reference internal nav-link" href="#launching-the-distributed-training-job">3.7. Launching the distributed training job</a></li>
+<li class="toc-h3 nav-item toc-entry"><a class="reference internal nav-link" href="#access-the-training-results">3.8. Access the training results</a></li>
+<li class="toc-h3 nav-item toc-entry"><a class="reference internal nav-link" href="#id1">3.9. Use checkpointed model to generate predictions</a></li>
+<li class="toc-h3 nav-item toc-entry"><a class="reference internal nav-link" href="#activity-run-the-distributed-training-with-more-workers">3.10. Activity: Run the distributed training with more workers</a></li>
+<li class="toc-h3 nav-item toc-entry"><a class="reference internal nav-link" href="#ray-train-in-production">4. Ray Train in Production</a></li>
+</ul>
+</li>
+</ul>
+  </nav></div>
+
+</div></div>
+              
+            
+          </div>
+          <footer class="bd-footer-content">
+            
+<div class="bd-footer-content__inner container">
+  
+  <div class="footer-item">
+    
+<p class="component-author">
+By The Jupyter Book community
+</p>
+
+  </div>
+  
+  <div class="footer-item">
+    
+
+  </div>
+  
+  <div class="footer-item">
+    
+  </div>
+  
+  <div class="footer-item">
+    
+  </div>
+  
+</div>
+          </footer>
+        
+
+      </main>
+    </div>
+  </div>
+  
+  <!-- Scripts loaded after <body> so the DOM is not blocked -->
+  <script src="../../_static/scripts/bootstrap.js?digest=dfe6caa3a7d634c4db9b"></script>
+<script src="../../_static/scripts/pydata-sphinx-theme.js?digest=dfe6caa3a7d634c4db9b"></script>
+
+  <footer class="bd-footer">
+  </footer>
+  </body>
+</html>
