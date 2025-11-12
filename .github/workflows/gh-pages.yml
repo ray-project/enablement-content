@@ -18,7 +18,7 @@ jobs:
 
             - name: Install dependencies
               run: |
-                  pip install jupyter-book<2.0 pyyaml
+                  pip install "jupyter-book<2.0" pyyaml
 
             - name: Split notebooks and generate navigation
               run: |
