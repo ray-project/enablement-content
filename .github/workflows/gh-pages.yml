@@ -26,7 +26,7 @@ jobs:
 
             - name: Split notebooks and generate navigation
               run: |
-                  python split_notebooks.py --no-html
+                  python split_notebooks.py --no-html --force
 
             - name: Build the book
               run: |
