@@ -8,10 +8,6 @@ on:
 jobs:
     build:
         runs-on: ubuntu-latest
-        permissions:
-            contents: write
-            pages: write
-            id-token: write
         steps:
             - uses: actions/checkout@v3
 
@@ -22,11 +18,11 @@ jobs:
 
             - name: Install dependencies
               run: |
-                  pip install jupyter-book pyyaml
+                  pip install jupyter-book<2.0 pyyaml
 
             - name: Split notebooks and generate navigation
               run: |
-                  python split_notebooks.py --no-html --force
+                  python split_notebooks.py --force
 
             - name: Build the book
               run: |
