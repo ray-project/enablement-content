@@ -889,8 +889,8 @@ This pattern assumes that two conditions are satisfied:
 <h2>3. Task retries<a class="headerlink" href="#task-retries" title="Link to this heading">#</a></h2>
 <p>Let’s consider two types of exceptions:</p>
 <ol class="arabic simple">
-<li><p><strong>system errors</strong> (e.g., Python-level exceptions)</p></li>
-<li><p><strong>application-level errors</strong> (e.g., a machine fails)</p></li>
+<li><p><strong>application-level errors</strong> (e.g., Python-level exceptions)</p></li>
+<li><p><strong>system errors</strong> (e.g., a machine fails)</p></li>
 </ol>
 <p>Ray will automatically <strong>retry a task up to 3 times</strong>, if it fails due to a system error (e.g., a worker node dies).</p>
 <p>Below task won’t be retried by default because it’s an application failure</p>
