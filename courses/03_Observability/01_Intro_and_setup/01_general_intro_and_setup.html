@@ -58,12 +58,10 @@
     <script async="async" src="../../../_static/sphinx-thebe.js?v=c100c467"></script>
     <script>var togglebuttonSelector = '.toggle, .admonition.dropdown';</script>
     <script>const THEBE_JS_URL = "https://unpkg.com/thebe@0.8.2/lib/index.js"; const thebe_selector = ".thebe,.cell"; const thebe_selector_input = "pre"; const thebe_selector_output = ".output, .cell_output"</script>
-    <script>DOCUMENTATION_OPTIONS.pagename = 'courses/03_Observability/output/01_general_intro_and_setup_01';</script>
+    <script>DOCUMENTATION_OPTIONS.pagename = 'courses/03_Observability/01_Intro_and_setup/01_general_intro_and_setup';</script>
     <script src="../../../_static/custom_toggle.js?v=1235ef5b"></script>
     <link rel="index" title="Index" href="../../../genindex.html" />
     <link rel="search" title="Search" href="../../../search.html" />
-    <link rel="next" title="Observability Overview" href="01_general_intro_and_setup_02.html" />
-    <link rel="prev" title="9. Cleanup" href="../../02_Anyscale_Admin/02_03c_Deploy_to_K8s_New_GCP_GKE/output/deploy_to_new_GKE_12.html" />
   <meta name="viewport" content="width=device-width, initial-scale=1"/>
   <meta name="docsearch:language" content="en"/>
   </head>
@@ -125,6 +123,8 @@
     <div class="bd-container__inner bd-page-width">
       
       
+      
+        
       
       <div class="bd-sidebar-primary bd-sidebar">
         
@@ -299,10 +299,10 @@
 <li class="toctree-l1"><a class="reference internal" href="../../02_Anyscale_Admin/02_03c_Deploy_to_K8s_New_GCP_GKE/output/deploy_to_new_GKE_12.html">9. Cleanup</a></li>
 </ul>
 <p aria-level="2" class="caption" role="heading"><span class="caption-text">03 Observability</span></p>
-<ul class="current nav bd-sidenav">
-<li class="toctree-l1 current active"><a class="current reference internal" href="#">Observability Introduction</a></li>
-<li class="toctree-l1"><a class="reference internal" href="01_general_intro_and_setup_02.html">Observability Overview</a></li>
-<li class="toctree-l1"><a class="reference internal" href="01_general_intro_and_setup_03.html">Setting Up Local Ray Observability</a></li>
+<ul class="nav bd-sidenav">
+<li class="toctree-l1"><a class="reference internal" href="output/01_general_intro_and_setup_01.html">Observability Introduction</a></li>
+<li class="toctree-l1"><a class="reference internal" href="output/01_general_intro_and_setup_02.html">Observability Overview</a></li>
+<li class="toctree-l1"><a class="reference internal" href="output/01_general_intro_and_setup_03.html">Setting Up Local Ray Observability</a></li>
 <li class="toctree-l1"><a class="reference internal" href="../02_Ray_Anyscale_Introduction/output/2_Ray_Anyscale_Observability_Overview_01.html">Ray and Anyscale Observability Introduction</a></li>
 <li class="toctree-l1"><a class="reference internal" href="../02_Ray_Anyscale_Introduction/output/2_Ray_Anyscale_Observability_Overview_02.html">Ray Observability</a></li>
 <li class="toctree-l1"><a class="reference internal" href="../02_Ray_Anyscale_Introduction/output/2_Ray_Anyscale_Observability_Overview_03.html">Anyscale Observability</a></li>
@@ -560,7 +560,7 @@
       
       
       
-      <li><a href="../../../_sources/courses/03_Observability/output/01_general_intro_and_setup_01.ipynb" target="_blank"
+      <li><a href="../../../_sources/courses/03_Observability/01_Intro_and_setup/01_general_intro_and_setup.ipynb" target="_blank"
    class="btn btn-sm btn-download-source-button dropdown-item"
    title="Download source file"
    data-bs-placement="left" data-bs-toggle="tooltip"
@@ -631,7 +631,9 @@ document.write(`
   </button>
 `);
 </script>
-
+<button class="sidebar-toggle secondary-toggle btn btn-sm" title="Toggle secondary sidebar" data-bs-placement="bottom" data-bs-toggle="tooltip">
+    <span class="fa-solid fa-list"></span>
+</button>
 </div></div>
       
     </div>
@@ -647,6 +649,31 @@ document.write(`
     <div id="print-main-content">
         <div id="jb-print-toc">
             
+            <div>
+                <h2> Contents </h2>
+            </div>
+            <nav aria-label="Page">
+                <ul class="visible nav section-nav flex-column">
+<li class="toc-h2 nav-item toc-entry"><a class="reference internal nav-link" href="#observability-overview">Observability Overview</a></li>
+<li class="toc-h2 nav-item toc-entry"><a class="reference internal nav-link" href="#setting-up-local-ray-observability">Setting Up Local Ray Observability</a><ul class="nav section-nav flex-column">
+<li class="toc-h3 nav-item toc-entry"><a class="reference internal nav-link" href="#prerequisites-and-assumptions">Prerequisites and Assumptions</a></li>
+<li class="toc-h3 nav-item toc-entry"><a class="reference internal nav-link" href="#step-1-install-required-packages">Step 1: Install Required Packages</a></li>
+<li class="toc-h3 nav-item toc-entry"><a class="reference internal nav-link" href="#step-2-launch-prometheus">Step 2: Launch Prometheus</a></li>
+<li class="toc-h3 nav-item toc-entry"><a class="reference internal nav-link" href="#step-3-launch-ray-cluster">Step 3: Launch Ray Cluster</a><ul class="nav section-nav flex-column">
+<li class="toc-h4 nav-item toc-entry"><a class="reference internal nav-link" href="#start-by-launching-the-ray-head-node-in-the-terminal">Start by launching the Ray head node in the terminal:</a></li>
+<li class="toc-h4 nav-item toc-entry"><a class="reference internal nav-link" href="#now-launch-a-ray-worker-node-in-the-terminal">Now launch a Ray worker node in the terminal:</a></li>
+</ul>
+</li>
+<li class="toc-h3 nav-item toc-entry"><a class="reference internal nav-link" href="#step-4-install-and-launch-grafana">Step 4: Install and Launch Grafana</a><ul class="nav section-nav flex-column">
+<li class="toc-h4 nav-item toc-entry"><a class="reference internal nav-link" href="#launch-grafana">Launch Grafana</a></li>
+<li class="toc-h4 nav-item toc-entry"><a class="reference internal nav-link" href="#additional-setup-optional">Additional Setup (Optional)</a></li>
+</ul>
+</li>
+<li class="toc-h3 nav-item toc-entry"><a class="reference internal nav-link" href="#what-s-next">What’s Next</a></li>
+</ul>
+</li>
+</ul>
+            </nav>
         </div>
     </div>
 </div>
@@ -666,7 +693,150 @@ document.write(`
     <li>Observability Overview</li>
     <li>Setting up Local Ray Observability Environment</li>
 </ul>
+</div><section id="observability-overview">
+<h2>Observability Overview<a class="headerlink" href="#observability-overview" title="Link to this heading">#</a></h2>
+<p>Observability refers to tools and practices that help developers understand software behavior and improve it. Common data collected includes:</p>
+<p><strong>Metrics</strong>: System metrics (e.g., CPU, memory, GPU memory, disk, and network per node), cluster metrics (e.g., node count and failures), and application-specific metrics.</p>
+<img src="https://docs.anyscale.com/assets/images/metrics-oa-ui-df6becb28765867764f502735fede48d.png" width="70%" loading="lazy"> 
+<p><strong>Profiling</strong>: Tools to diagnose performance issues, out-of-memory errors, hangs, and other problems. Profilers analyze performance by sampling resource usage (e.g., CPU, GPU, and memory profiling).</p>
+<img src="https://anyscale-materials.s3.us-west-2.amazonaws.com/apple/tensorboard_trace_data.png" width="70%" loading="lazy"> 
+<p><strong>Tracing</strong>: Mechanisms that follow execution flow to diagnose bugs, performance bottlenecks, and unexpected behavior.</p>
+<img src="https://docs.anyscale.com/assets/images/service-upstream-downstream-traces-be00d16870c6bda6507ee78f394d2c2e.png" width="70%" loading="lazy"> 
+<p><strong>Logs</strong>: Records supporting monitoring and debugging (e.g., system and application logs).</p>
+<img src="https://docs.anyscale.com/assets/images/services-logs-8b9d2ef7fe8afecfa059a41cfd9bffe1.png" width="70%" loading="lazy"> 
+<p><strong>Events</strong>: System-level operations handled by the operating system (OS) on behalf of applications.</p>
+<img src="https://docs.anyscale.com/assets/images/debugging_ray_oom_02-836fdee718df9ffd96a173277b7f9a91.png" width="70%" loading="lazy"> 
+<p>These data can be collected and visualized using systems such as Prometheus, OpenTelemetry, Grafana, Datadog, and so on.</p>
+<p>Ray integrates with Prometheus, OpenTelemetry, Grafana, and other third-party tools to provide web dashboards for monitoring and debugging Ray applications. Anyscale enhances this telemetry by persisting and contextualizing the data. The next section covers local setup so examples in subsequent courses can be run and viewed locally.</p>
+<div class="alert alert-block alert-info">
+  <b>Note:</b> To run course examples on the Anyscale platform—and experience both Ray and Anyscale observability—register and start a Ray cluster via the Anyscale console:
+  <a href="https://console.anyscale.com/register" target="_blank" rel="noopener noreferrer">Sign up</a>.
 </div></section>
+<section id="setting-up-local-ray-observability">
+<h2>Setting Up Local Ray Observability<a class="headerlink" href="#setting-up-local-ray-observability" title="Link to this heading">#</a></h2>
+<p>This section focuses on local Ray setup where the Ray Dashboard serves as the primary tool for monitoring and debugging. <strong>This setup enables running the local examples featured in subsequent courses.</strong></p>
+<section id="prerequisites-and-assumptions">
+<h3>Prerequisites and Assumptions<a class="headerlink" href="#prerequisites-and-assumptions" title="Link to this heading">#</a></h3>
+<p>This setup assumes the following environment and tools are available:</p>
+<ul class="simple">
+<li><p><strong>Operating System</strong>: macOS (tested on macOS Sequoia Version 15.6)</p></li>
+<li><p><strong>Package Manager</strong>: Homebrew installed and configured</p></li>
+<li><p><strong>Python Environment</strong>: Conda or similar virtual environment manager</p></li>
+<li><p><strong>Terminal Access</strong>: Command-line interface for running Ray and Grafana commands</p></li>
+</ul>
+<div class="alert alert-block alert-warning">
+<b>Note:</b> This guide is specifically written for macOS. For Linux or Windows setups, commands and installation methods may differ.
+</div></section>
+<section id="step-1-install-required-packages">
+<h3>Step 1: Install Required Packages<a class="headerlink" href="#step-1-install-required-packages" title="Link to this heading">#</a></h3>
+<p>Install the required packages locally within a Conda virtual environment:</p>
+<div class="cell docutils container">
+<div class="cell_input docutils container">
+<div class="highlight-ipython3 notranslate"><div class="highlight"><pre><span></span><span class="o">%%</span><span class="k">bash</span>
+# Test basic Ray startup
+pip install -U &quot;ray[all]&quot;
+</pre></div>
+</div>
+</div>
+</div>
+</section>
+<section id="step-2-launch-prometheus">
+<h3>Step 2: Launch Prometheus<a class="headerlink" href="#step-2-launch-prometheus" title="Link to this heading">#</a></h3>
+<p>Prometheus is an open-source monitoring system that collects and stores metrics. Launch Prometheus using Ray’s built-in integration in the terminal:</p>
+<div class="cell docutils container">
+<div class="cell_input docutils container">
+<div class="highlight-ipython3 notranslate"><div class="highlight"><pre><span></span><span class="c1"># Launch Prometheus using Ray&#39;s built-in integration</span>
+<span class="c1"># !ray metrics launch-prometheus</span>
+</pre></div>
+</div>
+</div>
+</div>
+</section>
+<section id="step-3-launch-ray-cluster">
+<h3>Step 3: Launch Ray Cluster<a class="headerlink" href="#step-3-launch-ray-cluster" title="Link to this heading">#</a></h3>
+<p>Launch a Ray cluster with a dedicated head node and a separate worker node, ensuring that the head node does not run any workloads.</p>
+<section id="start-by-launching-the-ray-head-node-in-the-terminal">
+<h4>Start by launching the Ray head node in the terminal:<a class="headerlink" href="#start-by-launching-the-ray-head-node-in-the-terminal" title="Link to this heading">#</a></h4>
+<div class="cell docutils container">
+<div class="cell_input docutils container">
+<div class="highlight-ipython3 notranslate"><div class="highlight"><pre><span></span><span class="c1">### Start Ray Head Node with Metrics Export</span>
+
+<span class="c1"># Start head node with:</span>
+<span class="c1"># - No CPUs (workload will run on worker only)</span>
+<span class="c1"># - Metrics export on port 8080</span>
+
+<span class="c1"># !export RAY_ENABLE_WINDOWS_OR_OSX_CLUSTER=1</span>
+<span class="c1"># !ray start --head --num-cpus=0 --port=6379 --metrics-export-port=8080 </span>
+</pre></div>
+</div>
+</div>
+</div>
+</section>
+<section id="now-launch-a-ray-worker-node-in-the-terminal">
+<h4>Now launch a Ray worker node in the terminal:<a class="headerlink" href="#now-launch-a-ray-worker-node-in-the-terminal" title="Link to this heading">#</a></h4>
+<div class="cell docutils container">
+<div class="cell_input docutils container">
+<div class="highlight-ipython3 notranslate"><div class="highlight"><pre><span></span><span class="c1"># !ray start --address=127.0.0.1:6379  --num-cpus=1</span>
+</pre></div>
+</div>
+</div>
+</div>
+</section>
+</section>
+<section id="step-4-install-and-launch-grafana">
+<h3>Step 4: Install and Launch Grafana<a class="headerlink" href="#step-4-install-and-launch-grafana" title="Link to this heading">#</a></h3>
+<p>Grafana is an open-source visualization platform that creates dashboards and graphs from Prometheus metrics. Install Grafana from the <a class="reference external" href="https://grafana.com/grafana/download">official website</a>:</p>
+<div class="cell docutils container">
+<div class="cell_input docutils container">
+<div class="highlight-ipython3 notranslate"><div class="highlight"><pre><span></span><span class="o">%%</span><span class="k">bash</span>
+
+brew install grafana
+</pre></div>
+</div>
+</div>
+</div>
+<section id="launch-grafana">
+<h4>Launch Grafana<a class="headerlink" href="#launch-grafana" title="Link to this heading">#</a></h4>
+<p>Launch Grafana by running the following command in the terminal:</p>
+<div class="cell docutils container">
+<div class="cell_input docutils container">
+<div class="highlight-ipython3 notranslate"><div class="highlight"><pre><span></span><span class="o">%%</span><span class="k">bash</span>
+
+grafana server \
+  --config /tmp/ray/session_latest/metrics/grafana/grafana.ini \
+  --homepath /opt/homebrew/opt/grafana/share/grafana
+</pre></div>
+</div>
+</div>
+</div>
+</section>
+<section id="additional-setup-optional">
+<h4>Additional Setup (Optional)<a class="headerlink" href="#additional-setup-optional" title="Link to this heading">#</a></h4>
+<p>You may need to run the following commands to properly launch Grafana:</p>
+<div class="cell docutils container">
+<div class="cell_input docutils container">
+<div class="highlight-ipython3 notranslate"><div class="highlight"><pre><span></span><span class="c1"># (Optional) You may need to run following commands to be able to launch Grafana</span>
+
+<span class="c1"># !sudo chown root: `which py-spy`</span>
+<span class="c1"># !sudo chmod u+s `which py-spy`</span>
+<span class="c1"># !PYTHONMALLOC=malloc</span>
+</pre></div>
+</div>
+</div>
+</div>
+<p>Visit <a class="reference external" href="http://127.0.0.1:8265/#/overview">http://127.0.0.1:8265/#/overview</a> to access the Ray Dashboard locally:</p>
+<img src="https://anyscale-materials.s3.us-west-2.amazonaws.com/ray-observability/1-Overview/resources_view.png" width="70%" loading="lazy"> <p>Click on “Cluster” in the navigation to see the two running nodes: one head node and one worker node:</p>
+<img src="https://anyscale-materials.s3.us-west-2.amazonaws.com/ray-observability/1-Overview/cluster_view.png" width="70%" loading="lazy">
+<p><strong>Ray Observability on K8s:</strong>
+To start Ray on a K8s environment without using Anyscale and set up Ray Observability, refer to <a class="reference external" href="https://docs.ray.io/en/latest/cluster/kubernetes/troubleshooting.html">KubeRay Troubleshooting</a> for more information.</p>
+</section>
+</section>
+<section id="what-s-next">
+<h3>What’s Next<a class="headerlink" href="#what-s-next" title="Link to this heading">#</a></h3>
+<p>The next course provides an overview of Ray and Anyscale observability with examples. All subsequent courses include observability examples. Items marked <strong>“Local Environment”</strong> can be run locally using the setup above.</p>
+</section>
+</section>
+</section>
 
     <script type="text/x-thebe-config">
     {
@@ -681,7 +851,7 @@ document.write(`
         },
         kernelOptions: {
             name: "xing-ray-jupyter",
-            path: "./courses/03_Observability/output"
+            path: "./courses/03_Observability/01_Intro_and_setup"
         },
         predefinedOutput: true
     }
@@ -698,30 +868,44 @@ document.write(`
                 <footer class="prev-next-footer d-print-none">
                   
 <div class="prev-next-area">
-    <a class="left-prev"
-       href="../../02_Anyscale_Admin/02_03c_Deploy_to_K8s_New_GCP_GKE/output/deploy_to_new_GKE_12.html"
-       title="previous page">
-      <i class="fa-solid fa-angle-left"></i>
-      <div class="prev-next-info">
-        <p class="prev-next-subtitle">previous</p>
-        <p class="prev-next-title">9. Cleanup</p>
-      </div>
-    </a>
-    <a class="right-next"
-       href="01_general_intro_and_setup_02.html"
-       title="next page">
-      <div class="prev-next-info">
-        <p class="prev-next-subtitle">next</p>
-        <p class="prev-next-title">Observability Overview</p>
-      </div>
-      <i class="fa-solid fa-angle-right"></i>
-    </a>
 </div>
                 </footer>
               
             </div>
             
             
+              
+                <div class="bd-sidebar-secondary bd-toc"><div class="sidebar-secondary-items sidebar-secondary__inner">
+
+
+  <div class="sidebar-secondary-item">
+  <div class="page-toc tocsection onthispage">
+    <i class="fa-solid fa-list"></i> Contents
+  </div>
+  <nav class="bd-toc-nav page-toc">
+    <ul class="visible nav section-nav flex-column">
+<li class="toc-h2 nav-item toc-entry"><a class="reference internal nav-link" href="#observability-overview">Observability Overview</a></li>
+<li class="toc-h2 nav-item toc-entry"><a class="reference internal nav-link" href="#setting-up-local-ray-observability">Setting Up Local Ray Observability</a><ul class="nav section-nav flex-column">
+<li class="toc-h3 nav-item toc-entry"><a class="reference internal nav-link" href="#prerequisites-and-assumptions">Prerequisites and Assumptions</a></li>
+<li class="toc-h3 nav-item toc-entry"><a class="reference internal nav-link" href="#step-1-install-required-packages">Step 1: Install Required Packages</a></li>
+<li class="toc-h3 nav-item toc-entry"><a class="reference internal nav-link" href="#step-2-launch-prometheus">Step 2: Launch Prometheus</a></li>
+<li class="toc-h3 nav-item toc-entry"><a class="reference internal nav-link" href="#step-3-launch-ray-cluster">Step 3: Launch Ray Cluster</a><ul class="nav section-nav flex-column">
+<li class="toc-h4 nav-item toc-entry"><a class="reference internal nav-link" href="#start-by-launching-the-ray-head-node-in-the-terminal">Start by launching the Ray head node in the terminal:</a></li>
+<li class="toc-h4 nav-item toc-entry"><a class="reference internal nav-link" href="#now-launch-a-ray-worker-node-in-the-terminal">Now launch a Ray worker node in the terminal:</a></li>
+</ul>
+</li>
+<li class="toc-h3 nav-item toc-entry"><a class="reference internal nav-link" href="#step-4-install-and-launch-grafana">Step 4: Install and Launch Grafana</a><ul class="nav section-nav flex-column">
+<li class="toc-h4 nav-item toc-entry"><a class="reference internal nav-link" href="#launch-grafana">Launch Grafana</a></li>
+<li class="toc-h4 nav-item toc-entry"><a class="reference internal nav-link" href="#additional-setup-optional">Additional Setup (Optional)</a></li>
+</ul>
+</li>
+<li class="toc-h3 nav-item toc-entry"><a class="reference internal nav-link" href="#what-s-next">What’s Next</a></li>
+</ul>
+</li>
+</ul>
+  </nav></div>
+
+</div></div>
               
             
           </div>
