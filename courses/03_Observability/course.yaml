@@ -14,6 +14,7 @@ modules:
   "01_intro_and_setup":
     title: Intro and Setup
     description: Introduction to observability concepts and setup
+    source: 03_Observability/01_Intro_and_setup/01_general_intro_and_setup.ipynb
     lessons:
       "lesson-1":
         title: General Intro and Setup - Part 1
@@ -31,6 +32,7 @@ modules:
   "02_ray_anyscale_introduction":
     title: Ray Anyscale Introduction
     description: Overview of Ray and Anyscale observability features
+    source: 03_Observability/02_Ray_Anyscale_Introduction/2_Ray_Anyscale_Observability_Overview.ipynb
     lessons:
       "lesson-1":
         title: Ray Anyscale Observability Overview - Part 1
@@ -52,6 +54,7 @@ modules:
   "03_ray_anyscale_observability_in_detail":
     title: Ray Anyscale Observability in Detail
     description: Deep dive into observability features and advanced techniques
+    source: 03_Observability/03_Ray_Anyscale_Observability_in_Detail/03_Ray_Anyscale_Observability_in_Details.ipynb
     lessons:
       "lesson-1":
         title: Ray Anyscale Observability in Details - Part 1
