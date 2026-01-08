@@ -123,9 +123,9 @@ parts:
   - file: courses/02_Anyscale_Admin/02_03c_Deploy_to_K8s_New_GCP_GKE/output/deploy_to_new_GKE_12.ipynb
 - caption: 03 Observability
   chapters:
-  - file: courses/03_Observability/output/01_general_intro_and_setup_01.ipynb
-  - file: courses/03_Observability/output/01_general_intro_and_setup_02.ipynb
-  - file: courses/03_Observability/output/01_general_intro_and_setup_03.ipynb
+  - file: courses/03_Observability/01_Intro_and_setup/output/01_general_intro_and_setup_01.ipynb
+  - file: courses/03_Observability/01_Intro_and_setup/output/01_general_intro_and_setup_02.ipynb
+  - file: courses/03_Observability/01_Intro_and_setup/output/01_general_intro_and_setup_03.ipynb
   - file: courses/03_Observability/02_Ray_Anyscale_Introduction/output/2_Ray_Anyscale_Observability_Overview_01.ipynb
   - file: courses/03_Observability/02_Ray_Anyscale_Introduction/output/2_Ray_Anyscale_Observability_Overview_02.ipynb
   - file: courses/03_Observability/02_Ray_Anyscale_Introduction/output/2_Ray_Anyscale_Observability_Overview_03.ipynb

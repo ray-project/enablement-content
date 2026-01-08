@@ -245,9 +245,9 @@ This collection contains multiple courses on Ray and Anyscale:
 
 ## 03 Observability
 
-- [01 general intro and setup 01](courses/03_Observability/output/01_general_intro_and_setup_01.ipynb)
-- [01 general intro and setup 02](courses/03_Observability/output/01_general_intro_and_setup_02.ipynb)
-- [01 general intro and setup 03](courses/03_Observability/output/01_general_intro_and_setup_03.ipynb)
+- [01 general intro and setup 01](courses/03_Observability/01_Intro_and_setup/output/01_general_intro_and_setup_01.ipynb)
+- [01 general intro and setup 02](courses/03_Observability/01_Intro_and_setup/output/01_general_intro_and_setup_02.ipynb)
+- [01 general intro and setup 03](courses/03_Observability/01_Intro_and_setup/output/01_general_intro_and_setup_03.ipynb)
 - [2 Ray Anyscale Observability Overview 01](courses/03_Observability/02_Ray_Anyscale_Introduction/output/2_Ray_Anyscale_Observability_Overview_01.ipynb)
 - [2 Ray Anyscale Observability Overview 02](courses/03_Observability/02_Ray_Anyscale_Introduction/output/2_Ray_Anyscale_Observability_Overview_02.ipynb)
 - [2 Ray Anyscale Observability Overview 03](courses/03_Observability/02_Ray_Anyscale_Introduction/output/2_Ray_Anyscale_Observability_Overview_03.ipynb)
