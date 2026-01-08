@@ -1,0 +1,13 @@
+pandas
+notebook
+ipywidgets
+numpy
+fastapi
+pyarrow
+datasets # huggingface datasets
+evaluate # huggingface evaluate
+ray[data,train,serve]
+sentence-transformers
+torch
+torchvision
+matplotlib

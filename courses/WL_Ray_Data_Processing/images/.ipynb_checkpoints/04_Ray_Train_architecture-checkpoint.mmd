@@ -1,0 +1,9 @@
+flowchart LR
+    A["Yelp Dataset"] --> B["Tokenization: Hugging Face Tokenizer"]
+    B --> C["DataLoader: Batching & Shuffling"]
+    C --> D["Ray Train: Distributed Training"]
+    D --> E1["Train BERT Model: PyTorch, Hugging Face"]
+    D --> E2["Train BERT Model: PyTorch, Hugging Face"]
+    E1 --> F["Evaluation: Accuracy Metric"]
+    E2 --> F["Evaluation: Accuracy Metric"]
+    F --> G["Trained Model"]

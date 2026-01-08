@@ -64,30 +64,6 @@ parts:
   - file: courses/00_Developer_Intro_to_Ray/output/05_Intro_Ray_Serve_PyTorch_04.ipynb
   - file: courses/00_Developer_Intro_to_Ray/output/05_Intro_Ray_Serve_PyTorch_05.ipynb
   - file: courses/00_Developer_Intro_to_Ray/output/README_01.ipynb
-- caption: 01 Examples
-  chapters:
-  - file: courses/01_examples/output/01_Ray_Data_batch_inference_01.ipynb
-  - file: courses/01_examples/output/01_Ray_Data_batch_inference_02.ipynb
-  - file: courses/01_examples/output/01_Ray_Data_batch_inference_03.ipynb
-  - file: courses/01_examples/output/01_Ray_Data_batch_inference_04.ipynb
-  - file: courses/01_examples/output/01_Ray_Data_batch_inference_05.ipynb
-  - file: courses/01_examples/output/01_Ray_Data_batch_inference_06.ipynb
-  - file: courses/01_examples/output/02_Ray_Data_data_processing_01.ipynb
-  - file: courses/01_examples/output/02_Ray_Data_data_processing_02.ipynb
-  - file: courses/01_examples/output/02_Ray_Data_data_processing_03.ipynb
-  - file: courses/01_examples/output/02_Ray_Data_data_processing_04.ipynb
-  - file: courses/01_examples/output/02_Ray_Data_data_processing_05.ipynb
-  - file: courses/01_examples/output/02_Ray_Data_data_processing_06.ipynb
-  - file: courses/01_examples/output/03_Ray_Serve_online_serving_01.ipynb
-  - file: courses/01_examples/output/03_Ray_Serve_online_serving_02.ipynb
-  - file: courses/01_examples/output/03_Ray_Serve_online_serving_03.ipynb
-  - file: courses/01_examples/output/03_Ray_Serve_online_serving_04.ipynb
-  - file: courses/01_examples/output/04_Ray_Train_distributed_training_01.ipynb
-  - file: courses/01_examples/output/04_Ray_Train_distributed_training_02.ipynb
-  - file: courses/01_examples/output/04_Ray_Train_distributed_training_03.ipynb
-  - file: courses/01_examples/output/04_Ray_Train_distributed_training_04.ipynb
-  - file: courses/01_examples/output/04_Ray_Train_distributed_training_05.ipynb
-  - file: courses/01_examples/output/04_Ray_Train_distributed_training_06.ipynb
 - caption: 02 Anyscale Admin
   chapters:
   - file: courses/02_Anyscale_Admin/02_00_Anyscale_Admin_Overview/output/anyscale_administrator_overview_01.ipynb
@@ -175,13 +151,113 @@ parts:
   - file: courses/GettingStarted/output/101_anyscale_intro_jobs_03.ipynb
   - file: courses/GettingStarted/output/101_anyscale_intro_services_01.ipynb
   - file: courses/GettingStarted/output/101_anyscale_intro_services_02.ipynb
-- caption: Anyscale 101
+- caption: Ray Train Foundation
   chapters:
-  - file: courses/anyscale_101/output/101_anyscale_intro_jobs_01.ipynb
-  - file: courses/anyscale_101/output/101_anyscale_intro_jobs_02.ipynb
-  - file: courses/anyscale_101/output/101_anyscale_intro_jobs_03.ipynb
-  - file: courses/anyscale_101/output/101_anyscale_intro_services_01.ipynb
-  - file: courses/anyscale_101/output/101_anyscale_intro_services_02.ipynb
+  - file: courses/Ray_Train_Foundation/output/01_02_03_intro_to_ray_train_01.ipynb
+  - file: courses/Ray_Train_Foundation/output/01_02_03_intro_to_ray_train_02.ipynb
+  - file: courses/Ray_Train_Foundation/output/01_02_03_intro_to_ray_train_03.ipynb
+  - file: courses/Ray_Train_Foundation/output/01_02_03_intro_to_ray_train_04.ipynb
+  - file: courses/Ray_Train_Foundation/output/01_02_03_intro_to_ray_train_05.ipynb
+  - file: courses/Ray_Train_Foundation/output/01_02_03_intro_to_ray_train_06.ipynb
+  - file: courses/Ray_Train_Foundation/output/01_02_03_intro_to_ray_train_07.ipynb
+  - file: courses/Ray_Train_Foundation/output/01_02_03_intro_to_ray_train_08.ipynb
+  - file: courses/Ray_Train_Foundation/output/01_02_03_intro_to_ray_train_09.ipynb
+  - file: courses/Ray_Train_Foundation/output/01_02_03_intro_to_ray_train_10.ipynb
+  - file: courses/Ray_Train_Foundation/output/01_02_03_intro_to_ray_train_11.ipynb
+  - file: courses/Ray_Train_Foundation/output/01_02_03_intro_to_ray_train_12.ipynb
+  - file: courses/Ray_Train_Foundation/output/01_02_03_intro_to_ray_train_13.ipynb
+  - file: courses/Ray_Train_Foundation/output/01_02_03_intro_to_ray_train_14.ipynb
+  - file: courses/Ray_Train_Foundation/output/01_02_03_intro_to_ray_train_15.ipynb
+  - file: courses/Ray_Train_Foundation/output/01_02_03_intro_to_ray_train_16.ipynb
+  - file: courses/Ray_Train_Foundation/output/01_02_03_intro_to_ray_train_17.ipynb
+  - file: courses/Ray_Train_Foundation/output/01_02_03_intro_to_ray_train_18.ipynb
+  - file: courses/Ray_Train_Foundation/output/01_02_03_intro_to_ray_train_19.ipynb
+  - file: courses/Ray_Train_Foundation/output/01_02_03_intro_to_ray_train_20.ipynb
+  - file: courses/Ray_Train_Foundation/output/01_02_03_intro_to_ray_train_21.ipynb
+  - file: courses/Ray_Train_Foundation/output/01_02_03_intro_to_ray_train_22.ipynb
+  - file: courses/Ray_Train_Foundation/output/01_02_03_intro_to_ray_train_23.ipynb
+  - file: courses/Ray_Train_Foundation/output/01_02_03_intro_to_ray_train_24.ipynb
+  - file: courses/Ray_Train_Foundation/output/01_02_03_intro_to_ray_train_25.ipynb
+  - file: courses/Ray_Train_Foundation/output/01_02_03_intro_to_ray_train_26.ipynb
+- caption: Wl Ray Data Batch Inference
+  chapters:
+  - file: courses/WL_Ray_Data_Batch_Inference/output/01_Ray_Data_batch_inference_01.ipynb
+  - file: courses/WL_Ray_Data_Batch_Inference/output/01_Ray_Data_batch_inference_02.ipynb
+  - file: courses/WL_Ray_Data_Batch_Inference/output/01_Ray_Data_batch_inference_03.ipynb
+  - file: courses/WL_Ray_Data_Batch_Inference/output/01_Ray_Data_batch_inference_04.ipynb
+  - file: courses/WL_Ray_Data_Batch_Inference/output/01_Ray_Data_batch_inference_05.ipynb
+  - file: courses/WL_Ray_Data_Batch_Inference/output/01_Ray_Data_batch_inference_06.ipynb
+- caption: Wl Ray Data Processing
+  chapters:
+  - file: courses/WL_Ray_Data_Processing/output/02_Ray_Data_data_processing_01.ipynb
+  - file: courses/WL_Ray_Data_Processing/output/02_Ray_Data_data_processing_02.ipynb
+  - file: courses/WL_Ray_Data_Processing/output/02_Ray_Data_data_processing_03.ipynb
+  - file: courses/WL_Ray_Data_Processing/output/02_Ray_Data_data_processing_04.ipynb
+  - file: courses/WL_Ray_Data_Processing/output/02_Ray_Data_data_processing_05.ipynb
+  - file: courses/WL_Ray_Data_Processing/output/02_Ray_Data_data_processing_06.ipynb
+- caption: Wl Ray Distributed Training
+  chapters:
+  - file: courses/WL_Ray_Distributed_Training/output/04_Ray_Train_distributed_training_01.ipynb
+  - file: courses/WL_Ray_Distributed_Training/output/04_Ray_Train_distributed_training_02.ipynb
+  - file: courses/WL_Ray_Distributed_Training/output/04_Ray_Train_distributed_training_03.ipynb
+  - file: courses/WL_Ray_Distributed_Training/output/04_Ray_Train_distributed_training_04.ipynb
+  - file: courses/WL_Ray_Distributed_Training/output/04_Ray_Train_distributed_training_05.ipynb
+  - file: courses/WL_Ray_Distributed_Training/output/04_Ray_Train_distributed_training_06.ipynb
+- caption: Wl Ray Serve Online Serving
+  chapters:
+  - file: courses/WL_Ray_Serve_Online_Serving/output/03_Ray_Serve_online_serving_01.ipynb
+  - file: courses/WL_Ray_Serve_Online_Serving/output/03_Ray_Serve_online_serving_02.ipynb
+  - file: courses/WL_Ray_Serve_Online_Serving/output/03_Ray_Serve_online_serving_03.ipynb
+  - file: courses/WL_Ray_Serve_Online_Serving/output/03_Ray_Serve_online_serving_04.ipynb
+- caption: Wl Train Generative Cv
+  chapters:
+  - file: courses/WL_Train_Generative_CV/output/04d1_generative_cv_pattern_01.ipynb
+  - file: courses/WL_Train_Generative_CV/output/04d1_generative_cv_pattern_02.ipynb
+  - file: courses/WL_Train_Generative_CV/output/04d1_generative_cv_pattern_03.ipynb
+  - file: courses/WL_Train_Generative_CV/output/04d1_generative_cv_pattern_04.ipynb
+  - file: courses/WL_Train_Generative_CV/output/04d1_generative_cv_pattern_05.ipynb
+  - file: courses/WL_Train_Generative_CV/output/04d1_generative_cv_pattern_06.ipynb
+- caption: Wl Train Policy Learning
+  chapters:
+  - file: courses/WL_Train_Policy_Learning/output/04d2_policy_learning_pattern_01.ipynb
+  - file: courses/WL_Train_Policy_Learning/output/04d2_policy_learning_pattern_02.ipynb
+  - file: courses/WL_Train_Policy_Learning/output/04d2_policy_learning_pattern_03.ipynb
+  - file: courses/WL_Train_Policy_Learning/output/04d2_policy_learning_pattern_04.ipynb
+  - file: courses/WL_Train_Policy_Learning/output/04d2_policy_learning_pattern_05.ipynb
+- caption: Wl Train Rec Sys
+  chapters:
+  - file: courses/WL_Train_Rec_sys/output/04e_rec_sys_workload_pattern_01.ipynb
+  - file: courses/WL_Train_Rec_sys/output/04e_rec_sys_workload_pattern_02.ipynb
+  - file: courses/WL_Train_Rec_sys/output/04e_rec_sys_workload_pattern_03.ipynb
+  - file: courses/WL_Train_Rec_sys/output/04e_rec_sys_workload_pattern_04.ipynb
+  - file: courses/WL_Train_Rec_sys/output/04e_rec_sys_workload_pattern_05.ipynb
+  - file: courses/WL_Train_Rec_sys/output/04e_rec_sys_workload_pattern_06.ipynb
+- caption: Wl Train Tabular
+  chapters:
+  - file: courses/WL_Train_Tabular/output/04b_tabular_workload_pattern_01.ipynb
+  - file: courses/WL_Train_Tabular/output/04b_tabular_workload_pattern_02.ipynb
+  - file: courses/WL_Train_Tabular/output/04b_tabular_workload_pattern_03.ipynb
+  - file: courses/WL_Train_Tabular/output/04b_tabular_workload_pattern_04.ipynb
+  - file: courses/WL_Train_Tabular/output/04b_tabular_workload_pattern_05.ipynb
+- caption: Wl Train Time Series
+  chapters:
+  - file: courses/WL_Train_Time_Series/output/04c_time_series_workload_pattern_01.ipynb
+  - file: courses/WL_Train_Time_Series/output/04c_time_series_workload_pattern_02.ipynb
+  - file: courses/WL_Train_Time_Series/output/04c_time_series_workload_pattern_03.ipynb
+  - file: courses/WL_Train_Time_Series/output/04c_time_series_workload_pattern_04.ipynb
+  - file: courses/WL_Train_Time_Series/output/04c_time_series_workload_pattern_05.ipynb
+  - file: courses/WL_Train_Time_Series/output/04c_time_series_workload_pattern_06.ipynb
+- caption: Wl Train Vision Pattern
+  chapters:
+  - file: courses/WL_Train_Vision_Pattern/output/04a_vision_pattern_01.ipynb
+  - file: courses/WL_Train_Vision_Pattern/output/04a_vision_pattern_02.ipynb
+  - file: courses/WL_Train_Vision_Pattern/output/04a_vision_pattern_03.ipynb
+  - file: courses/WL_Train_Vision_Pattern/output/04a_vision_pattern_04.ipynb
+  - file: courses/WL_Train_Vision_Pattern/output/04a_vision_pattern_05.ipynb
+  - file: courses/WL_Train_Vision_Pattern/output/04a_vision_pattern_06.ipynb
+  - file: courses/WL_Train_Vision_Pattern/output/04a_vision_pattern_07.ipynb
+  - file: courses/WL_Train_Vision_Pattern/output/04a_vision_pattern_08.ipynb
+  - file: courses/WL_Train_Vision_Pattern/output/04a_vision_pattern_09.ipynb
 - caption: Llm Serving
   chapters:
   - file: courses/llm_serving/00_intro_serve_llm/output/notebook_01.ipynb
@@ -237,68 +313,3 @@ parts:
   - file: courses/ray-101/output/5_Intro_Serve_04.ipynb
   - file: courses/ray-101/output/5_Intro_Serve_05.ipynb
   - file: courses/ray-101/output/5_Intro_Serve_06.ipynb
-- caption: Ray Train 201
-  chapters:
-  - file: courses/ray-train-201/output/01_02_03_intro_to_ray_train_01.ipynb
-  - file: courses/ray-train-201/output/01_02_03_intro_to_ray_train_02.ipynb
-  - file: courses/ray-train-201/output/01_02_03_intro_to_ray_train_03.ipynb
-  - file: courses/ray-train-201/output/01_02_03_intro_to_ray_train_04.ipynb
-  - file: courses/ray-train-201/output/01_02_03_intro_to_ray_train_05.ipynb
-  - file: courses/ray-train-201/output/01_02_03_intro_to_ray_train_06.ipynb
-  - file: courses/ray-train-201/output/01_02_03_intro_to_ray_train_07.ipynb
-  - file: courses/ray-train-201/output/01_02_03_intro_to_ray_train_08.ipynb
-  - file: courses/ray-train-201/output/01_02_03_intro_to_ray_train_09.ipynb
-  - file: courses/ray-train-201/output/01_02_03_intro_to_ray_train_10.ipynb
-  - file: courses/ray-train-201/output/01_02_03_intro_to_ray_train_11.ipynb
-  - file: courses/ray-train-201/output/01_02_03_intro_to_ray_train_12.ipynb
-  - file: courses/ray-train-201/output/01_02_03_intro_to_ray_train_13.ipynb
-  - file: courses/ray-train-201/output/01_02_03_intro_to_ray_train_14.ipynb
-  - file: courses/ray-train-201/output/01_02_03_intro_to_ray_train_15.ipynb
-  - file: courses/ray-train-201/output/01_02_03_intro_to_ray_train_16.ipynb
-  - file: courses/ray-train-201/output/01_02_03_intro_to_ray_train_17.ipynb
-  - file: courses/ray-train-201/output/01_02_03_intro_to_ray_train_18.ipynb
-  - file: courses/ray-train-201/output/01_02_03_intro_to_ray_train_19.ipynb
-  - file: courses/ray-train-201/output/01_02_03_intro_to_ray_train_20.ipynb
-  - file: courses/ray-train-201/output/01_02_03_intro_to_ray_train_21.ipynb
-  - file: courses/ray-train-201/output/01_02_03_intro_to_ray_train_22.ipynb
-  - file: courses/ray-train-201/output/01_02_03_intro_to_ray_train_23.ipynb
-  - file: courses/ray-train-201/output/01_02_03_intro_to_ray_train_24.ipynb
-  - file: courses/ray-train-201/output/01_02_03_intro_to_ray_train_25.ipynb
-  - file: courses/ray-train-201/output/01_02_03_intro_to_ray_train_26.ipynb
-  - file: courses/ray-train-201/output/04a_vision_pattern_01.ipynb
-  - file: courses/ray-train-201/output/04a_vision_pattern_02.ipynb
-  - file: courses/ray-train-201/output/04a_vision_pattern_03.ipynb
-  - file: courses/ray-train-201/output/04a_vision_pattern_04.ipynb
-  - file: courses/ray-train-201/output/04a_vision_pattern_05.ipynb
-  - file: courses/ray-train-201/output/04a_vision_pattern_06.ipynb
-  - file: courses/ray-train-201/output/04a_vision_pattern_07.ipynb
-  - file: courses/ray-train-201/output/04a_vision_pattern_08.ipynb
-  - file: courses/ray-train-201/output/04a_vision_pattern_09.ipynb
-  - file: courses/ray-train-201/output/04b_tabular_workload_pattern_01.ipynb
-  - file: courses/ray-train-201/output/04b_tabular_workload_pattern_02.ipynb
-  - file: courses/ray-train-201/output/04b_tabular_workload_pattern_03.ipynb
-  - file: courses/ray-train-201/output/04b_tabular_workload_pattern_04.ipynb
-  - file: courses/ray-train-201/output/04b_tabular_workload_pattern_05.ipynb
-  - file: courses/ray-train-201/output/04c_time_series_workload_pattern_01.ipynb
-  - file: courses/ray-train-201/output/04c_time_series_workload_pattern_02.ipynb
-  - file: courses/ray-train-201/output/04c_time_series_workload_pattern_03.ipynb
-  - file: courses/ray-train-201/output/04c_time_series_workload_pattern_04.ipynb
-  - file: courses/ray-train-201/output/04c_time_series_workload_pattern_05.ipynb
-  - file: courses/ray-train-201/output/04c_time_series_workload_pattern_06.ipynb
-  - file: courses/ray-train-201/output/04d1_generative_cv_pattern_01.ipynb
-  - file: courses/ray-train-201/output/04d1_generative_cv_pattern_02.ipynb
-  - file: courses/ray-train-201/output/04d1_generative_cv_pattern_03.ipynb
-  - file: courses/ray-train-201/output/04d1_generative_cv_pattern_04.ipynb
-  - file: courses/ray-train-201/output/04d1_generative_cv_pattern_05.ipynb
-  - file: courses/ray-train-201/output/04d1_generative_cv_pattern_06.ipynb
-  - file: courses/ray-train-201/output/04d2_policy_learning_pattern_01.ipynb
-  - file: courses/ray-train-201/output/04d2_policy_learning_pattern_02.ipynb
-  - file: courses/ray-train-201/output/04d2_policy_learning_pattern_03.ipynb
-  - file: courses/ray-train-201/output/04d2_policy_learning_pattern_04.ipynb
-  - file: courses/ray-train-201/output/04d2_policy_learning_pattern_05.ipynb
-  - file: courses/ray-train-201/output/04e_rec_sys_workload_pattern_01.ipynb
-  - file: courses/ray-train-201/output/04e_rec_sys_workload_pattern_02.ipynb
-  - file: courses/ray-train-201/output/04e_rec_sys_workload_pattern_03.ipynb
-  - file: courses/ray-train-201/output/04e_rec_sys_workload_pattern_04.ipynb
-  - file: courses/ray-train-201/output/04e_rec_sys_workload_pattern_05.ipynb
-  - file: courses/ray-train-201/output/04e_rec_sys_workload_pattern_06.ipynb
