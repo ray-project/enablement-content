@@ -39,10 +39,10 @@
   source: WL_Ray_Data_Batch_Inference
 
 - name: Ray Data Processing (Workload)
-  source: WL_Ray_Data_Processing
+  source: workloads/Ray_Data_Processing
 
 - name: Ray Distributed Training (Workload)
-  source: WL_Ray_Distributed_Training
+  source: WL_Ray_Distributed_Training  
 
 - name: Ray Serve Online Serving (Workload)
   source: WL_Ray_Serve_Online_Serving

@@ -269,16 +269,19 @@ def find_notebooks_by_course(root="courses", target_course=None):
                         course_folders_ordered.append(item)
                     # Check for nested course folders under this directory
                     for course_id in course_folders:  # Preserve order, don't sort
-                        if course_id.startswith(item + "/") and course_id not in course_folders_ordered:
+                        if (
+                            course_id.startswith(item + "/")
+                            and course_id not in course_folders_ordered
+                        ):
                             course_folders_ordered.append(course_id)
         except (FileNotFoundError, OSError):
             pass
-    
+
     # Add any remaining course folders (preserve their discovery order)
     for course_id in course_folders:
         if course_id not in course_folders_ordered:
             course_folders_ordered.append(course_id)
-    
+
     # Fallback to sorted if we couldn't determine order (e.g., target_course specified)
     if not course_folders_ordered or target_course:
         course_folders_ordered = sorted(course_folders)
@@ -591,13 +594,13 @@ def main():
         for course_folder in sorted_courses:
             course_parts = courses_data[course_folder]
             course_name = get_course_display_name(course_folder, display_names)
-            
+
             # Add course part with chapters
             course_part = {"caption": course_name, "chapters": []}
-            
+
             for part in course_parts:
                 course_part["chapters"].append({"file": part})
-            
+
             toc_data["parts"].append(course_part)
     else:
         # Has categories - use categorized order

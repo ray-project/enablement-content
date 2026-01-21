@@ -179,14 +179,6 @@ parts:
   - file: courses/Ray_Train_Foundation/output/01_02_03_intro_to_ray_train_24.ipynb
   - file: courses/Ray_Train_Foundation/output/01_02_03_intro_to_ray_train_25.ipynb
   - file: courses/Ray_Train_Foundation/output/01_02_03_intro_to_ray_train_26.ipynb
-- caption: Wl Ray Data Batch Inference
-  chapters:
-  - file: courses/WL_Ray_Data_Batch_Inference/output/01_Ray_Data_batch_inference_01.ipynb
-  - file: courses/WL_Ray_Data_Batch_Inference/output/01_Ray_Data_batch_inference_02.ipynb
-  - file: courses/WL_Ray_Data_Batch_Inference/output/01_Ray_Data_batch_inference_03.ipynb
-  - file: courses/WL_Ray_Data_Batch_Inference/output/01_Ray_Data_batch_inference_04.ipynb
-  - file: courses/WL_Ray_Data_Batch_Inference/output/01_Ray_Data_batch_inference_05.ipynb
-  - file: courses/WL_Ray_Data_Batch_Inference/output/01_Ray_Data_batch_inference_06.ipynb
 - caption: Wl Ray Data Processing
   chapters:
   - file: courses/WL_Ray_Data_Processing/output/02_Ray_Data_data_processing_01.ipynb
@@ -313,3 +305,11 @@ parts:
   - file: courses/ray-101/output/5_Intro_Serve_04.ipynb
   - file: courses/ray-101/output/5_Intro_Serve_05.ipynb
   - file: courses/ray-101/output/5_Intro_Serve_06.ipynb
+- caption: Ray Data Batch Inference
+  chapters:
+  - file: courses/workloads/Ray_Data_Batch_Inference/output/01_Ray_Data_batch_inference_01.ipynb
+  - file: courses/workloads/Ray_Data_Batch_Inference/output/01_Ray_Data_batch_inference_02.ipynb
+  - file: courses/workloads/Ray_Data_Batch_Inference/output/01_Ray_Data_batch_inference_03.ipynb
+  - file: courses/workloads/Ray_Data_Batch_Inference/output/01_Ray_Data_batch_inference_04.ipynb
+  - file: courses/workloads/Ray_Data_Batch_Inference/output/01_Ray_Data_batch_inference_05.ipynb
+  - file: courses/workloads/Ray_Data_Batch_Inference/output/01_Ray_Data_batch_inference_06.ipynb
