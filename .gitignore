@@ -159,3 +159,5 @@ _build/
 .DS_Store
 
 *.zip
+
+output/
