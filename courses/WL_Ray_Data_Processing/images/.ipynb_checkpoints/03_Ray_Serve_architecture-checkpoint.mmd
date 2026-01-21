@@ -1,7 +1,0 @@
-flowchart LR
-    A[Client / User] --> B[FastAPI HTTP Endpoint]
-    B --> C[Ray Serve Router]
-    C --> D1[Sentiment Analysis Model Replica 1]
-    C --> D2[Sentiment Analysis Model Replica 2]
-    D1 & D2 --> E[Prediction Response]
-    E --> A

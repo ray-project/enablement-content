@@ -1,9 +1,0 @@
-flowchart LR
-    A[Hugging Face Dataset] --> B[Ray Dataset]
-    B --> C[Partitioned Data Blocks]
-    C --> D[Batch Inference: map_batches]
-    D --> E[TextEmbedder Actor 1]
-    D --> F[TextEmbedder Actor 2]
-    E & F --> G[Embeddings Added to Data]
-    G --> H[Materialized Dataset]
-    H --> I[Results Output / Analysis]

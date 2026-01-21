@@ -2,51 +2,57 @@
 - name: New Ray 101
   source: 00_Developer_Intro_to_Ray
 
-- name: Ray Train Foundation
-  source: Ray_Train_Foundation
-
-- name: Ray Train Generative CV (Workload)
-  source: WL_Train_Generative_CV
-
-- name: Ray Train Policy Learning (Workload)
-  source: WL_Train_Policy_Learning
-
-- name: Ray Train Recommendation System (Workload)
-  source: WL_Train_Rec_sys
-
-- name: Ray Train Tabular (Workload)
-  source: WL_Train_Tabular
-
-- name: Ray Train Time Series (Workload)
-  source: WL_Train_Time_Series
-
-- name: Ray Train Vision Pattern (Workload)
-  source: WL_Train_Vision_Pattern
-
-- name: Getting Started with Anyscale for Administrators
-  source: 02_Anyscale_Admin
-
-- name: Introduction to Observability
-  source: 03_Observability
-
 - name: Getting Started with Anyscale for Developers
   source: GettingStarted
 
+  # FOUNDATIONS
+
+- name: Ray Train Foundation
+  source: Ray_Train_Foundation
+
+- name: Getting Started with Anyscale for Administrators
+  source: foundations/Anyscale_For_Admins
+
+- name: Introduction to Observability
+  source: foundations/Observability
+
 - name: LLM Serving Foundations
-  source: llm_serving
+  source: foundations/LLM_Serving
+
+
+# WORKLOADS
 
 - name: Ray Data Batch Inference (Workload)
-  source: WL_Ray_Data_Batch_Inference
+  source: workloads/Ray_Data_Batch_Inference
 
 - name: Ray Data Processing (Workload)
   source: workloads/Ray_Data_Processing
 
 - name: Ray Distributed Training (Workload)
-  source: WL_Ray_Distributed_Training  
+  source: workloads/Ray_Distributed_Training  
 
 - name: Ray Serve Online Serving (Workload)
-  source: WL_Ray_Serve_Online_Serving
+  source: workloads/Ray_Serve_Online_Serving
 
-# Deprecate and remove
+  - name: Ray Train Generative CV (Workload)
+  source: workloads/Train_Generative_CV
+
+- name: Ray Train Policy Learning (Workload)
+  source: workloads/Train_Policy_Learning
+
+- name: Ray Train Recommendation System (Workload)
+  source: workloads/Train_Rec_sys
+
+- name: Ray Train Tabular (Workload)
+  source: workloads/Train_Tabular
+
+- name: Ray Train Time Series (Workload)
+  source: workloads/Train_Time_Series
+
+- name: Ray Train Vision Pattern (Workload)
+  source: workloads/Train_Vision_Pattern
+
+# DEPRECATED
+# Remove soon
 - name: Ray 101 (Old)
   source: ray-101
