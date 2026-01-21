@@ -1,0 +1,1357 @@
+
+<!DOCTYPE html>
+
+
+<html lang="en" data-content_root="../../../../" >
+
+  <head>
+    <meta charset="utf-8" />
+    <meta name="viewport" content="width=device-width, initial-scale=1.0" /><meta name="viewport" content="width=device-width, initial-scale=1" />
+
+    <title>Deploy a Medium-Sized LLM with Ray Serve LLM &#8212; Course Notebooks</title>
+  
+  
+  
+  <script data-cfasync="false">
+    document.documentElement.dataset.mode = localStorage.getItem("mode") || "";
+    document.documentElement.dataset.theme = localStorage.getItem("theme") || "";
+  </script>
+  
+  <!-- Loaded before other Sphinx assets -->
+  <link href="../../../../_static/styles/theme.css?digest=dfe6caa3a7d634c4db9b" rel="stylesheet" />
+<link href="../../../../_static/styles/bootstrap.css?digest=dfe6caa3a7d634c4db9b" rel="stylesheet" />
+<link href="../../../../_static/styles/pydata-sphinx-theme.css?digest=dfe6caa3a7d634c4db9b" rel="stylesheet" />
+
+  
+  <link href="../../../../_static/vendor/fontawesome/6.5.2/css/all.min.css?digest=dfe6caa3a7d634c4db9b" rel="stylesheet" />
+  <link rel="preload" as="font" type="font/woff2" crossorigin href="../../../../_static/vendor/fontawesome/6.5.2/webfonts/fa-solid-900.woff2" />
+<link rel="preload" as="font" type="font/woff2" crossorigin href="../../../../_static/vendor/fontawesome/6.5.2/webfonts/fa-brands-400.woff2" />
+<link rel="preload" as="font" type="font/woff2" crossorigin href="../../../../_static/vendor/fontawesome/6.5.2/webfonts/fa-regular-400.woff2" />
+
+    <link rel="stylesheet" type="text/css" href="../../../../_static/pygments.css?v=03e43079" />
+    <link rel="stylesheet" type="text/css" href="../../../../_static/styles/sphinx-book-theme.css?v=eba8b062" />
+    <link rel="stylesheet" type="text/css" href="../../../../_static/togglebutton.css?v=9c3e77be" />
+    <link rel="stylesheet" type="text/css" href="../../../../_static/copybutton.css?v=76b2166b" />
+    <link rel="stylesheet" type="text/css" href="../../../../_static/mystnb.8ecb98da25f57f5357bf6f572d296f466b2cfe2517ffebfabe82451661e28f02.css" />
+    <link rel="stylesheet" type="text/css" href="../../../../_static/sphinx-thebe.css?v=4fa983c6" />
+    <link rel="stylesheet" type="text/css" href="../../../../_static/sphinx-design.min.css?v=95c83b7e" />
+    <link rel="stylesheet" type="text/css" href="../../../../_static/custom_hide.css?v=af9667c8" />
+  
+  <!-- Pre-loaded scripts that we'll load fully later -->
+  <link rel="preload" as="script" href="../../../../_static/scripts/bootstrap.js?digest=dfe6caa3a7d634c4db9b" />
+<link rel="preload" as="script" href="../../../../_static/scripts/pydata-sphinx-theme.js?digest=dfe6caa3a7d634c4db9b" />
+  <script src="../../../../_static/vendor/fontawesome/6.5.2/js/all.min.js?digest=dfe6caa3a7d634c4db9b"></script>
+
+    <script src="../../../../_static/documentation_options.js?v=9eb32ce0"></script>
+    <script src="../../../../_static/doctools.js?v=9a2dae69"></script>
+    <script src="../../../../_static/sphinx_highlight.js?v=dc90522c"></script>
+    <script src="../../../../_static/clipboard.min.js?v=a7894cd8"></script>
+    <script src="../../../../_static/copybutton.js?v=f281be69"></script>
+    <script src="../../../../_static/scripts/sphinx-book-theme.js?v=887ef09a"></script>
+    <script>let toggleHintShow = 'Click to show';</script>
+    <script>let toggleHintHide = 'Click to hide';</script>
+    <script>let toggleOpenOnPrint = 'true';</script>
+    <script src="../../../../_static/togglebutton.js?v=1ae7504c"></script>
+    <script>var togglebuttonSelector = '.toggle, .admonition.dropdown';</script>
+    <script src="../../../../_static/design-tabs.js?v=f930bc37"></script>
+    <script>const THEBE_JS_URL = "https://unpkg.com/thebe@0.8.2/lib/index.js"; const thebe_selector = ".thebe,.cell"; const thebe_selector_input = "pre"; const thebe_selector_output = ".output, .cell_output"</script>
+    <script async="async" src="../../../../_static/sphinx-thebe.js?v=c100c467"></script>
+    <script>var togglebuttonSelector = '.toggle, .admonition.dropdown';</script>
+    <script>const THEBE_JS_URL = "https://unpkg.com/thebe@0.8.2/lib/index.js"; const thebe_selector = ".thebe,.cell"; const thebe_selector_input = "pre"; const thebe_selector_output = ".output, .cell_output"</script>
+    <script>DOCUMENTATION_OPTIONS.pagename = 'courses/foundations/LLM_Serving/01_deploy_medium_llm/notebook';</script>
+    <script src="../../../../_static/custom_toggle.js?v=1235ef5b"></script>
+    <link rel="index" title="Index" href="../../../../genindex.html" />
+    <link rel="search" title="Search" href="../../../../search.html" />
+  <meta name="viewport" content="width=device-width, initial-scale=1"/>
+  <meta name="docsearch:language" content="en"/>
+  </head>
+  
+  
+  <body data-bs-spy="scroll" data-bs-target=".bd-toc-nav" data-offset="180" data-bs-root-margin="0px 0px -60%" data-default-mode="">
+
+  
+  
+  <div id="pst-skip-link" class="skip-link d-print-none"><a href="#main-content">Skip to main content</a></div>
+  
+  <div id="pst-scroll-pixel-helper"></div>
+  
+  <button type="button" class="btn rounded-pill" id="pst-back-to-top">
+    <i class="fa-solid fa-arrow-up"></i>Back to top</button>
+
+  
+  <input type="checkbox"
+          class="sidebar-toggle"
+          id="pst-primary-sidebar-checkbox"/>
+  <label class="overlay overlay-primary" for="pst-primary-sidebar-checkbox"></label>
+  
+  <input type="checkbox"
+          class="sidebar-toggle"
+          id="pst-secondary-sidebar-checkbox"/>
+  <label class="overlay overlay-secondary" for="pst-secondary-sidebar-checkbox"></label>
+  
+  <div class="search-button__wrapper">
+    <div class="search-button__overlay"></div>
+    <div class="search-button__search-container">
+<form class="bd-search d-flex align-items-center"
+      action="../../../../search.html"
+      method="get">
+  <i class="fa-solid fa-magnifying-glass"></i>
+  <input type="search"
+         class="form-control"
+         name="q"
+         id="search-input"
+         placeholder="Search this book..."
+         aria-label="Search this book..."
+         autocomplete="off"
+         autocorrect="off"
+         autocapitalize="off"
+         spellcheck="false"/>
+  <span class="search-button__kbd-shortcut"><kbd class="kbd-shortcut__modifier">Ctrl</kbd>+<kbd>K</kbd></span>
+</form></div>
+  </div>
+
+  <div class="pst-async-banner-revealer d-none">
+  <aside id="bd-header-version-warning" class="d-none d-print-none" aria-label="Version warning"></aside>
+</div>
+
+  
+    <header class="bd-header navbar navbar-expand-lg bd-navbar d-print-none">
+    </header>
+  
+
+  <div class="bd-container">
+    <div class="bd-container__inner bd-page-width">
+      
+      
+      
+        
+      
+      <div class="bd-sidebar-primary bd-sidebar">
+        
+
+  
+  <div class="sidebar-header-items sidebar-primary__section">
+    
+    
+    
+    
+  </div>
+  
+    <div class="sidebar-primary-items__start sidebar-primary__section">
+        <div class="sidebar-primary-item">
+
+  
+    
+  
+
+<a class="navbar-brand logo" href="../../../../index.html">
+  
+  
+  
+  
+  
+  
+    <p class="title logo__title">Course Notebooks</p>
+  
+</a></div>
+        <div class="sidebar-primary-item">
+
+ <script>
+ document.write(`
+   <button class="btn search-button-field search-button__button" title="Search" aria-label="Search" data-bs-placement="bottom" data-bs-toggle="tooltip">
+    <i class="fa-solid fa-magnifying-glass"></i>
+    <span class="search-button__default-text">Search</span>
+    <span class="search-button__kbd-shortcut"><kbd class="kbd-shortcut__modifier">Ctrl</kbd>+<kbd class="kbd-shortcut__modifier">K</kbd></span>
+   </button>
+ `);
+ </script></div>
+        <div class="sidebar-primary-item"><nav class="bd-links bd-docs-nav" aria-label="Main">
+    <div class="bd-toc-item navbar-nav active">
+        
+        <ul class="nav bd-sidenav bd-sidenav__home-link">
+            <li class="toctree-l1">
+                <a class="reference internal" href="../../../../index.html">
+                    Ray Enablement Content
+                </a>
+            </li>
+        </ul>
+        <p aria-level="2" class="caption" role="heading"><span class="caption-text">Developer Intro to Ray</span></p>
+<ul class="nav bd-sidenav">
+<li class="toctree-l1"><a class="reference internal" href="../../../00_Developer_Intro_to_Ray/output/00_Intro_Ray_Core_Basics_01.html">Introduction to Ray Core: Getting Started</a></li>
+<li class="toctree-l1"><a class="reference internal" href="../../../00_Developer_Intro_to_Ray/output/00_Intro_Ray_Core_Basics_02.html">0. Overview</a></li>
+<li class="toctree-l1"><a class="reference internal" href="../../../00_Developer_Intro_to_Ray/output/00_Intro_Ray_Core_Basics_03.html">1. Creating Remote Functions</a></li>
+<li class="toctree-l1"><a class="reference internal" href="../../../00_Developer_Intro_to_Ray/output/00_Intro_Ray_Core_Basics_04.html">2. Executing Remote Functions</a></li>
+<li class="toctree-l1"><a class="reference internal" href="../../../00_Developer_Intro_to_Ray/output/00_Intro_Ray_Core_Basics_05.html">4. Putting It All Together</a></li>
+<li class="toctree-l1"><a class="reference internal" href="../../../00_Developer_Intro_to_Ray/output/00a_Intro_Ray_Core_Advancement_01.html">Introduction to Ray Core (Advancement): Object store, Tasks, Actors</a></li>
+<li class="toctree-l1"><a class="reference internal" href="../../../00_Developer_Intro_to_Ray/output/00a_Intro_Ray_Core_Advancement_02.html">1. Object store</a></li>
+<li class="toctree-l1"><a class="reference internal" href="../../../00_Developer_Intro_to_Ray/output/00a_Intro_Ray_Core_Advancement_03.html">2. Chaining Tasks and Passing Data</a></li>
+<li class="toctree-l1"><a class="reference internal" href="../../../00_Developer_Intro_to_Ray/output/00a_Intro_Ray_Core_Advancement_04.html">3. Task retries</a></li>
+<li class="toctree-l1"><a class="reference internal" href="../../../00_Developer_Intro_to_Ray/output/00a_Intro_Ray_Core_Advancement_05.html">4. Task Runtime Environments</a></li>
+<li class="toctree-l1"><a class="reference internal" href="../../../00_Developer_Intro_to_Ray/output/00a_Intro_Ray_Core_Advancement_06.html">5. Resource allocation and management</a></li>
+<li class="toctree-l1"><a class="reference internal" href="../../../00_Developer_Intro_to_Ray/output/00a_Intro_Ray_Core_Advancement_07.html">6. Nested Tasks</a></li>
+<li class="toctree-l1"><a class="reference internal" href="../../../00_Developer_Intro_to_Ray/output/00a_Intro_Ray_Core_Advancement_08.html">7. Pattern: Pipeline data processing and waiting for results</a></li>
+<li class="toctree-l1"><a class="reference internal" href="../../../00_Developer_Intro_to_Ray/output/00a_Intro_Ray_Core_Advancement_09.html">8. Ray Actors</a></li>
+<li class="toctree-l1"><a class="reference internal" href="../../../00_Developer_Intro_to_Ray/output/01_Intro_Ray_AI_Libs_Overview_01.html">Introduction to the Ray AI Libraries: An example of using Ray data, Ray Train, Ray Tune, Ray Serve to implement a XGBoost regression model</a></li>
+<li class="toctree-l1"><a class="reference internal" href="../../../00_Developer_Intro_to_Ray/output/01_Intro_Ray_AI_Libs_Overview_02.html">1. Overview of the Ray AI Libraries</a></li>
+<li class="toctree-l1"><a class="reference internal" href="../../../00_Developer_Intro_to_Ray/output/01_Intro_Ray_AI_Libs_Overview_03.html">2. Quick end-to-end example</a></li>
+<li class="toctree-l1"><a class="reference internal" href="../../../00_Developer_Intro_to_Ray/output/02a_Intro_Ray_Train_with_PyTorch_01.html">Introduction to Ray Train + PyTorch</a></li>
+<li class="toctree-l1"><a class="reference internal" href="../../../00_Developer_Intro_to_Ray/output/02a_Intro_Ray_Train_with_PyTorch_02.html">1. When to use Ray Train</a></li>
+<li class="toctree-l1"><a class="reference internal" href="../../../00_Developer_Intro_to_Ray/output/02a_Intro_Ray_Train_with_PyTorch_03.html">2. Single GPU Training with PyTorch</a></li>
+<li class="toctree-l1"><a class="reference internal" href="../../../00_Developer_Intro_to_Ray/output/02a_Intro_Ray_Train_with_PyTorch_04.html">3. Distributed Data Parallel Training with Ray Train and PyTorch</a></li>
+<li class="toctree-l1"><a class="reference internal" href="../../../00_Developer_Intro_to_Ray/output/02b_Intro_Ray_Train_with_PyTorch_Lightning_01.html">Introduction to Ray Train: Ray Train + PyTorch Lightning</a></li>
+<li class="toctree-l1"><a class="reference internal" href="../../../00_Developer_Intro_to_Ray/output/02b_Intro_Ray_Train_with_PyTorch_Lightning_02.html">1. When to use Ray Train</a></li>
+<li class="toctree-l1"><a class="reference internal" href="../../../00_Developer_Intro_to_Ray/output/02b_Intro_Ray_Train_with_PyTorch_Lightning_03.html">2. Single GPU Training with PyTorch Lightning</a></li>
+<li class="toctree-l1"><a class="reference internal" href="../../../00_Developer_Intro_to_Ray/output/02b_Intro_Ray_Train_with_PyTorch_Lightning_04.html">3. Distributed Training with Ray Train and PyTorch Lightning</a></li>
+<li class="toctree-l1"><a class="reference internal" href="../../../00_Developer_Intro_to_Ray/output/02b_Intro_Ray_Train_with_PyTorch_Lightning_05.html">4. Ray Train in Production</a></li>
+<li class="toctree-l1"><a class="reference internal" href="../../../00_Developer_Intro_to_Ray/output/03_Intro_Ray_Tune_01.html">Introduction to Ray Tune</a></li>
+<li class="toctree-l1"><a class="reference internal" href="../../../00_Developer_Intro_to_Ray/output/03_Intro_Ray_Tune_02.html">1. Loading the data</a></li>
+<li class="toctree-l1"><a class="reference internal" href="../../../00_Developer_Intro_to_Ray/output/03_Intro_Ray_Tune_03.html">2. Starting out with vanilla PyTorch</a></li>
+<li class="toctree-l1"><a class="reference internal" href="../../../00_Developer_Intro_to_Ray/output/03_Intro_Ray_Tune_04.html">3. Hyperparameter tuning with Ray Tune</a></li>
+<li class="toctree-l1"><a class="reference internal" href="../../../00_Developer_Intro_to_Ray/output/03_Intro_Ray_Tune_05.html">4. Ray Tune in Production</a></li>
+<li class="toctree-l1"><a class="reference internal" href="../../../00_Developer_Intro_to_Ray/output/04a_Intro_Ray_Data_Industry_Landscape_01.html">Introduction to Ray Data: Industry Landscape</a></li>
+
+<li class="toctree-l1"><a class="reference internal" href="../../../00_Developer_Intro_to_Ray/output/04a_Intro_Ray_Data_Industry_Landscape_02.html">The Compute Layer</a></li>
+<li class="toctree-l1"><a class="reference internal" href="../../../00_Developer_Intro_to_Ray/output/04a_Intro_Ray_Data_Industry_Landscape_03.html">The Orchestration Layer</a></li>
+<li class="toctree-l1"><a class="reference internal" href="../../../00_Developer_Intro_to_Ray/output/04a_Intro_Ray_Data_Industry_Landscape_04.html">Distributed Computing Frameworks</a></li>
+<li class="toctree-l1"><a class="reference internal" href="../../../00_Developer_Intro_to_Ray/output/04a_Intro_Ray_Data_Industry_Landscape_05.html">Data Processing with Ray Data</a></li>
+<li class="toctree-l1"><a class="reference internal" href="../../../00_Developer_Intro_to_Ray/output/04a_Intro_Ray_Data_Industry_Landscape_06.html">Ray Serve</a></li>
+<li class="toctree-l1"><a class="reference internal" href="../../../00_Developer_Intro_to_Ray/output/04b_Intro_Ray_Data_Structured_01.html">Introduction to Ray Data: Ray Data + Structured Data</a></li>
+<li class="toctree-l1"><a class="reference internal" href="../../../00_Developer_Intro_to_Ray/output/04b_Intro_Ray_Data_Structured_02.html">0. What is Ray Data?</a></li>
+<li class="toctree-l1"><a class="reference internal" href="../../../00_Developer_Intro_to_Ray/output/04b_Intro_Ray_Data_Structured_03.html">2. Loading Data</a></li>
+<li class="toctree-l1"><a class="reference internal" href="../../../00_Developer_Intro_to_Ray/output/04b_Intro_Ray_Data_Structured_04.html">3. Transforming Data</a></li>
+<li class="toctree-l1"><a class="reference internal" href="../../../00_Developer_Intro_to_Ray/output/04b_Intro_Ray_Data_Structured_05.html">4. Writing Data</a></li>
+<li class="toctree-l1"><a class="reference internal" href="../../../00_Developer_Intro_to_Ray/output/04b_Intro_Ray_Data_Structured_06.html">5. Data Operations: Shuffling, Grouping and Aggregation</a></li>
+<li class="toctree-l1"><a class="reference internal" href="../../../00_Developer_Intro_to_Ray/output/04b_Intro_Ray_Data_Structured_07.html">6. When to use Ray Data</a></li>
+<li class="toctree-l1"><a class="reference internal" href="../../../00_Developer_Intro_to_Ray/output/04c_Intro_Ray_Data_Unstructured_01.html">Intro to Ray Data:  Ray Data + Unstructured Data</a></li>
+<li class="toctree-l1"><a class="reference internal" href="../../../00_Developer_Intro_to_Ray/output/04c_Intro_Ray_Data_Unstructured_02.html">1. When to Consider Ray Data</a></li>
+<li class="toctree-l1"><a class="reference internal" href="../../../00_Developer_Intro_to_Ray/output/04c_Intro_Ray_Data_Unstructured_03.html">2. How to work with Ray Data</a></li>
+<li class="toctree-l1"><a class="reference internal" href="../../../00_Developer_Intro_to_Ray/output/04c_Intro_Ray_Data_Unstructured_04.html">3. Loading data</a></li>
+<li class="toctree-l1"><a class="reference internal" href="../../../00_Developer_Intro_to_Ray/output/04c_Intro_Ray_Data_Unstructured_05.html">3. Lazy execution mode</a></li>
+<li class="toctree-l1"><a class="reference internal" href="../../../00_Developer_Intro_to_Ray/output/04c_Intro_Ray_Data_Unstructured_06.html">4. Transforming data</a></li>
+<li class="toctree-l1"><a class="reference internal" href="../../../00_Developer_Intro_to_Ray/output/04c_Intro_Ray_Data_Unstructured_07.html">5. Stateful transformations with Ray Actors</a></li>
+<li class="toctree-l1"><a class="reference internal" href="../../../00_Developer_Intro_to_Ray/output/04c_Intro_Ray_Data_Unstructured_08.html">6. Materializing data</a></li>
+<li class="toctree-l1"><a class="reference internal" href="../../../00_Developer_Intro_to_Ray/output/04c_Intro_Ray_Data_Unstructured_09.html">7. Data Operations: grouping, aggregation, and shuffling</a></li>
+<li class="toctree-l1"><a class="reference internal" href="../../../00_Developer_Intro_to_Ray/output/04c_Intro_Ray_Data_Unstructured_10.html">8. Persisting data</a></li>
+<li class="toctree-l1"><a class="reference internal" href="../../../00_Developer_Intro_to_Ray/output/04c_Intro_Ray_Data_Unstructured_11.html">9. Ray Data in production</a></li>
+<li class="toctree-l1"><a class="reference internal" href="../../../00_Developer_Intro_to_Ray/output/05_Intro_Ray_Serve_PyTorch_01.html">Introduction to Ray Serve with PyTorch</a></li>
+<li class="toctree-l1"><a class="reference internal" href="../../../00_Developer_Intro_to_Ray/output/05_Intro_Ray_Serve_PyTorch_02.html">1. When to Consider Ray Serve</a></li>
+<li class="toctree-l1"><a class="reference internal" href="../../../00_Developer_Intro_to_Ray/output/05_Intro_Ray_Serve_PyTorch_03.html">2. Overview of Ray Serve</a></li>
+<li class="toctree-l1"><a class="reference internal" href="../../../00_Developer_Intro_to_Ray/output/05_Intro_Ray_Serve_PyTorch_04.html">3. Implement an image classification service</a></li>
+<li class="toctree-l1"><a class="reference internal" href="../../../00_Developer_Intro_to_Ray/output/05_Intro_Ray_Serve_PyTorch_05.html">4. Development workflow</a></li>
+<li class="toctree-l1"><a class="reference internal" href="../../../00_Developer_Intro_to_Ray/output/README_01.html">Introduction to Ray: Developer</a></li>
+</ul>
+<p aria-level="2" class="caption" role="heading"><span class="caption-text">Gettingstarted</span></p>
+<ul class="nav bd-sidenav">
+<li class="toctree-l1"><a class="reference internal" href="../../../GettingStarted/output/101_01_anyscale_intro_workspace_01.html">101 — Introduction to Anyscale Workspaces</a></li>
+<li class="toctree-l1"><a class="reference internal" href="../../../GettingStarted/output/101_02_anyscale_development_intro_01.html">101 – Developing Application with Anyscale</a></li>
+<li class="toctree-l1"><a class="reference internal" href="../../../GettingStarted/output/101_03_anyscale_compute_runtime_intro_01.html">101 – Compute Configs and Execution Environments in Anyscale</a></li>
+<li class="toctree-l1"><a class="reference internal" href="../../../GettingStarted/output/101_04_anyscale_storage_options_01.html">101 – Storage Options in the Anyscale Platform</a></li>
+<li class="toctree-l1"><a class="reference internal" href="../../../GettingStarted/output/101_05_anyscale_logging_metrics_01.html">101 – Debug and Monitor Your Anyscale Application</a></li>
+<li class="toctree-l1"><a class="reference internal" href="../../../GettingStarted/output/101_06_anyscale_intro_jobs_01.html">101 – Introduction to Anyscale Jobs</a></li>
+<li class="toctree-l1"><a class="reference internal" href="../../../GettingStarted/output/101_07_anyscale_intro_services_01.html">101 –  Introduction to Anyscale Services</a></li>
+<li class="toctree-l1"><a class="reference internal" href="../../../GettingStarted/output/101_08_anyscale_collaboration_01.html">101 – Collaboration on Anyscale</a></li>
+<li class="toctree-l1"><a class="reference internal" href="../../../GettingStarted/output/101_09_anyscale_org_setup_01.html">101 - Anyscale Organization and Cloud Setup</a></li>
+<li class="toctree-l1"><a class="reference internal" href="../../../GettingStarted/output/101_09_anyscale_org_setup_02.html">📌 Overview of Structure</a></li>
+<li class="toctree-l1"><a class="reference internal" href="../../../GettingStarted/output/101_09_anyscale_org_setup_03.html">🧠 Summary</a></li>
+<li class="toctree-l1"><a class="reference internal" href="../../../GettingStarted/output/101_anyscale_intro_jobs_01.html">Content Used</a></li>
+
+<li class="toctree-l1"><a class="reference internal" href="../../../GettingStarted/output/101_anyscale_intro_jobs_02.html">Part 1. Creating and Submitting your first job</a></li>
+<li class="toctree-l1"><a class="reference internal" href="../../../GettingStarted/output/101_anyscale_intro_jobs_03.html">Part 2. Automation and Scheduling</a></li>
+<li class="toctree-l1"><a class="reference internal" href="../../../GettingStarted/output/101_anyscale_intro_services_01.html">Sources</a></li>
+
+<li class="toctree-l1"><a class="reference internal" href="../../../GettingStarted/output/101_anyscale_intro_services_02.html">Part 1: Starting your first Anyscale Service</a></li>
+</ul>
+<p aria-level="2" class="caption" role="heading"><span class="caption-text">Ray 101</span></p>
+<ul class="nav bd-sidenav">
+<li class="toctree-l1"><a class="reference internal" href="../../../ray-101/output/1_AI_Libs_Intro_01.html">Introduction to the Ray AI Libraries</a></li>
+<li class="toctree-l1"><a class="reference internal" href="../../../ray-101/output/1_AI_Libs_Intro_02.html">1. Overview of the Ray AI Libraries</a></li>
+<li class="toctree-l1"><a class="reference internal" href="../../../ray-101/output/1_AI_Libs_Intro_03.html">2. End-to-end example: predicting taxi tips in New York</a></li>
+<li class="toctree-l1"><a class="reference internal" href="../../../ray-101/output/2_Intro_Train_01.html">Introduction to Ray Train</a></li>
+<li class="toctree-l1"><a class="reference internal" href="../../../ray-101/output/2_Intro_Train_02.html">1. PyTorch introductory example (single GPU)</a></li>
+<li class="toctree-l1"><a class="reference internal" href="../../../ray-101/output/2_Intro_Train_03.html">2. Distributed Data Parallel Training with Ray Train and PyTorch (multiple GPUs)</a></li>
+<li class="toctree-l1"><a class="reference internal" href="../../../ray-101/output/2_Intro_Train_04.html">3. Overview of the training loop in Ray Train</a></li>
+<li class="toctree-l1"><a class="reference internal" href="../../../ray-101/output/2_Intro_Train_05.html">4. Migrating the model and dataset to Ray Train</a></li>
+<li class="toctree-l1"><a class="reference internal" href="../../../ray-101/output/2_Intro_Train_06.html">5. Reporting checkpoints and metrics</a></li>
+<li class="toctree-l1"><a class="reference internal" href="../../../ray-101/output/2_Intro_Train_07.html">6. Launching the distributed training job</a></li>
+<li class="toctree-l1"><a class="reference internal" href="../../../ray-101/output/2_Intro_Train_08.html">7. Accessing the training results</a></li>
+<li class="toctree-l1"><a class="reference internal" href="../../../ray-101/output/2_Intro_Train_09.html">8. Ray Train in Production</a></li>
+<li class="toctree-l1"><a class="reference internal" href="../../../ray-101/output/3_Intro_Tune_01.html">Intro to Ray Tune</a></li>
+<li class="toctree-l1"><a class="reference internal" href="../../../ray-101/output/3_Intro_Tune_02.html">1. Loading and visualizing data</a></li>
+<li class="toctree-l1"><a class="reference internal" href="../../../ray-101/output/3_Intro_Tune_03.html">2. Setting up a PyTorch model</a></li>
+<li class="toctree-l1"><a class="reference internal" href="../../../ray-101/output/3_Intro_Tune_04.html">3. Introduction to Ray Tune</a></li>
+<li class="toctree-l1"><a class="reference internal" href="../../../ray-101/output/3_Intro_Tune_05.html">4. Diving deeper into Ray Tune concepts</a></li>
+<li class="toctree-l1"><a class="reference internal" href="../../../ray-101/output/3_Intro_Tune_06.html">5. Hyperparameter tuning the PyTorch model using Ray Tune</a></li>
+<li class="toctree-l1"><a class="reference internal" href="../../../ray-101/output/4_Intro_Data_01.html">Intro to Ray Data</a></li>
+<li class="toctree-l1"><a class="reference internal" href="../../../ray-101/output/4_Intro_Data_02.html">1. When to use Ray Data</a></li>
+<li class="toctree-l1"><a class="reference internal" href="../../../ray-101/output/4_Intro_Data_03.html">2. Loading Data</a></li>
+<li class="toctree-l1"><a class="reference internal" href="../../../ray-101/output/4_Intro_Data_04.html">3. Transforming Data</a></li>
+<li class="toctree-l1"><a class="reference internal" href="../../../ray-101/output/4_Intro_Data_05.html">4. Data Operations: Grouping, Aggregation, and Shuffling</a></li>
+<li class="toctree-l1"><a class="reference internal" href="../../../ray-101/output/4_Intro_Data_06.html">5. Persisting Data</a></li>
+<li class="toctree-l1"><a class="reference internal" href="../../../ray-101/output/5_Intro_Serve_01.html">Intro to Ray Serve</a></li>
+<li class="toctree-l1"><a class="reference internal" href="../../../ray-101/output/5_Intro_Serve_02.html">1. Overview of Ray Serve</a></li>
+<li class="toctree-l1"><a class="reference internal" href="../../../ray-101/output/5_Intro_Serve_03.html">2. Implement an Classifier service</a></li>
+<li class="toctree-l1"><a class="reference internal" href="../../../ray-101/output/5_Intro_Serve_04.html">3. Advanced features of Ray Serve</a></li>
+<li class="toctree-l1"><a class="reference internal" href="../../../ray-101/output/5_Intro_Serve_05.html">4. Ray Serve in Production</a></li>
+<li class="toctree-l1"><a class="reference internal" href="../../../ray-101/output/5_Intro_Serve_06.html">Clean up</a></li>
+</ul>
+<p aria-level="2" class="caption" role="heading"><span class="caption-text">Workloads</span></p>
+<ul class="nav bd-sidenav">
+<li class="toctree-l1"><a class="reference internal" href="../../../workloads/Ray_Data_Batch_Inference/output/01_Ray_Data_batch_inference_01.html">Batch Inference with Ray Data</a></li>
+<li class="toctree-l1"><a class="reference internal" href="../../../workloads/Ray_Data_Batch_Inference/output/01_Ray_Data_batch_inference_02.html">Architecture</a></li>
+<li class="toctree-l1"><a class="reference internal" href="../../../workloads/Ray_Data_Batch_Inference/output/01_Ray_Data_batch_inference_03.html">Load a dataset</a></li>
+<li class="toctree-l1"><a class="reference internal" href="../../../workloads/Ray_Data_Batch_Inference/output/01_Ray_Data_batch_inference_04.html">Batch Inference Class</a></li>
+<li class="toctree-l1"><a class="reference internal" href="../../../workloads/Ray_Data_Batch_Inference/output/01_Ray_Data_batch_inference_05.html">Create a batch data and call the model</a></li>
+<li class="toctree-l1"><a class="reference internal" href="../../../workloads/Ray_Data_Batch_Inference/output/01_Ray_Data_batch_inference_06.html">Run inference on the entire dataset</a></li>
+<li class="toctree-l1"><a class="reference internal" href="../../../workloads/Ray_Data_Processing/output/02_Ray_Data_data_processing_01.html">Data Processing with Ray Data</a></li>
+<li class="toctree-l1"><a class="reference internal" href="../../../workloads/Ray_Data_Processing/output/02_Ray_Data_data_processing_02.html">Library Imports</a></li>
+<li class="toctree-l1"><a class="reference internal" href="../../../workloads/Ray_Data_Processing/output/02_Ray_Data_data_processing_03.html">Convert to Ray Dataset</a></li>
+<li class="toctree-l1"><a class="reference internal" href="../../../workloads/Ray_Data_Processing/output/02_Ray_Data_data_processing_04.html">Filter Ray Dataset</a></li>
+<li class="toctree-l1"><a class="reference internal" href="../../../workloads/Ray_Data_Processing/output/02_Ray_Data_data_processing_05.html">Join Two Ray Datasets</a></li>
+<li class="toctree-l1"><a class="reference internal" href="../../../workloads/Ray_Data_Processing/output/02_Ray_Data_data_processing_06.html">Preprocessing with a Tokenizer</a></li>
+<li class="toctree-l1"><a class="reference internal" href="../../../workloads/Ray_Distributed_Training/output/04_Ray_Train_distributed_training_01.html">Distributed training with Ray Train, PyTorch and Hugging Face</a></li>
+<li class="toctree-l1"><a class="reference internal" href="../../../workloads/Ray_Distributed_Training/output/04_Ray_Train_distributed_training_02.html">1. Architecture</a></li>
+<li class="toctree-l1"><a class="reference internal" href="../../../workloads/Ray_Distributed_Training/output/04_Ray_Train_distributed_training_03.html">3. Metrics Setup</a></li>
+<li class="toctree-l1"><a class="reference internal" href="../../../workloads/Ray_Distributed_Training/output/04_Ray_Train_distributed_training_04.html">4. Training function per worker</a></li>
+<li class="toctree-l1"><a class="reference internal" href="../../../workloads/Ray_Distributed_Training/output/04_Ray_Train_distributed_training_05.html">5. Main Training Function</a></li>
+<li class="toctree-l1"><a class="reference internal" href="../../../workloads/Ray_Distributed_Training/output/04_Ray_Train_distributed_training_06.html">6. Start Training</a></li>
+<li class="toctree-l1"><a class="reference internal" href="../../../workloads/Ray_Serve_Online_Serving/output/03_Ray_Serve_online_serving_01.html">Online Model Serving with Ray Serve</a></li>
+<li class="toctree-l1"><a class="reference internal" href="../../../workloads/Ray_Serve_Online_Serving/output/03_Ray_Serve_online_serving_02.html">Architecture</a></li>
+<li class="toctree-l1"><a class="reference internal" href="../../../workloads/Ray_Serve_Online_Serving/output/03_Ray_Serve_online_serving_03.html">FastAPI webservice and deploy a model</a></li>
+<li class="toctree-l1"><a class="reference internal" href="../../../workloads/Ray_Serve_Online_Serving/output/03_Ray_Serve_online_serving_04.html">Simulate Client: Send test requests</a></li>
+<li class="toctree-l1"><a class="reference internal" href="../../../workloads/Train_Generative_CV/output/04d1_generative_cv_pattern_01.html">04-d1 Generative computer-vision pattern with Ray Train</a></li>
+<li class="toctree-l1"><a class="reference internal" href="../../../workloads/Train_Generative_CV/output/04d1_generative_cv_pattern_02.html">1. Imports and setup</a></li>
+<li class="toctree-l1"><a class="reference internal" href="../../../workloads/Train_Generative_CV/output/04d1_generative_cv_pattern_03.html">8. Pixel diffusion LightningModule</a></li>
+<li class="toctree-l1"><a class="reference internal" href="../../../workloads/Train_Generative_CV/output/04d1_generative_cv_pattern_04.html">9. Ray Train <code class="docutils literal notranslate"><span class="pre">train_loop</span></code> (Lightning + Ray integration)</a></li>
+<li class="toctree-l1"><a class="reference internal" href="../../../workloads/Train_Generative_CV/output/04d1_generative_cv_pattern_05.html">12. Resume from latest checkpoint</a></li>
+<li class="toctree-l1"><a class="reference internal" href="../../../workloads/Train_Generative_CV/output/04d1_generative_cv_pattern_06.html">13. Reverse diffusion sampler</a></li>
+<li class="toctree-l1"><a class="reference internal" href="../../../workloads/Train_Policy_Learning/output/04d2_policy_learning_pattern_01.html">04-d2 Diffusion-Policy Pattern with Ray Train</a></li>
+<li class="toctree-l1"><a class="reference internal" href="../../../workloads/Train_Policy_Learning/output/04d2_policy_learning_pattern_02.html">1. Imports and setup</a></li>
+<li class="toctree-l1"><a class="reference internal" href="../../../workloads/Train_Policy_Learning/output/04d2_policy_learning_pattern_03.html">4. DiffusionPolicy LightningModule</a></li>
+<li class="toctree-l1"><a class="reference internal" href="../../../workloads/Train_Policy_Learning/output/04d2_policy_learning_pattern_04.html">5. Distributed Train loop with checkpointing</a></li>
+<li class="toctree-l1"><a class="reference internal" href="../../../workloads/Train_Policy_Learning/output/04d2_policy_learning_pattern_05.html">8. Reverse diffusion helper</a></li>
+<li class="toctree-l1"><a class="reference internal" href="../../../workloads/Train_Rec_sys/output/04e_rec_sys_workload_pattern_01.html">04e Recommendation system pattern with Ray Train</a></li>
+<li class="toctree-l1"><a class="reference internal" href="../../../workloads/Train_Rec_sys/output/04e_rec_sys_workload_pattern_02.html">1. Imports</a></li>
+<li class="toctree-l1"><a class="reference internal" href="../../../workloads/Train_Rec_sys/output/04e_rec_sys_workload_pattern_03.html">7. Define matrix factorization model</a></li>
+<li class="toctree-l1"><a class="reference internal" href="../../../workloads/Train_Rec_sys/output/04e_rec_sys_workload_pattern_04.html">8. Define Ray Train loop (with validation, checkpointing, and Ray-managed metrics)</a></li>
+<li class="toctree-l1"><a class="reference internal" href="../../../workloads/Train_Rec_sys/output/04e_rec_sys_workload_pattern_05.html">11. Resume training from checkpoint</a></li>
+<li class="toctree-l1"><a class="reference internal" href="../../../workloads/Train_Rec_sys/output/04e_rec_sys_workload_pattern_06.html">12. Inference: recommend top-N items for a user</a></li>
+<li class="toctree-l1"><a class="reference internal" href="../../../workloads/Train_Tabular/output/04b_tabular_workload_pattern_01.html">04b Tabular workload pattern with Ray Train</a></li>
+<li class="toctree-l1"><a class="reference internal" href="../../../workloads/Train_Tabular/output/04b_tabular_workload_pattern_02.html">1. Imports</a></li>
+<li class="toctree-l1"><a class="reference internal" href="../../../workloads/Train_Tabular/output/04b_tabular_workload_pattern_03.html">8. Define the Ray Train worker loop (Arrow-based, memory-efficient)</a></li>
+<li class="toctree-l1"><a class="reference internal" href="../../../workloads/Train_Tabular/output/04b_tabular_workload_pattern_04.html">12. Confusion matrix visualization</a></li>
+<li class="toctree-l1"><a class="reference internal" href="../../../workloads/Train_Tabular/output/04b_tabular_workload_pattern_05.html">15. Continue training from the latest checkpoint</a></li>
+<li class="toctree-l1"><a class="reference internal" href="../../../workloads/Train_Time_Series/output/04c_time_series_workload_pattern_01.html">04c Time-Series workload pattern with Ray Train</a></li>
+<li class="toctree-l1"><a class="reference internal" href="../../../workloads/Train_Time_Series/output/04c_time_series_workload_pattern_02.html">1. Imports</a></li>
+<li class="toctree-l1"><a class="reference internal" href="../../../workloads/Train_Time_Series/output/04c_time_series_workload_pattern_03.html">9. PositionalEncoding and Transformer model</a></li>
+<li class="toctree-l1"><a class="reference internal" href="../../../workloads/Train_Time_Series/output/04c_time_series_workload_pattern_04.html">10. Ray Train training loop (with teacher forcing)</a></li>
+<li class="toctree-l1"><a class="reference internal" href="../../../workloads/Train_Time_Series/output/04c_time_series_workload_pattern_05.html">13. Resume training from checkpoint</a></li>
+<li class="toctree-l1"><a class="reference internal" href="../../../workloads/Train_Time_Series/output/04c_time_series_workload_pattern_06.html">14. Inference helper — Ray Data batch predictor on GPU</a></li>
+<li class="toctree-l1"><a class="reference internal" href="../../../workloads/Train_Vision_Pattern/output/04a_vision_pattern_01.html">04a Computer-vision pattern with Ray Train</a></li>
+<li class="toctree-l1"><a class="reference internal" href="../../../workloads/Train_Vision_Pattern/output/04a_vision_pattern_02.html">1. Imports</a></li>
+<li class="toctree-l1"><a class="reference internal" href="../../../workloads/Train_Vision_Pattern/output/04a_vision_pattern_03.html">6. Custom <code class="docutils literal notranslate"><span class="pre">Food101Dataset</span></code> for Parquet</a></li>
+<li class="toctree-l1"><a class="reference internal" href="../../../workloads/Train_Vision_Pattern/output/04a_vision_pattern_04.html">10. Helper: Ray-prepared DataLoaders</a></li>
+<li class="toctree-l1"><a class="reference internal" href="../../../workloads/Train_Vision_Pattern/output/04a_vision_pattern_05.html">11. <code class="docutils literal notranslate"><span class="pre">train_loop_per_worker</span></code></a></li>
+<li class="toctree-l1"><a class="reference internal" href="../../../workloads/Train_Vision_Pattern/output/04a_vision_pattern_06.html">12. Launch distributed training with <code class="docutils literal notranslate"><span class="pre">TorchTrainer</span></code></a></li>
+<li class="toctree-l1"><a class="reference internal" href="../../../workloads/Train_Vision_Pattern/output/04a_vision_pattern_07.html">13. Plot training and validation loss curves</a></li>
+<li class="toctree-l1"><a class="reference internal" href="../../../workloads/Train_Vision_Pattern/output/04a_vision_pattern_08.html">14. Demonstrate fault-tolerant resumption</a></li>
+<li class="toctree-l1"><a class="reference internal" href="../../../workloads/Train_Vision_Pattern/output/04a_vision_pattern_09.html">15. Batch inference with Ray Data</a></li>
+</ul>
+<p aria-level="2" class="caption" role="heading"><span class="caption-text">Anyscale For Admins</span></p>
+<ul class="nav bd-sidenav">
+<li class="toctree-l1"><a class="reference internal" href="../../Anyscale_For_Admins/02_00_Anyscale_Admin_Overview/output/anyscale_administrator_overview_01.html">Anyscale Administrator Overview</a></li>
+<li class="toctree-l1"><a class="reference internal" href="../../Anyscale_For_Admins/02_00_Anyscale_Admin_Overview/output/anyscale_administrator_overview_02.html">1. What is an Anyscale Cloud?</a></li>
+<li class="toctree-l1"><a class="reference internal" href="../../Anyscale_For_Admins/02_00_Anyscale_Admin_Overview/output/anyscale_administrator_overview_03.html">2. Cloud Deployment Types</a></li>
+<li class="toctree-l1"><a class="reference internal" href="../../Anyscale_For_Admins/02_00_Anyscale_Admin_Overview/output/anyscale_administrator_overview_04.html">3. A Demonstrative Example of Resource Creation with AWS EC2</a></li>
+<li class="toctree-l1"><a class="reference internal" href="../../Anyscale_For_Admins/02_00_Anyscale_Admin_Overview/output/anyscale_administrator_overview_05.html">3.1 IAM Role Definition</a></li>
+<li class="toctree-l1"><a class="reference internal" href="../../Anyscale_For_Admins/02_00_Anyscale_Admin_Overview/output/anyscale_administrator_overview_06.html">4. Register Anyscale Cloud to Your Cloud Provider</a></li>
+<li class="toctree-l1"><a class="reference internal" href="../../Anyscale_For_Admins/02_01_VM_vs_K8s/output/anyscale_vm_vs_k8s_01.html">Deployment Options: Virtual Machines vs. Kubernetes</a></li>
+<li class="toctree-l1"><a class="reference internal" href="../../Anyscale_For_Admins/02_01_VM_vs_K8s/output/anyscale_vm_vs_k8s_02.html">2. Virtual Machines (VM) vs. Kubernetes (K8s)</a></li>
+<li class="toctree-l1"><a class="reference internal" href="../../Anyscale_For_Admins/02_01_VM_vs_K8s/output/anyscale_vm_vs_k8s_03.html">3. (Optional) More Kubernetes Deployments Components</a></li>
+<li class="toctree-l1"><a class="reference internal" href="../../Anyscale_For_Admins/02_02a_Deploy_to_VM_AWS_EC2/output/deploy_to_ec2_01.html">Introduction: Deploy Anyscale Ray on AWS EC2 Instances</a></li>
+<li class="toctree-l1"><a class="reference internal" href="../../Anyscale_For_Admins/02_02a_Deploy_to_VM_AWS_EC2/output/deploy_to_ec2_02.html">1. Create Anyscale Resources with Terraform</a></li>
+<li class="toctree-l1"><a class="reference internal" href="../../Anyscale_For_Admins/02_02a_Deploy_to_VM_AWS_EC2/output/deploy_to_ec2_03.html">2. Register the Anyscale Cloud</a></li>
+<li class="toctree-l1"><a class="reference internal" href="../../Anyscale_For_Admins/02_02a_Deploy_to_VM_AWS_EC2/output/deploy_to_ec2_04.html">3. Test</a></li>
+<li class="toctree-l1"><a class="reference internal" href="../../Anyscale_For_Admins/02_02a_Deploy_to_VM_AWS_EC2/output/deploy_to_ec2_05.html">4. Cleanup</a></li>
+<li class="toctree-l1"><a class="reference internal" href="../../Anyscale_For_Admins/02_02a_Deploy_to_VM_AWS_EC2/output/deploy_to_ec2_06.html">5. Conclusion</a></li>
+<li class="toctree-l1"><a class="reference internal" href="../../Anyscale_For_Admins/02_02b_Deploy_to_VM_GCP_GCE/output/deploy_to_GCE_01.html">Introduction: Deploy Anyscale Ray on GCP Compute Engine Instances (GCE)</a></li>
+<li class="toctree-l1"><a class="reference internal" href="../../Anyscale_For_Admins/02_02b_Deploy_to_VM_GCP_GCE/output/deploy_to_GCE_02.html">Prerequisites</a></li>
+<li class="toctree-l1"><a class="reference internal" href="../../Anyscale_For_Admins/02_02b_Deploy_to_VM_GCP_GCE/output/deploy_to_GCE_03.html">1. Installation</a></li>
+<li class="toctree-l1"><a class="reference internal" href="../../Anyscale_For_Admins/02_02b_Deploy_to_VM_GCP_GCE/output/deploy_to_GCE_04.html">2. Create Anyscale Resources with Terraform</a></li>
+<li class="toctree-l1"><a class="reference internal" href="../../Anyscale_For_Admins/02_02b_Deploy_to_VM_GCP_GCE/output/deploy_to_GCE_05.html">3. Register the Anyscale Cloud</a></li>
+<li class="toctree-l1"><a class="reference internal" href="../../Anyscale_For_Admins/02_02b_Deploy_to_VM_GCP_GCE/output/deploy_to_GCE_06.html">4. Test</a></li>
+<li class="toctree-l1"><a class="reference internal" href="../../Anyscale_For_Admins/02_02b_Deploy_to_VM_GCP_GCE/output/deploy_to_GCE_07.html">5. Cleanup</a></li>
+<li class="toctree-l1"><a class="reference internal" href="../../Anyscale_For_Admins/02_03a_Deploy_to_K8s_New_AWS_EKS/output/deploy_to_a_new_EKS_01.html">Introduction: Deploy Anyscale Ray on A New AWS EKS Cluster</a></li>
+<li class="toctree-l1"><a class="reference internal" href="../../Anyscale_For_Admins/02_03a_Deploy_to_K8s_New_AWS_EKS/output/deploy_to_a_new_EKS_02.html">1. Create Anyscale Resources with Terraform</a></li>
+<li class="toctree-l1"><a class="reference internal" href="../../Anyscale_For_Admins/02_03a_Deploy_to_K8s_New_AWS_EKS/output/deploy_to_a_new_EKS_03.html">2. Install Kubernetes Components</a></li>
+<li class="toctree-l1"><a class="reference internal" href="../../Anyscale_For_Admins/02_03a_Deploy_to_K8s_New_AWS_EKS/output/deploy_to_a_new_EKS_04.html">3. Register the Anyscale Cloud</a></li>
+<li class="toctree-l1"><a class="reference internal" href="../../Anyscale_For_Admins/02_03a_Deploy_to_K8s_New_AWS_EKS/output/deploy_to_a_new_EKS_05.html">4. Install the Anyscale Operator</a></li>
+<li class="toctree-l1"><a class="reference internal" href="../../Anyscale_For_Admins/02_03a_Deploy_to_K8s_New_AWS_EKS/output/deploy_to_a_new_EKS_06.html">5. Verify the Installation</a></li>
+<li class="toctree-l1"><a class="reference internal" href="../../Anyscale_For_Admins/02_03a_Deploy_to_K8s_New_AWS_EKS/output/deploy_to_a_new_EKS_07.html">6. Test</a></li>
+<li class="toctree-l1"><a class="reference internal" href="../../Anyscale_For_Admins/02_03a_Deploy_to_K8s_New_AWS_EKS/output/deploy_to_a_new_EKS_08.html">7. Clean up</a></li>
+<li class="toctree-l1"><a class="reference internal" href="../../Anyscale_For_Admins/02_03a_Deploy_to_K8s_New_AWS_EKS/output/deploy_to_a_new_EKS_09.html">8. Conclusion</a></li>
+<li class="toctree-l1"><a class="reference internal" href="../../Anyscale_For_Admins/02_03b_Deploy_to_K8s_Existing_AWS_EKS/output/deploy_to_an_existing_EKS_01.html">Introduction: Deploy Anyscale Ray on An Existing AWS EKS Cluster</a></li>
+<li class="toctree-l1"><a class="reference internal" href="../../Anyscale_For_Admins/02_03b_Deploy_to_K8s_Existing_AWS_EKS/output/deploy_to_an_existing_EKS_02.html">Prerequisites</a></li>
+<li class="toctree-l1"><a class="reference internal" href="../../Anyscale_For_Admins/02_03b_Deploy_to_K8s_Existing_AWS_EKS/output/deploy_to_an_existing_EKS_03.html">1. Create Anyscale Resources with Terraform</a></li>
+<li class="toctree-l1"><a class="reference internal" href="../../Anyscale_For_Admins/02_03b_Deploy_to_K8s_Existing_AWS_EKS/output/deploy_to_an_existing_EKS_04.html">2. Attach Required IAM Policies to Your existing EKS’s Node Role</a></li>
+<li class="toctree-l1"><a class="reference internal" href="../../Anyscale_For_Admins/02_03b_Deploy_to_K8s_Existing_AWS_EKS/output/deploy_to_an_existing_EKS_05.html">3. Install Kubernetes Components</a></li>
+<li class="toctree-l1"><a class="reference internal" href="../../Anyscale_For_Admins/02_03b_Deploy_to_K8s_Existing_AWS_EKS/output/deploy_to_an_existing_EKS_06.html">4. Register the Anyscale Cloud</a></li>
+<li class="toctree-l1"><a class="reference internal" href="../../Anyscale_For_Admins/02_03b_Deploy_to_K8s_Existing_AWS_EKS/output/deploy_to_an_existing_EKS_07.html">5. Install the Anyscale Operator</a></li>
+<li class="toctree-l1"><a class="reference internal" href="../../Anyscale_For_Admins/02_03b_Deploy_to_K8s_Existing_AWS_EKS/output/deploy_to_an_existing_EKS_08.html">6. Verify the Installation</a></li>
+<li class="toctree-l1"><a class="reference internal" href="../../Anyscale_For_Admins/02_03b_Deploy_to_K8s_Existing_AWS_EKS/output/deploy_to_an_existing_EKS_09.html">7. Test</a></li>
+<li class="toctree-l1"><a class="reference internal" href="../../Anyscale_For_Admins/02_03b_Deploy_to_K8s_Existing_AWS_EKS/output/deploy_to_an_existing_EKS_10.html">8. Troubleshooting</a></li>
+<li class="toctree-l1"><a class="reference internal" href="../../Anyscale_For_Admins/02_03b_Deploy_to_K8s_Existing_AWS_EKS/output/deploy_to_an_existing_EKS_11.html">9. Clean up</a></li>
+<li class="toctree-l1"><a class="reference internal" href="../../Anyscale_For_Admins/02_03b_Deploy_to_K8s_Existing_AWS_EKS/output/deploy_to_an_existing_EKS_12.html">10. Conclusion</a></li>
+<li class="toctree-l1"><a class="reference internal" href="../../Anyscale_For_Admins/02_03c_Deploy_to_K8s_New_GCP_GKE/output/deploy_to_new_GKE_01.html">Introduction: Deploy Anyscale Ray on A New Google Kubernetes Engine (GKE) Cluster</a></li>
+<li class="toctree-l1"><a class="reference internal" href="../../Anyscale_For_Admins/02_03c_Deploy_to_K8s_New_GCP_GKE/output/deploy_to_new_GKE_02.html">Prerequisites</a></li>
+<li class="toctree-l1"><a class="reference internal" href="../../Anyscale_For_Admins/02_03c_Deploy_to_K8s_New_GCP_GKE/output/deploy_to_new_GKE_03.html">1. Installation</a></li>
+<li class="toctree-l1"><a class="reference internal" href="../../Anyscale_For_Admins/02_03c_Deploy_to_K8s_New_GCP_GKE/output/deploy_to_new_GKE_04.html">2. Create Anyscale Resources with Terraform</a></li>
+<li class="toctree-l1"><a class="reference internal" href="../../Anyscale_For_Admins/02_03c_Deploy_to_K8s_New_GCP_GKE/output/deploy_to_new_GKE_05.html">3. Troubleshooting GPU Availability</a></li>
+<li class="toctree-l1"><a class="reference internal" href="../../Anyscale_For_Admins/02_03c_Deploy_to_K8s_New_GCP_GKE/output/deploy_to_new_GKE_06.html">4. kubectl Configuration</a></li>
+<li class="toctree-l1"><a class="reference internal" href="../../Anyscale_For_Admins/02_03c_Deploy_to_K8s_New_GCP_GKE/output/deploy_to_new_GKE_07.html">5. Install NGINX Ingress Controller</a></li>
+<li class="toctree-l1"><a class="reference internal" href="../../Anyscale_For_Admins/02_03c_Deploy_to_K8s_New_GCP_GKE/output/deploy_to_new_GKE_08.html">6. (Optional) Upgrade Anyscale Dependencies</a></li>
+<li class="toctree-l1"><a class="reference internal" href="../../Anyscale_For_Admins/02_03c_Deploy_to_K8s_New_GCP_GKE/output/deploy_to_new_GKE_09.html">7. Register the Anyscale Cloud</a></li>
+<li class="toctree-l1"><a class="reference internal" href="../../Anyscale_For_Admins/02_03c_Deploy_to_K8s_New_GCP_GKE/output/deploy_to_new_GKE_10.html">8. Install the Anyscale Operator</a></li>
+<li class="toctree-l1"><a class="reference internal" href="../../Anyscale_For_Admins/02_03c_Deploy_to_K8s_New_GCP_GKE/output/deploy_to_new_GKE_11.html">8. Test</a></li>
+<li class="toctree-l1"><a class="reference internal" href="../../Anyscale_For_Admins/02_03c_Deploy_to_K8s_New_GCP_GKE/output/deploy_to_new_GKE_12.html">9. Cleanup</a></li>
+</ul>
+<p aria-level="2" class="caption" role="heading"><span class="caption-text">Llm Serving</span></p>
+<ul class="nav bd-sidenav">
+<li class="toctree-l1"><a class="reference internal" href="../00_intro_serve_llm/output/notebook_01.html">Introduction to Ray Serve LLM: Foundations of Large Language Model Serving</a></li>
+<li class="toctree-l1"><a class="reference internal" href="../00_intro_serve_llm/output/notebook_02.html">What is LLM Serving?</a></li>
+<li class="toctree-l1"><a class="reference internal" href="../00_intro_serve_llm/output/notebook_03.html">Key Concepts and Optimizations</a></li>
+<li class="toctree-l1"><a class="reference internal" href="../00_intro_serve_llm/output/notebook_04.html">Challenges in LLM Serving</a></li>
+<li class="toctree-l1"><a class="reference internal" href="../00_intro_serve_llm/output/notebook_05.html">Ray Serve LLM + Anyscale Architecture</a></li>
+<li class="toctree-l1"><a class="reference internal" href="../00_intro_serve_llm/output/notebook_06.html">Getting Started with Ray Serve LLM</a></li>
+<li class="toctree-l1"><a class="reference internal" href="../00_intro_serve_llm/output/notebook_07.html">Key Takeaways</a></li>
+<li class="toctree-l1"><a class="reference internal" href="output/notebook_01.html">Deploy a Medium-Sized LLM with Ray Serve LLM</a></li>
+<li class="toctree-l1"><a class="reference internal" href="output/notebook_02.html">Overview: Why Medium-Sized Models?</a></li>
+<li class="toctree-l1"><a class="reference internal" href="output/notebook_03.html">Setting up Ray Serve LLM</a></li>
+<li class="toctree-l1"><a class="reference internal" href="output/notebook_04.html">Local Deployment &amp; Inference</a></li>
+<li class="toctree-l1"><a class="reference internal" href="output/notebook_05.html">Deploying to Anyscale Services</a></li>
+<li class="toctree-l1"><a class="reference internal" href="output/notebook_06.html">Advanced Topics: Monitoring &amp; Optimization</a></li>
+<li class="toctree-l1"><a class="reference internal" href="output/notebook_07.html">Summary &amp; Outlook</a></li>
+<li class="toctree-l1"><a class="reference internal" href="../02_advanced_llm_features/output/notebook_01.html">Advanced LLM Features with Ray Serve LLM</a></li>
+<li class="toctree-l1"><a class="reference internal" href="../02_advanced_llm_features/output/notebook_02.html">Overview: Advanced Features Preview</a></li>
+<li class="toctree-l1"><a class="reference internal" href="../02_advanced_llm_features/output/notebook_03.html">Example: Deploying LoRA Adapters</a></li>
+<li class="toctree-l1"><a class="reference internal" href="../02_advanced_llm_features/output/notebook_04.html">Example: Getting Structured JSON Output</a></li>
+<li class="toctree-l1"><a class="reference internal" href="../02_advanced_llm_features/output/notebook_05.html">Example: Setting up Tool Calling</a></li>
+<li class="toctree-l1"><a class="reference internal" href="../02_advanced_llm_features/output/notebook_06.html">How to Choose an LLM?</a></li>
+<li class="toctree-l1"><a class="reference internal" href="../02_advanced_llm_features/output/notebook_07.html">Conclusion: Next Steps</a></li>
+</ul>
+<p aria-level="2" class="caption" role="heading"><span class="caption-text">Observability</span></p>
+<ul class="nav bd-sidenav">
+<li class="toctree-l1"><a class="reference internal" href="../../Observability/01_Intro_and_setup/output/01_general_intro_and_setup_01.html">Observability Introduction</a></li>
+<li class="toctree-l1"><a class="reference internal" href="../../Observability/01_Intro_and_setup/output/01_general_intro_and_setup_02.html">Observability Overview</a></li>
+<li class="toctree-l1"><a class="reference internal" href="../../Observability/01_Intro_and_setup/output/01_general_intro_and_setup_03.html">Setting Up Local Ray Observability</a></li>
+<li class="toctree-l1"><a class="reference internal" href="../../Observability/02_Ray_Anyscale_Introduction/output/2_Ray_Anyscale_Observability_Overview_01.html">Ray and Anyscale Observability Introduction</a></li>
+<li class="toctree-l1"><a class="reference internal" href="../../Observability/02_Ray_Anyscale_Introduction/output/2_Ray_Anyscale_Observability_Overview_02.html">Ray Observability</a></li>
+<li class="toctree-l1"><a class="reference internal" href="../../Observability/02_Ray_Anyscale_Introduction/output/2_Ray_Anyscale_Observability_Overview_03.html">Anyscale Observability</a></li>
+<li class="toctree-l1"><a class="reference internal" href="../../Observability/02_Ray_Anyscale_Introduction/output/2_Ray_Anyscale_Observability_Overview_04.html">Example</a></li>
+<li class="toctree-l1"><a class="reference internal" href="../../Observability/03_Ray_Anyscale_Observability_in_Detail/output/03_Ray_Anyscale_Observability_in_Details_01.html">Ray and Anyscale Observability in Detail</a></li>
+<li class="toctree-l1"><a class="reference internal" href="../../Observability/03_Ray_Anyscale_Observability_in_Detail/output/03_Ray_Anyscale_Observability_in_Details_02.html">Data Pipeline Observability (Ray Data)</a></li>
+<li class="toctree-l1"><a class="reference internal" href="../../Observability/03_Ray_Anyscale_Observability_in_Detail/output/03_Ray_Anyscale_Observability_in_Details_03.html">Web Application Observability (Ray Serve)</a></li>
+</ul>
+<p aria-level="2" class="caption" role="heading"><span class="caption-text">Ray Train Foundation</span></p>
+<ul class="nav bd-sidenav">
+<li class="toctree-l1"><a class="reference internal" href="../../Ray_Train_Foundation/output/01_02_03_intro_to_ray_train_01.html">📚 01 · Introduction to Ray Train</a></li>
+<li class="toctree-l1"><a class="reference internal" href="../../Ray_Train_Foundation/output/01_02_03_intro_to_ray_train_02.html">01 · Imports</a></li>
+<li class="toctree-l1"><a class="reference internal" href="../../Ray_Train_Foundation/output/01_02_03_intro_to_ray_train_03.html">04 · Define ResNet-18 Model for MNIST</a></li>
+<li class="toctree-l1"><a class="reference internal" href="../../Ray_Train_Foundation/output/01_02_03_intro_to_ray_train_04.html">05 · Define the Ray Train Loop (DDP per-worker)</a></li>
+<li class="toctree-l1"><a class="reference internal" href="../../Ray_Train_Foundation/output/01_02_03_intro_to_ray_train_05.html">06 · Define <code class="docutils literal notranslate"><span class="pre">train_loop_config</span></code></a></li>
+<li class="toctree-l1"><a class="reference internal" href="../../Ray_Train_Foundation/output/01_02_03_intro_to_ray_train_06.html">07 · Configure Scaling with <code class="docutils literal notranslate"><span class="pre">ScalingConfig</span></code></a></li>
+<li class="toctree-l1"><a class="reference internal" href="../../Ray_Train_Foundation/output/01_02_03_intro_to_ray_train_07.html">08 · Wrap the Model with <code class="docutils literal notranslate"><span class="pre">prepare_model()</span></code></a></li>
+<li class="toctree-l1"><a class="reference internal" href="../../Ray_Train_Foundation/output/01_02_03_intro_to_ray_train_08.html">09 · Build the DataLoader with <code class="docutils literal notranslate"><span class="pre">prepare_data_loader()</span></code></a></li>
+<li class="toctree-l1"><a class="reference internal" href="../../Ray_Train_Foundation/output/01_02_03_intro_to_ray_train_09.html">10 · Report Training Metrics</a></li>
+<li class="toctree-l1"><a class="reference internal" href="../../Ray_Train_Foundation/output/01_02_03_intro_to_ray_train_10.html">11 · Save Checkpoints and Report Metrics</a></li>
+<li class="toctree-l1"><a class="reference internal" href="../../Ray_Train_Foundation/output/01_02_03_intro_to_ray_train_11.html">14 · Create the <code class="docutils literal notranslate"><span class="pre">TorchTrainer</span></code></a></li>
+<li class="toctree-l1"><a class="reference internal" href="../../Ray_Train_Foundation/output/01_02_03_intro_to_ray_train_12.html">16 · Inspect the Training Results</a></li>
+<li class="toctree-l1"><a class="reference internal" href="../../Ray_Train_Foundation/output/01_02_03_intro_to_ray_train_13.html">18 · Load a Checkpoint for Inference</a></li>
+<li class="toctree-l1"><a class="reference internal" href="../../Ray_Train_Foundation/output/01_02_03_intro_to_ray_train_14.html">🔄 02 · Integrating Ray Train with Ray Data</a></li>
+<li class="toctree-l1"><a class="reference internal" href="../../Ray_Train_Foundation/output/01_02_03_intro_to_ray_train_15.html">01 · Define Training Loop with Ray Data</a></li>
+<li class="toctree-l1"><a class="reference internal" href="../../Ray_Train_Foundation/output/01_02_03_intro_to_ray_train_16.html">02 · Build DataLoader from Ray Data</a></li>
+<li class="toctree-l1"><a class="reference internal" href="../../Ray_Train_Foundation/output/01_02_03_intro_to_ray_train_17.html">03 · Prepare Dataset for Ray Data</a></li>
+<li class="toctree-l1"><a class="reference internal" href="../../Ray_Train_Foundation/output/01_02_03_intro_to_ray_train_18.html">05 · Define Image Transformation</a></li>
+<li class="toctree-l1"><a class="reference internal" href="../../Ray_Train_Foundation/output/01_02_03_intro_to_ray_train_19.html">07 · Configure <code class="docutils literal notranslate"><span class="pre">TorchTrainer</span></code> with Ray Data</a></li>
+<li class="toctree-l1"><a class="reference internal" href="../../Ray_Train_Foundation/output/01_02_03_intro_to_ray_train_20.html">🛡️ 03 · Fault Tolerance in Ray Train</a></li>
+<li class="toctree-l1"><a class="reference internal" href="../../Ray_Train_Foundation/output/01_02_03_intro_to_ray_train_21.html">01 · Modify Training Loop to Enable Checkpoint Loading</a></li>
+<li class="toctree-l1"><a class="reference internal" href="../../Ray_Train_Foundation/output/01_02_03_intro_to_ray_train_22.html">02 · Save Full Checkpoint with Extra State</a></li>
+<li class="toctree-l1"><a class="reference internal" href="../../Ray_Train_Foundation/output/01_02_03_intro_to_ray_train_23.html">04 · Launch Fault-Tolerant Training</a></li>
+<li class="toctree-l1"><a class="reference internal" href="../../Ray_Train_Foundation/output/01_02_03_intro_to_ray_train_24.html">05 · Manual Restoration from Checkpoints</a></li>
+<li class="toctree-l1"><a class="reference internal" href="../../Ray_Train_Foundation/output/01_02_03_intro_to_ray_train_25.html">07 · Clean Up Cluster Storage</a></li>
+<li class="toctree-l1"><a class="reference internal" href="../../Ray_Train_Foundation/output/01_02_03_intro_to_ray_train_26.html">🎉 Wrapping Up &amp; Next Steps</a></li>
+</ul>
+
+    </div>
+</nav></div>
+    </div>
+  
+  
+  <div class="sidebar-primary-items__end sidebar-primary__section">
+  </div>
+  
+  <div id="rtd-footer-container"></div>
+
+
+      </div>
+      
+      <main id="main-content" class="bd-main" role="main">
+        
+        
+
+<div class="sbt-scroll-pixel-helper"></div>
+
+          <div class="bd-content">
+            <div class="bd-article-container">
+              
+              <div class="bd-header-article d-print-none">
+<div class="header-article-items header-article__inner">
+  
+    <div class="header-article-items__start">
+      
+        <div class="header-article-item"><button class="sidebar-toggle primary-toggle btn btn-sm" title="Toggle primary sidebar" data-bs-placement="bottom" data-bs-toggle="tooltip">
+  <span class="fa-solid fa-bars"></span>
+</button></div>
+      
+    </div>
+  
+  
+    <div class="header-article-items__end">
+      
+        <div class="header-article-item">
+
+<div class="article-header-buttons">
+
+
+
+
+
+<div class="dropdown dropdown-download-buttons">
+  <button class="btn dropdown-toggle" type="button" data-bs-toggle="dropdown" aria-expanded="false" aria-label="Download this page">
+    <i class="fas fa-download"></i>
+  </button>
+  <ul class="dropdown-menu">
+      
+      
+      
+      <li><a href="../../../../_sources/courses/foundations/LLM_Serving/01_deploy_medium_llm/notebook.ipynb" target="_blank"
+   class="btn btn-sm btn-download-source-button dropdown-item"
+   title="Download source file"
+   data-bs-placement="left" data-bs-toggle="tooltip"
+>
+  
+
+<span class="btn__icon-container">
+  <i class="fas fa-file"></i>
+  </span>
+<span class="btn__text-container">.ipynb</span>
+</a>
+</li>
+      
+      
+      
+      
+      <li>
+<button onclick="window.print()"
+  class="btn btn-sm btn-download-pdf-button dropdown-item"
+  title="Print to PDF"
+  data-bs-placement="left" data-bs-toggle="tooltip"
+>
+  
+
+<span class="btn__icon-container">
+  <i class="fas fa-file-pdf"></i>
+  </span>
+<span class="btn__text-container">.pdf</span>
+</button>
+</li>
+      
+  </ul>
+</div>
+
+
+
+
+<button onclick="toggleFullScreen()"
+  class="btn btn-sm btn-fullscreen-button"
+  title="Fullscreen mode"
+  data-bs-placement="bottom" data-bs-toggle="tooltip"
+>
+  
+
+<span class="btn__icon-container">
+  <i class="fas fa-expand"></i>
+  </span>
+
+</button>
+
+
+
+<script>
+document.write(`
+  <button class="btn btn-sm nav-link pst-navbar-icon theme-switch-button" title="light/dark" aria-label="light/dark" data-bs-placement="bottom" data-bs-toggle="tooltip">
+    <i class="theme-switch fa-solid fa-sun fa-lg" data-mode="light"></i>
+    <i class="theme-switch fa-solid fa-moon fa-lg" data-mode="dark"></i>
+    <i class="theme-switch fa-solid fa-circle-half-stroke fa-lg" data-mode="auto"></i>
+  </button>
+`);
+</script>
+
+
+<script>
+document.write(`
+  <button class="btn btn-sm pst-navbar-icon search-button search-button__button" title="Search" aria-label="Search" data-bs-placement="bottom" data-bs-toggle="tooltip">
+    <i class="fa-solid fa-magnifying-glass fa-lg"></i>
+  </button>
+`);
+</script>
+<button class="sidebar-toggle secondary-toggle btn btn-sm" title="Toggle secondary sidebar" data-bs-placement="bottom" data-bs-toggle="tooltip">
+    <span class="fa-solid fa-list"></span>
+</button>
+</div></div>
+      
+    </div>
+  
+</div>
+</div>
+              
+              
+
+<div id="jb-print-docs-body" class="onlyprint">
+    <h1>Deploy a Medium-Sized LLM with Ray Serve LLM</h1>
+    <!-- Table of contents -->
+    <div id="print-main-content">
+        <div id="jb-print-toc">
+            
+            <div>
+                <h2> Contents </h2>
+            </div>
+            <nav aria-label="Page">
+                <ul class="visible nav section-nav flex-column">
+<li class="toc-h2 nav-item toc-entry"><a class="reference internal nav-link" href="#overview-why-medium-sized-models">Overview: Why Medium-Sized Models?</a><ul class="nav section-nav flex-column">
+<li class="toc-h3 nav-item toc-entry"><a class="reference internal nav-link" href="#model-size-comparison">Model Size Comparison</a></li>
+<li class="toc-h3 nav-item toc-entry"><a class="reference internal nav-link" href="#why-choose-medium-sized-models">Why Choose Medium-Sized Models?</a></li>
+<li class="toc-h3 nav-item toc-entry"><a class="reference internal nav-link" href="#our-example-llama-3-1-70b">Our Example: Llama-3.1-70B</a></li>
+<li class="toc-h3 nav-item toc-entry"><a class="reference internal nav-link" href="#related-examples">Related Examples</a></li>
+</ul>
+</li>
+<li class="toc-h2 nav-item toc-entry"><a class="reference internal nav-link" href="#setting-up-ray-serve-llm">Setting up Ray Serve LLM</a><ul class="nav section-nav flex-column">
+<li class="toc-h3 nav-item toc-entry"><a class="reference internal nav-link" href="#key-components">Key Components</a></li>
+<li class="toc-h3 nav-item toc-entry"><a class="reference internal nav-link" href="#configuration-for-medium-sized-models">Configuration for Medium-Sized Models</a></li>
+<li class="toc-h3 nav-item toc-entry"><a class="reference internal nav-link" href="#configuration-breakdown">Configuration Breakdown</a></li>
+</ul>
+</li>
+<li class="toc-h2 nav-item toc-entry"><a class="reference internal nav-link" href="#local-deployment-inference">Local Deployment &amp; Inference</a><ul class="nav section-nav flex-column">
+<li class="toc-h3 nav-item toc-entry"><a class="reference internal nav-link" href="#prerequisites">Prerequisites</a></li>
+<li class="toc-h3 nav-item toc-entry"><a class="reference internal nav-link" href="#launching-ray-serve">Launching Ray Serve</a></li>
+<li class="toc-h3 nav-item toc-entry"><a class="reference internal nav-link" href="#sending-requests">Sending Requests</a></li>
+<li class="toc-h3 nav-item toc-entry"><a class="reference internal nav-link" href="#shutting-down">Shutting Down</a></li>
+</ul>
+</li>
+<li class="toc-h2 nav-item toc-entry"><a class="reference internal nav-link" href="#deploying-to-anyscale-services">Deploying to Anyscale Services</a><ul class="nav section-nav flex-column">
+<li class="toc-h3 nav-item toc-entry"><a class="reference internal nav-link" href="#what-is-an-anyscale-service">What is an Anyscale Service?</a></li>
+<li class="toc-h3 nav-item toc-entry"><a class="reference internal nav-link" href="#setting-up-the-configuration-file">Setting up the Configuration File</a></li>
+<li class="toc-h3 nav-item toc-entry"><a class="reference internal nav-link" href="#launching-the-service">Launching the Service</a></li>
+<li class="toc-h3 nav-item toc-entry"><a class="reference internal nav-link" href="#running-inference-on-anyscale">Running Inference on Anyscale</a></li>
+<li class="toc-h3 nav-item toc-entry"><a class="reference internal nav-link" href="#shutting-down-the-service">Shutting Down the Service</a></li>
+</ul>
+</li>
+<li class="toc-h2 nav-item toc-entry"><a class="reference internal nav-link" href="#advanced-topics-monitoring-optimization">Advanced Topics: Monitoring &amp; Optimization</a><ul class="nav section-nav flex-column">
+<li class="toc-h3 nav-item toc-entry"><a class="reference internal nav-link" href="#enabling-llm-monitoring">Enabling LLM Monitoring</a></li>
+<li class="toc-h3 nav-item toc-entry"><a class="reference internal nav-link" href="#improving-concurrency">Improving Concurrency</a></li>
+<li class="toc-h3 nav-item toc-entry"><a class="reference internal nav-link" href="#concurrency-optimization-strategies">Concurrency Optimization Strategies</a><ul class="nav section-nav flex-column">
+<li class="toc-h4 nav-item toc-entry"><a class="reference internal nav-link" href="#reduce-max-model-len">1. Reduce <code class="docutils literal notranslate"><span class="pre">max_model_len</span></code></a></li>
+<li class="toc-h4 nav-item toc-entry"><a class="reference internal nav-link" href="#use-quantized-models">2. Use Quantized Models</a></li>
+<li class="toc-h4 nav-item toc-entry"><a class="reference internal nav-link" href="#enable-pipeline-parallelism">3. Enable Pipeline Parallelism</a></li>
+<li class="toc-h4 nav-item toc-entry"><a class="reference internal nav-link" href="#scale-with-more-replicas">4. Scale with More Replicas</a></li>
+<li class="toc-h4 nav-item toc-entry"><a class="reference internal nav-link" href="#upgrade-hardware">5. Upgrade Hardware</a></li>
+</ul>
+</li>
+</ul>
+</li>
+<li class="toc-h2 nav-item toc-entry"><a class="reference internal nav-link" href="#summary-outlook">Summary &amp; Outlook</a><ul class="nav section-nav flex-column">
+<li class="toc-h3 nav-item toc-entry"><a class="reference internal nav-link" href="#what-we-accomplished">What We Accomplished</a></li>
+<li class="toc-h3 nav-item toc-entry"><a class="reference internal nav-link" href="#key-takeaways">Key Takeaways</a></li>
+<li class="toc-h3 nav-item toc-entry"><a class="reference internal nav-link" href="#related-examples-templates">Related Examples &amp; Templates</a></li>
+<li class="toc-h3 nav-item toc-entry"><a class="reference internal nav-link" href="#how-other-sizes-differ">How Other Sizes Differ</a></li>
+<li class="toc-h3 nav-item toc-entry"><a class="reference internal nav-link" href="#next-steps">Next Steps</a></li>
+<li class="toc-h3 nav-item toc-entry"><a class="reference internal nav-link" href="#resources">Resources</a></li>
+</ul>
+</li>
+</ul>
+            </nav>
+        </div>
+    </div>
+</div>
+
+              
+                
+<div id="searchbox"></div>
+                <article class="bd-article">
+                  
+  <section class="tex2jax_ignore mathjax_ignore" id="deploy-a-medium-sized-llm-with-ray-serve-llm">
+<h1>Deploy a Medium-Sized LLM with Ray Serve LLM<a class="headerlink" href="#deploy-a-medium-sized-llm-with-ray-serve-llm" title="Link to this heading">#</a></h1>
+<p>© 2025, Anyscale. All Rights Reserved</p>
+<p>💻 <strong>Launch Locally</strong>: You can run this notebook locally, but you’ll need access to multiple GPUs.</p>
+<p>🚀 <strong>Launch on Cloud</strong>: A Ray Cluster with 4-8 GPUs (Click <a class="reference external" href="http://console.anyscale.com/register">here</a> to easily start a Ray cluster on Anyscale) is recommended to run this notebook.</p>
+<p>This notebook demonstrates how to deploy a medium-sized LLM using Ray Serve LLM. We’ll walk through the complete process from configuration to production deployment, covering both local development and cloud deployment with Anyscale Services.</p>
+<div class="alert alert-block alert-info">
+<b> Here is the roadmap for this notebook:</b>
+<ul>
+    <li>Overview: Why Medium-Sized Models?</li>
+    <li>Setting up Ray Serve LLM</li>
+    <li>Local Deployment & Inference</li>
+    <li>Deploying to Anyscale Services</li>
+    <li>Advanced Topics: Monitoring & Optimization</li>
+    <li>Summary & Outlook</li>
+</ul>
+</div>
+<section id="overview-why-medium-sized-models">
+<h2>Overview: Why Medium-Sized Models?<a class="headerlink" href="#overview-why-medium-sized-models" title="Link to this heading">#</a></h2>
+<p>A medium LLM typically runs on a single node with 4-8 GPUs. It offers a balance between performance and efficiency. These models provide stronger accuracy and reasoning than small models while remaining more affordable and resource-friendly than very large ones.</p>
+<section id="model-size-comparison">
+<h3>Model Size Comparison<a class="headerlink" href="#model-size-comparison" title="Link to this heading">#</a></h3>
+<p>Let’s understand how different model sizes compare:</p>
+<div class="pst-scrollable-table-container"><table class="table">
+<thead>
+<tr class="row-odd"><th class="head"><p>Model Size</p></th>
+<th class="head"><p>Parameters</p></th>
+<th class="head"><p>Memory (FP16)</p></th>
+<th class="head"><p>Typical Use Case</p></th>
+<th class="head"><p>Hardware Requirements</p></th>
+</tr>
+</thead>
+<tbody>
+<tr class="row-even"><td><p><strong>Small</strong></p></td>
+<td><p>7B-13B</p></td>
+<td><p>14-26 GB</p></td>
+<td><p>Prototyping, simple tasks</p></td>
+<td><p>1-2 GPUs</p></td>
+</tr>
+<tr class="row-odd"><td><p><strong>Medium</strong></p></td>
+<td><p>70B-80B</p></td>
+<td><p>140-160 GB</p></td>
+<td><p>Production workloads, complex reasoning</p></td>
+<td><p>4-8 GPUs</p></td>
+</tr>
+<tr class="row-even"><td><p><strong>Large</strong></p></td>
+<td><p>400B+</p></td>
+<td><p>800+ GB</p></td>
+<td><p>Research, maximum capability</p></td>
+<td><p>Multiple nodes</p></td>
+</tr>
+</tbody>
+</table>
+</div>
+</section>
+<section id="why-choose-medium-sized-models">
+<h3>Why Choose Medium-Sized Models?<a class="headerlink" href="#why-choose-medium-sized-models" title="Link to this heading">#</a></h3>
+<p><strong>Advantages:</strong></p>
+<ul class="simple">
+<li><p><strong>Balanced Performance</strong>: Strong accuracy and reasoning capabilities</p></li>
+<li><p><strong>Cost-Effective</strong>: More affordable than very large models</p></li>
+<li><p><strong>Resource Efficient</strong>: Can run on single-node multi-GPU setups</p></li>
+<li><p><strong>Production Ready</strong>: Ideal for scaling applications where large models would be too slow or expensive</p></li>
+</ul>
+<p><strong>Perfect for:</strong></p>
+<ul class="simple">
+<li><p>Production workloads requiring good quality at lower cost</p></li>
+<li><p>Applications needing stronger reasoning than small models</p></li>
+<li><p>Scaling scenarios where large models are too resource-intensive</p></li>
+</ul>
+</section>
+<section id="our-example-llama-3-1-70b">
+<h3>Our Example: Llama-3.1-70B<a class="headerlink" href="#our-example-llama-3-1-70b" title="Link to this heading">#</a></h3>
+<p>In this tutorial, we’ll deploy <strong>Meta’s Llama-3.1-70B-Instruct</strong> model, which:</p>
+<ul class="simple">
+<li><p>Has 70 billion parameters</p></li>
+<li><p>Requires ~140GB memory in FP16 precision</p></li>
+<li><p>Needs 4-8 GPUs for efficient serving</p></li>
+<li><p>Provides excellent reasoning and instruction-following capabilities</p></li>
+</ul>
+</section>
+<section id="related-examples">
+<h3>Related Examples<a class="headerlink" href="#related-examples" title="Link to this heading">#</a></h3>
+<ul class="simple">
+<li><p><strong>Small Models</strong>: <a class="reference external" href="https://docs.ray.io/en/latest/serve/tutorials/deployment-serve-llm/small-size-llm/README.html">Deploy a small-sized LLM</a> - 1-2 GPUs</p></li>
+<li><p><strong>Large Models</strong>: <a class="reference external" href="https://docs.ray.io/en/latest/serve/tutorials/deployment-serve-llm/large-size-llm/README.html">Deploy a large-sized LLM</a> - Multiple nodes</p></li>
+<li><p><strong>Workspace Template</strong>: <a class="reference external" href="https://console.anyscale.com/template-preview/deployment-serve-llm?file=%252Ffiles%252Fmedium-size-llm">Run on Anyscale</a></p></li>
+</ul>
+</section>
+</section>
+<section id="setting-up-ray-serve-llm">
+<h2>Setting up Ray Serve LLM<a class="headerlink" href="#setting-up-ray-serve-llm" title="Link to this heading">#</a></h2>
+<p>Ray Serve LLM provides multiple <a class="reference external" href="https://docs.ray.io/en/latest/serve/api/index.html#llm-api">Python APIs</a> for defining your application. The main abstractions we’ll work with are:</p>
+<section id="key-components">
+<h3>Key Components<a class="headerlink" href="#key-components" title="Link to this heading">#</a></h3>
+<ol class="arabic simple">
+<li><p><strong><code class="docutils literal notranslate"><span class="pre">LLMConfig</span></code></strong>: Configuration object that defines your model, hardware, and deployment settings</p></li>
+<li><p><strong><code class="docutils literal notranslate"><span class="pre">build_openai_app</span></code></strong>: Public function that creates an OpenAI-compatible application from your configuration</p></li>
+<li><p><strong>Ray Serve</strong>: The underlying orchestration layer that handles scaling and load balancing</p></li>
+</ol>
+</section>
+<section id="configuration-for-medium-sized-models">
+<h3>Configuration for Medium-Sized Models<a class="headerlink" href="#configuration-for-medium-sized-models" title="Link to this heading">#</a></h3>
+<p>For medium-sized models, we need to:</p>
+<ul class="simple">
+<li><p>Set appropriate <code class="docutils literal notranslate"><span class="pre">accelerator_type</span></code> for the hardware</p></li>
+<li><p>Configure <strong>tensor parallelism</strong> with <code class="docutils literal notranslate"><span class="pre">tensor_parallel_size</span></code> to match the number of GPUs</p></li>
+</ul>
+<p>Let’s create our configuration:</p>
+<div class="cell docutils container">
+<div class="cell_input docutils container">
+<div class="highlight-ipython3 notranslate"><div class="highlight"><pre><span></span><span class="c1"># serve_llama_3_1_70b.py</span>
+<span class="kn">from</span><span class="w"> </span><span class="nn">ray.serve.llm</span><span class="w"> </span><span class="kn">import</span> <span class="n">LLMConfig</span><span class="p">,</span> <span class="n">build_openai_app</span>
+<span class="kn">import</span><span class="w"> </span><span class="nn">os</span>
+
+<span class="n">llm_config</span> <span class="o">=</span> <span class="n">LLMConfig</span><span class="p">(</span>
+    <span class="n">model_loading_config</span><span class="o">=</span><span class="nb">dict</span><span class="p">(</span>
+        <span class="n">model_id</span><span class="o">=</span><span class="s2">&quot;my-llama-3.1-70b&quot;</span><span class="p">,</span>
+        <span class="c1"># Or unsloth/Meta-Llama-3.1-70B-Instruct for an ungated model</span>
+        <span class="n">model_source</span><span class="o">=</span><span class="s2">&quot;meta-llama/Llama-3.1-70B-Instruct&quot;</span><span class="p">,</span>
+    <span class="p">),</span>
+    <span class="n">deployment_config</span><span class="o">=</span><span class="nb">dict</span><span class="p">(</span>
+        <span class="n">autoscaling_config</span><span class="o">=</span><span class="nb">dict</span><span class="p">(</span>
+            <span class="n">min_replicas</span><span class="o">=</span><span class="mi">1</span><span class="p">,</span>
+            <span class="n">max_replicas</span><span class="o">=</span><span class="mi">4</span><span class="p">,</span>
+        <span class="p">)</span>
+    <span class="p">),</span>
+    <span class="n">accelerator_type</span><span class="o">=</span><span class="s2">&quot;L40S&quot;</span><span class="p">,</span> <span class="c1"># Or with similar VRAM like &quot;A100-40G&quot;</span>
+    <span class="c1"># Type `export HF_TOKEN=&lt;YOUR-HUGGINGFACE-TOKEN&gt;` in a terminal</span>
+    <span class="n">runtime_env</span><span class="o">=</span><span class="nb">dict</span><span class="p">(</span><span class="n">env_vars</span><span class="o">=</span><span class="p">{</span><span class="s2">&quot;HF_TOKEN&quot;</span><span class="p">:</span> <span class="n">os</span><span class="o">.</span><span class="n">environ</span><span class="o">.</span><span class="n">get</span><span class="p">(</span><span class="s2">&quot;HF_TOKEN&quot;</span><span class="p">)}),</span>
+    <span class="n">engine_kwargs</span><span class="o">=</span><span class="nb">dict</span><span class="p">(</span>
+        <span class="n">max_model_len</span><span class="o">=</span><span class="mi">32768</span><span class="p">,</span> <span class="c1"># See model&#39;s Hugging Face card for max context length</span>
+        <span class="c1"># Split weights among 8 GPUs in the node</span>
+        <span class="n">tensor_parallel_size</span><span class="o">=</span><span class="mi">8</span><span class="p">,</span>
+    <span class="p">),</span>
+    <span class="n">log_engine_metrics</span><span class="o">=</span><span class="kc">True</span><span class="p">,</span>
+<span class="p">)</span>
+
+<span class="n">app</span> <span class="o">=</span> <span class="n">build_openai_app</span><span class="p">({</span><span class="s2">&quot;llm_configs&quot;</span><span class="p">:</span> <span class="p">[</span><span class="n">llm_config</span><span class="p">]})</span>
+</pre></div>
+</div>
+</div>
+</div>
+</section>
+<section id="configuration-breakdown">
+<h3>Configuration Breakdown<a class="headerlink" href="#configuration-breakdown" title="Link to this heading">#</a></h3>
+<p>Let’s understand each part of our configuration:</p>
+<p><strong>Model Loading:</strong></p>
+<ul class="simple">
+<li><p><code class="docutils literal notranslate"><span class="pre">model_id</span></code>: Unique identifier for your model in the API</p></li>
+<li><p><code class="docutils literal notranslate"><span class="pre">model_source</span></code>: Hugging Face model path (gated model requires HF token)</p></li>
+<li><p><code class="docutils literal notranslate"><span class="pre">HF_TOKEN</span></code>: Hugging Face token for accessing gated models</p></li>
+</ul>
+<p><strong>Hardware Configuration:</strong></p>
+<ul class="simple">
+<li><p><code class="docutils literal notranslate"><span class="pre">accelerator_type</span></code>: GPU type (L40S, A100-40G, etc.)</p></li>
+<li><p><code class="docutils literal notranslate"><span class="pre">tensor_parallel_size</span></code>: Number of GPUs to split the model across</p></li>
+</ul>
+<p><strong>Deployment Settings:</strong></p>
+<ul class="simple">
+<li><p><code class="docutils literal notranslate"><span class="pre">autoscaling_config</span></code>: Min/max replicas for horizontal scaling</p></li>
+</ul>
+<p><strong>Monitoring</strong></p>
+<ul class="simple">
+<li><p><code class="docutils literal notranslate"><span class="pre">log_engine_metrics</span></code>: Display LLM-specific metrics (Time to First Toke, Time Per Output Token, Request Per Second…)</p></li>
+</ul>
+</section>
+</section>
+<section id="local-deployment-inference">
+<h2>Local Deployment &amp; Inference<a class="headerlink" href="#local-deployment-inference" title="Link to this heading">#</a></h2>
+<p>Now let’s deploy our medium-sized LLM locally and query it.</p>
+<section id="prerequisites">
+<h3>Prerequisites<a class="headerlink" href="#prerequisites" title="Link to this heading">#</a></h3>
+<p><strong>Hardware Requirements:</strong></p>
+<ul class="simple">
+<li><p>Access to 4-8 GPUs (L40S, A100-40G, or similar with sufficient GPU memory for the 70B model (~140GB))</p></li>
+</ul>
+<p><strong>Software Requirements:</strong></p>
+<ul class="simple">
+<li><p>Ray Serve LLM</p></li>
+<li><p>For gated models, an Hugging Face token with authorization to access the model</p></li>
+</ul>
+<p><strong>Installation:</strong></p>
+<div class="highlight-bash notranslate"><div class="highlight"><pre><span></span>pip<span class="w"> </span>install<span class="w"> </span><span class="s2">&quot;ray[serve,llm]&quot;</span>
+</pre></div>
+</div>
+<p><strong>Hugging Face Token:</strong></p>
+<div class="highlight-bash notranslate"><div class="highlight"><pre><span></span><span class="nb">export</span><span class="w"> </span><span class="nv">HF_TOKEN</span><span class="o">=</span>&lt;YOUR-HUGGINGFACE-TOKEN&gt;
+</pre></div>
+</div>
+</section>
+<section id="launching-ray-serve">
+<h3>Launching Ray Serve<a class="headerlink" href="#launching-ray-serve" title="Link to this heading">#</a></h3>
+<p>Let’s start our LLM service:</p>
+<div class="cell docutils container">
+<div class="cell_input docutils container">
+<div class="highlight-ipython3 notranslate"><div class="highlight"><pre><span></span><span class="o">!</span>serve<span class="w"> </span>run<span class="w"> </span>serve_llama_3_1_70b:app<span class="w"> </span>--non-blocking
+</pre></div>
+</div>
+</div>
+</div>
+</section>
+<section id="sending-requests">
+<h3>Sending Requests<a class="headerlink" href="#sending-requests" title="Link to this heading">#</a></h3>
+<p>Once deployed, your endpoint is available at <code class="docutils literal notranslate"><span class="pre">http://localhost:8000</span></code>. You can use a placeholder authentication token like <code class="docutils literal notranslate"><span class="pre">&quot;FAKE_KEY&quot;</span></code>.</p>
+<p>Let’s test our model with some example requests:</p>
+<div class="cell docutils container">
+<div class="cell_input docutils container">
+<div class="highlight-ipython3 notranslate"><div class="highlight"><pre><span></span><span class="kn">from</span><span class="w"> </span><span class="nn">urllib.parse</span><span class="w"> </span><span class="kn">import</span> <span class="n">urljoin</span>
+<span class="kn">from</span><span class="w"> </span><span class="nn">openai</span><span class="w"> </span><span class="kn">import</span> <span class="n">OpenAI</span>
+
+<span class="n">API_KEY</span> <span class="o">=</span> <span class="s2">&quot;FAKE_KEY&quot;</span>
+<span class="n">BASE_URL</span> <span class="o">=</span> <span class="s2">&quot;http://localhost:8000&quot;</span>
+
+<span class="n">client</span> <span class="o">=</span> <span class="n">OpenAI</span><span class="p">(</span><span class="n">base_url</span><span class="o">=</span><span class="n">urljoin</span><span class="p">(</span><span class="n">BASE_URL</span><span class="p">,</span> <span class="s2">&quot;v1&quot;</span><span class="p">),</span> <span class="n">api_key</span><span class="o">=</span><span class="n">API_KEY</span><span class="p">)</span>
+
+<span class="n">response</span> <span class="o">=</span> <span class="n">client</span><span class="o">.</span><span class="n">chat</span><span class="o">.</span><span class="n">completions</span><span class="o">.</span><span class="n">create</span><span class="p">(</span>
+    <span class="n">model</span><span class="o">=</span><span class="s2">&quot;my-llama-3.1-70b&quot;</span><span class="p">,</span>
+    <span class="n">messages</span><span class="o">=</span><span class="p">[{</span><span class="s2">&quot;role&quot;</span><span class="p">:</span> <span class="s2">&quot;user&quot;</span><span class="p">,</span> <span class="s2">&quot;content&quot;</span><span class="p">:</span> <span class="s2">&quot;Tell me a joke&quot;</span><span class="p">}],</span>
+    <span class="n">stream</span><span class="o">=</span><span class="kc">True</span>
+<span class="p">)</span>
+
+<span class="k">for</span> <span class="n">chunk</span> <span class="ow">in</span> <span class="n">response</span><span class="p">:</span>
+    <span class="n">content</span> <span class="o">=</span> <span class="n">chunk</span><span class="o">.</span><span class="n">choices</span><span class="p">[</span><span class="mi">0</span><span class="p">]</span><span class="o">.</span><span class="n">delta</span><span class="o">.</span><span class="n">content</span>
+    <span class="k">if</span> <span class="n">content</span><span class="p">:</span>
+        <span class="nb">print</span><span class="p">(</span><span class="n">content</span><span class="p">,</span> <span class="n">end</span><span class="o">=</span><span class="s2">&quot;&quot;</span><span class="p">,</span> <span class="n">flush</span><span class="o">=</span><span class="kc">True</span><span class="p">)</span>
+</pre></div>
+</div>
+</div>
+</div>
+</section>
+<section id="shutting-down">
+<h3>Shutting Down<a class="headerlink" href="#shutting-down" title="Link to this heading">#</a></h3>
+<p>When you’re done testing, shut down the service:</p>
+<div class="cell docutils container">
+<div class="cell_input docutils container">
+<div class="highlight-ipython3 notranslate"><div class="highlight"><pre><span></span><span class="o">!</span>serve<span class="w"> </span>shutdown<span class="w"> </span>-y
+</pre></div>
+</div>
+</div>
+</div>
+</section>
+</section>
+<section id="deploying-to-anyscale-services">
+<h2>Deploying to Anyscale Services<a class="headerlink" href="#deploying-to-anyscale-services" title="Link to this heading">#</a></h2>
+<p>For production deployment, we’ll use Anyscale Services to deploy our Ray Serve app to a dedicated cluster. The great news is that <strong>no code changes are needed</strong> - we can use the exact same LLM configuration!</p>
+<section id="what-is-an-anyscale-service">
+<h3>What is an Anyscale Service?<a class="headerlink" href="#what-is-an-anyscale-service" title="Link to this heading">#</a></h3>
+<p>An <strong>Anyscale Service</strong> is a managed deployment that provides:</p>
+<ul class="simple">
+<li><p><strong>Dedicated Infrastructure</strong>: Your own Ray cluster in the cloud</p></li>
+<li><p><strong>Automatic Scaling</strong>: Handles traffic spikes and load balancing</p></li>
+<li><p><strong>Fault Tolerance</strong>: Resilient against node failures and rolling updates</p></li>
+<li><p><strong>Enterprise Features</strong>: Security, monitoring, and compliance</p></li>
+</ul>
+</section>
+<section id="setting-up-the-configuration-file">
+<h3>Setting up the Configuration File<a class="headerlink" href="#setting-up-the-configuration-file" title="Link to this heading">#</a></h3>
+<p>Let’s create the service configuration:</p>
+<div class="highlight-yaml notranslate"><div class="highlight"><pre><span></span><span class="c1"># service.yaml</span>
+<span class="nt">name</span><span class="p">:</span><span class="w"> </span><span class="l l-Scalar l-Scalar-Plain">deploy-llama-3-70b</span>
+<span class="nt">image_uri</span><span class="p">:</span><span class="w"> </span><span class="l l-Scalar l-Scalar-Plain">anyscale/ray-llm:2.49.0-py311-cu128</span><span class="w"> </span><span class="c1"># Anyscale Ray Serve LLM image. Use `containerfile: ./Dockerfile` to use a custom Dockerfile.</span>
+<span class="nt">compute_config</span><span class="p">:</span>
+<span class="w">  </span><span class="nt">auto_select_worker_config</span><span class="p">:</span><span class="w"> </span><span class="l l-Scalar l-Scalar-Plain">true</span><span class="w"> </span>
+<span class="nt">working_dir</span><span class="p">:</span><span class="w"> </span><span class="l l-Scalar l-Scalar-Plain">.</span>
+<span class="nt">cloud</span><span class="p">:</span>
+<span class="nt">applications</span><span class="p">:</span>
+<span class="w">  </span><span class="c1"># Point to your app in your Python module</span>
+<span class="w">  </span><span class="p p-Indicator">-</span><span class="w"> </span><span class="nt">import_path</span><span class="p">:</span><span class="w"> </span><span class="l l-Scalar l-Scalar-Plain">serve_llama_3_1_70b:app</span>
+</pre></div>
+</div>
+</section>
+<section id="launching-the-service">
+<h3>Launching the Service<a class="headerlink" href="#launching-the-service" title="Link to this heading">#</a></h3>
+<p>Now let’s deploy our service to Anyscale:</p>
+<div class="cell docutils container">
+<div class="cell_input docutils container">
+<div class="highlight-ipython3 notranslate"><div class="highlight"><pre><span></span><span class="o">!</span>anyscale<span class="w"> </span>service<span class="w"> </span>deploy<span class="w"> </span>-f<span class="w"> </span>service.yaml<span class="w"> </span>--env<span class="w"> </span><span class="nv">HF_TOKEN</span><span class="o">=</span>&lt;YOUR-HUGGINGFACE-TOKEN&gt;
+</pre></div>
+</div>
+</div>
+</div>
+</section>
+<section id="running-inference-on-anyscale">
+<h3>Running Inference on Anyscale<a class="headerlink" href="#running-inference-on-anyscale" title="Link to this heading">#</a></h3>
+<p>Once deployed, you’ll get an endpoint and authentication token. Let’s see how to use them:</p>
+<div class="cell docutils container">
+<div class="cell_input docutils container">
+<div class="highlight-ipython3 notranslate"><div class="highlight"><pre><span></span><span class="kn">from</span><span class="w"> </span><span class="nn">openai</span><span class="w"> </span><span class="kn">import</span> <span class="n">OpenAI</span>
+
+<span class="n">client</span> <span class="o">=</span> <span class="n">OpenAI</span><span class="p">(</span>
+    <span class="n">base_url</span><span class="o">=</span><span class="s2">&quot;https://deploy-llama-3-70b-jgz99.cld-kvedzwag2qa8i5bj.s.anyscaleuserdata.com/v1&quot;</span><span class="p">,</span>
+    <span class="n">api_key</span><span class="o">=</span><span class="s2">&quot;2YKUt_IJZ8q8GWT5VPHVitzsHKsddoL6mSszJxzwe5A&quot;</span>
+<span class="p">)</span>
+
+<span class="n">response</span> <span class="o">=</span> <span class="n">client</span><span class="o">.</span><span class="n">chat</span><span class="o">.</span><span class="n">completions</span><span class="o">.</span><span class="n">create</span><span class="p">(</span>
+    <span class="n">model</span><span class="o">=</span><span class="s2">&quot;my-llama-3.1-70b&quot;</span><span class="p">,</span>
+    <span class="n">messages</span><span class="o">=</span><span class="p">[{</span><span class="s2">&quot;role&quot;</span><span class="p">:</span> <span class="s2">&quot;user&quot;</span><span class="p">,</span> <span class="s2">&quot;content&quot;</span><span class="p">:</span> <span class="s2">&quot;Tell me about Anyscale!&quot;</span><span class="p">}],</span>
+    <span class="n">stream</span><span class="o">=</span><span class="kc">True</span>
+<span class="p">)</span>
+
+<span class="k">for</span> <span class="n">chunk</span> <span class="ow">in</span> <span class="n">response</span><span class="p">:</span>
+    <span class="n">content</span> <span class="o">=</span> <span class="n">chunk</span><span class="o">.</span><span class="n">choices</span><span class="p">[</span><span class="mi">0</span><span class="p">]</span><span class="o">.</span><span class="n">delta</span><span class="o">.</span><span class="n">content</span>
+    <span class="k">if</span> <span class="n">content</span><span class="p">:</span>
+        <span class="nb">print</span><span class="p">(</span><span class="n">content</span><span class="p">,</span> <span class="n">end</span><span class="o">=</span><span class="s2">&quot;&quot;</span><span class="p">,</span> <span class="n">flush</span><span class="o">=</span><span class="kc">True</span><span class="p">)</span>
+</pre></div>
+</div>
+</div>
+</div>
+</section>
+<section id="shutting-down-the-service">
+<h3>Shutting Down the Service<a class="headerlink" href="#shutting-down-the-service" title="Link to this heading">#</a></h3>
+<p>When you’re done with your service:</p>
+<div class="cell docutils container">
+<div class="cell_input docutils container">
+<div class="highlight-ipython3 notranslate"><div class="highlight"><pre><span></span><span class="o">!</span>anyscale<span class="w"> </span>service<span class="w"> </span>terminate<span class="w"> </span>-n<span class="w"> </span>deploy-llama-3-70b
+</pre></div>
+</div>
+</div>
+</div>
+</section>
+</section>
+<section id="advanced-topics-monitoring-optimization">
+<h2>Advanced Topics: Monitoring &amp; Optimization<a class="headerlink" href="#advanced-topics-monitoring-optimization" title="Link to this heading">#</a></h2>
+<p>Now let’s explore advanced features for production deployments.</p>
+<section id="enabling-llm-monitoring">
+<h3>Enabling LLM Monitoring<a class="headerlink" href="#enabling-llm-monitoring" title="Link to this heading">#</a></h3>
+<p>The Serve LLM Dashboard offers deep visibility into model performance. Let’s enable comprehensive monitoring:</p>
+<div class="cell docutils container">
+<div class="cell_input docutils container">
+<div class="highlight-ipython3 notranslate"><div class="highlight"><pre><span></span><span class="c1"># serve_llama_3_1_70b.py</span>
+<span class="kn">from</span><span class="w"> </span><span class="nn">ray.serve.llm</span><span class="w"> </span><span class="kn">import</span> <span class="n">LLMConfig</span><span class="p">,</span> <span class="n">build_openai_app</span>
+<span class="kn">import</span><span class="w"> </span><span class="nn">os</span>
+
+<span class="n">llm_config</span> <span class="o">=</span> <span class="n">LLMConfig</span><span class="p">(</span>
+    <span class="n">model_loading_config</span><span class="o">=</span><span class="nb">dict</span><span class="p">(</span>
+        <span class="n">model_id</span><span class="o">=</span><span class="s2">&quot;my-llama-3.1-70b&quot;</span><span class="p">,</span>
+        <span class="n">model_source</span><span class="o">=</span><span class="s2">&quot;meta-llama/Llama-3.1-70B-Instruct&quot;</span><span class="p">,</span>
+    <span class="p">),</span>
+    <span class="n">accelerator_type</span><span class="o">=</span><span class="s2">&quot;L40S&quot;</span><span class="p">,</span>
+    <span class="n">deployment_config</span><span class="o">=</span><span class="nb">dict</span><span class="p">(</span>
+        <span class="n">autoscaling_config</span><span class="o">=</span><span class="nb">dict</span><span class="p">(</span>
+            <span class="n">min_replicas</span><span class="o">=</span><span class="mi">1</span><span class="p">,</span>
+            <span class="n">max_replicas</span><span class="o">=</span><span class="mi">4</span><span class="p">,</span>
+        <span class="p">)</span>
+    <span class="p">),</span>
+    <span class="n">runtime_env</span><span class="o">=</span><span class="nb">dict</span><span class="p">(</span>
+        <span class="n">env_vars</span><span class="o">=</span><span class="p">{</span>
+            <span class="s2">&quot;HF_TOKEN&quot;</span><span class="p">:</span> <span class="n">os</span><span class="o">.</span><span class="n">environ</span><span class="o">.</span><span class="n">get</span><span class="p">(</span><span class="s2">&quot;HF_TOKEN&quot;</span><span class="p">),</span>
+        <span class="p">}</span>
+    <span class="p">),</span>
+    <span class="n">engine_kwargs</span><span class="o">=</span><span class="nb">dict</span><span class="p">(</span>
+        <span class="n">max_model_len</span><span class="o">=</span><span class="mi">32768</span><span class="p">,</span>
+        <span class="n">tensor_parallel_size</span><span class="o">=</span><span class="mi">8</span><span class="p">,</span>
+    <span class="p">),</span>
+    <span class="c1"># Enable detailed engine metrics</span>
+    <span class="n">log_engine_metrics</span><span class="o">=</span><span class="kc">True</span>
+<span class="p">)</span>
+
+<span class="n">app</span> <span class="o">=</span> <span class="n">build_openai_app</span><span class="p">({</span><span class="s2">&quot;llm_configs&quot;</span><span class="p">:</span> <span class="p">[</span><span class="n">llm_config</span><span class="p">]})</span>
+</pre></div>
+</div>
+</div>
+</div>
+<p>Anyscale provides an easy way to visualize your LLM metrics on an integrated Grafana dashboard.</p>
+<p>On your Anyscale Workspace or Service page, go to Metrics, then click on the View on Grafana dropdown and select Ray Serve LLM Dashboard.</p>
+<div class="cell docutils container">
+<div class="cell_input docutils container">
+<div class="highlight-ipython3 notranslate"><div class="highlight"><pre><span></span><span class="o">!</span>serve<span class="w"> </span>run<span class="w"> </span>serve_llama_3_1_70b:app<span class="w"> </span>--non-blocking
+</pre></div>
+</div>
+</div>
+</div>
+<p>Remember shutting down your service</p>
+<div class="cell docutils container">
+<div class="cell_input docutils container">
+<div class="highlight-ipython3 notranslate"><div class="highlight"><pre><span></span><span class="o">!</span>serve<span class="w"> </span>shutdown<span class="w"> </span>-y
+</pre></div>
+</div>
+</div>
+</div>
+</section>
+<section id="improving-concurrency">
+<h3>Improving Concurrency<a class="headerlink" href="#improving-concurrency" title="Link to this heading">#</a></h3>
+<p>Ray Serve LLM uses vLLM as its backend engine, which logs the maximum concurrency it can support.<br />
+Example log for 8xL40S:</p>
+<div class="highlight-console notranslate"><div class="highlight"><pre><span></span><span class="go">INFO 08-19 20:57:37 [kv_cache_utils.py:837] Maximum concurrency for 32,768 tokens per request: 17.79x</span>
+</pre></div>
+</div>
+<p>Let’s explore optimization strategies:</p>
+</section>
+<section id="concurrency-optimization-strategies">
+<h3>Concurrency Optimization Strategies<a class="headerlink" href="#concurrency-optimization-strategies" title="Link to this heading">#</a></h3>
+<p>Below are key strategies to improve model concurrency and performance when serving LLMs.</p>
+<hr class="docutils" />
+<p><strong>Example log (8×L40S setup):</strong></p>
+<div class="highlight-default notranslate"><div class="highlight"><pre><span></span><span class="n">INFO</span><span class="p">:</span> <span class="n">Maximum</span> <span class="n">concurrency</span> <span class="k">for</span> <span class="mi">32</span><span class="p">,</span><span class="mi">768</span> <span class="n">tokens</span> <span class="n">per</span> <span class="n">request</span><span class="p">:</span> <span class="mf">17.79</span><span class="n">x</span>
+</pre></div>
+</div>
+<hr class="docutils" />
+<section id="reduce-max-model-len">
+<h4>1. Reduce <code class="docutils literal notranslate"><span class="pre">max_model_len</span></code><a class="headerlink" href="#reduce-max-model-len" title="Link to this heading">#</a></h4>
+<ul class="simple">
+<li><p><code class="docutils literal notranslate"><span class="pre">32,768</span></code> tokens → concurrency ≈ <strong>18</strong></p></li>
+<li><p><code class="docutils literal notranslate"><span class="pre">16,384</span></code> tokens → concurrency ≈ <strong>36</strong></p></li>
+<li><p><strong>Trade-off:</strong> shorter context window but higher concurrency</p></li>
+</ul>
+</section>
+<hr class="docutils" />
+<section id="use-quantized-models">
+<h4>2. Use Quantized Models<a class="headerlink" href="#use-quantized-models" title="Link to this heading">#</a></h4>
+<ul class="simple">
+<li><p><strong>FP16 → FP8:</strong> ~50% memory reduction</p></li>
+<li><p><strong>FP8 → INT4:</strong> ~75% memory reduction</p></li>
+<li><p>Frees up memory for the KV cache, enabling more concurrent requests</p></li>
+</ul>
+</section>
+<hr class="docutils" />
+<section id="enable-pipeline-parallelism">
+<h4>3. Enable Pipeline Parallelism<a class="headerlink" href="#enable-pipeline-parallelism" title="Link to this heading">#</a></h4>
+<ul class="simple">
+<li><p>Distribute layers across multiple nodes, set <code class="docutils literal notranslate"><span class="pre">pipeline_parallel_size</span> <span class="pre">&gt;</span> <span class="pre">1</span></code></p></li>
+<li><p>This increase the size of your KV cache, trading off on your latency due to the multi-node communication overhead</p></li>
+</ul>
+</section>
+<hr class="docutils" />
+<section id="scale-with-more-replicas">
+<h4>4. Scale with More Replicas<a class="headerlink" href="#scale-with-more-replicas" title="Link to this heading">#</a></h4>
+<ul class="simple">
+<li><p>Horizontally scale across multiple nodes</p></li>
+<li><p>Each replica runs an independent model instance</p></li>
+<li><p><strong>Total concurrency = per-replica concurrency × number of replicas</strong></p></li>
+</ul>
+</section>
+<hr class="docutils" />
+<section id="upgrade-hardware">
+<h4>5. Upgrade Hardware<a class="headerlink" href="#upgrade-hardware" title="Link to this heading">#</a></h4>
+<ul class="simple">
+<li><p>Example: <strong>L40S (48 GB) → A100 (80 GB)</strong></p></li>
+<li><p>More GPU memory allows higher concurrency</p></li>
+<li><p>Faster interconnects (e.g., NVLink) reduce latency</p></li>
+</ul>
+</section>
+</section>
+</section>
+<section id="summary-outlook">
+<h2>Summary &amp; Outlook<a class="headerlink" href="#summary-outlook" title="Link to this heading">#</a></h2>
+<p>Congratulations! You’ve successfully learned how to deploy a medium-sized LLM with Ray Serve LLM. Let’s summarize what we’ve covered and look ahead to other possibilities.</p>
+<section id="what-we-accomplished">
+<h3>What We Accomplished<a class="headerlink" href="#what-we-accomplished" title="Link to this heading">#</a></h3>
+<p><strong>Module 2 Summary:</strong></p>
+<ol class="arabic simple">
+<li><p><strong>Overview</strong>: Understood why medium-sized models (70B parameters) are ideal for production workloads</p></li>
+<li><p><strong>Configuration</strong>: Set up Ray Serve LLM with tensor parallelism across 8 GPUs</p></li>
+<li><p><strong>Local Deployment</strong>: Deployed locally and tested with various inference scenarios</p></li>
+<li><p><strong>Anyscale Services</strong>: Deployed to production with zero code changes</p></li>
+<li><p><strong>Advanced Topics</strong>: Enabled monitoring, optimized concurrency</p></li>
+</ol>
+</section>
+<section id="key-takeaways">
+<h3>Key Takeaways<a class="headerlink" href="#key-takeaways" title="Link to this heading">#</a></h3>
+<ul class="simple">
+<li><p><strong>No Code Changes</strong>: Same configuration works locally and in production</p></li>
+<li><p><strong>Tensor Parallelism</strong>: Essential for medium models to distribute across multiple GPUs</p></li>
+<li><p><strong>Production Ready</strong>: Anyscale Services provide enterprise-grade deployment</p></li>
+<li><p><strong>Monitoring</strong>: Comprehensive dashboards for performance optimization</p></li>
+<li><p><strong>Scalability</strong>: Multiple optimization strategies for different use cases</p></li>
+</ul>
+</section>
+<section id="related-examples-templates">
+<h3>Related Examples &amp; Templates<a class="headerlink" href="#related-examples-templates" title="Link to this heading">#</a></h3>
+<p>Ray provides many more examples for different scenarios:</p>
+<p><strong>Ray Documentation Examples:</strong></p>
+<ul class="simple">
+<li><p><a class="reference external" href="https://docs.ray.io/en/latest/serve/tutorials/deployment-serve-llm/small-size-llm/README.html">Deploy a small-sized LLM</a> - 1-2 GPUs, prototyping</p></li>
+<li><p><a class="reference external" href="https://docs.ray.io/en/latest/serve/tutorials/deployment-serve-llm/large-size-llm/README.html">Deploy a large-sized LLM</a> - Multiple nodes, research</p></li>
+</ul>
+<p><strong>Anyscale Workspace Templates:</strong></p>
+<ul class="simple">
+<li><p><a class="reference external" href="https://console.anyscale.com/template-preview/deployment-serve-llm">Anyscale LLM Deployment Templates</a> - Ready-to-run examples</p></li>
+</ul>
+</section>
+<section id="how-other-sizes-differ">
+<h3>How Other Sizes Differ<a class="headerlink" href="#how-other-sizes-differ" title="Link to this heading">#</a></h3>
+<p>Now that you’ve seen a medium model deployment, here’s how other sizes would differ:</p>
+<p><strong>Small Models (7B-13B):</strong></p>
+<ul class="simple">
+<li><p>No tensor parallelism needed</p></li>
+<li><p>Single GPU deployment</p></li>
+<li><p>Faster startup time</p></li>
+<li><p>Lower concurrency but simpler setup</p></li>
+</ul>
+<p><strong>Large Models (400B+):</strong></p>
+<ul class="simple">
+<li><p>Pipeline parallelism across multiple nodes</p></li>
+<li><p>More complex infrastructure requirements</p></li>
+<li><p>Higher costs but maximum capability</p></li>
+<li><p>Research and specialized use cases</p></li>
+</ul>
+</section>
+<section id="next-steps">
+<h3>Next Steps<a class="headerlink" href="#next-steps" title="Link to this heading">#</a></h3>
+<p>Ready to explore more? Consider:</p>
+<ol class="arabic simple">
+<li><p><strong>Try different model sizes</strong> - Deploy small or large models</p></li>
+<li><p><strong>Experiment with optimizations</strong> - Test quantization and concurrency tuning</p></li>
+<li><p><strong>Build applications</strong> - Create end-to-end AI applications</p></li>
+<li><p><strong>Explore advanced features</strong> - Multi-model deployments, custom endpoints</p></li>
+</ol>
+</section>
+<section id="resources">
+<h3>Resources<a class="headerlink" href="#resources" title="Link to this heading">#</a></h3>
+<ul class="simple">
+<li><p><a class="reference external" href="https://docs.ray.io/en/latest/serve/llm/index.html">Ray Serve LLM Documentation</a></p></li>
+<li><p><a class="reference external" href="https://docs.anyscale.com/llm/serving">Anyscale LLM Serving Guide</a></p></li>
+<li><p><a class="reference external" href="https://docs.vllm.ai/">vLLM Documentation</a></p></li>
+<li><p><a class="reference external" href="https://discuss.ray.io/">Ray Community Forum</a></p></li>
+</ul>
+<p>You now have the knowledge to deploy medium-sized LLMs in production with Ray Serve LLM!</p>
+</section>
+</section>
+</section>
+
+    <script type="text/x-thebe-config">
+    {
+        requestKernel: true,
+        binderOptions: {
+            repo: "binder-examples/jupyter-stacks-datascience",
+            ref: "master",
+        },
+        codeMirrorConfig: {
+            theme: "abcdef",
+            mode: "python"
+        },
+        kernelOptions: {
+            name: "python3",
+            path: "./courses/foundations/LLM_Serving/01_deploy_medium_llm"
+        },
+        predefinedOutput: true
+    }
+    </script>
+    <script>kernelName = 'python3'</script>
+
+                </article>
+              
+
+              
+              
+              
+              
+                <footer class="prev-next-footer d-print-none">
+                  
+<div class="prev-next-area">
+</div>
+                </footer>
+              
+            </div>
+            
+            
+              
+                <div class="bd-sidebar-secondary bd-toc"><div class="sidebar-secondary-items sidebar-secondary__inner">
+
+
+  <div class="sidebar-secondary-item">
+  <div class="page-toc tocsection onthispage">
+    <i class="fa-solid fa-list"></i> Contents
+  </div>
+  <nav class="bd-toc-nav page-toc">
+    <ul class="visible nav section-nav flex-column">
+<li class="toc-h2 nav-item toc-entry"><a class="reference internal nav-link" href="#overview-why-medium-sized-models">Overview: Why Medium-Sized Models?</a><ul class="nav section-nav flex-column">
+<li class="toc-h3 nav-item toc-entry"><a class="reference internal nav-link" href="#model-size-comparison">Model Size Comparison</a></li>
+<li class="toc-h3 nav-item toc-entry"><a class="reference internal nav-link" href="#why-choose-medium-sized-models">Why Choose Medium-Sized Models?</a></li>
+<li class="toc-h3 nav-item toc-entry"><a class="reference internal nav-link" href="#our-example-llama-3-1-70b">Our Example: Llama-3.1-70B</a></li>
+<li class="toc-h3 nav-item toc-entry"><a class="reference internal nav-link" href="#related-examples">Related Examples</a></li>
+</ul>
+</li>
+<li class="toc-h2 nav-item toc-entry"><a class="reference internal nav-link" href="#setting-up-ray-serve-llm">Setting up Ray Serve LLM</a><ul class="nav section-nav flex-column">
+<li class="toc-h3 nav-item toc-entry"><a class="reference internal nav-link" href="#key-components">Key Components</a></li>
+<li class="toc-h3 nav-item toc-entry"><a class="reference internal nav-link" href="#configuration-for-medium-sized-models">Configuration for Medium-Sized Models</a></li>
+<li class="toc-h3 nav-item toc-entry"><a class="reference internal nav-link" href="#configuration-breakdown">Configuration Breakdown</a></li>
+</ul>
+</li>
+<li class="toc-h2 nav-item toc-entry"><a class="reference internal nav-link" href="#local-deployment-inference">Local Deployment &amp; Inference</a><ul class="nav section-nav flex-column">
+<li class="toc-h3 nav-item toc-entry"><a class="reference internal nav-link" href="#prerequisites">Prerequisites</a></li>
+<li class="toc-h3 nav-item toc-entry"><a class="reference internal nav-link" href="#launching-ray-serve">Launching Ray Serve</a></li>
+<li class="toc-h3 nav-item toc-entry"><a class="reference internal nav-link" href="#sending-requests">Sending Requests</a></li>
+<li class="toc-h3 nav-item toc-entry"><a class="reference internal nav-link" href="#shutting-down">Shutting Down</a></li>
+</ul>
+</li>
+<li class="toc-h2 nav-item toc-entry"><a class="reference internal nav-link" href="#deploying-to-anyscale-services">Deploying to Anyscale Services</a><ul class="nav section-nav flex-column">
+<li class="toc-h3 nav-item toc-entry"><a class="reference internal nav-link" href="#what-is-an-anyscale-service">What is an Anyscale Service?</a></li>
+<li class="toc-h3 nav-item toc-entry"><a class="reference internal nav-link" href="#setting-up-the-configuration-file">Setting up the Configuration File</a></li>
+<li class="toc-h3 nav-item toc-entry"><a class="reference internal nav-link" href="#launching-the-service">Launching the Service</a></li>
+<li class="toc-h3 nav-item toc-entry"><a class="reference internal nav-link" href="#running-inference-on-anyscale">Running Inference on Anyscale</a></li>
+<li class="toc-h3 nav-item toc-entry"><a class="reference internal nav-link" href="#shutting-down-the-service">Shutting Down the Service</a></li>
+</ul>
+</li>
+<li class="toc-h2 nav-item toc-entry"><a class="reference internal nav-link" href="#advanced-topics-monitoring-optimization">Advanced Topics: Monitoring &amp; Optimization</a><ul class="nav section-nav flex-column">
+<li class="toc-h3 nav-item toc-entry"><a class="reference internal nav-link" href="#enabling-llm-monitoring">Enabling LLM Monitoring</a></li>
+<li class="toc-h3 nav-item toc-entry"><a class="reference internal nav-link" href="#improving-concurrency">Improving Concurrency</a></li>
+<li class="toc-h3 nav-item toc-entry"><a class="reference internal nav-link" href="#concurrency-optimization-strategies">Concurrency Optimization Strategies</a><ul class="nav section-nav flex-column">
+<li class="toc-h4 nav-item toc-entry"><a class="reference internal nav-link" href="#reduce-max-model-len">1. Reduce <code class="docutils literal notranslate"><span class="pre">max_model_len</span></code></a></li>
+<li class="toc-h4 nav-item toc-entry"><a class="reference internal nav-link" href="#use-quantized-models">2. Use Quantized Models</a></li>
+<li class="toc-h4 nav-item toc-entry"><a class="reference internal nav-link" href="#enable-pipeline-parallelism">3. Enable Pipeline Parallelism</a></li>
+<li class="toc-h4 nav-item toc-entry"><a class="reference internal nav-link" href="#scale-with-more-replicas">4. Scale with More Replicas</a></li>
+<li class="toc-h4 nav-item toc-entry"><a class="reference internal nav-link" href="#upgrade-hardware">5. Upgrade Hardware</a></li>
+</ul>
+</li>
+</ul>
+</li>
+<li class="toc-h2 nav-item toc-entry"><a class="reference internal nav-link" href="#summary-outlook">Summary &amp; Outlook</a><ul class="nav section-nav flex-column">
+<li class="toc-h3 nav-item toc-entry"><a class="reference internal nav-link" href="#what-we-accomplished">What We Accomplished</a></li>
+<li class="toc-h3 nav-item toc-entry"><a class="reference internal nav-link" href="#key-takeaways">Key Takeaways</a></li>
+<li class="toc-h3 nav-item toc-entry"><a class="reference internal nav-link" href="#related-examples-templates">Related Examples &amp; Templates</a></li>
+<li class="toc-h3 nav-item toc-entry"><a class="reference internal nav-link" href="#how-other-sizes-differ">How Other Sizes Differ</a></li>
+<li class="toc-h3 nav-item toc-entry"><a class="reference internal nav-link" href="#next-steps">Next Steps</a></li>
+<li class="toc-h3 nav-item toc-entry"><a class="reference internal nav-link" href="#resources">Resources</a></li>
+</ul>
+</li>
+</ul>
+  </nav></div>
+
+</div></div>
+              
+            
+          </div>
+          <footer class="bd-footer-content">
+            
+<div class="bd-footer-content__inner container">
+  
+  <div class="footer-item">
+    
+<p class="component-author">
+By The Jupyter Book community
+</p>
+
+  </div>
+  
+  <div class="footer-item">
+    
+
+  </div>
+  
+  <div class="footer-item">
+    
+  </div>
+  
+  <div class="footer-item">
+    
+  </div>
+  
+</div>
+          </footer>
+        
+
+      </main>
+    </div>
+  </div>
+  
+  <!-- Scripts loaded after <body> so the DOM is not blocked -->
+  <script src="../../../../_static/scripts/bootstrap.js?digest=dfe6caa3a7d634c4db9b"></script>
+<script src="../../../../_static/scripts/pydata-sphinx-theme.js?digest=dfe6caa3a7d634c4db9b"></script>
+
+  <footer class="bd-footer">
+  </footer>
+  </body>
+</html>
