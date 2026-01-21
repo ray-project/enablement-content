@@ -215,36 +215,111 @@ This collection contains multiple courses on Ray and Anyscale:
 - [03 Ray Anyscale Observability in Details 02](courses/foundations/Observability/03_Ray_Anyscale_Observability_in_Detail/output/03_Ray_Anyscale_Observability_in_Details_02.ipynb)
 - [03 Ray Anyscale Observability in Details 03](courses/foundations/Observability/03_Ray_Anyscale_Observability_in_Detail/output/03_Ray_Anyscale_Observability_in_Details_03.ipynb)
 
-### Ray Train Foundation
+### Ray Ai Libs
 
-- [01 02 03 intro to ray train 01](courses/foundations/Ray_Train_Foundation/output/01_02_03_intro_to_ray_train_01.ipynb)
-- [01 02 03 intro to ray train 02](courses/foundations/Ray_Train_Foundation/output/01_02_03_intro_to_ray_train_02.ipynb)
-- [01 02 03 intro to ray train 03](courses/foundations/Ray_Train_Foundation/output/01_02_03_intro_to_ray_train_03.ipynb)
-- [01 02 03 intro to ray train 04](courses/foundations/Ray_Train_Foundation/output/01_02_03_intro_to_ray_train_04.ipynb)
-- [01 02 03 intro to ray train 05](courses/foundations/Ray_Train_Foundation/output/01_02_03_intro_to_ray_train_05.ipynb)
-- [01 02 03 intro to ray train 06](courses/foundations/Ray_Train_Foundation/output/01_02_03_intro_to_ray_train_06.ipynb)
-- [01 02 03 intro to ray train 07](courses/foundations/Ray_Train_Foundation/output/01_02_03_intro_to_ray_train_07.ipynb)
-- [01 02 03 intro to ray train 08](courses/foundations/Ray_Train_Foundation/output/01_02_03_intro_to_ray_train_08.ipynb)
-- [01 02 03 intro to ray train 09](courses/foundations/Ray_Train_Foundation/output/01_02_03_intro_to_ray_train_09.ipynb)
-- [01 02 03 intro to ray train 10](courses/foundations/Ray_Train_Foundation/output/01_02_03_intro_to_ray_train_10.ipynb)
-- [01 02 03 intro to ray train 11](courses/foundations/Ray_Train_Foundation/output/01_02_03_intro_to_ray_train_11.ipynb)
-- [01 02 03 intro to ray train 12](courses/foundations/Ray_Train_Foundation/output/01_02_03_intro_to_ray_train_12.ipynb)
-- [01 02 03 intro to ray train 13](courses/foundations/Ray_Train_Foundation/output/01_02_03_intro_to_ray_train_13.ipynb)
-- [01 02 03 intro to ray train 14](courses/foundations/Ray_Train_Foundation/output/01_02_03_intro_to_ray_train_14.ipynb)
-- [01 02 03 intro to ray train 15](courses/foundations/Ray_Train_Foundation/output/01_02_03_intro_to_ray_train_15.ipynb)
-- [01 02 03 intro to ray train 16](courses/foundations/Ray_Train_Foundation/output/01_02_03_intro_to_ray_train_16.ipynb)
-- [01 02 03 intro to ray train 17](courses/foundations/Ray_Train_Foundation/output/01_02_03_intro_to_ray_train_17.ipynb)
-- [01 02 03 intro to ray train 18](courses/foundations/Ray_Train_Foundation/output/01_02_03_intro_to_ray_train_18.ipynb)
-- [01 02 03 intro to ray train 19](courses/foundations/Ray_Train_Foundation/output/01_02_03_intro_to_ray_train_19.ipynb)
-- [01 02 03 intro to ray train 20](courses/foundations/Ray_Train_Foundation/output/01_02_03_intro_to_ray_train_20.ipynb)
-- [01 02 03 intro to ray train 21](courses/foundations/Ray_Train_Foundation/output/01_02_03_intro_to_ray_train_21.ipynb)
-- [01 02 03 intro to ray train 22](courses/foundations/Ray_Train_Foundation/output/01_02_03_intro_to_ray_train_22.ipynb)
-- [01 02 03 intro to ray train 23](courses/foundations/Ray_Train_Foundation/output/01_02_03_intro_to_ray_train_23.ipynb)
-- [01 02 03 intro to ray train 24](courses/foundations/Ray_Train_Foundation/output/01_02_03_intro_to_ray_train_24.ipynb)
-- [01 02 03 intro to ray train 25](courses/foundations/Ray_Train_Foundation/output/01_02_03_intro_to_ray_train_25.ipynb)
-- [01 02 03 intro to ray train 26](courses/foundations/Ray_Train_Foundation/output/01_02_03_intro_to_ray_train_26.ipynb)
+- [01 Intro Ray AI Libs Overview 01](courses/foundations/Ray_AI_Libs/00_Overview/output/01_Intro_Ray_AI_Libs_Overview_01.ipynb)
+- [01 Intro Ray AI Libs Overview 02](courses/foundations/Ray_AI_Libs/00_Overview/output/01_Intro_Ray_AI_Libs_Overview_02.ipynb)
+- [01 Intro Ray AI Libs Overview 03](courses/foundations/Ray_AI_Libs/00_Overview/output/01_Intro_Ray_AI_Libs_Overview_03.ipynb)
+- [README 01](courses/foundations/Ray_AI_Libs/00_intro/output/README_01.ipynb)
+
+### Ray Core
+
+- [00 Intro Ray Core Basics 01](courses/foundations/Ray_Core/00_Basics/output/00_Intro_Ray_Core_Basics_01.ipynb)
+- [00 Intro Ray Core Basics 02](courses/foundations/Ray_Core/00_Basics/output/00_Intro_Ray_Core_Basics_02.ipynb)
+- [00 Intro Ray Core Basics 03](courses/foundations/Ray_Core/00_Basics/output/00_Intro_Ray_Core_Basics_03.ipynb)
+- [00 Intro Ray Core Basics 04](courses/foundations/Ray_Core/00_Basics/output/00_Intro_Ray_Core_Basics_04.ipynb)
+- [00 Intro Ray Core Basics 05](courses/foundations/Ray_Core/00_Basics/output/00_Intro_Ray_Core_Basics_05.ipynb)
+- [00a Intro Ray Core Advancement 01](courses/foundations/Ray_Core/01_Advanced/output/00a_Intro_Ray_Core_Advancement_01.ipynb)
+- [00a Intro Ray Core Advancement 02](courses/foundations/Ray_Core/01_Advanced/output/00a_Intro_Ray_Core_Advancement_02.ipynb)
+- [00a Intro Ray Core Advancement 03](courses/foundations/Ray_Core/01_Advanced/output/00a_Intro_Ray_Core_Advancement_03.ipynb)
+- [00a Intro Ray Core Advancement 04](courses/foundations/Ray_Core/01_Advanced/output/00a_Intro_Ray_Core_Advancement_04.ipynb)
+- [00a Intro Ray Core Advancement 05](courses/foundations/Ray_Core/01_Advanced/output/00a_Intro_Ray_Core_Advancement_05.ipynb)
+- [00a Intro Ray Core Advancement 06](courses/foundations/Ray_Core/01_Advanced/output/00a_Intro_Ray_Core_Advancement_06.ipynb)
+- [00a Intro Ray Core Advancement 07](courses/foundations/Ray_Core/01_Advanced/output/00a_Intro_Ray_Core_Advancement_07.ipynb)
+- [00a Intro Ray Core Advancement 08](courses/foundations/Ray_Core/01_Advanced/output/00a_Intro_Ray_Core_Advancement_08.ipynb)
+- [00a Intro Ray Core Advancement 09](courses/foundations/Ray_Core/01_Advanced/output/00a_Intro_Ray_Core_Advancement_09.ipynb)
+
+### Ray Data
+
+- [04a Intro Ray Data Industry Landscape 01](courses/foundations/Ray_Data/00_Landscape/output/04a_Intro_Ray_Data_Industry_Landscape_01.ipynb)
+- [04a Intro Ray Data Industry Landscape 02](courses/foundations/Ray_Data/00_Landscape/output/04a_Intro_Ray_Data_Industry_Landscape_02.ipynb)
+- [04a Intro Ray Data Industry Landscape 03](courses/foundations/Ray_Data/00_Landscape/output/04a_Intro_Ray_Data_Industry_Landscape_03.ipynb)
+- [04a Intro Ray Data Industry Landscape 04](courses/foundations/Ray_Data/00_Landscape/output/04a_Intro_Ray_Data_Industry_Landscape_04.ipynb)
+- [04a Intro Ray Data Industry Landscape 05](courses/foundations/Ray_Data/00_Landscape/output/04a_Intro_Ray_Data_Industry_Landscape_05.ipynb)
+- [04a Intro Ray Data Industry Landscape 06](courses/foundations/Ray_Data/00_Landscape/output/04a_Intro_Ray_Data_Industry_Landscape_06.ipynb)
+- [04b Intro Ray Data Structured 01](courses/foundations/Ray_Data/01_Structured/output/04b_Intro_Ray_Data_Structured_01.ipynb)
+- [04b Intro Ray Data Structured 02](courses/foundations/Ray_Data/01_Structured/output/04b_Intro_Ray_Data_Structured_02.ipynb)
+- [04b Intro Ray Data Structured 03](courses/foundations/Ray_Data/01_Structured/output/04b_Intro_Ray_Data_Structured_03.ipynb)
+- [04b Intro Ray Data Structured 04](courses/foundations/Ray_Data/01_Structured/output/04b_Intro_Ray_Data_Structured_04.ipynb)
+- [04b Intro Ray Data Structured 05](courses/foundations/Ray_Data/01_Structured/output/04b_Intro_Ray_Data_Structured_05.ipynb)
+- [04b Intro Ray Data Structured 06](courses/foundations/Ray_Data/01_Structured/output/04b_Intro_Ray_Data_Structured_06.ipynb)
+- [04b Intro Ray Data Structured 07](courses/foundations/Ray_Data/01_Structured/output/04b_Intro_Ray_Data_Structured_07.ipynb)
+- [04c Intro Ray Data Unstructured 01](courses/foundations/Ray_Data/02_Unstructured/output/04c_Intro_Ray_Data_Unstructured_01.ipynb)
+- [04c Intro Ray Data Unstructured 02](courses/foundations/Ray_Data/02_Unstructured/output/04c_Intro_Ray_Data_Unstructured_02.ipynb)
+- [04c Intro Ray Data Unstructured 03](courses/foundations/Ray_Data/02_Unstructured/output/04c_Intro_Ray_Data_Unstructured_03.ipynb)
+- [04c Intro Ray Data Unstructured 04](courses/foundations/Ray_Data/02_Unstructured/output/04c_Intro_Ray_Data_Unstructured_04.ipynb)
+- [04c Intro Ray Data Unstructured 05](courses/foundations/Ray_Data/02_Unstructured/output/04c_Intro_Ray_Data_Unstructured_05.ipynb)
+- [04c Intro Ray Data Unstructured 06](courses/foundations/Ray_Data/02_Unstructured/output/04c_Intro_Ray_Data_Unstructured_06.ipynb)
+- [04c Intro Ray Data Unstructured 07](courses/foundations/Ray_Data/02_Unstructured/output/04c_Intro_Ray_Data_Unstructured_07.ipynb)
+- [04c Intro Ray Data Unstructured 08](courses/foundations/Ray_Data/02_Unstructured/output/04c_Intro_Ray_Data_Unstructured_08.ipynb)
+- [04c Intro Ray Data Unstructured 09](courses/foundations/Ray_Data/02_Unstructured/output/04c_Intro_Ray_Data_Unstructured_09.ipynb)
+- [04c Intro Ray Data Unstructured 10](courses/foundations/Ray_Data/02_Unstructured/output/04c_Intro_Ray_Data_Unstructured_10.ipynb)
+- [04c Intro Ray Data Unstructured 11](courses/foundations/Ray_Data/02_Unstructured/output/04c_Intro_Ray_Data_Unstructured_11.ipynb)
+
+### Ray Serve/00 Serve
+
+- [05 Intro Ray Serve PyTorch 01](courses/foundations/Ray_Serve/00_Serve/output/05_Intro_Ray_Serve_PyTorch_01.ipynb)
+- [05 Intro Ray Serve PyTorch 02](courses/foundations/Ray_Serve/00_Serve/output/05_Intro_Ray_Serve_PyTorch_02.ipynb)
+- [05 Intro Ray Serve PyTorch 03](courses/foundations/Ray_Serve/00_Serve/output/05_Intro_Ray_Serve_PyTorch_03.ipynb)
+- [05 Intro Ray Serve PyTorch 04](courses/foundations/Ray_Serve/00_Serve/output/05_Intro_Ray_Serve_PyTorch_04.ipynb)
+- [05 Intro Ray Serve PyTorch 05](courses/foundations/Ray_Serve/00_Serve/output/05_Intro_Ray_Serve_PyTorch_05.ipynb)
+
+### Ray Train
+
+- [01 02 03 intro to ray train 01](courses/foundations/Ray_Train/output/01_02_03_intro_to_ray_train_01.ipynb)
+- [01 02 03 intro to ray train 02](courses/foundations/Ray_Train/output/01_02_03_intro_to_ray_train_02.ipynb)
+- [01 02 03 intro to ray train 03](courses/foundations/Ray_Train/output/01_02_03_intro_to_ray_train_03.ipynb)
+- [01 02 03 intro to ray train 04](courses/foundations/Ray_Train/output/01_02_03_intro_to_ray_train_04.ipynb)
+- [01 02 03 intro to ray train 05](courses/foundations/Ray_Train/output/01_02_03_intro_to_ray_train_05.ipynb)
+- [01 02 03 intro to ray train 06](courses/foundations/Ray_Train/output/01_02_03_intro_to_ray_train_06.ipynb)
+- [01 02 03 intro to ray train 07](courses/foundations/Ray_Train/output/01_02_03_intro_to_ray_train_07.ipynb)
+- [01 02 03 intro to ray train 08](courses/foundations/Ray_Train/output/01_02_03_intro_to_ray_train_08.ipynb)
+- [01 02 03 intro to ray train 09](courses/foundations/Ray_Train/output/01_02_03_intro_to_ray_train_09.ipynb)
+- [01 02 03 intro to ray train 10](courses/foundations/Ray_Train/output/01_02_03_intro_to_ray_train_10.ipynb)
+- [01 02 03 intro to ray train 11](courses/foundations/Ray_Train/output/01_02_03_intro_to_ray_train_11.ipynb)
+- [01 02 03 intro to ray train 12](courses/foundations/Ray_Train/output/01_02_03_intro_to_ray_train_12.ipynb)
+- [01 02 03 intro to ray train 13](courses/foundations/Ray_Train/output/01_02_03_intro_to_ray_train_13.ipynb)
+- [01 02 03 intro to ray train 14](courses/foundations/Ray_Train/output/01_02_03_intro_to_ray_train_14.ipynb)
+- [01 02 03 intro to ray train 15](courses/foundations/Ray_Train/output/01_02_03_intro_to_ray_train_15.ipynb)
+- [01 02 03 intro to ray train 16](courses/foundations/Ray_Train/output/01_02_03_intro_to_ray_train_16.ipynb)
+- [01 02 03 intro to ray train 17](courses/foundations/Ray_Train/output/01_02_03_intro_to_ray_train_17.ipynb)
+- [01 02 03 intro to ray train 18](courses/foundations/Ray_Train/output/01_02_03_intro_to_ray_train_18.ipynb)
+- [01 02 03 intro to ray train 19](courses/foundations/Ray_Train/output/01_02_03_intro_to_ray_train_19.ipynb)
+- [01 02 03 intro to ray train 20](courses/foundations/Ray_Train/output/01_02_03_intro_to_ray_train_20.ipynb)
+- [01 02 03 intro to ray train 21](courses/foundations/Ray_Train/output/01_02_03_intro_to_ray_train_21.ipynb)
+- [01 02 03 intro to ray train 22](courses/foundations/Ray_Train/output/01_02_03_intro_to_ray_train_22.ipynb)
+- [01 02 03 intro to ray train 23](courses/foundations/Ray_Train/output/01_02_03_intro_to_ray_train_23.ipynb)
+- [01 02 03 intro to ray train 24](courses/foundations/Ray_Train/output/01_02_03_intro_to_ray_train_24.ipynb)
+- [01 02 03 intro to ray train 25](courses/foundations/Ray_Train/output/01_02_03_intro_to_ray_train_25.ipynb)
+- [01 02 03 intro to ray train 26](courses/foundations/Ray_Train/output/01_02_03_intro_to_ray_train_26.ipynb)
+
+### Ray Tune/00 Tune
+
+- [03 Intro Ray Tune 01](courses/foundations/Ray_Tune/00_Tune/output/03_Intro_Ray_Tune_01.ipynb)
+- [03 Intro Ray Tune 02](courses/foundations/Ray_Tune/00_Tune/output/03_Intro_Ray_Tune_02.ipynb)
+- [03 Intro Ray Tune 03](courses/foundations/Ray_Tune/00_Tune/output/03_Intro_Ray_Tune_03.ipynb)
+- [03 Intro Ray Tune 04](courses/foundations/Ray_Tune/00_Tune/output/03_Intro_Ray_Tune_04.ipynb)
+- [03 Intro Ray Tune 05](courses/foundations/Ray_Tune/00_Tune/output/03_Intro_Ray_Tune_05.ipynb)
 
 ## Workloads
+
+### Pytorch Lightning/00 Workload
+
+- [02b Intro Ray Train with PyTorch Lightning 01](courses/workloads/PyTorch_Lightning/00_workload/output/02b_Intro_Ray_Train_with_PyTorch_Lightning_01.ipynb)
+- [02b Intro Ray Train with PyTorch Lightning 02](courses/workloads/PyTorch_Lightning/00_workload/output/02b_Intro_Ray_Train_with_PyTorch_Lightning_02.ipynb)
+- [02b Intro Ray Train with PyTorch Lightning 03](courses/workloads/PyTorch_Lightning/00_workload/output/02b_Intro_Ray_Train_with_PyTorch_Lightning_03.ipynb)
+- [02b Intro Ray Train with PyTorch Lightning 04](courses/workloads/PyTorch_Lightning/00_workload/output/02b_Intro_Ray_Train_with_PyTorch_Lightning_04.ipynb)
+- [02b Intro Ray Train with PyTorch Lightning 05](courses/workloads/PyTorch_Lightning/00_workload/output/02b_Intro_Ray_Train_with_PyTorch_Lightning_05.ipynb)
 
 ### Ray Data Batch Inference/00 Workload
 
