@@ -114,67 +114,6 @@ parts:
   - file: courses/ray-101/output/5_Intro_Serve_04.ipynb
   - file: courses/ray-101/output/5_Intro_Serve_05.ipynb
   - file: courses/ray-101/output/5_Intro_Serve_06.ipynb
-- caption: Workloads
-  chapters:
-  - file: courses/workloads/Ray_Data_Batch_Inference/output/01_Ray_Data_batch_inference_01.ipynb
-  - file: courses/workloads/Ray_Data_Batch_Inference/output/01_Ray_Data_batch_inference_02.ipynb
-  - file: courses/workloads/Ray_Data_Batch_Inference/output/01_Ray_Data_batch_inference_03.ipynb
-  - file: courses/workloads/Ray_Data_Batch_Inference/output/01_Ray_Data_batch_inference_04.ipynb
-  - file: courses/workloads/Ray_Data_Batch_Inference/output/01_Ray_Data_batch_inference_05.ipynb
-  - file: courses/workloads/Ray_Data_Batch_Inference/output/01_Ray_Data_batch_inference_06.ipynb
-  - file: courses/workloads/Ray_Data_Processing/output/02_Ray_Data_data_processing_01.ipynb
-  - file: courses/workloads/Ray_Data_Processing/output/02_Ray_Data_data_processing_02.ipynb
-  - file: courses/workloads/Ray_Data_Processing/output/02_Ray_Data_data_processing_03.ipynb
-  - file: courses/workloads/Ray_Data_Processing/output/02_Ray_Data_data_processing_04.ipynb
-  - file: courses/workloads/Ray_Data_Processing/output/02_Ray_Data_data_processing_05.ipynb
-  - file: courses/workloads/Ray_Data_Processing/output/02_Ray_Data_data_processing_06.ipynb
-  - file: courses/workloads/Ray_Distributed_Training/output/04_Ray_Train_distributed_training_01.ipynb
-  - file: courses/workloads/Ray_Distributed_Training/output/04_Ray_Train_distributed_training_02.ipynb
-  - file: courses/workloads/Ray_Distributed_Training/output/04_Ray_Train_distributed_training_03.ipynb
-  - file: courses/workloads/Ray_Distributed_Training/output/04_Ray_Train_distributed_training_04.ipynb
-  - file: courses/workloads/Ray_Distributed_Training/output/04_Ray_Train_distributed_training_05.ipynb
-  - file: courses/workloads/Ray_Distributed_Training/output/04_Ray_Train_distributed_training_06.ipynb
-  - file: courses/workloads/Ray_Serve_Online_Serving/output/03_Ray_Serve_online_serving_01.ipynb
-  - file: courses/workloads/Ray_Serve_Online_Serving/output/03_Ray_Serve_online_serving_02.ipynb
-  - file: courses/workloads/Ray_Serve_Online_Serving/output/03_Ray_Serve_online_serving_03.ipynb
-  - file: courses/workloads/Ray_Serve_Online_Serving/output/03_Ray_Serve_online_serving_04.ipynb
-  - file: courses/workloads/Train_Generative_CV/output/04d1_generative_cv_pattern_01.ipynb
-  - file: courses/workloads/Train_Generative_CV/output/04d1_generative_cv_pattern_02.ipynb
-  - file: courses/workloads/Train_Generative_CV/output/04d1_generative_cv_pattern_03.ipynb
-  - file: courses/workloads/Train_Generative_CV/output/04d1_generative_cv_pattern_04.ipynb
-  - file: courses/workloads/Train_Generative_CV/output/04d1_generative_cv_pattern_05.ipynb
-  - file: courses/workloads/Train_Generative_CV/output/04d1_generative_cv_pattern_06.ipynb
-  - file: courses/workloads/Train_Policy_Learning/output/04d2_policy_learning_pattern_01.ipynb
-  - file: courses/workloads/Train_Policy_Learning/output/04d2_policy_learning_pattern_02.ipynb
-  - file: courses/workloads/Train_Policy_Learning/output/04d2_policy_learning_pattern_03.ipynb
-  - file: courses/workloads/Train_Policy_Learning/output/04d2_policy_learning_pattern_04.ipynb
-  - file: courses/workloads/Train_Policy_Learning/output/04d2_policy_learning_pattern_05.ipynb
-  - file: courses/workloads/Train_Rec_sys/output/04e_rec_sys_workload_pattern_01.ipynb
-  - file: courses/workloads/Train_Rec_sys/output/04e_rec_sys_workload_pattern_02.ipynb
-  - file: courses/workloads/Train_Rec_sys/output/04e_rec_sys_workload_pattern_03.ipynb
-  - file: courses/workloads/Train_Rec_sys/output/04e_rec_sys_workload_pattern_04.ipynb
-  - file: courses/workloads/Train_Rec_sys/output/04e_rec_sys_workload_pattern_05.ipynb
-  - file: courses/workloads/Train_Rec_sys/output/04e_rec_sys_workload_pattern_06.ipynb
-  - file: courses/workloads/Train_Tabular/output/04b_tabular_workload_pattern_01.ipynb
-  - file: courses/workloads/Train_Tabular/output/04b_tabular_workload_pattern_02.ipynb
-  - file: courses/workloads/Train_Tabular/output/04b_tabular_workload_pattern_03.ipynb
-  - file: courses/workloads/Train_Tabular/output/04b_tabular_workload_pattern_04.ipynb
-  - file: courses/workloads/Train_Tabular/output/04b_tabular_workload_pattern_05.ipynb
-  - file: courses/workloads/Train_Time_Series/output/04c_time_series_workload_pattern_01.ipynb
-  - file: courses/workloads/Train_Time_Series/output/04c_time_series_workload_pattern_02.ipynb
-  - file: courses/workloads/Train_Time_Series/output/04c_time_series_workload_pattern_03.ipynb
-  - file: courses/workloads/Train_Time_Series/output/04c_time_series_workload_pattern_04.ipynb
-  - file: courses/workloads/Train_Time_Series/output/04c_time_series_workload_pattern_05.ipynb
-  - file: courses/workloads/Train_Time_Series/output/04c_time_series_workload_pattern_06.ipynb
-  - file: courses/workloads/Train_Vision_Pattern/output/04a_vision_pattern_01.ipynb
-  - file: courses/workloads/Train_Vision_Pattern/output/04a_vision_pattern_02.ipynb
-  - file: courses/workloads/Train_Vision_Pattern/output/04a_vision_pattern_03.ipynb
-  - file: courses/workloads/Train_Vision_Pattern/output/04a_vision_pattern_04.ipynb
-  - file: courses/workloads/Train_Vision_Pattern/output/04a_vision_pattern_05.ipynb
-  - file: courses/workloads/Train_Vision_Pattern/output/04a_vision_pattern_06.ipynb
-  - file: courses/workloads/Train_Vision_Pattern/output/04a_vision_pattern_07.ipynb
-  - file: courses/workloads/Train_Vision_Pattern/output/04a_vision_pattern_08.ipynb
-  - file: courses/workloads/Train_Vision_Pattern/output/04a_vision_pattern_09.ipynb
 - caption: Anyscale For Admins
   chapters:
   - file: courses/foundations/Anyscale_For_Admins/02_00_Anyscale_Admin_Overview/output/anyscale_administrator_overview_01.ipynb
@@ -295,3 +234,82 @@ parts:
   - file: courses/foundations/Ray_Train_Foundation/output/01_02_03_intro_to_ray_train_24.ipynb
   - file: courses/foundations/Ray_Train_Foundation/output/01_02_03_intro_to_ray_train_25.ipynb
   - file: courses/foundations/Ray_Train_Foundation/output/01_02_03_intro_to_ray_train_26.ipynb
+- caption: Ray Data Batch Inference/00 Workload
+  chapters:
+  - file: courses/workloads/Ray_Data_Batch_Inference/00_workload/output/01_Ray_Data_batch_inference_01.ipynb
+  - file: courses/workloads/Ray_Data_Batch_Inference/00_workload/output/01_Ray_Data_batch_inference_02.ipynb
+  - file: courses/workloads/Ray_Data_Batch_Inference/00_workload/output/01_Ray_Data_batch_inference_03.ipynb
+  - file: courses/workloads/Ray_Data_Batch_Inference/00_workload/output/01_Ray_Data_batch_inference_04.ipynb
+  - file: courses/workloads/Ray_Data_Batch_Inference/00_workload/output/01_Ray_Data_batch_inference_05.ipynb
+  - file: courses/workloads/Ray_Data_Batch_Inference/00_workload/output/01_Ray_Data_batch_inference_06.ipynb
+- caption: Ray Data Processing/00 Workload
+  chapters:
+  - file: courses/workloads/Ray_Data_Processing/00_workload/output/02_Ray_Data_data_processing_01.ipynb
+  - file: courses/workloads/Ray_Data_Processing/00_workload/output/02_Ray_Data_data_processing_02.ipynb
+  - file: courses/workloads/Ray_Data_Processing/00_workload/output/02_Ray_Data_data_processing_03.ipynb
+  - file: courses/workloads/Ray_Data_Processing/00_workload/output/02_Ray_Data_data_processing_04.ipynb
+  - file: courses/workloads/Ray_Data_Processing/00_workload/output/02_Ray_Data_data_processing_05.ipynb
+  - file: courses/workloads/Ray_Data_Processing/00_workload/output/02_Ray_Data_data_processing_06.ipynb
+- caption: Ray Distributed Training/00 Workload
+  chapters:
+  - file: courses/workloads/Ray_Distributed_Training/00_workload/output/04_Ray_Train_distributed_training_01.ipynb
+  - file: courses/workloads/Ray_Distributed_Training/00_workload/output/04_Ray_Train_distributed_training_02.ipynb
+  - file: courses/workloads/Ray_Distributed_Training/00_workload/output/04_Ray_Train_distributed_training_03.ipynb
+  - file: courses/workloads/Ray_Distributed_Training/00_workload/output/04_Ray_Train_distributed_training_04.ipynb
+  - file: courses/workloads/Ray_Distributed_Training/00_workload/output/04_Ray_Train_distributed_training_05.ipynb
+  - file: courses/workloads/Ray_Distributed_Training/00_workload/output/04_Ray_Train_distributed_training_06.ipynb
+- caption: Ray Serve Online Serving/00 Workload
+  chapters:
+  - file: courses/workloads/Ray_Serve_Online_Serving/00_workload/output/03_Ray_Serve_online_serving_01.ipynb
+  - file: courses/workloads/Ray_Serve_Online_Serving/00_workload/output/03_Ray_Serve_online_serving_02.ipynb
+  - file: courses/workloads/Ray_Serve_Online_Serving/00_workload/output/03_Ray_Serve_online_serving_03.ipynb
+  - file: courses/workloads/Ray_Serve_Online_Serving/00_workload/output/03_Ray_Serve_online_serving_04.ipynb
+- caption: Train Generative Cv/00 Workload
+  chapters:
+  - file: courses/workloads/Train_Generative_CV/00_workload/output/04d1_generative_cv_pattern_01.ipynb
+  - file: courses/workloads/Train_Generative_CV/00_workload/output/04d1_generative_cv_pattern_02.ipynb
+  - file: courses/workloads/Train_Generative_CV/00_workload/output/04d1_generative_cv_pattern_03.ipynb
+  - file: courses/workloads/Train_Generative_CV/00_workload/output/04d1_generative_cv_pattern_04.ipynb
+  - file: courses/workloads/Train_Generative_CV/00_workload/output/04d1_generative_cv_pattern_05.ipynb
+  - file: courses/workloads/Train_Generative_CV/00_workload/output/04d1_generative_cv_pattern_06.ipynb
+- caption: Train Policy Learning/00 Workload
+  chapters:
+  - file: courses/workloads/Train_Policy_Learning/00_workload/output/04d2_policy_learning_pattern_01.ipynb
+  - file: courses/workloads/Train_Policy_Learning/00_workload/output/04d2_policy_learning_pattern_02.ipynb
+  - file: courses/workloads/Train_Policy_Learning/00_workload/output/04d2_policy_learning_pattern_03.ipynb
+  - file: courses/workloads/Train_Policy_Learning/00_workload/output/04d2_policy_learning_pattern_04.ipynb
+  - file: courses/workloads/Train_Policy_Learning/00_workload/output/04d2_policy_learning_pattern_05.ipynb
+- caption: Train Rec Sys/00 Workload
+  chapters:
+  - file: courses/workloads/Train_Rec_sys/00_workload/output/04e_rec_sys_workload_pattern_01.ipynb
+  - file: courses/workloads/Train_Rec_sys/00_workload/output/04e_rec_sys_workload_pattern_02.ipynb
+  - file: courses/workloads/Train_Rec_sys/00_workload/output/04e_rec_sys_workload_pattern_03.ipynb
+  - file: courses/workloads/Train_Rec_sys/00_workload/output/04e_rec_sys_workload_pattern_04.ipynb
+  - file: courses/workloads/Train_Rec_sys/00_workload/output/04e_rec_sys_workload_pattern_05.ipynb
+  - file: courses/workloads/Train_Rec_sys/00_workload/output/04e_rec_sys_workload_pattern_06.ipynb
+- caption: Train Tabular/00 Workload
+  chapters:
+  - file: courses/workloads/Train_Tabular/00_workload/output/04b_tabular_workload_pattern_01.ipynb
+  - file: courses/workloads/Train_Tabular/00_workload/output/04b_tabular_workload_pattern_02.ipynb
+  - file: courses/workloads/Train_Tabular/00_workload/output/04b_tabular_workload_pattern_03.ipynb
+  - file: courses/workloads/Train_Tabular/00_workload/output/04b_tabular_workload_pattern_04.ipynb
+  - file: courses/workloads/Train_Tabular/00_workload/output/04b_tabular_workload_pattern_05.ipynb
+- caption: Train Time Series/00 Workload
+  chapters:
+  - file: courses/workloads/Train_Time_Series/00_workload/output/04c_time_series_workload_pattern_01.ipynb
+  - file: courses/workloads/Train_Time_Series/00_workload/output/04c_time_series_workload_pattern_02.ipynb
+  - file: courses/workloads/Train_Time_Series/00_workload/output/04c_time_series_workload_pattern_03.ipynb
+  - file: courses/workloads/Train_Time_Series/00_workload/output/04c_time_series_workload_pattern_04.ipynb
+  - file: courses/workloads/Train_Time_Series/00_workload/output/04c_time_series_workload_pattern_05.ipynb
+  - file: courses/workloads/Train_Time_Series/00_workload/output/04c_time_series_workload_pattern_06.ipynb
+- caption: Train Vision Pattern/00 Workload
+  chapters:
+  - file: courses/workloads/Train_Vision_Pattern/00_workload/output/04a_vision_pattern_01.ipynb
+  - file: courses/workloads/Train_Vision_Pattern/00_workload/output/04a_vision_pattern_02.ipynb
+  - file: courses/workloads/Train_Vision_Pattern/00_workload/output/04a_vision_pattern_03.ipynb
+  - file: courses/workloads/Train_Vision_Pattern/00_workload/output/04a_vision_pattern_04.ipynb
+  - file: courses/workloads/Train_Vision_Pattern/00_workload/output/04a_vision_pattern_05.ipynb
+  - file: courses/workloads/Train_Vision_Pattern/00_workload/output/04a_vision_pattern_06.ipynb
+  - file: courses/workloads/Train_Vision_Pattern/00_workload/output/04a_vision_pattern_07.ipynb
+  - file: courses/workloads/Train_Vision_Pattern/00_workload/output/04a_vision_pattern_08.ipynb
+  - file: courses/workloads/Train_Vision_Pattern/00_workload/output/04a_vision_pattern_09.ipynb

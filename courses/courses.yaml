@@ -22,34 +22,34 @@
 
 # WORKLOADS
 
-- name: Ray Data Batch Inference (Workload)
+- name: Ray Data Batch Inference
   source: workloads/Ray_Data_Batch_Inference
 
-- name: Ray Data Processing (Workload)
+- name: Ray Data Processing
   source: workloads/Ray_Data_Processing
 
-- name: Ray Distributed Training (Workload)
+- name: Ray Distributed Training
   source: workloads/Ray_Distributed_Training  
 
-- name: Ray Serve Online Serving (Workload)
+- name: Ray Serve Online Serving
   source: workloads/Ray_Serve_Online_Serving
 
-  - name: Ray Train Generative CV (Workload)
+- name: Ray Train Generative CV
   source: workloads/Train_Generative_CV
 
-- name: Ray Train Policy Learning (Workload)
+- name: Ray Train Policy Learning
   source: workloads/Train_Policy_Learning
 
-- name: Ray Train Recommendation System (Workload)
+- name: Ray Train Recommendation System
   source: workloads/Train_Rec_sys
 
-- name: Ray Train Tabular (Workload)
+- name: Ray Train Tabular
   source: workloads/Train_Tabular
 
-- name: Ray Train Time Series (Workload)
+- name: Ray Train Time Series
   source: workloads/Train_Time_Series
 
-- name: Ray Train Vision Pattern (Workload)
+- name: Ray Train Vision Pattern
   source: workloads/Train_Vision_Pattern
 
 # DEPRECATED
