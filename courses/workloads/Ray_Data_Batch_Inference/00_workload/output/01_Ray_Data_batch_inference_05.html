@@ -1,0 +1,971 @@
+
+<!DOCTYPE html>
+
+
+<html lang="en" data-content_root="../../../../../" >
+
+  <head>
+    <meta charset="utf-8" />
+    <meta name="viewport" content="width=device-width, initial-scale=1.0" /><meta name="viewport" content="width=device-width, initial-scale=1" />
+
+    <title>Create a batch data and call the model &#8212; Course Notebooks</title>
+  
+  
+  
+  <script data-cfasync="false">
+    document.documentElement.dataset.mode = localStorage.getItem("mode") || "";
+    document.documentElement.dataset.theme = localStorage.getItem("theme") || "";
+  </script>
+  
+  <!-- Loaded before other Sphinx assets -->
+  <link href="../../../../../_static/styles/theme.css?digest=dfe6caa3a7d634c4db9b" rel="stylesheet" />
+<link href="../../../../../_static/styles/bootstrap.css?digest=dfe6caa3a7d634c4db9b" rel="stylesheet" />
+<link href="../../../../../_static/styles/pydata-sphinx-theme.css?digest=dfe6caa3a7d634c4db9b" rel="stylesheet" />
+
+  
+  <link href="../../../../../_static/vendor/fontawesome/6.5.2/css/all.min.css?digest=dfe6caa3a7d634c4db9b" rel="stylesheet" />
+  <link rel="preload" as="font" type="font/woff2" crossorigin href="../../../../../_static/vendor/fontawesome/6.5.2/webfonts/fa-solid-900.woff2" />
+<link rel="preload" as="font" type="font/woff2" crossorigin href="../../../../../_static/vendor/fontawesome/6.5.2/webfonts/fa-brands-400.woff2" />
+<link rel="preload" as="font" type="font/woff2" crossorigin href="../../../../../_static/vendor/fontawesome/6.5.2/webfonts/fa-regular-400.woff2" />
+
+    <link rel="stylesheet" type="text/css" href="../../../../../_static/pygments.css?v=03e43079" />
+    <link rel="stylesheet" type="text/css" href="../../../../../_static/styles/sphinx-book-theme.css?v=eba8b062" />
+    <link rel="stylesheet" type="text/css" href="../../../../../_static/togglebutton.css?v=9c3e77be" />
+    <link rel="stylesheet" type="text/css" href="../../../../../_static/copybutton.css?v=76b2166b" />
+    <link rel="stylesheet" type="text/css" href="../../../../../_static/mystnb.8ecb98da25f57f5357bf6f572d296f466b2cfe2517ffebfabe82451661e28f02.css" />
+    <link rel="stylesheet" type="text/css" href="../../../../../_static/sphinx-thebe.css?v=4fa983c6" />
+    <link rel="stylesheet" type="text/css" href="../../../../../_static/sphinx-design.min.css?v=95c83b7e" />
+    <link rel="stylesheet" type="text/css" href="../../../../../_static/custom_hide.css?v=af9667c8" />
+  
+  <!-- Pre-loaded scripts that we'll load fully later -->
+  <link rel="preload" as="script" href="../../../../../_static/scripts/bootstrap.js?digest=dfe6caa3a7d634c4db9b" />
+<link rel="preload" as="script" href="../../../../../_static/scripts/pydata-sphinx-theme.js?digest=dfe6caa3a7d634c4db9b" />
+  <script src="../../../../../_static/vendor/fontawesome/6.5.2/js/all.min.js?digest=dfe6caa3a7d634c4db9b"></script>
+
+    <script src="../../../../../_static/documentation_options.js?v=9eb32ce0"></script>
+    <script src="../../../../../_static/doctools.js?v=9a2dae69"></script>
+    <script src="../../../../../_static/sphinx_highlight.js?v=dc90522c"></script>
+    <script src="../../../../../_static/clipboard.min.js?v=a7894cd8"></script>
+    <script src="../../../../../_static/copybutton.js?v=f281be69"></script>
+    <script src="../../../../../_static/scripts/sphinx-book-theme.js?v=887ef09a"></script>
+    <script>let toggleHintShow = 'Click to show';</script>
+    <script>let toggleHintHide = 'Click to hide';</script>
+    <script>let toggleOpenOnPrint = 'true';</script>
+    <script src="../../../../../_static/togglebutton.js?v=1ae7504c"></script>
+    <script>var togglebuttonSelector = '.toggle, .admonition.dropdown';</script>
+    <script src="../../../../../_static/design-tabs.js?v=f930bc37"></script>
+    <script>const THEBE_JS_URL = "https://unpkg.com/thebe@0.8.2/lib/index.js"; const thebe_selector = ".thebe,.cell"; const thebe_selector_input = "pre"; const thebe_selector_output = ".output, .cell_output"</script>
+    <script async="async" src="../../../../../_static/sphinx-thebe.js?v=c100c467"></script>
+    <script>var togglebuttonSelector = '.toggle, .admonition.dropdown';</script>
+    <script>const THEBE_JS_URL = "https://unpkg.com/thebe@0.8.2/lib/index.js"; const thebe_selector = ".thebe,.cell"; const thebe_selector_input = "pre"; const thebe_selector_output = ".output, .cell_output"</script>
+    <script>DOCUMENTATION_OPTIONS.pagename = 'courses/workloads/Ray_Data_Batch_Inference/00_workload/output/01_Ray_Data_batch_inference_05';</script>
+    <script src="../../../../../_static/custom_toggle.js?v=1235ef5b"></script>
+    <link rel="index" title="Index" href="../../../../../genindex.html" />
+    <link rel="search" title="Search" href="../../../../../search.html" />
+    <link rel="next" title="Run inference on the entire dataset" href="01_Ray_Data_batch_inference_06.html" />
+    <link rel="prev" title="Batch Inference Class" href="01_Ray_Data_batch_inference_04.html" />
+  <meta name="viewport" content="width=device-width, initial-scale=1"/>
+  <meta name="docsearch:language" content="en"/>
+  </head>
+  
+  
+  <body data-bs-spy="scroll" data-bs-target=".bd-toc-nav" data-offset="180" data-bs-root-margin="0px 0px -60%" data-default-mode="">
+
+  
+  
+  <div id="pst-skip-link" class="skip-link d-print-none"><a href="#main-content">Skip to main content</a></div>
+  
+  <div id="pst-scroll-pixel-helper"></div>
+  
+  <button type="button" class="btn rounded-pill" id="pst-back-to-top">
+    <i class="fa-solid fa-arrow-up"></i>Back to top</button>
+
+  
+  <input type="checkbox"
+          class="sidebar-toggle"
+          id="pst-primary-sidebar-checkbox"/>
+  <label class="overlay overlay-primary" for="pst-primary-sidebar-checkbox"></label>
+  
+  <input type="checkbox"
+          class="sidebar-toggle"
+          id="pst-secondary-sidebar-checkbox"/>
+  <label class="overlay overlay-secondary" for="pst-secondary-sidebar-checkbox"></label>
+  
+  <div class="search-button__wrapper">
+    <div class="search-button__overlay"></div>
+    <div class="search-button__search-container">
+<form class="bd-search d-flex align-items-center"
+      action="../../../../../search.html"
+      method="get">
+  <i class="fa-solid fa-magnifying-glass"></i>
+  <input type="search"
+         class="form-control"
+         name="q"
+         id="search-input"
+         placeholder="Search this book..."
+         aria-label="Search this book..."
+         autocomplete="off"
+         autocorrect="off"
+         autocapitalize="off"
+         spellcheck="false"/>
+  <span class="search-button__kbd-shortcut"><kbd class="kbd-shortcut__modifier">Ctrl</kbd>+<kbd>K</kbd></span>
+</form></div>
+  </div>
+
+  <div class="pst-async-banner-revealer d-none">
+  <aside id="bd-header-version-warning" class="d-none d-print-none" aria-label="Version warning"></aside>
+</div>
+
+  
+    <header class="bd-header navbar navbar-expand-lg bd-navbar d-print-none">
+    </header>
+  
+
+  <div class="bd-container">
+    <div class="bd-container__inner bd-page-width">
+      
+      
+      
+      <div class="bd-sidebar-primary bd-sidebar">
+        
+
+  
+  <div class="sidebar-header-items sidebar-primary__section">
+    
+    
+    
+    
+  </div>
+  
+    <div class="sidebar-primary-items__start sidebar-primary__section">
+        <div class="sidebar-primary-item">
+
+  
+    
+  
+
+<a class="navbar-brand logo" href="../../../../../index.html">
+  
+  
+  
+  
+  
+  
+    <p class="title logo__title">Course Notebooks</p>
+  
+</a></div>
+        <div class="sidebar-primary-item">
+
+ <script>
+ document.write(`
+   <button class="btn search-button-field search-button__button" title="Search" aria-label="Search" data-bs-placement="bottom" data-bs-toggle="tooltip">
+    <i class="fa-solid fa-magnifying-glass"></i>
+    <span class="search-button__default-text">Search</span>
+    <span class="search-button__kbd-shortcut"><kbd class="kbd-shortcut__modifier">Ctrl</kbd>+<kbd class="kbd-shortcut__modifier">K</kbd></span>
+   </button>
+ `);
+ </script></div>
+        <div class="sidebar-primary-item"><nav class="bd-links bd-docs-nav" aria-label="Main">
+    <div class="bd-toc-item navbar-nav active">
+        
+        <ul class="nav bd-sidenav bd-sidenav__home-link">
+            <li class="toctree-l1">
+                <a class="reference internal" href="../../../../../index.html">
+                    Ray Enablement Content
+                </a>
+            </li>
+        </ul>
+        <p aria-level="2" class="caption" role="heading"><span class="caption-text">Developer Intro to Ray</span></p>
+<ul class="nav bd-sidenav">
+<li class="toctree-l1"><a class="reference internal" href="../../../../00_Developer_Intro_to_Ray/output/00_Intro_Ray_Core_Basics_01.html">Introduction to Ray Core: Getting Started</a></li>
+<li class="toctree-l1"><a class="reference internal" href="../../../../00_Developer_Intro_to_Ray/output/00_Intro_Ray_Core_Basics_02.html">0. Overview</a></li>
+<li class="toctree-l1"><a class="reference internal" href="../../../../00_Developer_Intro_to_Ray/output/00_Intro_Ray_Core_Basics_03.html">1. Creating Remote Functions</a></li>
+<li class="toctree-l1"><a class="reference internal" href="../../../../00_Developer_Intro_to_Ray/output/00_Intro_Ray_Core_Basics_04.html">2. Executing Remote Functions</a></li>
+<li class="toctree-l1"><a class="reference internal" href="../../../../00_Developer_Intro_to_Ray/output/00_Intro_Ray_Core_Basics_05.html">4. Putting It All Together</a></li>
+<li class="toctree-l1"><a class="reference internal" href="../../../../00_Developer_Intro_to_Ray/output/00a_Intro_Ray_Core_Advancement_01.html">Introduction to Ray Core (Advancement): Object store, Tasks, Actors</a></li>
+<li class="toctree-l1"><a class="reference internal" href="../../../../00_Developer_Intro_to_Ray/output/00a_Intro_Ray_Core_Advancement_02.html">1. Object store</a></li>
+<li class="toctree-l1"><a class="reference internal" href="../../../../00_Developer_Intro_to_Ray/output/00a_Intro_Ray_Core_Advancement_03.html">2. Chaining Tasks and Passing Data</a></li>
+<li class="toctree-l1"><a class="reference internal" href="../../../../00_Developer_Intro_to_Ray/output/00a_Intro_Ray_Core_Advancement_04.html">3. Task retries</a></li>
+<li class="toctree-l1"><a class="reference internal" href="../../../../00_Developer_Intro_to_Ray/output/00a_Intro_Ray_Core_Advancement_05.html">4. Task Runtime Environments</a></li>
+<li class="toctree-l1"><a class="reference internal" href="../../../../00_Developer_Intro_to_Ray/output/00a_Intro_Ray_Core_Advancement_06.html">5. Resource allocation and management</a></li>
+<li class="toctree-l1"><a class="reference internal" href="../../../../00_Developer_Intro_to_Ray/output/00a_Intro_Ray_Core_Advancement_07.html">6. Nested Tasks</a></li>
+<li class="toctree-l1"><a class="reference internal" href="../../../../00_Developer_Intro_to_Ray/output/00a_Intro_Ray_Core_Advancement_08.html">7. Pattern: Pipeline data processing and waiting for results</a></li>
+<li class="toctree-l1"><a class="reference internal" href="../../../../00_Developer_Intro_to_Ray/output/00a_Intro_Ray_Core_Advancement_09.html">8. Ray Actors</a></li>
+<li class="toctree-l1"><a class="reference internal" href="../../../../00_Developer_Intro_to_Ray/output/01_Intro_Ray_AI_Libs_Overview_01.html">Introduction to the Ray AI Libraries: An example of using Ray data, Ray Train, Ray Tune, Ray Serve to implement a XGBoost regression model</a></li>
+<li class="toctree-l1"><a class="reference internal" href="../../../../00_Developer_Intro_to_Ray/output/01_Intro_Ray_AI_Libs_Overview_02.html">1. Overview of the Ray AI Libraries</a></li>
+<li class="toctree-l1"><a class="reference internal" href="../../../../00_Developer_Intro_to_Ray/output/01_Intro_Ray_AI_Libs_Overview_03.html">2. Quick end-to-end example</a></li>
+<li class="toctree-l1"><a class="reference internal" href="../../../../00_Developer_Intro_to_Ray/output/02a_Intro_Ray_Train_with_PyTorch_01.html">Introduction to Ray Train + PyTorch</a></li>
+<li class="toctree-l1"><a class="reference internal" href="../../../../00_Developer_Intro_to_Ray/output/02a_Intro_Ray_Train_with_PyTorch_02.html">1. When to use Ray Train</a></li>
+<li class="toctree-l1"><a class="reference internal" href="../../../../00_Developer_Intro_to_Ray/output/02a_Intro_Ray_Train_with_PyTorch_03.html">2. Single GPU Training with PyTorch</a></li>
+<li class="toctree-l1"><a class="reference internal" href="../../../../00_Developer_Intro_to_Ray/output/02a_Intro_Ray_Train_with_PyTorch_04.html">3. Distributed Data Parallel Training with Ray Train and PyTorch</a></li>
+<li class="toctree-l1"><a class="reference internal" href="../../../../00_Developer_Intro_to_Ray/output/02b_Intro_Ray_Train_with_PyTorch_Lightning_01.html">Introduction to Ray Train: Ray Train + PyTorch Lightning</a></li>
+<li class="toctree-l1"><a class="reference internal" href="../../../../00_Developer_Intro_to_Ray/output/02b_Intro_Ray_Train_with_PyTorch_Lightning_02.html">1. When to use Ray Train</a></li>
+<li class="toctree-l1"><a class="reference internal" href="../../../../00_Developer_Intro_to_Ray/output/02b_Intro_Ray_Train_with_PyTorch_Lightning_03.html">2. Single GPU Training with PyTorch Lightning</a></li>
+<li class="toctree-l1"><a class="reference internal" href="../../../../00_Developer_Intro_to_Ray/output/02b_Intro_Ray_Train_with_PyTorch_Lightning_04.html">3. Distributed Training with Ray Train and PyTorch Lightning</a></li>
+<li class="toctree-l1"><a class="reference internal" href="../../../../00_Developer_Intro_to_Ray/output/02b_Intro_Ray_Train_with_PyTorch_Lightning_05.html">4. Ray Train in Production</a></li>
+<li class="toctree-l1"><a class="reference internal" href="../../../../00_Developer_Intro_to_Ray/output/03_Intro_Ray_Tune_01.html">Introduction to Ray Tune</a></li>
+<li class="toctree-l1"><a class="reference internal" href="../../../../00_Developer_Intro_to_Ray/output/03_Intro_Ray_Tune_02.html">1. Loading the data</a></li>
+<li class="toctree-l1"><a class="reference internal" href="../../../../00_Developer_Intro_to_Ray/output/03_Intro_Ray_Tune_03.html">2. Starting out with vanilla PyTorch</a></li>
+<li class="toctree-l1"><a class="reference internal" href="../../../../00_Developer_Intro_to_Ray/output/03_Intro_Ray_Tune_04.html">3. Hyperparameter tuning with Ray Tune</a></li>
+<li class="toctree-l1"><a class="reference internal" href="../../../../00_Developer_Intro_to_Ray/output/03_Intro_Ray_Tune_05.html">4. Ray Tune in Production</a></li>
+<li class="toctree-l1"><a class="reference internal" href="../../../../00_Developer_Intro_to_Ray/output/04a_Intro_Ray_Data_Industry_Landscape_01.html">Introduction to Ray Data: Industry Landscape</a></li>
+
+<li class="toctree-l1"><a class="reference internal" href="../../../../00_Developer_Intro_to_Ray/output/04a_Intro_Ray_Data_Industry_Landscape_02.html">The Compute Layer</a></li>
+<li class="toctree-l1"><a class="reference internal" href="../../../../00_Developer_Intro_to_Ray/output/04a_Intro_Ray_Data_Industry_Landscape_03.html">The Orchestration Layer</a></li>
+<li class="toctree-l1"><a class="reference internal" href="../../../../00_Developer_Intro_to_Ray/output/04a_Intro_Ray_Data_Industry_Landscape_04.html">Distributed Computing Frameworks</a></li>
+<li class="toctree-l1"><a class="reference internal" href="../../../../00_Developer_Intro_to_Ray/output/04a_Intro_Ray_Data_Industry_Landscape_05.html">Data Processing with Ray Data</a></li>
+<li class="toctree-l1"><a class="reference internal" href="../../../../00_Developer_Intro_to_Ray/output/04a_Intro_Ray_Data_Industry_Landscape_06.html">Ray Serve</a></li>
+<li class="toctree-l1"><a class="reference internal" href="../../../../00_Developer_Intro_to_Ray/output/04b_Intro_Ray_Data_Structured_01.html">Introduction to Ray Data: Ray Data + Structured Data</a></li>
+<li class="toctree-l1"><a class="reference internal" href="../../../../00_Developer_Intro_to_Ray/output/04b_Intro_Ray_Data_Structured_02.html">0. What is Ray Data?</a></li>
+<li class="toctree-l1"><a class="reference internal" href="../../../../00_Developer_Intro_to_Ray/output/04b_Intro_Ray_Data_Structured_03.html">2. Loading Data</a></li>
+<li class="toctree-l1"><a class="reference internal" href="../../../../00_Developer_Intro_to_Ray/output/04b_Intro_Ray_Data_Structured_04.html">3. Transforming Data</a></li>
+<li class="toctree-l1"><a class="reference internal" href="../../../../00_Developer_Intro_to_Ray/output/04b_Intro_Ray_Data_Structured_05.html">4. Writing Data</a></li>
+<li class="toctree-l1"><a class="reference internal" href="../../../../00_Developer_Intro_to_Ray/output/04b_Intro_Ray_Data_Structured_06.html">5. Data Operations: Shuffling, Grouping and Aggregation</a></li>
+<li class="toctree-l1"><a class="reference internal" href="../../../../00_Developer_Intro_to_Ray/output/04b_Intro_Ray_Data_Structured_07.html">6. When to use Ray Data</a></li>
+<li class="toctree-l1"><a class="reference internal" href="../../../../00_Developer_Intro_to_Ray/output/04c_Intro_Ray_Data_Unstructured_01.html">Intro to Ray Data:  Ray Data + Unstructured Data</a></li>
+<li class="toctree-l1"><a class="reference internal" href="../../../../00_Developer_Intro_to_Ray/output/04c_Intro_Ray_Data_Unstructured_02.html">1. When to Consider Ray Data</a></li>
+<li class="toctree-l1"><a class="reference internal" href="../../../../00_Developer_Intro_to_Ray/output/04c_Intro_Ray_Data_Unstructured_03.html">2. How to work with Ray Data</a></li>
+<li class="toctree-l1"><a class="reference internal" href="../../../../00_Developer_Intro_to_Ray/output/04c_Intro_Ray_Data_Unstructured_04.html">3. Loading data</a></li>
+<li class="toctree-l1"><a class="reference internal" href="../../../../00_Developer_Intro_to_Ray/output/04c_Intro_Ray_Data_Unstructured_05.html">3. Lazy execution mode</a></li>
+<li class="toctree-l1"><a class="reference internal" href="../../../../00_Developer_Intro_to_Ray/output/04c_Intro_Ray_Data_Unstructured_06.html">4. Transforming data</a></li>
+<li class="toctree-l1"><a class="reference internal" href="../../../../00_Developer_Intro_to_Ray/output/04c_Intro_Ray_Data_Unstructured_07.html">5. Stateful transformations with Ray Actors</a></li>
+<li class="toctree-l1"><a class="reference internal" href="../../../../00_Developer_Intro_to_Ray/output/04c_Intro_Ray_Data_Unstructured_08.html">6. Materializing data</a></li>
+<li class="toctree-l1"><a class="reference internal" href="../../../../00_Developer_Intro_to_Ray/output/04c_Intro_Ray_Data_Unstructured_09.html">7. Data Operations: grouping, aggregation, and shuffling</a></li>
+<li class="toctree-l1"><a class="reference internal" href="../../../../00_Developer_Intro_to_Ray/output/04c_Intro_Ray_Data_Unstructured_10.html">8. Persisting data</a></li>
+<li class="toctree-l1"><a class="reference internal" href="../../../../00_Developer_Intro_to_Ray/output/04c_Intro_Ray_Data_Unstructured_11.html">9. Ray Data in production</a></li>
+<li class="toctree-l1"><a class="reference internal" href="../../../../00_Developer_Intro_to_Ray/output/05_Intro_Ray_Serve_PyTorch_01.html">Introduction to Ray Serve with PyTorch</a></li>
+<li class="toctree-l1"><a class="reference internal" href="../../../../00_Developer_Intro_to_Ray/output/05_Intro_Ray_Serve_PyTorch_02.html">1. When to Consider Ray Serve</a></li>
+<li class="toctree-l1"><a class="reference internal" href="../../../../00_Developer_Intro_to_Ray/output/05_Intro_Ray_Serve_PyTorch_03.html">2. Overview of Ray Serve</a></li>
+<li class="toctree-l1"><a class="reference internal" href="../../../../00_Developer_Intro_to_Ray/output/05_Intro_Ray_Serve_PyTorch_04.html">3. Implement an image classification service</a></li>
+<li class="toctree-l1"><a class="reference internal" href="../../../../00_Developer_Intro_to_Ray/output/05_Intro_Ray_Serve_PyTorch_05.html">4. Development workflow</a></li>
+<li class="toctree-l1"><a class="reference internal" href="../../../../00_Developer_Intro_to_Ray/output/README_01.html">Introduction to Ray: Developer</a></li>
+</ul>
+<p aria-level="2" class="caption" role="heading"><span class="caption-text">Gettingstarted</span></p>
+<ul class="nav bd-sidenav">
+<li class="toctree-l1"><a class="reference internal" href="../../../../GettingStarted/output/101_01_anyscale_intro_workspace_01.html">101 — Introduction to Anyscale Workspaces</a></li>
+<li class="toctree-l1"><a class="reference internal" href="../../../../GettingStarted/output/101_02_anyscale_development_intro_01.html">101 – Developing Application with Anyscale</a></li>
+<li class="toctree-l1"><a class="reference internal" href="../../../../GettingStarted/output/101_03_anyscale_compute_runtime_intro_01.html">101 – Compute Configs and Execution Environments in Anyscale</a></li>
+<li class="toctree-l1"><a class="reference internal" href="../../../../GettingStarted/output/101_04_anyscale_storage_options_01.html">101 – Storage Options in the Anyscale Platform</a></li>
+<li class="toctree-l1"><a class="reference internal" href="../../../../GettingStarted/output/101_05_anyscale_logging_metrics_01.html">101 – Debug and Monitor Your Anyscale Application</a></li>
+<li class="toctree-l1"><a class="reference internal" href="../../../../GettingStarted/output/101_06_anyscale_intro_jobs_01.html">101 – Introduction to Anyscale Jobs</a></li>
+<li class="toctree-l1"><a class="reference internal" href="../../../../GettingStarted/output/101_07_anyscale_intro_services_01.html">101 –  Introduction to Anyscale Services</a></li>
+<li class="toctree-l1"><a class="reference internal" href="../../../../GettingStarted/output/101_08_anyscale_collaboration_01.html">101 – Collaboration on Anyscale</a></li>
+<li class="toctree-l1"><a class="reference internal" href="../../../../GettingStarted/output/101_09_anyscale_org_setup_01.html">101 - Anyscale Organization and Cloud Setup</a></li>
+<li class="toctree-l1"><a class="reference internal" href="../../../../GettingStarted/output/101_09_anyscale_org_setup_02.html">📌 Overview of Structure</a></li>
+<li class="toctree-l1"><a class="reference internal" href="../../../../GettingStarted/output/101_09_anyscale_org_setup_03.html">🧠 Summary</a></li>
+<li class="toctree-l1"><a class="reference internal" href="../../../../GettingStarted/output/101_anyscale_intro_jobs_01.html">Content Used</a></li>
+
+<li class="toctree-l1"><a class="reference internal" href="../../../../GettingStarted/output/101_anyscale_intro_jobs_02.html">Part 1. Creating and Submitting your first job</a></li>
+<li class="toctree-l1"><a class="reference internal" href="../../../../GettingStarted/output/101_anyscale_intro_jobs_03.html">Part 2. Automation and Scheduling</a></li>
+<li class="toctree-l1"><a class="reference internal" href="../../../../GettingStarted/output/101_anyscale_intro_services_01.html">Sources</a></li>
+
+<li class="toctree-l1"><a class="reference internal" href="../../../../GettingStarted/output/101_anyscale_intro_services_02.html">Part 1: Starting your first Anyscale Service</a></li>
+</ul>
+<p aria-level="2" class="caption" role="heading"><span class="caption-text">Ray 101</span></p>
+<ul class="nav bd-sidenav">
+<li class="toctree-l1"><a class="reference internal" href="../../../../ray-101/output/1_AI_Libs_Intro_01.html">Introduction to the Ray AI Libraries</a></li>
+<li class="toctree-l1"><a class="reference internal" href="../../../../ray-101/output/1_AI_Libs_Intro_02.html">1. Overview of the Ray AI Libraries</a></li>
+<li class="toctree-l1"><a class="reference internal" href="../../../../ray-101/output/1_AI_Libs_Intro_03.html">2. End-to-end example: predicting taxi tips in New York</a></li>
+<li class="toctree-l1"><a class="reference internal" href="../../../../ray-101/output/2_Intro_Train_01.html">Introduction to Ray Train</a></li>
+<li class="toctree-l1"><a class="reference internal" href="../../../../ray-101/output/2_Intro_Train_02.html">1. PyTorch introductory example (single GPU)</a></li>
+<li class="toctree-l1"><a class="reference internal" href="../../../../ray-101/output/2_Intro_Train_03.html">2. Distributed Data Parallel Training with Ray Train and PyTorch (multiple GPUs)</a></li>
+<li class="toctree-l1"><a class="reference internal" href="../../../../ray-101/output/2_Intro_Train_04.html">3. Overview of the training loop in Ray Train</a></li>
+<li class="toctree-l1"><a class="reference internal" href="../../../../ray-101/output/2_Intro_Train_05.html">4. Migrating the model and dataset to Ray Train</a></li>
+<li class="toctree-l1"><a class="reference internal" href="../../../../ray-101/output/2_Intro_Train_06.html">5. Reporting checkpoints and metrics</a></li>
+<li class="toctree-l1"><a class="reference internal" href="../../../../ray-101/output/2_Intro_Train_07.html">6. Launching the distributed training job</a></li>
+<li class="toctree-l1"><a class="reference internal" href="../../../../ray-101/output/2_Intro_Train_08.html">7. Accessing the training results</a></li>
+<li class="toctree-l1"><a class="reference internal" href="../../../../ray-101/output/2_Intro_Train_09.html">8. Ray Train in Production</a></li>
+<li class="toctree-l1"><a class="reference internal" href="../../../../ray-101/output/3_Intro_Tune_01.html">Intro to Ray Tune</a></li>
+<li class="toctree-l1"><a class="reference internal" href="../../../../ray-101/output/3_Intro_Tune_02.html">1. Loading and visualizing data</a></li>
+<li class="toctree-l1"><a class="reference internal" href="../../../../ray-101/output/3_Intro_Tune_03.html">2. Setting up a PyTorch model</a></li>
+<li class="toctree-l1"><a class="reference internal" href="../../../../ray-101/output/3_Intro_Tune_04.html">3. Introduction to Ray Tune</a></li>
+<li class="toctree-l1"><a class="reference internal" href="../../../../ray-101/output/3_Intro_Tune_05.html">4. Diving deeper into Ray Tune concepts</a></li>
+<li class="toctree-l1"><a class="reference internal" href="../../../../ray-101/output/3_Intro_Tune_06.html">5. Hyperparameter tuning the PyTorch model using Ray Tune</a></li>
+<li class="toctree-l1"><a class="reference internal" href="../../../../ray-101/output/4_Intro_Data_01.html">Intro to Ray Data</a></li>
+<li class="toctree-l1"><a class="reference internal" href="../../../../ray-101/output/4_Intro_Data_02.html">1. When to use Ray Data</a></li>
+<li class="toctree-l1"><a class="reference internal" href="../../../../ray-101/output/4_Intro_Data_03.html">2. Loading Data</a></li>
+<li class="toctree-l1"><a class="reference internal" href="../../../../ray-101/output/4_Intro_Data_04.html">3. Transforming Data</a></li>
+<li class="toctree-l1"><a class="reference internal" href="../../../../ray-101/output/4_Intro_Data_05.html">4. Data Operations: Grouping, Aggregation, and Shuffling</a></li>
+<li class="toctree-l1"><a class="reference internal" href="../../../../ray-101/output/4_Intro_Data_06.html">5. Persisting Data</a></li>
+<li class="toctree-l1"><a class="reference internal" href="../../../../ray-101/output/5_Intro_Serve_01.html">Intro to Ray Serve</a></li>
+<li class="toctree-l1"><a class="reference internal" href="../../../../ray-101/output/5_Intro_Serve_02.html">1. Overview of Ray Serve</a></li>
+<li class="toctree-l1"><a class="reference internal" href="../../../../ray-101/output/5_Intro_Serve_03.html">2. Implement an Classifier service</a></li>
+<li class="toctree-l1"><a class="reference internal" href="../../../../ray-101/output/5_Intro_Serve_04.html">3. Advanced features of Ray Serve</a></li>
+<li class="toctree-l1"><a class="reference internal" href="../../../../ray-101/output/5_Intro_Serve_05.html">4. Ray Serve in Production</a></li>
+<li class="toctree-l1"><a class="reference internal" href="../../../../ray-101/output/5_Intro_Serve_06.html">Clean up</a></li>
+</ul>
+<p aria-level="2" class="caption" role="heading"><span class="caption-text">Anyscale For Admins</span></p>
+<ul class="nav bd-sidenav">
+<li class="toctree-l1"><a class="reference internal" href="../../../../foundations/Anyscale_For_Admins/02_00_Anyscale_Admin_Overview/output/anyscale_administrator_overview_01.html">Anyscale Administrator Overview</a></li>
+<li class="toctree-l1"><a class="reference internal" href="../../../../foundations/Anyscale_For_Admins/02_00_Anyscale_Admin_Overview/output/anyscale_administrator_overview_02.html">1. What is an Anyscale Cloud?</a></li>
+<li class="toctree-l1"><a class="reference internal" href="../../../../foundations/Anyscale_For_Admins/02_00_Anyscale_Admin_Overview/output/anyscale_administrator_overview_03.html">2. Cloud Deployment Types</a></li>
+<li class="toctree-l1"><a class="reference internal" href="../../../../foundations/Anyscale_For_Admins/02_00_Anyscale_Admin_Overview/output/anyscale_administrator_overview_04.html">3. A Demonstrative Example of Resource Creation with AWS EC2</a></li>
+<li class="toctree-l1"><a class="reference internal" href="../../../../foundations/Anyscale_For_Admins/02_00_Anyscale_Admin_Overview/output/anyscale_administrator_overview_05.html">3.1 IAM Role Definition</a></li>
+<li class="toctree-l1"><a class="reference internal" href="../../../../foundations/Anyscale_For_Admins/02_00_Anyscale_Admin_Overview/output/anyscale_administrator_overview_06.html">4. Register Anyscale Cloud to Your Cloud Provider</a></li>
+<li class="toctree-l1"><a class="reference internal" href="../../../../foundations/Anyscale_For_Admins/02_01_VM_vs_K8s/output/anyscale_vm_vs_k8s_01.html">Deployment Options: Virtual Machines vs. Kubernetes</a></li>
+<li class="toctree-l1"><a class="reference internal" href="../../../../foundations/Anyscale_For_Admins/02_01_VM_vs_K8s/output/anyscale_vm_vs_k8s_02.html">2. Virtual Machines (VM) vs. Kubernetes (K8s)</a></li>
+<li class="toctree-l1"><a class="reference internal" href="../../../../foundations/Anyscale_For_Admins/02_01_VM_vs_K8s/output/anyscale_vm_vs_k8s_03.html">3. (Optional) More Kubernetes Deployments Components</a></li>
+<li class="toctree-l1"><a class="reference internal" href="../../../../foundations/Anyscale_For_Admins/02_02a_Deploy_to_VM_AWS_EC2/output/deploy_to_ec2_01.html">Introduction: Deploy Anyscale Ray on AWS EC2 Instances</a></li>
+<li class="toctree-l1"><a class="reference internal" href="../../../../foundations/Anyscale_For_Admins/02_02a_Deploy_to_VM_AWS_EC2/output/deploy_to_ec2_02.html">1. Create Anyscale Resources with Terraform</a></li>
+<li class="toctree-l1"><a class="reference internal" href="../../../../foundations/Anyscale_For_Admins/02_02a_Deploy_to_VM_AWS_EC2/output/deploy_to_ec2_03.html">2. Register the Anyscale Cloud</a></li>
+<li class="toctree-l1"><a class="reference internal" href="../../../../foundations/Anyscale_For_Admins/02_02a_Deploy_to_VM_AWS_EC2/output/deploy_to_ec2_04.html">3. Test</a></li>
+<li class="toctree-l1"><a class="reference internal" href="../../../../foundations/Anyscale_For_Admins/02_02a_Deploy_to_VM_AWS_EC2/output/deploy_to_ec2_05.html">4. Cleanup</a></li>
+<li class="toctree-l1"><a class="reference internal" href="../../../../foundations/Anyscale_For_Admins/02_02a_Deploy_to_VM_AWS_EC2/output/deploy_to_ec2_06.html">5. Conclusion</a></li>
+<li class="toctree-l1"><a class="reference internal" href="../../../../foundations/Anyscale_For_Admins/02_02b_Deploy_to_VM_GCP_GCE/output/deploy_to_GCE_01.html">Introduction: Deploy Anyscale Ray on GCP Compute Engine Instances (GCE)</a></li>
+<li class="toctree-l1"><a class="reference internal" href="../../../../foundations/Anyscale_For_Admins/02_02b_Deploy_to_VM_GCP_GCE/output/deploy_to_GCE_02.html">Prerequisites</a></li>
+<li class="toctree-l1"><a class="reference internal" href="../../../../foundations/Anyscale_For_Admins/02_02b_Deploy_to_VM_GCP_GCE/output/deploy_to_GCE_03.html">1. Installation</a></li>
+<li class="toctree-l1"><a class="reference internal" href="../../../../foundations/Anyscale_For_Admins/02_02b_Deploy_to_VM_GCP_GCE/output/deploy_to_GCE_04.html">2. Create Anyscale Resources with Terraform</a></li>
+<li class="toctree-l1"><a class="reference internal" href="../../../../foundations/Anyscale_For_Admins/02_02b_Deploy_to_VM_GCP_GCE/output/deploy_to_GCE_05.html">3. Register the Anyscale Cloud</a></li>
+<li class="toctree-l1"><a class="reference internal" href="../../../../foundations/Anyscale_For_Admins/02_02b_Deploy_to_VM_GCP_GCE/output/deploy_to_GCE_06.html">4. Test</a></li>
+<li class="toctree-l1"><a class="reference internal" href="../../../../foundations/Anyscale_For_Admins/02_02b_Deploy_to_VM_GCP_GCE/output/deploy_to_GCE_07.html">5. Cleanup</a></li>
+<li class="toctree-l1"><a class="reference internal" href="../../../../foundations/Anyscale_For_Admins/02_03a_Deploy_to_K8s_New_AWS_EKS/output/deploy_to_a_new_EKS_01.html">Introduction: Deploy Anyscale Ray on A New AWS EKS Cluster</a></li>
+<li class="toctree-l1"><a class="reference internal" href="../../../../foundations/Anyscale_For_Admins/02_03a_Deploy_to_K8s_New_AWS_EKS/output/deploy_to_a_new_EKS_02.html">1. Create Anyscale Resources with Terraform</a></li>
+<li class="toctree-l1"><a class="reference internal" href="../../../../foundations/Anyscale_For_Admins/02_03a_Deploy_to_K8s_New_AWS_EKS/output/deploy_to_a_new_EKS_03.html">2. Install Kubernetes Components</a></li>
+<li class="toctree-l1"><a class="reference internal" href="../../../../foundations/Anyscale_For_Admins/02_03a_Deploy_to_K8s_New_AWS_EKS/output/deploy_to_a_new_EKS_04.html">3. Register the Anyscale Cloud</a></li>
+<li class="toctree-l1"><a class="reference internal" href="../../../../foundations/Anyscale_For_Admins/02_03a_Deploy_to_K8s_New_AWS_EKS/output/deploy_to_a_new_EKS_05.html">4. Install the Anyscale Operator</a></li>
+<li class="toctree-l1"><a class="reference internal" href="../../../../foundations/Anyscale_For_Admins/02_03a_Deploy_to_K8s_New_AWS_EKS/output/deploy_to_a_new_EKS_06.html">5. Verify the Installation</a></li>
+<li class="toctree-l1"><a class="reference internal" href="../../../../foundations/Anyscale_For_Admins/02_03a_Deploy_to_K8s_New_AWS_EKS/output/deploy_to_a_new_EKS_07.html">6. Test</a></li>
+<li class="toctree-l1"><a class="reference internal" href="../../../../foundations/Anyscale_For_Admins/02_03a_Deploy_to_K8s_New_AWS_EKS/output/deploy_to_a_new_EKS_08.html">7. Clean up</a></li>
+<li class="toctree-l1"><a class="reference internal" href="../../../../foundations/Anyscale_For_Admins/02_03a_Deploy_to_K8s_New_AWS_EKS/output/deploy_to_a_new_EKS_09.html">8. Conclusion</a></li>
+<li class="toctree-l1"><a class="reference internal" href="../../../../foundations/Anyscale_For_Admins/02_03b_Deploy_to_K8s_Existing_AWS_EKS/output/deploy_to_an_existing_EKS_01.html">Introduction: Deploy Anyscale Ray on An Existing AWS EKS Cluster</a></li>
+<li class="toctree-l1"><a class="reference internal" href="../../../../foundations/Anyscale_For_Admins/02_03b_Deploy_to_K8s_Existing_AWS_EKS/output/deploy_to_an_existing_EKS_02.html">Prerequisites</a></li>
+<li class="toctree-l1"><a class="reference internal" href="../../../../foundations/Anyscale_For_Admins/02_03b_Deploy_to_K8s_Existing_AWS_EKS/output/deploy_to_an_existing_EKS_03.html">1. Create Anyscale Resources with Terraform</a></li>
+<li class="toctree-l1"><a class="reference internal" href="../../../../foundations/Anyscale_For_Admins/02_03b_Deploy_to_K8s_Existing_AWS_EKS/output/deploy_to_an_existing_EKS_04.html">2. Attach Required IAM Policies to Your existing EKS’s Node Role</a></li>
+<li class="toctree-l1"><a class="reference internal" href="../../../../foundations/Anyscale_For_Admins/02_03b_Deploy_to_K8s_Existing_AWS_EKS/output/deploy_to_an_existing_EKS_05.html">3. Install Kubernetes Components</a></li>
+<li class="toctree-l1"><a class="reference internal" href="../../../../foundations/Anyscale_For_Admins/02_03b_Deploy_to_K8s_Existing_AWS_EKS/output/deploy_to_an_existing_EKS_06.html">4. Register the Anyscale Cloud</a></li>
+<li class="toctree-l1"><a class="reference internal" href="../../../../foundations/Anyscale_For_Admins/02_03b_Deploy_to_K8s_Existing_AWS_EKS/output/deploy_to_an_existing_EKS_07.html">5. Install the Anyscale Operator</a></li>
+<li class="toctree-l1"><a class="reference internal" href="../../../../foundations/Anyscale_For_Admins/02_03b_Deploy_to_K8s_Existing_AWS_EKS/output/deploy_to_an_existing_EKS_08.html">6. Verify the Installation</a></li>
+<li class="toctree-l1"><a class="reference internal" href="../../../../foundations/Anyscale_For_Admins/02_03b_Deploy_to_K8s_Existing_AWS_EKS/output/deploy_to_an_existing_EKS_09.html">7. Test</a></li>
+<li class="toctree-l1"><a class="reference internal" href="../../../../foundations/Anyscale_For_Admins/02_03b_Deploy_to_K8s_Existing_AWS_EKS/output/deploy_to_an_existing_EKS_10.html">8. Troubleshooting</a></li>
+<li class="toctree-l1"><a class="reference internal" href="../../../../foundations/Anyscale_For_Admins/02_03b_Deploy_to_K8s_Existing_AWS_EKS/output/deploy_to_an_existing_EKS_11.html">9. Clean up</a></li>
+<li class="toctree-l1"><a class="reference internal" href="../../../../foundations/Anyscale_For_Admins/02_03b_Deploy_to_K8s_Existing_AWS_EKS/output/deploy_to_an_existing_EKS_12.html">10. Conclusion</a></li>
+<li class="toctree-l1"><a class="reference internal" href="../../../../foundations/Anyscale_For_Admins/02_03c_Deploy_to_K8s_New_GCP_GKE/output/deploy_to_new_GKE_01.html">Introduction: Deploy Anyscale Ray on A New Google Kubernetes Engine (GKE) Cluster</a></li>
+<li class="toctree-l1"><a class="reference internal" href="../../../../foundations/Anyscale_For_Admins/02_03c_Deploy_to_K8s_New_GCP_GKE/output/deploy_to_new_GKE_02.html">Prerequisites</a></li>
+<li class="toctree-l1"><a class="reference internal" href="../../../../foundations/Anyscale_For_Admins/02_03c_Deploy_to_K8s_New_GCP_GKE/output/deploy_to_new_GKE_03.html">1. Installation</a></li>
+<li class="toctree-l1"><a class="reference internal" href="../../../../foundations/Anyscale_For_Admins/02_03c_Deploy_to_K8s_New_GCP_GKE/output/deploy_to_new_GKE_04.html">2. Create Anyscale Resources with Terraform</a></li>
+<li class="toctree-l1"><a class="reference internal" href="../../../../foundations/Anyscale_For_Admins/02_03c_Deploy_to_K8s_New_GCP_GKE/output/deploy_to_new_GKE_05.html">3. Troubleshooting GPU Availability</a></li>
+<li class="toctree-l1"><a class="reference internal" href="../../../../foundations/Anyscale_For_Admins/02_03c_Deploy_to_K8s_New_GCP_GKE/output/deploy_to_new_GKE_06.html">4. kubectl Configuration</a></li>
+<li class="toctree-l1"><a class="reference internal" href="../../../../foundations/Anyscale_For_Admins/02_03c_Deploy_to_K8s_New_GCP_GKE/output/deploy_to_new_GKE_07.html">5. Install NGINX Ingress Controller</a></li>
+<li class="toctree-l1"><a class="reference internal" href="../../../../foundations/Anyscale_For_Admins/02_03c_Deploy_to_K8s_New_GCP_GKE/output/deploy_to_new_GKE_08.html">6. (Optional) Upgrade Anyscale Dependencies</a></li>
+<li class="toctree-l1"><a class="reference internal" href="../../../../foundations/Anyscale_For_Admins/02_03c_Deploy_to_K8s_New_GCP_GKE/output/deploy_to_new_GKE_09.html">7. Register the Anyscale Cloud</a></li>
+<li class="toctree-l1"><a class="reference internal" href="../../../../foundations/Anyscale_For_Admins/02_03c_Deploy_to_K8s_New_GCP_GKE/output/deploy_to_new_GKE_10.html">8. Install the Anyscale Operator</a></li>
+<li class="toctree-l1"><a class="reference internal" href="../../../../foundations/Anyscale_For_Admins/02_03c_Deploy_to_K8s_New_GCP_GKE/output/deploy_to_new_GKE_11.html">8. Test</a></li>
+<li class="toctree-l1"><a class="reference internal" href="../../../../foundations/Anyscale_For_Admins/02_03c_Deploy_to_K8s_New_GCP_GKE/output/deploy_to_new_GKE_12.html">9. Cleanup</a></li>
+</ul>
+<p aria-level="2" class="caption" role="heading"><span class="caption-text">Llm Serving</span></p>
+<ul class="nav bd-sidenav">
+<li class="toctree-l1"><a class="reference internal" href="../../../../foundations/LLM_Serving/00_intro_serve_llm/output/notebook_01.html">Introduction to Ray Serve LLM: Foundations of Large Language Model Serving</a></li>
+<li class="toctree-l1"><a class="reference internal" href="../../../../foundations/LLM_Serving/00_intro_serve_llm/output/notebook_02.html">What is LLM Serving?</a></li>
+<li class="toctree-l1"><a class="reference internal" href="../../../../foundations/LLM_Serving/00_intro_serve_llm/output/notebook_03.html">Key Concepts and Optimizations</a></li>
+<li class="toctree-l1"><a class="reference internal" href="../../../../foundations/LLM_Serving/00_intro_serve_llm/output/notebook_04.html">Challenges in LLM Serving</a></li>
+<li class="toctree-l1"><a class="reference internal" href="../../../../foundations/LLM_Serving/00_intro_serve_llm/output/notebook_05.html">Ray Serve LLM + Anyscale Architecture</a></li>
+<li class="toctree-l1"><a class="reference internal" href="../../../../foundations/LLM_Serving/00_intro_serve_llm/output/notebook_06.html">Getting Started with Ray Serve LLM</a></li>
+<li class="toctree-l1"><a class="reference internal" href="../../../../foundations/LLM_Serving/00_intro_serve_llm/output/notebook_07.html">Key Takeaways</a></li>
+<li class="toctree-l1"><a class="reference internal" href="../../../../foundations/LLM_Serving/01_deploy_medium_llm/output/notebook_01.html">Deploy a Medium-Sized LLM with Ray Serve LLM</a></li>
+<li class="toctree-l1"><a class="reference internal" href="../../../../foundations/LLM_Serving/01_deploy_medium_llm/output/notebook_02.html">Overview: Why Medium-Sized Models?</a></li>
+<li class="toctree-l1"><a class="reference internal" href="../../../../foundations/LLM_Serving/01_deploy_medium_llm/output/notebook_03.html">Setting up Ray Serve LLM</a></li>
+<li class="toctree-l1"><a class="reference internal" href="../../../../foundations/LLM_Serving/01_deploy_medium_llm/output/notebook_04.html">Local Deployment &amp; Inference</a></li>
+<li class="toctree-l1"><a class="reference internal" href="../../../../foundations/LLM_Serving/01_deploy_medium_llm/output/notebook_05.html">Deploying to Anyscale Services</a></li>
+<li class="toctree-l1"><a class="reference internal" href="../../../../foundations/LLM_Serving/01_deploy_medium_llm/output/notebook_06.html">Advanced Topics: Monitoring &amp; Optimization</a></li>
+<li class="toctree-l1"><a class="reference internal" href="../../../../foundations/LLM_Serving/01_deploy_medium_llm/output/notebook_07.html">Summary &amp; Outlook</a></li>
+<li class="toctree-l1"><a class="reference internal" href="../../../../foundations/LLM_Serving/02_advanced_llm_features/output/notebook_01.html">Advanced LLM Features with Ray Serve LLM</a></li>
+<li class="toctree-l1"><a class="reference internal" href="../../../../foundations/LLM_Serving/02_advanced_llm_features/output/notebook_02.html">Overview: Advanced Features Preview</a></li>
+<li class="toctree-l1"><a class="reference internal" href="../../../../foundations/LLM_Serving/02_advanced_llm_features/output/notebook_03.html">Example: Deploying LoRA Adapters</a></li>
+<li class="toctree-l1"><a class="reference internal" href="../../../../foundations/LLM_Serving/02_advanced_llm_features/output/notebook_04.html">Example: Getting Structured JSON Output</a></li>
+<li class="toctree-l1"><a class="reference internal" href="../../../../foundations/LLM_Serving/02_advanced_llm_features/output/notebook_05.html">Example: Setting up Tool Calling</a></li>
+<li class="toctree-l1"><a class="reference internal" href="../../../../foundations/LLM_Serving/02_advanced_llm_features/output/notebook_06.html">How to Choose an LLM?</a></li>
+<li class="toctree-l1"><a class="reference internal" href="../../../../foundations/LLM_Serving/02_advanced_llm_features/output/notebook_07.html">Conclusion: Next Steps</a></li>
+</ul>
+<p aria-level="2" class="caption" role="heading"><span class="caption-text">Observability</span></p>
+<ul class="nav bd-sidenav">
+<li class="toctree-l1"><a class="reference internal" href="../../../../foundations/Observability/01_Intro_and_setup/output/01_general_intro_and_setup_01.html">Observability Introduction</a></li>
+<li class="toctree-l1"><a class="reference internal" href="../../../../foundations/Observability/01_Intro_and_setup/output/01_general_intro_and_setup_02.html">Observability Overview</a></li>
+<li class="toctree-l1"><a class="reference internal" href="../../../../foundations/Observability/01_Intro_and_setup/output/01_general_intro_and_setup_03.html">Setting Up Local Ray Observability</a></li>
+<li class="toctree-l1"><a class="reference internal" href="../../../../foundations/Observability/02_Ray_Anyscale_Introduction/output/2_Ray_Anyscale_Observability_Overview_01.html">Ray and Anyscale Observability Introduction</a></li>
+<li class="toctree-l1"><a class="reference internal" href="../../../../foundations/Observability/02_Ray_Anyscale_Introduction/output/2_Ray_Anyscale_Observability_Overview_02.html">Ray Observability</a></li>
+<li class="toctree-l1"><a class="reference internal" href="../../../../foundations/Observability/02_Ray_Anyscale_Introduction/output/2_Ray_Anyscale_Observability_Overview_03.html">Anyscale Observability</a></li>
+<li class="toctree-l1"><a class="reference internal" href="../../../../foundations/Observability/02_Ray_Anyscale_Introduction/output/2_Ray_Anyscale_Observability_Overview_04.html">Example</a></li>
+<li class="toctree-l1"><a class="reference internal" href="../../../../foundations/Observability/03_Ray_Anyscale_Observability_in_Detail/output/03_Ray_Anyscale_Observability_in_Details_01.html">Ray and Anyscale Observability in Detail</a></li>
+<li class="toctree-l1"><a class="reference internal" href="../../../../foundations/Observability/03_Ray_Anyscale_Observability_in_Detail/output/03_Ray_Anyscale_Observability_in_Details_02.html">Data Pipeline Observability (Ray Data)</a></li>
+<li class="toctree-l1"><a class="reference internal" href="../../../../foundations/Observability/03_Ray_Anyscale_Observability_in_Detail/output/03_Ray_Anyscale_Observability_in_Details_03.html">Web Application Observability (Ray Serve)</a></li>
+</ul>
+<p aria-level="2" class="caption" role="heading"><span class="caption-text">Ray Train Foundation</span></p>
+<ul class="nav bd-sidenav">
+<li class="toctree-l1"><a class="reference internal" href="../../../../foundations/Ray_Train_Foundation/output/01_02_03_intro_to_ray_train_01.html">📚 01 · Introduction to Ray Train</a></li>
+<li class="toctree-l1"><a class="reference internal" href="../../../../foundations/Ray_Train_Foundation/output/01_02_03_intro_to_ray_train_02.html">01 · Imports</a></li>
+<li class="toctree-l1"><a class="reference internal" href="../../../../foundations/Ray_Train_Foundation/output/01_02_03_intro_to_ray_train_03.html">04 · Define ResNet-18 Model for MNIST</a></li>
+<li class="toctree-l1"><a class="reference internal" href="../../../../foundations/Ray_Train_Foundation/output/01_02_03_intro_to_ray_train_04.html">05 · Define the Ray Train Loop (DDP per-worker)</a></li>
+<li class="toctree-l1"><a class="reference internal" href="../../../../foundations/Ray_Train_Foundation/output/01_02_03_intro_to_ray_train_05.html">06 · Define <code class="docutils literal notranslate"><span class="pre">train_loop_config</span></code></a></li>
+<li class="toctree-l1"><a class="reference internal" href="../../../../foundations/Ray_Train_Foundation/output/01_02_03_intro_to_ray_train_06.html">07 · Configure Scaling with <code class="docutils literal notranslate"><span class="pre">ScalingConfig</span></code></a></li>
+<li class="toctree-l1"><a class="reference internal" href="../../../../foundations/Ray_Train_Foundation/output/01_02_03_intro_to_ray_train_07.html">08 · Wrap the Model with <code class="docutils literal notranslate"><span class="pre">prepare_model()</span></code></a></li>
+<li class="toctree-l1"><a class="reference internal" href="../../../../foundations/Ray_Train_Foundation/output/01_02_03_intro_to_ray_train_08.html">09 · Build the DataLoader with <code class="docutils literal notranslate"><span class="pre">prepare_data_loader()</span></code></a></li>
+<li class="toctree-l1"><a class="reference internal" href="../../../../foundations/Ray_Train_Foundation/output/01_02_03_intro_to_ray_train_09.html">10 · Report Training Metrics</a></li>
+<li class="toctree-l1"><a class="reference internal" href="../../../../foundations/Ray_Train_Foundation/output/01_02_03_intro_to_ray_train_10.html">11 · Save Checkpoints and Report Metrics</a></li>
+<li class="toctree-l1"><a class="reference internal" href="../../../../foundations/Ray_Train_Foundation/output/01_02_03_intro_to_ray_train_11.html">14 · Create the <code class="docutils literal notranslate"><span class="pre">TorchTrainer</span></code></a></li>
+<li class="toctree-l1"><a class="reference internal" href="../../../../foundations/Ray_Train_Foundation/output/01_02_03_intro_to_ray_train_12.html">16 · Inspect the Training Results</a></li>
+<li class="toctree-l1"><a class="reference internal" href="../../../../foundations/Ray_Train_Foundation/output/01_02_03_intro_to_ray_train_13.html">18 · Load a Checkpoint for Inference</a></li>
+<li class="toctree-l1"><a class="reference internal" href="../../../../foundations/Ray_Train_Foundation/output/01_02_03_intro_to_ray_train_14.html">🔄 02 · Integrating Ray Train with Ray Data</a></li>
+<li class="toctree-l1"><a class="reference internal" href="../../../../foundations/Ray_Train_Foundation/output/01_02_03_intro_to_ray_train_15.html">01 · Define Training Loop with Ray Data</a></li>
+<li class="toctree-l1"><a class="reference internal" href="../../../../foundations/Ray_Train_Foundation/output/01_02_03_intro_to_ray_train_16.html">02 · Build DataLoader from Ray Data</a></li>
+<li class="toctree-l1"><a class="reference internal" href="../../../../foundations/Ray_Train_Foundation/output/01_02_03_intro_to_ray_train_17.html">03 · Prepare Dataset for Ray Data</a></li>
+<li class="toctree-l1"><a class="reference internal" href="../../../../foundations/Ray_Train_Foundation/output/01_02_03_intro_to_ray_train_18.html">05 · Define Image Transformation</a></li>
+<li class="toctree-l1"><a class="reference internal" href="../../../../foundations/Ray_Train_Foundation/output/01_02_03_intro_to_ray_train_19.html">07 · Configure <code class="docutils literal notranslate"><span class="pre">TorchTrainer</span></code> with Ray Data</a></li>
+<li class="toctree-l1"><a class="reference internal" href="../../../../foundations/Ray_Train_Foundation/output/01_02_03_intro_to_ray_train_20.html">🛡️ 03 · Fault Tolerance in Ray Train</a></li>
+<li class="toctree-l1"><a class="reference internal" href="../../../../foundations/Ray_Train_Foundation/output/01_02_03_intro_to_ray_train_21.html">01 · Modify Training Loop to Enable Checkpoint Loading</a></li>
+<li class="toctree-l1"><a class="reference internal" href="../../../../foundations/Ray_Train_Foundation/output/01_02_03_intro_to_ray_train_22.html">02 · Save Full Checkpoint with Extra State</a></li>
+<li class="toctree-l1"><a class="reference internal" href="../../../../foundations/Ray_Train_Foundation/output/01_02_03_intro_to_ray_train_23.html">04 · Launch Fault-Tolerant Training</a></li>
+<li class="toctree-l1"><a class="reference internal" href="../../../../foundations/Ray_Train_Foundation/output/01_02_03_intro_to_ray_train_24.html">05 · Manual Restoration from Checkpoints</a></li>
+<li class="toctree-l1"><a class="reference internal" href="../../../../foundations/Ray_Train_Foundation/output/01_02_03_intro_to_ray_train_25.html">07 · Clean Up Cluster Storage</a></li>
+<li class="toctree-l1"><a class="reference internal" href="../../../../foundations/Ray_Train_Foundation/output/01_02_03_intro_to_ray_train_26.html">🎉 Wrapping Up &amp; Next Steps</a></li>
+</ul>
+<p aria-level="2" class="caption" role="heading"><span class="caption-text">Ray Data Batch Inference/00 Workload</span></p>
+<ul class="current nav bd-sidenav">
+<li class="toctree-l1"><a class="reference internal" href="01_Ray_Data_batch_inference_01.html">Batch Inference with Ray Data</a></li>
+<li class="toctree-l1"><a class="reference internal" href="01_Ray_Data_batch_inference_02.html">Architecture</a></li>
+<li class="toctree-l1"><a class="reference internal" href="01_Ray_Data_batch_inference_03.html">Load a dataset</a></li>
+<li class="toctree-l1"><a class="reference internal" href="01_Ray_Data_batch_inference_04.html">Batch Inference Class</a></li>
+<li class="toctree-l1 current active"><a class="current reference internal" href="#">Create a batch data and call the model</a></li>
+<li class="toctree-l1"><a class="reference internal" href="01_Ray_Data_batch_inference_06.html">Run inference on the entire dataset</a></li>
+</ul>
+<p aria-level="2" class="caption" role="heading"><span class="caption-text">Ray Data Processing/00 Workload</span></p>
+<ul class="nav bd-sidenav">
+<li class="toctree-l1"><a class="reference internal" href="../../../Ray_Data_Processing/00_workload/output/02_Ray_Data_data_processing_01.html">Data Processing with Ray Data</a></li>
+<li class="toctree-l1"><a class="reference internal" href="../../../Ray_Data_Processing/00_workload/output/02_Ray_Data_data_processing_02.html">Library Imports</a></li>
+<li class="toctree-l1"><a class="reference internal" href="../../../Ray_Data_Processing/00_workload/output/02_Ray_Data_data_processing_03.html">Convert to Ray Dataset</a></li>
+<li class="toctree-l1"><a class="reference internal" href="../../../Ray_Data_Processing/00_workload/output/02_Ray_Data_data_processing_04.html">Filter Ray Dataset</a></li>
+<li class="toctree-l1"><a class="reference internal" href="../../../Ray_Data_Processing/00_workload/output/02_Ray_Data_data_processing_05.html">Join Two Ray Datasets</a></li>
+<li class="toctree-l1"><a class="reference internal" href="../../../Ray_Data_Processing/00_workload/output/02_Ray_Data_data_processing_06.html">Preprocessing with a Tokenizer</a></li>
+</ul>
+<p aria-level="2" class="caption" role="heading"><span class="caption-text">Ray Distributed Training/00 Workload</span></p>
+<ul class="nav bd-sidenav">
+<li class="toctree-l1"><a class="reference internal" href="../../../Ray_Distributed_Training/00_workload/output/04_Ray_Train_distributed_training_01.html">Distributed training with Ray Train, PyTorch and Hugging Face</a></li>
+<li class="toctree-l1"><a class="reference internal" href="../../../Ray_Distributed_Training/00_workload/output/04_Ray_Train_distributed_training_02.html">1. Architecture</a></li>
+<li class="toctree-l1"><a class="reference internal" href="../../../Ray_Distributed_Training/00_workload/output/04_Ray_Train_distributed_training_03.html">3. Metrics Setup</a></li>
+<li class="toctree-l1"><a class="reference internal" href="../../../Ray_Distributed_Training/00_workload/output/04_Ray_Train_distributed_training_04.html">4. Training function per worker</a></li>
+<li class="toctree-l1"><a class="reference internal" href="../../../Ray_Distributed_Training/00_workload/output/04_Ray_Train_distributed_training_05.html">5. Main Training Function</a></li>
+<li class="toctree-l1"><a class="reference internal" href="../../../Ray_Distributed_Training/00_workload/output/04_Ray_Train_distributed_training_06.html">6. Start Training</a></li>
+</ul>
+<p aria-level="2" class="caption" role="heading"><span class="caption-text">Ray Serve Online Serving/00 Workload</span></p>
+<ul class="nav bd-sidenav">
+<li class="toctree-l1"><a class="reference internal" href="../../../Ray_Serve_Online_Serving/00_workload/output/03_Ray_Serve_online_serving_01.html">Online Model Serving with Ray Serve</a></li>
+<li class="toctree-l1"><a class="reference internal" href="../../../Ray_Serve_Online_Serving/00_workload/output/03_Ray_Serve_online_serving_02.html">Architecture</a></li>
+<li class="toctree-l1"><a class="reference internal" href="../../../Ray_Serve_Online_Serving/00_workload/output/03_Ray_Serve_online_serving_03.html">FastAPI webservice and deploy a model</a></li>
+<li class="toctree-l1"><a class="reference internal" href="../../../Ray_Serve_Online_Serving/00_workload/output/03_Ray_Serve_online_serving_04.html">Simulate Client: Send test requests</a></li>
+</ul>
+<p aria-level="2" class="caption" role="heading"><span class="caption-text">Train Generative Cv/00 Workload</span></p>
+<ul class="nav bd-sidenav">
+<li class="toctree-l1"><a class="reference internal" href="../../../Train_Generative_CV/00_workload/output/04d1_generative_cv_pattern_01.html">04-d1 Generative computer-vision pattern with Ray Train</a></li>
+<li class="toctree-l1"><a class="reference internal" href="../../../Train_Generative_CV/00_workload/output/04d1_generative_cv_pattern_02.html">1. Imports and setup</a></li>
+<li class="toctree-l1"><a class="reference internal" href="../../../Train_Generative_CV/00_workload/output/04d1_generative_cv_pattern_03.html">8. Pixel diffusion LightningModule</a></li>
+<li class="toctree-l1"><a class="reference internal" href="../../../Train_Generative_CV/00_workload/output/04d1_generative_cv_pattern_04.html">9. Ray Train <code class="docutils literal notranslate"><span class="pre">train_loop</span></code> (Lightning + Ray integration)</a></li>
+<li class="toctree-l1"><a class="reference internal" href="../../../Train_Generative_CV/00_workload/output/04d1_generative_cv_pattern_05.html">12. Resume from latest checkpoint</a></li>
+<li class="toctree-l1"><a class="reference internal" href="../../../Train_Generative_CV/00_workload/output/04d1_generative_cv_pattern_06.html">13. Reverse diffusion sampler</a></li>
+</ul>
+<p aria-level="2" class="caption" role="heading"><span class="caption-text">Train Policy Learning/00 Workload</span></p>
+<ul class="nav bd-sidenav">
+<li class="toctree-l1"><a class="reference internal" href="../../../Train_Policy_Learning/00_workload/output/04d2_policy_learning_pattern_01.html">04-d2 Diffusion-Policy Pattern with Ray Train</a></li>
+<li class="toctree-l1"><a class="reference internal" href="../../../Train_Policy_Learning/00_workload/output/04d2_policy_learning_pattern_02.html">1. Imports and setup</a></li>
+<li class="toctree-l1"><a class="reference internal" href="../../../Train_Policy_Learning/00_workload/output/04d2_policy_learning_pattern_03.html">4. DiffusionPolicy LightningModule</a></li>
+<li class="toctree-l1"><a class="reference internal" href="../../../Train_Policy_Learning/00_workload/output/04d2_policy_learning_pattern_04.html">5. Distributed Train loop with checkpointing</a></li>
+<li class="toctree-l1"><a class="reference internal" href="../../../Train_Policy_Learning/00_workload/output/04d2_policy_learning_pattern_05.html">8. Reverse diffusion helper</a></li>
+</ul>
+<p aria-level="2" class="caption" role="heading"><span class="caption-text">Train Rec Sys/00 Workload</span></p>
+<ul class="nav bd-sidenav">
+<li class="toctree-l1"><a class="reference internal" href="../../../Train_Rec_sys/00_workload/output/04e_rec_sys_workload_pattern_01.html">04e Recommendation system pattern with Ray Train</a></li>
+<li class="toctree-l1"><a class="reference internal" href="../../../Train_Rec_sys/00_workload/output/04e_rec_sys_workload_pattern_02.html">1. Imports</a></li>
+<li class="toctree-l1"><a class="reference internal" href="../../../Train_Rec_sys/00_workload/output/04e_rec_sys_workload_pattern_03.html">7. Define matrix factorization model</a></li>
+<li class="toctree-l1"><a class="reference internal" href="../../../Train_Rec_sys/00_workload/output/04e_rec_sys_workload_pattern_04.html">8. Define Ray Train loop (with validation, checkpointing, and Ray-managed metrics)</a></li>
+<li class="toctree-l1"><a class="reference internal" href="../../../Train_Rec_sys/00_workload/output/04e_rec_sys_workload_pattern_05.html">11. Resume training from checkpoint</a></li>
+<li class="toctree-l1"><a class="reference internal" href="../../../Train_Rec_sys/00_workload/output/04e_rec_sys_workload_pattern_06.html">12. Inference: recommend top-N items for a user</a></li>
+</ul>
+<p aria-level="2" class="caption" role="heading"><span class="caption-text">Train Tabular/00 Workload</span></p>
+<ul class="nav bd-sidenav">
+<li class="toctree-l1"><a class="reference internal" href="../../../Train_Tabular/00_workload/output/04b_tabular_workload_pattern_01.html">04b Tabular workload pattern with Ray Train</a></li>
+<li class="toctree-l1"><a class="reference internal" href="../../../Train_Tabular/00_workload/output/04b_tabular_workload_pattern_02.html">1. Imports</a></li>
+<li class="toctree-l1"><a class="reference internal" href="../../../Train_Tabular/00_workload/output/04b_tabular_workload_pattern_03.html">8. Define the Ray Train worker loop (Arrow-based, memory-efficient)</a></li>
+<li class="toctree-l1"><a class="reference internal" href="../../../Train_Tabular/00_workload/output/04b_tabular_workload_pattern_04.html">12. Confusion matrix visualization</a></li>
+<li class="toctree-l1"><a class="reference internal" href="../../../Train_Tabular/00_workload/output/04b_tabular_workload_pattern_05.html">15. Continue training from the latest checkpoint</a></li>
+</ul>
+<p aria-level="2" class="caption" role="heading"><span class="caption-text">Train Time Series/00 Workload</span></p>
+<ul class="nav bd-sidenav">
+<li class="toctree-l1"><a class="reference internal" href="../../../Train_Time_Series/00_workload/output/04c_time_series_workload_pattern_01.html">04c Time-Series workload pattern with Ray Train</a></li>
+<li class="toctree-l1"><a class="reference internal" href="../../../Train_Time_Series/00_workload/output/04c_time_series_workload_pattern_02.html">1. Imports</a></li>
+<li class="toctree-l1"><a class="reference internal" href="../../../Train_Time_Series/00_workload/output/04c_time_series_workload_pattern_03.html">9. PositionalEncoding and Transformer model</a></li>
+<li class="toctree-l1"><a class="reference internal" href="../../../Train_Time_Series/00_workload/output/04c_time_series_workload_pattern_04.html">10. Ray Train training loop (with teacher forcing)</a></li>
+<li class="toctree-l1"><a class="reference internal" href="../../../Train_Time_Series/00_workload/output/04c_time_series_workload_pattern_05.html">13. Resume training from checkpoint</a></li>
+<li class="toctree-l1"><a class="reference internal" href="../../../Train_Time_Series/00_workload/output/04c_time_series_workload_pattern_06.html">14. Inference helper — Ray Data batch predictor on GPU</a></li>
+</ul>
+<p aria-level="2" class="caption" role="heading"><span class="caption-text">Train Vision Pattern/00 Workload</span></p>
+<ul class="nav bd-sidenav">
+<li class="toctree-l1"><a class="reference internal" href="../../../Train_Vision_Pattern/00_workload/output/04a_vision_pattern_01.html">04a Computer-vision pattern with Ray Train</a></li>
+<li class="toctree-l1"><a class="reference internal" href="../../../Train_Vision_Pattern/00_workload/output/04a_vision_pattern_02.html">1. Imports</a></li>
+<li class="toctree-l1"><a class="reference internal" href="../../../Train_Vision_Pattern/00_workload/output/04a_vision_pattern_03.html">6. Custom <code class="docutils literal notranslate"><span class="pre">Food101Dataset</span></code> for Parquet</a></li>
+<li class="toctree-l1"><a class="reference internal" href="../../../Train_Vision_Pattern/00_workload/output/04a_vision_pattern_04.html">10. Helper: Ray-prepared DataLoaders</a></li>
+<li class="toctree-l1"><a class="reference internal" href="../../../Train_Vision_Pattern/00_workload/output/04a_vision_pattern_05.html">11. <code class="docutils literal notranslate"><span class="pre">train_loop_per_worker</span></code></a></li>
+<li class="toctree-l1"><a class="reference internal" href="../../../Train_Vision_Pattern/00_workload/output/04a_vision_pattern_06.html">12. Launch distributed training with <code class="docutils literal notranslate"><span class="pre">TorchTrainer</span></code></a></li>
+<li class="toctree-l1"><a class="reference internal" href="../../../Train_Vision_Pattern/00_workload/output/04a_vision_pattern_07.html">13. Plot training and validation loss curves</a></li>
+<li class="toctree-l1"><a class="reference internal" href="../../../Train_Vision_Pattern/00_workload/output/04a_vision_pattern_08.html">14. Demonstrate fault-tolerant resumption</a></li>
+<li class="toctree-l1"><a class="reference internal" href="../../../Train_Vision_Pattern/00_workload/output/04a_vision_pattern_09.html">15. Batch inference with Ray Data</a></li>
+</ul>
+
+    </div>
+</nav></div>
+    </div>
+  
+  
+  <div class="sidebar-primary-items__end sidebar-primary__section">
+  </div>
+  
+  <div id="rtd-footer-container"></div>
+
+
+      </div>
+      
+      <main id="main-content" class="bd-main" role="main">
+        
+        
+
+<div class="sbt-scroll-pixel-helper"></div>
+
+          <div class="bd-content">
+            <div class="bd-article-container">
+              
+              <div class="bd-header-article d-print-none">
+<div class="header-article-items header-article__inner">
+  
+    <div class="header-article-items__start">
+      
+        <div class="header-article-item"><button class="sidebar-toggle primary-toggle btn btn-sm" title="Toggle primary sidebar" data-bs-placement="bottom" data-bs-toggle="tooltip">
+  <span class="fa-solid fa-bars"></span>
+</button></div>
+      
+    </div>
+  
+  
+    <div class="header-article-items__end">
+      
+        <div class="header-article-item">
+
+<div class="article-header-buttons">
+
+
+
+
+
+<div class="dropdown dropdown-download-buttons">
+  <button class="btn dropdown-toggle" type="button" data-bs-toggle="dropdown" aria-expanded="false" aria-label="Download this page">
+    <i class="fas fa-download"></i>
+  </button>
+  <ul class="dropdown-menu">
+      
+      
+      
+      <li><a href="../../../../../_sources/courses/workloads/Ray_Data_Batch_Inference/00_workload/output/01_Ray_Data_batch_inference_05.ipynb" target="_blank"
+   class="btn btn-sm btn-download-source-button dropdown-item"
+   title="Download source file"
+   data-bs-placement="left" data-bs-toggle="tooltip"
+>
+  
+
+<span class="btn__icon-container">
+  <i class="fas fa-file"></i>
+  </span>
+<span class="btn__text-container">.ipynb</span>
+</a>
+</li>
+      
+      
+      
+      
+      <li>
+<button onclick="window.print()"
+  class="btn btn-sm btn-download-pdf-button dropdown-item"
+  title="Print to PDF"
+  data-bs-placement="left" data-bs-toggle="tooltip"
+>
+  
+
+<span class="btn__icon-container">
+  <i class="fas fa-file-pdf"></i>
+  </span>
+<span class="btn__text-container">.pdf</span>
+</button>
+</li>
+      
+  </ul>
+</div>
+
+
+
+
+<button onclick="toggleFullScreen()"
+  class="btn btn-sm btn-fullscreen-button"
+  title="Fullscreen mode"
+  data-bs-placement="bottom" data-bs-toggle="tooltip"
+>
+  
+
+<span class="btn__icon-container">
+  <i class="fas fa-expand"></i>
+  </span>
+
+</button>
+
+
+
+<script>
+document.write(`
+  <button class="btn btn-sm nav-link pst-navbar-icon theme-switch-button" title="light/dark" aria-label="light/dark" data-bs-placement="bottom" data-bs-toggle="tooltip">
+    <i class="theme-switch fa-solid fa-sun fa-lg" data-mode="light"></i>
+    <i class="theme-switch fa-solid fa-moon fa-lg" data-mode="dark"></i>
+    <i class="theme-switch fa-solid fa-circle-half-stroke fa-lg" data-mode="auto"></i>
+  </button>
+`);
+</script>
+
+
+<script>
+document.write(`
+  <button class="btn btn-sm pst-navbar-icon search-button search-button__button" title="Search" aria-label="Search" data-bs-placement="bottom" data-bs-toggle="tooltip">
+    <i class="fa-solid fa-magnifying-glass fa-lg"></i>
+  </button>
+`);
+</script>
+<button class="sidebar-toggle secondary-toggle btn btn-sm" title="Toggle secondary sidebar" data-bs-placement="bottom" data-bs-toggle="tooltip">
+    <span class="fa-solid fa-list"></span>
+</button>
+</div></div>
+      
+    </div>
+  
+</div>
+</div>
+              
+              
+
+<div id="jb-print-docs-body" class="onlyprint">
+    <h1>Create a batch data and call the model</h1>
+    <!-- Table of contents -->
+    <div id="print-main-content">
+        <div id="jb-print-toc">
+            
+            <div>
+                <h2> Contents </h2>
+            </div>
+            <nav aria-label="Page">
+                <ul class="visible nav section-nav flex-column">
+<li class="toc-h2 nav-item toc-entry"><a class="reference internal nav-link" href="#deploying-at-scale">Deploying at scale</a></li>
+</ul>
+            </nav>
+        </div>
+    </div>
+</div>
+
+              
+                
+<div id="searchbox"></div>
+                <article class="bd-article">
+                  
+  <section id="create-a-batch-data-and-call-the-model">
+<h1>Create a batch data and call the model<a class="headerlink" href="#create-a-batch-data-and-call-the-model" title="Link to this heading">#</a></h1>
+<p>Define a Ray Data map_batches function to embed text using the SentenceTransformer model. This function will be applied to each batch of data in the Ray Data dataset. It will take a batch of sentences, encode them into embeddings, and return the batch with the embeddings added.</p>
+<p>Showcasing two options of to do batch inference based on if the ray cluster has have GPU nodes or if it has just CPU nodes. The second option also works on a local ray cluster on an Apple Silicon Mac with MPS.</p>
+<div class="cell docutils container">
+<div class="cell_input docutils container">
+<div class="highlight-ipython3 notranslate"><div class="highlight"><pre><span></span><span class="c1"># setting manually so that code works on ray clusters with both CPU or GPU workers, or on a local mac with MPS</span>
+<span class="n">worker_device</span> <span class="o">=</span> <span class="s2">&quot;cpu&quot;</span> <span class="c1"># or &quot;cuda&quot; if you have a nvidia gpu on worker nodes</span>
+<span class="c1"># batch_size should be set based on VRAM </span>
+<span class="k">if</span> <span class="n">worker_device</span> <span class="o">==</span> <span class="s2">&quot;cuda&quot;</span><span class="p">:</span> <span class="c1"># if you have a nvidia gpu on worker nodes</span>
+    <span class="c1"># adjust batch_size based on the VRAM available on the GPU</span>
+    <span class="n">ds</span> <span class="o">=</span> <span class="n">ds</span><span class="o">.</span><span class="n">map_batches</span><span class="p">(</span><span class="n">TextEmbedder</span><span class="p">,</span> <span class="n">num_gpus</span><span class="o">=</span><span class="mi">1</span><span class="p">,</span> <span class="n">concurrency</span><span class="o">=</span><span class="mi">2</span><span class="p">,</span> <span class="n">batch_size</span><span class="o">=</span><span class="mi">64</span><span class="p">)</span> <span class="c1"># 2 nodes with 1 GPU each</span>
+<span class="k">else</span><span class="p">:</span>
+    <span class="n">ds</span> <span class="o">=</span> <span class="n">ds</span><span class="o">.</span><span class="n">map_batches</span><span class="p">(</span><span class="n">TextEmbedder</span><span class="p">,</span> <span class="n">concurrency</span><span class="o">=</span><span class="mi">2</span><span class="p">,</span> <span class="n">batch_size</span><span class="o">=</span><span class="mi">64</span><span class="p">)</span> <span class="c1"># either cpu or mps (on a mac)</span>
+</pre></div>
+</div>
+</div>
+</div>
+<section id="deploying-at-scale">
+<h2>Deploying at scale<a class="headerlink" href="#deploying-at-scale" title="Link to this heading">#</a></h2>
+<ul class="simple">
+<li><p>The batch size for encoding can be adjusted based on the available memory and performance requirements.</p></li>
+<li><p>The <code class="docutils literal notranslate"><span class="pre">device</span></code> parameter ensures that the model runs on the correct device (CPU, GPU, or MPS).</p></li>
+<li><p>The <code class="docutils literal notranslate"><span class="pre">concurrency</span></code> parameter controls how many batches are processed in parallel. If there are 2 nodes with 1 GPU each or 1 node with 2 GPUs, then set concurrency = 2 and num_gpus=1.</p></li>
+<li><p>map_batches() is a lazy function and not executed until needed (example, using take or show).</p></li>
+</ul>
+<p>Run inference on a batch of 128 rows. This will return a batch of 128 rows with the embeddings added to the caller’s machine.</p>
+<div class="cell docutils container">
+<div class="cell_input docutils container">
+<div class="highlight-ipython3 notranslate"><div class="highlight"><pre><span></span><span class="c1"># Run inference on a batch of 128 rows for testing.</span>
+<span class="n">ds</span><span class="o">.</span><span class="n">take_batch</span><span class="p">(</span><span class="mi">128</span><span class="p">)</span>
+</pre></div>
+</div>
+</div>
+<div class="cell_output docutils container">
+<script type="application/vnd.jupyter.widget-view+json">{"model_id": "6b7b173fb7dd49bf9afe2295437c1b86", "version_major": 2, "version_minor": 0}</script><script type="application/vnd.jupyter.widget-view+json">{"model_id": "d2b2f0ab1e284a219bd6e0c1503c46b5", "version_major": 2, "version_minor": 0}</script><script type="application/vnd.jupyter.widget-view+json">{"model_id": "786e104a4043482ea8d3154eeb55f061", "version_major": 2, "version_minor": 0}</script><script type="application/vnd.jupyter.widget-view+json">{"model_id": "fc842736d27e41e9837238b546b56a3e", "version_major": 2, "version_minor": 0}</script><script type="application/vnd.jupyter.widget-view+json">{"model_id": "cafc1111d0124878ad187602bcec6ff4", "version_major": 2, "version_minor": 0}</script><div class="output text_plain highlight-myst-ansi notranslate"><div class="highlight"><pre><span></span>{&#39;text&#39;: array([&#39;&quot;QT @user In the original draft of the 7th book, Remus Lupin survived the Battle of Hogwarts. #HappyBirthdayRemusLupin&quot;&#39;,
+        &#39;&quot;Ben Smith / Smith (concussion) remains out of the lineup Thursday, Curtis #NHL #SJ&quot;&#39;,
+        &#39;Sorry bout the stream last night I crashed out but will be on tonight for sure. Then back to Minecraft in pc tomorrow night.&#39;,
+        &quot;Chase Headley&#39;s RBI double in the 8th inning off David Price snapped a Yankees streak of 33 consecutive scoreless innings against Blue Jays&quot;,
+        &#39;@user Alciato: Bee will invest 150 million in January, another 200 in the Summer and plans to bring Messi by 2017&quot;&#39;,
+        &quot;@user LIT MY MUM &#39;Kerry the louboutins I wonder how many Willam owns!!! Look Kerry Warner Wednesday!&#39;&quot;,
+        &#39;&quot;\\&quot;&quot;&quot;&quot; SOUL TRAIN\\&quot;&quot;&quot;&quot; OCT 27 HALLOWEEN SPECIAL ft T.dot FINEST rocking the mic...CRAZY CACTUS NIGHT CLUB ..ADV ticket $10 wt out costume $15...&quot;&#39;,
+        &#39;So disappointed in wwe summerslam! I want to see john cena wins his 16th title&#39;,
+        &#39;&quot;This is the last Sunday w/o football .....,NFL is back baby&quot;&#39;,
+        &quot;@user @user CENA &amp; AJ sitting in a tree K-I-S-S-I-N-G 1st goes AJ&#39;s  job then John&#39;s cred then goes Vicki with the GM position.&quot;,
+        &#39;@user Well said on HMW. Can you now address why Texans fans file out of the stadium midway through the 4th qtr of every game?&#39;,
+        &quot;Just said hello to Dennis Kucinich as he walked casually through campus with his #hotwife. He&#39;s on 22nd st!&quot;,
+        &#39;Super excited for homecoming Saturday with Monroe! :D my new nephew is here but I can\\u2019t see him :(&#39;,
+        &#39;That sucks if you have to take the SATs tomorrow&#39;,
+        &#39;@user  6 tickets for Sam smith concert  Sept 30 cheap! Flew our family of 6 here fir the concert! BEYOND UPSET!&#39;,
+        &#39;&quot;Fiorentina have reportedly opened talks with Chelsea over taking the 20yr old Kurt Zuoma on loan in January.&quot;&#39;,
+        &#39;Creighton Volleyball leads 8-5 early in 2nd set. Match becomes even bigger with both Wichita St. &amp; Missouri State down 0-1 at home tonight.&#39;,
+        &quot;This time tomorrow...we&#39;ll have the Iron on. Iron Maiden pieces Drops tomorrow nights.&quot;,
+        &quot;Amy Schumer sat down with The Hollywood Reporter and opened up about the sexist remarks and unnecessary criticism she&#39;s faced since&quot;,
+        &quot;What is Jamie Foxx doing sitting next to Niall like you could&#39;ve sat in a better spot just saying lol&quot;,
+        &#39;@user @user 1st uneasyness was when he got v defensive about the Charlie Hebdo stuff, even tho he had pals patiently explaining&quot;&#39;,
+        &#39;Reminder: Samsung Unveils the Galaxy Note 5 and S6 Edge+ Tomorrow Morning! - - #tech #news...&#39;,
+        &#39;&quot;Gonna do a movie marathon with my friend today and tomorrow. Twilight, New Moon, Eclipse, BD1, The Runaways, Adventureland, (c)&quot;&#39;,
+        &#39;Oscars Well makes his debut over fences at Punchestown tomorrow. It looks as though he\\u2019ll have Plan A and Darwins Fox to overcome.&#39;,
+        &#39;Q2 10:30. Philip Rivers pass to Eddie Royal to the San Diego 19 for 7 yards. 3rd &amp; 1.&#39;,
+        &#39;@user Work colleague of mine on Thursday night: &quot;&quot;oh, look, they\&#39;re showing the Bee Gees on video.&quot;&quot; 23-yr old colleague: &quot;&quot;who?&quot;&quot;&quot;&#39;,
+        &quot;Who&#39;s going to get them Gucci foams tomorrow&quot;,
+        &#39;Yes glass of red\\u002c Rammstein and day off tomorrow (thank you @user just what I needed.&#39;,
+        &#39;Vampettes we are back on the 21st place keep tweeting with the hashtag #MTVStars The Vamps #MTVStarsOf2015&#39;,
+        &#39;Ryan Braun returned to the lineup on Wednesday after missing two games with lower back tightness.&#39;,
+        &#39;&quot;#Ichiro has nothing. If you want to see hustle: Kenny Lofton, 17 October 1995, scores from second base on a past ball. #GoTribe #ALDS&quot;&#39;,
+        &#39;Looking forward to going to Carrow Rd tonight. Last time we were there\\u002c Bale scored 2 and we were 3rd. Do not want extra time though&#39;,
+        &#39;Gonna go to the north game tomorrow night. I better see some of you north kiddos&#39;,
+        &#39;Right guys\\u002c last competition of the night... Like this status for a chance to win a copy of Judas Priest\\u2019s 30th...&#39;,
+        &#39;We\\u2019re in the studio working on the new album and it sounds EPIC. We may as well pick up our Brit Award now\\u002c tbh.&#39;,
+        &#39;&quot;last day of august, waiting for frank ocean to pull a beyonce.&#39;,
+        &#39;#INFO --&gt; Grand opening sharetea bubble tea with @user 2 nov 2012 mall taman anggrek 11:00 - 14:00 * Jadwal ke-1 besok !&#39;,
+        &#39;Sunday (tomorrow) is National Ice Cream Day and have we got a gift for you!   Join us for an ice cream sundae and...&#39;,
+        &#39;Gucci pants himself store january lay open the span thine atomic irruptive concomitant so that cons comburent:...&#39;,
+        &#39;still not over how Nicki snapped like a 12th grader on their last day of high school&#39;,
+        &#39;I may or may not buy myself the illustrated version of Harry potter for my birthday&#39;,
+        &#39;I wanna see STUDIO FOOTAGE SO BAD. We are about to hear some unreleased STUFF! Likeeeeeeeeee I can\\u2019t wait until Sunday.&#39;,
+        &#39;@user how the hell does every one else get to keep their religious and 1st amnt rights, except Christians!!! This is just wrong!!!&quot;&#39;,
+        &#39;A @user rule change should allow Carly Fiorina to earn a spot on the main stage for the 2nd Republican debate.&#39;,
+        &#39;&quot;TFI Friday doesn\&#39;t look like it\&#39;s coming back, as Chris Evans focuses on new-look Top Gear&#39;,
+        &#39;#np The Way You Make Me Feel - 2012 Remaster by Michael Jackson from the album Bad 25th Anniversary.&#39;,
+        &#39;&quot;I\&#39;m going to see Paper Towns. Saturday, 22 August 2015 at 17:40 in Leigh #Cineworld&quot;&#39;,
+        &#39;@user Yepo I came in Milan it was my 1st concert and it was so good you guys did an amazing job! You are flawless live like PERFECT!&#39;,
+        &#39;#days #dool Tuesday Hope has to pick up Ciara. Rafe wants a real case not just publicity like Justin&#39;,
+        &#39;Seth Rollins talks &amp;amp; talks every Monday on RAW for about 45 minutes&#39;,
+        &#39;Thanks manager for putting me on the schedule for Sunday&quot;&#39;,
+        &quot;I&#39;m sat at work just laughing at all these Hulk Hogan tweets. Hahha ffs&quot;,
+        &quot;@user #MLBCentral David Wright crushing a dinger on his first swing since April 14th. I didn&#39;t think he would pull a Wilmer Flores!&quot;,
+        &#39;I feel like the new Janet Jackson single is bringing back 90s R&amp;amp;B. via @user&#39;,
+        &#39;Anyone want to see Sam smith with me on October 6th?&#39;,
+        &#39;This Friday OUTHOUSE is playing at Still Partners in Sea Cliff ! Hop on the Expressway to Nirvana!&#39;,
+        &#39;&quot;You can\&#39;t shit talk Kpop. Every group is so in sync and vocally on point. It may not be your thing, but it\&#39;s talent.&quot;&#39;,
+        &#39;I hope Milan mom say that she can come over on the 28th&#39;,
+        &#39;Don\\u2019t forget Mitch Daniels is going to be on Steven Colbert\\u2019s show Thursday.  Think this will come up as a topic?&#39;,
+        &quot;Amazon prime is literally a lie....I ordered a book LAST MONDAY &amp;amp; it still isn&#39;t here. do better @user&quot;,
+        &#39;Who the hell moshes at Matt and Kim?? Next time watch out for my face\\u002c mofos! My cheekbones better not be purple tomorrow. @user&#39;,
+        &#39;&quot;What a difference not having Sterling on the pitch makes! Welbeck dragged wide 1st half, the Ox replaces Sterling, Welbeck down middle, goal&quot;&#39;,
+        &#39;&quot;Dear lovely Christians, I wish to inform you, tomorrow we got one Mass @ 10am as we\&#39;ll be submitting our parish family day collection!&quot;&#39;,
+        &#39;&quot;To Kpop fans, we song along to vocals, 2nd voices, raps, fanchants, do the instruments &amp;amp; even perform its own choreo&#39;,
+        &#39;Cherie Blair is sat on our coach going to the games! #Olympics2012&#39;,
+        &#39;continued : Emmanuel Adebayor has not travelled with the squad for our Europa League away tie in Greece tomorrow evening.&#39;,
+        &quot;Mario Williams is catching hell! He will be Exposed on Sunday... Not like Buffalo don&#39;t see him 4 who he is Already!&quot;,
+        &#39;&quot;Kris Bryant hurt, Joe Maddon ejected in today\&#39;s Cubs game, and it\&#39;s only the 6th inning.&#39;,
+        &#39;@user Last Wednesday, when I saw you dressed as Robin, all I can think about is &quot;Who\&#39;s Batman? Where\&#39;s the Teen Titans?&quot;&#39;,
+        &#39;@user Brock lesnar live from madison square garden sounds like it could just be a live feed of him sat on a chair for 3 hours&#39;,
+        &#39;@user Frank ocean releasing his second album december 31st 2015 on new years eve. heres the interview...&#39;,
+        &#39;@user @user at da end of da night no girl that roll with me is on da MTA! They are above that as long as I can afford that!&#39;,
+        &#39;@user SCOTUS based their argument on the 14th. No matter how you stretch it race was not involved.&#39;,
+        &quot;My mom&#39;s over here tryna tell me that we&#39;re taking the CAHSEE tomorrow ._. Nigga it&#39;s only the second month of school.. #SlowYourRoll&quot;,
+        &#39;&quot;Rahul Gandhi held Indian citizenship from day one: Congress: New Delhi, Nov 18: Dismissing BJP leader Subraman...&#39;,
+        &#39;&quot;I\&#39;m going to Paramore at Rock Im Park in Nuremburg, Germany - Jun 8&#39;,
+        &#39;Happy Birthday Nick J  May you live long and Happy :)&#39;,
+        &#39;ECHO: Sex offender is warned he may face jail over offences #Dorset&#39;,
+        &#39;I hope Bernie Sanders is a sun and the other two are shooting stars or black holes.&#39;,
+        &#39;&quot;Shows how much you can trust drivers answering these questions. Alonso was still saying on Monday that Ferrari split is &quot;&quot;&quot;&quot;just a rumor.&quot;&quot;&quot;&quot; #F1&quot;&#39;,
+        &#39;Who else is going to the Chris brown tour this Thursday #ChrisBrown#onehellofanighttour&#39;,
+        &#39;Your inspirational quotes on twitter/Feb never really got to me. But oh damn ur pics of them on IG have truly inspired me. #idiots&quot;&#39;,
+        &#39;Another beauty of a day in Athens\\u002c Greece. I trust you\\u2019ll have an exceptional Friday wherever in the world you are. Much love.&#39;,
+        &#39;&quot;Another great night in Split, off to Hvar on the 8:30 ferry tomorrow morning... dreading the packing but excited to get there!&quot;&#39;,
+        &quot;@user and im seeing Ed live this Saturday at b&#39;ham NIA! It would be amazing to get the book signed. Thanks for putting it together&quot;,
+        &#39;&quot;Church tonight, who will you bring????&quot;&#39;,
+        &#39;Q_Q Today was the day that Naruto shippuden: UNS4 was suppose to come out. WHYYYYYYY DID THEY PUSH IT ALL THE WAY TO JAN???? HELLO&#39;,
+        &#39;Pics of the March Fourth Marching Band at the Oregon Country Fair closing out the show Sunday night. Their...&#39;,
+        &#39;The audio booth is ready to blow the roof off the Comcast Center tomorrow! Are you? #MDMadness&#39;,
+        &#39;welllll who wants to see Ed Sheeran with me on the 17th????&#39;,
+        &#39;GOALdotCOM: Premier League Team of the Week: Van Persie &amp; Aguero both star after City &amp; Arsenal wins&#39;,
+        &quot;The Hitchhiker&#39;s Guide to the Galaxy Game - 30th Anniversary Edition Need to sign up with the BBC online.&quot;,
+        &quot;I&#39;m seeing Ed Sheeran on Wednesday in Miami so if you wanna meet up or say hi hmu!&quot;,
+        &#39;&quot;Chuck Close shares his best-kept secrets with @user on the eve of his new show, opening Thursday @user&#39;,
+        &#39;Vermaelen the hero for Barca: Thomas Vermaelen was the unlikely hero as Barcelona laboured to a 1-0 home win over Malaga on Saturday ...&#39;,
+        &#39;@user I\\u2019m sick with something ill be at school on Monday though&#39;,
+        &#39;&quot;There\&#39;s something about Friday Night Lights, you just get chills thinking about it .&quot;&#39;,
+        &#39;Googled the snake I stepped over on the trail Sunday. Baby timber rattler. So time to Google &quot;snake-proof hiking boots.&quot;&#39;,
+        &#39;@user Also, his anger against Hindus are justified but couldn\&#39;t get why he was so anti Islam..may be he was just fed up of religions&quot;&#39;,
+        &#39;Ricky Ponting and I now have something in common. Today he passed 23\\u002c000 1st class runs. Last night at training\\u002c i was hit for 23\\u002c000 runs.&#39;,
+        &#39;Ted Nugent talks to us about #hunting and other stuff he\\u2019s got on his mind @user this Saturday at 7am on the Great Outdoors\\u002c #nuge&#39;,
+        &#39;Check out Newsha Tavakolian at the Saatchi Gallery in London. Her photos of Iran may interest some of you!&#39;,
+        &quot;Mansbridge destroyed Justin tonite the polls for the lib&#39;s should tank tomorrow! Wake up people he is NOT ready!!&quot;,
+        &#39;For the ones tomorrow sunday in Milan (Italy): Aperitif and evening at Fiat Open Lounge:&#39;,
+        &#39;&quot;J\&#39;regarde des infos sur Ragnarok (le film) &amp;amp;bon: &quot;&quot;Thor will make it out of the third movie[..]Loki, on the other hand may not be so Lucky.&quot;&quot;&quot;&#39;,
+        &#39;@user Donald trump said the same thing about the tax rate.  Fact check said he was a liar &quot;pant of fire&quot;&#39;,
+        &#39;&quot;If you\\u2019re calling this little thing right here a \\&quot;&quot;&quot;&quot;party\\&quot;&quot;&quot;&quot; then Friday night\\u2019s gonna be Project X\\u002c Y\\u002c &amp; Z.&quot;&#39;,
+        &#39;&quot;Love this vid!! 1st time I\\u2019ve seen it!--- jules explains it all - David Archuleta sings \\&quot;&quot;&quot;&quot;Nandito Ako.\\&quot;&quot;&quot;&quot; via @user&#39;,
+        &#39;@user @user Not just Christians, you are in the prayers of &quot;&quot;all of us&quot;&quot; humans.May you stay safe and be free soon!God bless.&quot;&#39;,
+        &#39;Happy birthday @user ! National Bieber Day . Now he\\u2019s 18th years\\u002c but he\\u2019s #stillkidrauhl #IndonesiaSaysHBDforJustinBieber&#39;,
+        &#39;&quot;If you put one over the plate he\&#39;s gonna fuck you up  Called it, Kris Bryant with his 21st&quot;&#39;,
+        &#39;Good luck to Girls Tennis as the take on South Torrance today on 1st round CIF! #GoLions2012&#39;,
+        &#39;&quot;\\&quot;&quot;Hey\\u002c you\\u2019re missing Beauty and the Beast\\u002c Vampire Diaries &amp; Grey\\u2019s Anatomy right now on TV. Saturday is Merlin\\&quot;&quot; - @user #sisterlife&quot;&#39;,
+        &#39;Decided to watch Rick and Morty will probably watch Naruto tomorrow such a good movie hits ya right in the feels&#39;,
+        &quot;first Hasek now Modano want to come back...who&#39;s next Mario Lemieux for the 4th time!&quot;,
+        &#39;@user isn\\u2019t it just!  staying in and watching the lovely James Martin on Saturday kitchen. Great pumpkin soup recipe to warm u up&#39;,
+        &#39;@user how was your day today? Did you enjoy watching softball. We missed you on tiger woods&#39;,
+        &#39;And to think I wrote this Dustin Johnson Tweet after the second round of the British Open&#39;,
+        &quot;Just Turned the corner into Ghetto n #Roma 1st thing I saw a group of Muslims! Now that&#39;s tourism for ya. It&#39;s a sm world after all #peace&quot;,
+        &quot;Be sure to look for Nash&#39;s new video with Skylynn tomorrow #NashNewVideo love you @user&quot;,
+        &#39;Who wants to be my date to the White Sox vs Red Sox game Tuesday&#39;,
+        &quot;At long last, Lexus has developed a hoverboard, the &#39;Slide,&#39; to be tested in public for the first time on Wed.&quot;,
+        &#39;I noticed all the Huddlestone haters were conspicuous by their absence yesterday\\u002c particularly when he assisted Bale for the 1st goal #THFC&#39;,
+        &#39;Unexpected development-- saw Ant-Man on Saturday night in London. It was surprisingly charming. I actually quite enjoyed it.&#39;,
+        &#39;&quot;Tomorrow is Star Wars day! New movie! And is @user and @user birthday! Great, isn\&#39;t? @user&#39;,
+        &#39;Sun is shining... Bob Marley on the radio... hiya Monday!&#39;,
+        &#39;&quot;Hope, Love &amp;amp; Laughter; Warmth, Prosperity &amp;amp; Joy; A fragrant bouquet filled with life; You may Enjoy! A very happy Eid -&quot;&#39;,
+        &quot;&#39;Frank Ocean&#39; appeared on Sunday 16 at the 11th place in the Top20 of Dallas-Ft. Worth&#39;s Trends: #trndnl&quot;],
+       dtype=object),
+ &#39;label&#39;: array([2, 1, 1, 1, 2, 2, 2, 0, 2, 1, 1, 1, 2, 0, 1, 1, 2, 2, 0, 1, 1, 2,
+        1, 1, 1, 1, 1, 2, 2, 1, 1, 2, 1, 2, 2, 1, 1, 2, 1, 1, 2, 2, 0, 2,
+        1, 1, 2, 2, 1, 1, 0, 2, 1, 2, 1, 2, 1, 1, 1, 0, 0, 2, 2, 2, 1, 1,
+        0, 0, 1, 1, 1, 2, 1, 0, 1, 1, 2, 0, 2, 1, 2, 0, 2, 2, 2, 1, 0, 1,
+        2, 2, 2, 1, 2, 1, 2, 0, 2, 1, 0, 1, 1, 1, 1, 1, 1, 1, 1, 2, 2, 2,
+        0, 2, 0, 2, 1, 2, 1, 1, 1, 2, 1, 2, 0, 2, 2, 2, 2, 1]),
+ &#39;embedding&#39;: array([[-0.11721872,  0.07510021,  0.00844238, ...,  0.05286286,
+          0.06096685,  0.08142687],
+        [-0.02556132, -0.01222771, -0.07829855, ...,  0.06099542,
+         -0.01231135,  0.00749106],
+        [-0.0092816 , -0.04148921,  0.01455652, ...,  0.07176238,
+         -0.06872221, -0.01504247],
+        ...,
+        [-0.01190887,  0.04831458,  0.03302041, ..., -0.00753223,
+         -0.08080895, -0.05962829],
+        [-0.06194988,  0.15394783,  0.050227  , ...,  0.08113792,
+          0.02496293, -0.06251295],
+        [-0.02202111, -0.02095584, -0.02791084, ..., -0.10536157,
+          0.03924675,  0.03357503]], shape=(128, 384), dtype=float32)}
+</pre></div>
+</div>
+</div>
+</div>
+</section>
+</section>
+
+    <script type="text/x-thebe-config">
+    {
+        requestKernel: true,
+        binderOptions: {
+            repo: "binder-examples/jupyter-stacks-datascience",
+            ref: "master",
+        },
+        codeMirrorConfig: {
+            theme: "abcdef",
+            mode: "python"
+        },
+        kernelOptions: {
+            name: "python3",
+            path: "./courses/workloads/Ray_Data_Batch_Inference/00_workload/output"
+        },
+        predefinedOutput: true
+    }
+    </script>
+    <script>kernelName = 'python3'</script>
+
+                </article>
+              
+
+              
+              
+              
+              
+                <footer class="prev-next-footer d-print-none">
+                  
+<div class="prev-next-area">
+    <a class="left-prev"
+       href="01_Ray_Data_batch_inference_04.html"
+       title="previous page">
+      <i class="fa-solid fa-angle-left"></i>
+      <div class="prev-next-info">
+        <p class="prev-next-subtitle">previous</p>
+        <p class="prev-next-title">Batch Inference Class</p>
+      </div>
+    </a>
+    <a class="right-next"
+       href="01_Ray_Data_batch_inference_06.html"
+       title="next page">
+      <div class="prev-next-info">
+        <p class="prev-next-subtitle">next</p>
+        <p class="prev-next-title">Run inference on the entire dataset</p>
+      </div>
+      <i class="fa-solid fa-angle-right"></i>
+    </a>
+</div>
+                </footer>
+              
+            </div>
+            
+            
+              
+                <div class="bd-sidebar-secondary bd-toc"><div class="sidebar-secondary-items sidebar-secondary__inner">
+
+
+  <div class="sidebar-secondary-item">
+  <div class="page-toc tocsection onthispage">
+    <i class="fa-solid fa-list"></i> Contents
+  </div>
+  <nav class="bd-toc-nav page-toc">
+    <ul class="visible nav section-nav flex-column">
+<li class="toc-h2 nav-item toc-entry"><a class="reference internal nav-link" href="#deploying-at-scale">Deploying at scale</a></li>
+</ul>
+  </nav></div>
+
+</div></div>
+              
+            
+          </div>
+          <footer class="bd-footer-content">
+            
+<div class="bd-footer-content__inner container">
+  
+  <div class="footer-item">
+    
+<p class="component-author">
+By The Jupyter Book community
+</p>
+
+  </div>
+  
+  <div class="footer-item">
+    
+
+  </div>
+  
+  <div class="footer-item">
+    
+  </div>
+  
+  <div class="footer-item">
+    
+  </div>
+  
+</div>
+          </footer>
+        
+
+      </main>
+    </div>
+  </div>
+  
+  <!-- Scripts loaded after <body> so the DOM is not blocked -->
+  <script src="../../../../../_static/scripts/bootstrap.js?digest=dfe6caa3a7d634c4db9b"></script>
+<script src="../../../../../_static/scripts/pydata-sphinx-theme.js?digest=dfe6caa3a7d634c4db9b"></script>
+
+  <footer class="bd-footer">
+  </footer>
+  </body>
+</html>

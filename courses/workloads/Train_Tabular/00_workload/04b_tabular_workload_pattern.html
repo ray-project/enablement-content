@@ -1,0 +1,1430 @@
+
+<!DOCTYPE html>
+
+
+<html lang="en" data-content_root="../../../../" >
+
+  <head>
+    <meta charset="utf-8" />
+    <meta name="viewport" content="width=device-width, initial-scale=1.0" /><meta name="viewport" content="width=device-width, initial-scale=1" />
+
+    <title>04b Tabular workload pattern with Ray Train &#8212; Course Notebooks</title>
+  
+  
+  
+  <script data-cfasync="false">
+    document.documentElement.dataset.mode = localStorage.getItem("mode") || "";
+    document.documentElement.dataset.theme = localStorage.getItem("theme") || "";
+  </script>
+  
+  <!-- Loaded before other Sphinx assets -->
+  <link href="../../../../_static/styles/theme.css?digest=dfe6caa3a7d634c4db9b" rel="stylesheet" />
+<link href="../../../../_static/styles/bootstrap.css?digest=dfe6caa3a7d634c4db9b" rel="stylesheet" />
+<link href="../../../../_static/styles/pydata-sphinx-theme.css?digest=dfe6caa3a7d634c4db9b" rel="stylesheet" />
+
+  
+  <link href="../../../../_static/vendor/fontawesome/6.5.2/css/all.min.css?digest=dfe6caa3a7d634c4db9b" rel="stylesheet" />
+  <link rel="preload" as="font" type="font/woff2" crossorigin href="../../../../_static/vendor/fontawesome/6.5.2/webfonts/fa-solid-900.woff2" />
+<link rel="preload" as="font" type="font/woff2" crossorigin href="../../../../_static/vendor/fontawesome/6.5.2/webfonts/fa-brands-400.woff2" />
+<link rel="preload" as="font" type="font/woff2" crossorigin href="../../../../_static/vendor/fontawesome/6.5.2/webfonts/fa-regular-400.woff2" />
+
+    <link rel="stylesheet" type="text/css" href="../../../../_static/pygments.css?v=03e43079" />
+    <link rel="stylesheet" type="text/css" href="../../../../_static/styles/sphinx-book-theme.css?v=eba8b062" />
+    <link rel="stylesheet" type="text/css" href="../../../../_static/togglebutton.css?v=9c3e77be" />
+    <link rel="stylesheet" type="text/css" href="../../../../_static/copybutton.css?v=76b2166b" />
+    <link rel="stylesheet" type="text/css" href="../../../../_static/mystnb.8ecb98da25f57f5357bf6f572d296f466b2cfe2517ffebfabe82451661e28f02.css" />
+    <link rel="stylesheet" type="text/css" href="../../../../_static/sphinx-thebe.css?v=4fa983c6" />
+    <link rel="stylesheet" type="text/css" href="../../../../_static/sphinx-design.min.css?v=95c83b7e" />
+    <link rel="stylesheet" type="text/css" href="../../../../_static/custom_hide.css?v=af9667c8" />
+  
+  <!-- Pre-loaded scripts that we'll load fully later -->
+  <link rel="preload" as="script" href="../../../../_static/scripts/bootstrap.js?digest=dfe6caa3a7d634c4db9b" />
+<link rel="preload" as="script" href="../../../../_static/scripts/pydata-sphinx-theme.js?digest=dfe6caa3a7d634c4db9b" />
+  <script src="../../../../_static/vendor/fontawesome/6.5.2/js/all.min.js?digest=dfe6caa3a7d634c4db9b"></script>
+
+    <script src="../../../../_static/documentation_options.js?v=9eb32ce0"></script>
+    <script src="../../../../_static/doctools.js?v=9a2dae69"></script>
+    <script src="../../../../_static/sphinx_highlight.js?v=dc90522c"></script>
+    <script src="../../../../_static/clipboard.min.js?v=a7894cd8"></script>
+    <script src="../../../../_static/copybutton.js?v=f281be69"></script>
+    <script src="../../../../_static/scripts/sphinx-book-theme.js?v=887ef09a"></script>
+    <script>let toggleHintShow = 'Click to show';</script>
+    <script>let toggleHintHide = 'Click to hide';</script>
+    <script>let toggleOpenOnPrint = 'true';</script>
+    <script src="../../../../_static/togglebutton.js?v=1ae7504c"></script>
+    <script>var togglebuttonSelector = '.toggle, .admonition.dropdown';</script>
+    <script src="../../../../_static/design-tabs.js?v=f930bc37"></script>
+    <script>const THEBE_JS_URL = "https://unpkg.com/thebe@0.8.2/lib/index.js"; const thebe_selector = ".thebe,.cell"; const thebe_selector_input = "pre"; const thebe_selector_output = ".output, .cell_output"</script>
+    <script async="async" src="../../../../_static/sphinx-thebe.js?v=c100c467"></script>
+    <script>var togglebuttonSelector = '.toggle, .admonition.dropdown';</script>
+    <script>const THEBE_JS_URL = "https://unpkg.com/thebe@0.8.2/lib/index.js"; const thebe_selector = ".thebe,.cell"; const thebe_selector_input = "pre"; const thebe_selector_output = ".output, .cell_output"</script>
+    <script>window.MathJax = {"options": {"processHtmlClass": "tex2jax_process|mathjax_process|math|output_area"}}</script>
+    <script defer="defer" src="https://cdn.jsdelivr.net/npm/mathjax@3/es5/tex-mml-chtml.js"></script>
+    <script>DOCUMENTATION_OPTIONS.pagename = 'courses/workloads/Train_Tabular/00_workload/04b_tabular_workload_pattern';</script>
+    <script src="../../../../_static/custom_toggle.js?v=1235ef5b"></script>
+    <link rel="index" title="Index" href="../../../../genindex.html" />
+    <link rel="search" title="Search" href="../../../../search.html" />
+  <meta name="viewport" content="width=device-width, initial-scale=1"/>
+  <meta name="docsearch:language" content="en"/>
+  </head>
+  
+  
+  <body data-bs-spy="scroll" data-bs-target=".bd-toc-nav" data-offset="180" data-bs-root-margin="0px 0px -60%" data-default-mode="">
+
+  
+  
+  <div id="pst-skip-link" class="skip-link d-print-none"><a href="#main-content">Skip to main content</a></div>
+  
+  <div id="pst-scroll-pixel-helper"></div>
+  
+  <button type="button" class="btn rounded-pill" id="pst-back-to-top">
+    <i class="fa-solid fa-arrow-up"></i>Back to top</button>
+
+  
+  <input type="checkbox"
+          class="sidebar-toggle"
+          id="pst-primary-sidebar-checkbox"/>
+  <label class="overlay overlay-primary" for="pst-primary-sidebar-checkbox"></label>
+  
+  <input type="checkbox"
+          class="sidebar-toggle"
+          id="pst-secondary-sidebar-checkbox"/>
+  <label class="overlay overlay-secondary" for="pst-secondary-sidebar-checkbox"></label>
+  
+  <div class="search-button__wrapper">
+    <div class="search-button__overlay"></div>
+    <div class="search-button__search-container">
+<form class="bd-search d-flex align-items-center"
+      action="../../../../search.html"
+      method="get">
+  <i class="fa-solid fa-magnifying-glass"></i>
+  <input type="search"
+         class="form-control"
+         name="q"
+         id="search-input"
+         placeholder="Search this book..."
+         aria-label="Search this book..."
+         autocomplete="off"
+         autocorrect="off"
+         autocapitalize="off"
+         spellcheck="false"/>
+  <span class="search-button__kbd-shortcut"><kbd class="kbd-shortcut__modifier">Ctrl</kbd>+<kbd>K</kbd></span>
+</form></div>
+  </div>
+
+  <div class="pst-async-banner-revealer d-none">
+  <aside id="bd-header-version-warning" class="d-none d-print-none" aria-label="Version warning"></aside>
+</div>
+
+  
+    <header class="bd-header navbar navbar-expand-lg bd-navbar d-print-none">
+    </header>
+  
+
+  <div class="bd-container">
+    <div class="bd-container__inner bd-page-width">
+      
+      
+      
+        
+      
+      <div class="bd-sidebar-primary bd-sidebar">
+        
+
+  
+  <div class="sidebar-header-items sidebar-primary__section">
+    
+    
+    
+    
+  </div>
+  
+    <div class="sidebar-primary-items__start sidebar-primary__section">
+        <div class="sidebar-primary-item">
+
+  
+    
+  
+
+<a class="navbar-brand logo" href="../../../../index.html">
+  
+  
+  
+  
+  
+  
+    <p class="title logo__title">Course Notebooks</p>
+  
+</a></div>
+        <div class="sidebar-primary-item">
+
+ <script>
+ document.write(`
+   <button class="btn search-button-field search-button__button" title="Search" aria-label="Search" data-bs-placement="bottom" data-bs-toggle="tooltip">
+    <i class="fa-solid fa-magnifying-glass"></i>
+    <span class="search-button__default-text">Search</span>
+    <span class="search-button__kbd-shortcut"><kbd class="kbd-shortcut__modifier">Ctrl</kbd>+<kbd class="kbd-shortcut__modifier">K</kbd></span>
+   </button>
+ `);
+ </script></div>
+        <div class="sidebar-primary-item"><nav class="bd-links bd-docs-nav" aria-label="Main">
+    <div class="bd-toc-item navbar-nav active">
+        
+        <ul class="nav bd-sidenav bd-sidenav__home-link">
+            <li class="toctree-l1">
+                <a class="reference internal" href="../../../../index.html">
+                    Ray Enablement Content
+                </a>
+            </li>
+        </ul>
+        <p aria-level="2" class="caption" role="heading"><span class="caption-text">Developer Intro to Ray</span></p>
+<ul class="nav bd-sidenav">
+<li class="toctree-l1"><a class="reference internal" href="../../../00_Developer_Intro_to_Ray/output/00_Intro_Ray_Core_Basics_01.html">Introduction to Ray Core: Getting Started</a></li>
+<li class="toctree-l1"><a class="reference internal" href="../../../00_Developer_Intro_to_Ray/output/00_Intro_Ray_Core_Basics_02.html">0. Overview</a></li>
+<li class="toctree-l1"><a class="reference internal" href="../../../00_Developer_Intro_to_Ray/output/00_Intro_Ray_Core_Basics_03.html">1. Creating Remote Functions</a></li>
+<li class="toctree-l1"><a class="reference internal" href="../../../00_Developer_Intro_to_Ray/output/00_Intro_Ray_Core_Basics_04.html">2. Executing Remote Functions</a></li>
+<li class="toctree-l1"><a class="reference internal" href="../../../00_Developer_Intro_to_Ray/output/00_Intro_Ray_Core_Basics_05.html">4. Putting It All Together</a></li>
+<li class="toctree-l1"><a class="reference internal" href="../../../00_Developer_Intro_to_Ray/output/00a_Intro_Ray_Core_Advancement_01.html">Introduction to Ray Core (Advancement): Object store, Tasks, Actors</a></li>
+<li class="toctree-l1"><a class="reference internal" href="../../../00_Developer_Intro_to_Ray/output/00a_Intro_Ray_Core_Advancement_02.html">1. Object store</a></li>
+<li class="toctree-l1"><a class="reference internal" href="../../../00_Developer_Intro_to_Ray/output/00a_Intro_Ray_Core_Advancement_03.html">2. Chaining Tasks and Passing Data</a></li>
+<li class="toctree-l1"><a class="reference internal" href="../../../00_Developer_Intro_to_Ray/output/00a_Intro_Ray_Core_Advancement_04.html">3. Task retries</a></li>
+<li class="toctree-l1"><a class="reference internal" href="../../../00_Developer_Intro_to_Ray/output/00a_Intro_Ray_Core_Advancement_05.html">4. Task Runtime Environments</a></li>
+<li class="toctree-l1"><a class="reference internal" href="../../../00_Developer_Intro_to_Ray/output/00a_Intro_Ray_Core_Advancement_06.html">5. Resource allocation and management</a></li>
+<li class="toctree-l1"><a class="reference internal" href="../../../00_Developer_Intro_to_Ray/output/00a_Intro_Ray_Core_Advancement_07.html">6. Nested Tasks</a></li>
+<li class="toctree-l1"><a class="reference internal" href="../../../00_Developer_Intro_to_Ray/output/00a_Intro_Ray_Core_Advancement_08.html">7. Pattern: Pipeline data processing and waiting for results</a></li>
+<li class="toctree-l1"><a class="reference internal" href="../../../00_Developer_Intro_to_Ray/output/00a_Intro_Ray_Core_Advancement_09.html">8. Ray Actors</a></li>
+<li class="toctree-l1"><a class="reference internal" href="../../../00_Developer_Intro_to_Ray/output/01_Intro_Ray_AI_Libs_Overview_01.html">Introduction to the Ray AI Libraries: An example of using Ray data, Ray Train, Ray Tune, Ray Serve to implement a XGBoost regression model</a></li>
+<li class="toctree-l1"><a class="reference internal" href="../../../00_Developer_Intro_to_Ray/output/01_Intro_Ray_AI_Libs_Overview_02.html">1. Overview of the Ray AI Libraries</a></li>
+<li class="toctree-l1"><a class="reference internal" href="../../../00_Developer_Intro_to_Ray/output/01_Intro_Ray_AI_Libs_Overview_03.html">2. Quick end-to-end example</a></li>
+<li class="toctree-l1"><a class="reference internal" href="../../../00_Developer_Intro_to_Ray/output/02a_Intro_Ray_Train_with_PyTorch_01.html">Introduction to Ray Train + PyTorch</a></li>
+<li class="toctree-l1"><a class="reference internal" href="../../../00_Developer_Intro_to_Ray/output/02a_Intro_Ray_Train_with_PyTorch_02.html">1. When to use Ray Train</a></li>
+<li class="toctree-l1"><a class="reference internal" href="../../../00_Developer_Intro_to_Ray/output/02a_Intro_Ray_Train_with_PyTorch_03.html">2. Single GPU Training with PyTorch</a></li>
+<li class="toctree-l1"><a class="reference internal" href="../../../00_Developer_Intro_to_Ray/output/02a_Intro_Ray_Train_with_PyTorch_04.html">3. Distributed Data Parallel Training with Ray Train and PyTorch</a></li>
+<li class="toctree-l1"><a class="reference internal" href="../../../00_Developer_Intro_to_Ray/output/02b_Intro_Ray_Train_with_PyTorch_Lightning_01.html">Introduction to Ray Train: Ray Train + PyTorch Lightning</a></li>
+<li class="toctree-l1"><a class="reference internal" href="../../../00_Developer_Intro_to_Ray/output/02b_Intro_Ray_Train_with_PyTorch_Lightning_02.html">1. When to use Ray Train</a></li>
+<li class="toctree-l1"><a class="reference internal" href="../../../00_Developer_Intro_to_Ray/output/02b_Intro_Ray_Train_with_PyTorch_Lightning_03.html">2. Single GPU Training with PyTorch Lightning</a></li>
+<li class="toctree-l1"><a class="reference internal" href="../../../00_Developer_Intro_to_Ray/output/02b_Intro_Ray_Train_with_PyTorch_Lightning_04.html">3. Distributed Training with Ray Train and PyTorch Lightning</a></li>
+<li class="toctree-l1"><a class="reference internal" href="../../../00_Developer_Intro_to_Ray/output/02b_Intro_Ray_Train_with_PyTorch_Lightning_05.html">4. Ray Train in Production</a></li>
+<li class="toctree-l1"><a class="reference internal" href="../../../00_Developer_Intro_to_Ray/output/03_Intro_Ray_Tune_01.html">Introduction to Ray Tune</a></li>
+<li class="toctree-l1"><a class="reference internal" href="../../../00_Developer_Intro_to_Ray/output/03_Intro_Ray_Tune_02.html">1. Loading the data</a></li>
+<li class="toctree-l1"><a class="reference internal" href="../../../00_Developer_Intro_to_Ray/output/03_Intro_Ray_Tune_03.html">2. Starting out with vanilla PyTorch</a></li>
+<li class="toctree-l1"><a class="reference internal" href="../../../00_Developer_Intro_to_Ray/output/03_Intro_Ray_Tune_04.html">3. Hyperparameter tuning with Ray Tune</a></li>
+<li class="toctree-l1"><a class="reference internal" href="../../../00_Developer_Intro_to_Ray/output/03_Intro_Ray_Tune_05.html">4. Ray Tune in Production</a></li>
+<li class="toctree-l1"><a class="reference internal" href="../../../00_Developer_Intro_to_Ray/output/04a_Intro_Ray_Data_Industry_Landscape_01.html">Introduction to Ray Data: Industry Landscape</a></li>
+
+<li class="toctree-l1"><a class="reference internal" href="../../../00_Developer_Intro_to_Ray/output/04a_Intro_Ray_Data_Industry_Landscape_02.html">The Compute Layer</a></li>
+<li class="toctree-l1"><a class="reference internal" href="../../../00_Developer_Intro_to_Ray/output/04a_Intro_Ray_Data_Industry_Landscape_03.html">The Orchestration Layer</a></li>
+<li class="toctree-l1"><a class="reference internal" href="../../../00_Developer_Intro_to_Ray/output/04a_Intro_Ray_Data_Industry_Landscape_04.html">Distributed Computing Frameworks</a></li>
+<li class="toctree-l1"><a class="reference internal" href="../../../00_Developer_Intro_to_Ray/output/04a_Intro_Ray_Data_Industry_Landscape_05.html">Data Processing with Ray Data</a></li>
+<li class="toctree-l1"><a class="reference internal" href="../../../00_Developer_Intro_to_Ray/output/04a_Intro_Ray_Data_Industry_Landscape_06.html">Ray Serve</a></li>
+<li class="toctree-l1"><a class="reference internal" href="../../../00_Developer_Intro_to_Ray/output/04b_Intro_Ray_Data_Structured_01.html">Introduction to Ray Data: Ray Data + Structured Data</a></li>
+<li class="toctree-l1"><a class="reference internal" href="../../../00_Developer_Intro_to_Ray/output/04b_Intro_Ray_Data_Structured_02.html">0. What is Ray Data?</a></li>
+<li class="toctree-l1"><a class="reference internal" href="../../../00_Developer_Intro_to_Ray/output/04b_Intro_Ray_Data_Structured_03.html">2. Loading Data</a></li>
+<li class="toctree-l1"><a class="reference internal" href="../../../00_Developer_Intro_to_Ray/output/04b_Intro_Ray_Data_Structured_04.html">3. Transforming Data</a></li>
+<li class="toctree-l1"><a class="reference internal" href="../../../00_Developer_Intro_to_Ray/output/04b_Intro_Ray_Data_Structured_05.html">4. Writing Data</a></li>
+<li class="toctree-l1"><a class="reference internal" href="../../../00_Developer_Intro_to_Ray/output/04b_Intro_Ray_Data_Structured_06.html">5. Data Operations: Shuffling, Grouping and Aggregation</a></li>
+<li class="toctree-l1"><a class="reference internal" href="../../../00_Developer_Intro_to_Ray/output/04b_Intro_Ray_Data_Structured_07.html">6. When to use Ray Data</a></li>
+<li class="toctree-l1"><a class="reference internal" href="../../../00_Developer_Intro_to_Ray/output/04c_Intro_Ray_Data_Unstructured_01.html">Intro to Ray Data:  Ray Data + Unstructured Data</a></li>
+<li class="toctree-l1"><a class="reference internal" href="../../../00_Developer_Intro_to_Ray/output/04c_Intro_Ray_Data_Unstructured_02.html">1. When to Consider Ray Data</a></li>
+<li class="toctree-l1"><a class="reference internal" href="../../../00_Developer_Intro_to_Ray/output/04c_Intro_Ray_Data_Unstructured_03.html">2. How to work with Ray Data</a></li>
+<li class="toctree-l1"><a class="reference internal" href="../../../00_Developer_Intro_to_Ray/output/04c_Intro_Ray_Data_Unstructured_04.html">3. Loading data</a></li>
+<li class="toctree-l1"><a class="reference internal" href="../../../00_Developer_Intro_to_Ray/output/04c_Intro_Ray_Data_Unstructured_05.html">3. Lazy execution mode</a></li>
+<li class="toctree-l1"><a class="reference internal" href="../../../00_Developer_Intro_to_Ray/output/04c_Intro_Ray_Data_Unstructured_06.html">4. Transforming data</a></li>
+<li class="toctree-l1"><a class="reference internal" href="../../../00_Developer_Intro_to_Ray/output/04c_Intro_Ray_Data_Unstructured_07.html">5. Stateful transformations with Ray Actors</a></li>
+<li class="toctree-l1"><a class="reference internal" href="../../../00_Developer_Intro_to_Ray/output/04c_Intro_Ray_Data_Unstructured_08.html">6. Materializing data</a></li>
+<li class="toctree-l1"><a class="reference internal" href="../../../00_Developer_Intro_to_Ray/output/04c_Intro_Ray_Data_Unstructured_09.html">7. Data Operations: grouping, aggregation, and shuffling</a></li>
+<li class="toctree-l1"><a class="reference internal" href="../../../00_Developer_Intro_to_Ray/output/04c_Intro_Ray_Data_Unstructured_10.html">8. Persisting data</a></li>
+<li class="toctree-l1"><a class="reference internal" href="../../../00_Developer_Intro_to_Ray/output/04c_Intro_Ray_Data_Unstructured_11.html">9. Ray Data in production</a></li>
+<li class="toctree-l1"><a class="reference internal" href="../../../00_Developer_Intro_to_Ray/output/05_Intro_Ray_Serve_PyTorch_01.html">Introduction to Ray Serve with PyTorch</a></li>
+<li class="toctree-l1"><a class="reference internal" href="../../../00_Developer_Intro_to_Ray/output/05_Intro_Ray_Serve_PyTorch_02.html">1. When to Consider Ray Serve</a></li>
+<li class="toctree-l1"><a class="reference internal" href="../../../00_Developer_Intro_to_Ray/output/05_Intro_Ray_Serve_PyTorch_03.html">2. Overview of Ray Serve</a></li>
+<li class="toctree-l1"><a class="reference internal" href="../../../00_Developer_Intro_to_Ray/output/05_Intro_Ray_Serve_PyTorch_04.html">3. Implement an image classification service</a></li>
+<li class="toctree-l1"><a class="reference internal" href="../../../00_Developer_Intro_to_Ray/output/05_Intro_Ray_Serve_PyTorch_05.html">4. Development workflow</a></li>
+<li class="toctree-l1"><a class="reference internal" href="../../../00_Developer_Intro_to_Ray/output/README_01.html">Introduction to Ray: Developer</a></li>
+</ul>
+<p aria-level="2" class="caption" role="heading"><span class="caption-text">Gettingstarted</span></p>
+<ul class="nav bd-sidenav">
+<li class="toctree-l1"><a class="reference internal" href="../../../GettingStarted/output/101_01_anyscale_intro_workspace_01.html">101 — Introduction to Anyscale Workspaces</a></li>
+<li class="toctree-l1"><a class="reference internal" href="../../../GettingStarted/output/101_02_anyscale_development_intro_01.html">101 – Developing Application with Anyscale</a></li>
+<li class="toctree-l1"><a class="reference internal" href="../../../GettingStarted/output/101_03_anyscale_compute_runtime_intro_01.html">101 – Compute Configs and Execution Environments in Anyscale</a></li>
+<li class="toctree-l1"><a class="reference internal" href="../../../GettingStarted/output/101_04_anyscale_storage_options_01.html">101 – Storage Options in the Anyscale Platform</a></li>
+<li class="toctree-l1"><a class="reference internal" href="../../../GettingStarted/output/101_05_anyscale_logging_metrics_01.html">101 – Debug and Monitor Your Anyscale Application</a></li>
+<li class="toctree-l1"><a class="reference internal" href="../../../GettingStarted/output/101_06_anyscale_intro_jobs_01.html">101 – Introduction to Anyscale Jobs</a></li>
+<li class="toctree-l1"><a class="reference internal" href="../../../GettingStarted/output/101_07_anyscale_intro_services_01.html">101 –  Introduction to Anyscale Services</a></li>
+<li class="toctree-l1"><a class="reference internal" href="../../../GettingStarted/output/101_08_anyscale_collaboration_01.html">101 – Collaboration on Anyscale</a></li>
+<li class="toctree-l1"><a class="reference internal" href="../../../GettingStarted/output/101_09_anyscale_org_setup_01.html">101 - Anyscale Organization and Cloud Setup</a></li>
+<li class="toctree-l1"><a class="reference internal" href="../../../GettingStarted/output/101_09_anyscale_org_setup_02.html">📌 Overview of Structure</a></li>
+<li class="toctree-l1"><a class="reference internal" href="../../../GettingStarted/output/101_09_anyscale_org_setup_03.html">🧠 Summary</a></li>
+<li class="toctree-l1"><a class="reference internal" href="../../../GettingStarted/output/101_anyscale_intro_jobs_01.html">Content Used</a></li>
+
+<li class="toctree-l1"><a class="reference internal" href="../../../GettingStarted/output/101_anyscale_intro_jobs_02.html">Part 1. Creating and Submitting your first job</a></li>
+<li class="toctree-l1"><a class="reference internal" href="../../../GettingStarted/output/101_anyscale_intro_jobs_03.html">Part 2. Automation and Scheduling</a></li>
+<li class="toctree-l1"><a class="reference internal" href="../../../GettingStarted/output/101_anyscale_intro_services_01.html">Sources</a></li>
+
+<li class="toctree-l1"><a class="reference internal" href="../../../GettingStarted/output/101_anyscale_intro_services_02.html">Part 1: Starting your first Anyscale Service</a></li>
+</ul>
+<p aria-level="2" class="caption" role="heading"><span class="caption-text">Ray 101</span></p>
+<ul class="nav bd-sidenav">
+<li class="toctree-l1"><a class="reference internal" href="../../../ray-101/output/1_AI_Libs_Intro_01.html">Introduction to the Ray AI Libraries</a></li>
+<li class="toctree-l1"><a class="reference internal" href="../../../ray-101/output/1_AI_Libs_Intro_02.html">1. Overview of the Ray AI Libraries</a></li>
+<li class="toctree-l1"><a class="reference internal" href="../../../ray-101/output/1_AI_Libs_Intro_03.html">2. End-to-end example: predicting taxi tips in New York</a></li>
+<li class="toctree-l1"><a class="reference internal" href="../../../ray-101/output/2_Intro_Train_01.html">Introduction to Ray Train</a></li>
+<li class="toctree-l1"><a class="reference internal" href="../../../ray-101/output/2_Intro_Train_02.html">1. PyTorch introductory example (single GPU)</a></li>
+<li class="toctree-l1"><a class="reference internal" href="../../../ray-101/output/2_Intro_Train_03.html">2. Distributed Data Parallel Training with Ray Train and PyTorch (multiple GPUs)</a></li>
+<li class="toctree-l1"><a class="reference internal" href="../../../ray-101/output/2_Intro_Train_04.html">3. Overview of the training loop in Ray Train</a></li>
+<li class="toctree-l1"><a class="reference internal" href="../../../ray-101/output/2_Intro_Train_05.html">4. Migrating the model and dataset to Ray Train</a></li>
+<li class="toctree-l1"><a class="reference internal" href="../../../ray-101/output/2_Intro_Train_06.html">5. Reporting checkpoints and metrics</a></li>
+<li class="toctree-l1"><a class="reference internal" href="../../../ray-101/output/2_Intro_Train_07.html">6. Launching the distributed training job</a></li>
+<li class="toctree-l1"><a class="reference internal" href="../../../ray-101/output/2_Intro_Train_08.html">7. Accessing the training results</a></li>
+<li class="toctree-l1"><a class="reference internal" href="../../../ray-101/output/2_Intro_Train_09.html">8. Ray Train in Production</a></li>
+<li class="toctree-l1"><a class="reference internal" href="../../../ray-101/output/3_Intro_Tune_01.html">Intro to Ray Tune</a></li>
+<li class="toctree-l1"><a class="reference internal" href="../../../ray-101/output/3_Intro_Tune_02.html">1. Loading and visualizing data</a></li>
+<li class="toctree-l1"><a class="reference internal" href="../../../ray-101/output/3_Intro_Tune_03.html">2. Setting up a PyTorch model</a></li>
+<li class="toctree-l1"><a class="reference internal" href="../../../ray-101/output/3_Intro_Tune_04.html">3. Introduction to Ray Tune</a></li>
+<li class="toctree-l1"><a class="reference internal" href="../../../ray-101/output/3_Intro_Tune_05.html">4. Diving deeper into Ray Tune concepts</a></li>
+<li class="toctree-l1"><a class="reference internal" href="../../../ray-101/output/3_Intro_Tune_06.html">5. Hyperparameter tuning the PyTorch model using Ray Tune</a></li>
+<li class="toctree-l1"><a class="reference internal" href="../../../ray-101/output/4_Intro_Data_01.html">Intro to Ray Data</a></li>
+<li class="toctree-l1"><a class="reference internal" href="../../../ray-101/output/4_Intro_Data_02.html">1. When to use Ray Data</a></li>
+<li class="toctree-l1"><a class="reference internal" href="../../../ray-101/output/4_Intro_Data_03.html">2. Loading Data</a></li>
+<li class="toctree-l1"><a class="reference internal" href="../../../ray-101/output/4_Intro_Data_04.html">3. Transforming Data</a></li>
+<li class="toctree-l1"><a class="reference internal" href="../../../ray-101/output/4_Intro_Data_05.html">4. Data Operations: Grouping, Aggregation, and Shuffling</a></li>
+<li class="toctree-l1"><a class="reference internal" href="../../../ray-101/output/4_Intro_Data_06.html">5. Persisting Data</a></li>
+<li class="toctree-l1"><a class="reference internal" href="../../../ray-101/output/5_Intro_Serve_01.html">Intro to Ray Serve</a></li>
+<li class="toctree-l1"><a class="reference internal" href="../../../ray-101/output/5_Intro_Serve_02.html">1. Overview of Ray Serve</a></li>
+<li class="toctree-l1"><a class="reference internal" href="../../../ray-101/output/5_Intro_Serve_03.html">2. Implement an Classifier service</a></li>
+<li class="toctree-l1"><a class="reference internal" href="../../../ray-101/output/5_Intro_Serve_04.html">3. Advanced features of Ray Serve</a></li>
+<li class="toctree-l1"><a class="reference internal" href="../../../ray-101/output/5_Intro_Serve_05.html">4. Ray Serve in Production</a></li>
+<li class="toctree-l1"><a class="reference internal" href="../../../ray-101/output/5_Intro_Serve_06.html">Clean up</a></li>
+</ul>
+<p aria-level="2" class="caption" role="heading"><span class="caption-text">Anyscale For Admins</span></p>
+<ul class="nav bd-sidenav">
+<li class="toctree-l1"><a class="reference internal" href="../../../foundations/Anyscale_For_Admins/02_00_Anyscale_Admin_Overview/output/anyscale_administrator_overview_01.html">Anyscale Administrator Overview</a></li>
+<li class="toctree-l1"><a class="reference internal" href="../../../foundations/Anyscale_For_Admins/02_00_Anyscale_Admin_Overview/output/anyscale_administrator_overview_02.html">1. What is an Anyscale Cloud?</a></li>
+<li class="toctree-l1"><a class="reference internal" href="../../../foundations/Anyscale_For_Admins/02_00_Anyscale_Admin_Overview/output/anyscale_administrator_overview_03.html">2. Cloud Deployment Types</a></li>
+<li class="toctree-l1"><a class="reference internal" href="../../../foundations/Anyscale_For_Admins/02_00_Anyscale_Admin_Overview/output/anyscale_administrator_overview_04.html">3. A Demonstrative Example of Resource Creation with AWS EC2</a></li>
+<li class="toctree-l1"><a class="reference internal" href="../../../foundations/Anyscale_For_Admins/02_00_Anyscale_Admin_Overview/output/anyscale_administrator_overview_05.html">3.1 IAM Role Definition</a></li>
+<li class="toctree-l1"><a class="reference internal" href="../../../foundations/Anyscale_For_Admins/02_00_Anyscale_Admin_Overview/output/anyscale_administrator_overview_06.html">4. Register Anyscale Cloud to Your Cloud Provider</a></li>
+<li class="toctree-l1"><a class="reference internal" href="../../../foundations/Anyscale_For_Admins/02_01_VM_vs_K8s/output/anyscale_vm_vs_k8s_01.html">Deployment Options: Virtual Machines vs. Kubernetes</a></li>
+<li class="toctree-l1"><a class="reference internal" href="../../../foundations/Anyscale_For_Admins/02_01_VM_vs_K8s/output/anyscale_vm_vs_k8s_02.html">2. Virtual Machines (VM) vs. Kubernetes (K8s)</a></li>
+<li class="toctree-l1"><a class="reference internal" href="../../../foundations/Anyscale_For_Admins/02_01_VM_vs_K8s/output/anyscale_vm_vs_k8s_03.html">3. (Optional) More Kubernetes Deployments Components</a></li>
+<li class="toctree-l1"><a class="reference internal" href="../../../foundations/Anyscale_For_Admins/02_02a_Deploy_to_VM_AWS_EC2/output/deploy_to_ec2_01.html">Introduction: Deploy Anyscale Ray on AWS EC2 Instances</a></li>
+<li class="toctree-l1"><a class="reference internal" href="../../../foundations/Anyscale_For_Admins/02_02a_Deploy_to_VM_AWS_EC2/output/deploy_to_ec2_02.html">1. Create Anyscale Resources with Terraform</a></li>
+<li class="toctree-l1"><a class="reference internal" href="../../../foundations/Anyscale_For_Admins/02_02a_Deploy_to_VM_AWS_EC2/output/deploy_to_ec2_03.html">2. Register the Anyscale Cloud</a></li>
+<li class="toctree-l1"><a class="reference internal" href="../../../foundations/Anyscale_For_Admins/02_02a_Deploy_to_VM_AWS_EC2/output/deploy_to_ec2_04.html">3. Test</a></li>
+<li class="toctree-l1"><a class="reference internal" href="../../../foundations/Anyscale_For_Admins/02_02a_Deploy_to_VM_AWS_EC2/output/deploy_to_ec2_05.html">4. Cleanup</a></li>
+<li class="toctree-l1"><a class="reference internal" href="../../../foundations/Anyscale_For_Admins/02_02a_Deploy_to_VM_AWS_EC2/output/deploy_to_ec2_06.html">5. Conclusion</a></li>
+<li class="toctree-l1"><a class="reference internal" href="../../../foundations/Anyscale_For_Admins/02_02b_Deploy_to_VM_GCP_GCE/output/deploy_to_GCE_01.html">Introduction: Deploy Anyscale Ray on GCP Compute Engine Instances (GCE)</a></li>
+<li class="toctree-l1"><a class="reference internal" href="../../../foundations/Anyscale_For_Admins/02_02b_Deploy_to_VM_GCP_GCE/output/deploy_to_GCE_02.html">Prerequisites</a></li>
+<li class="toctree-l1"><a class="reference internal" href="../../../foundations/Anyscale_For_Admins/02_02b_Deploy_to_VM_GCP_GCE/output/deploy_to_GCE_03.html">1. Installation</a></li>
+<li class="toctree-l1"><a class="reference internal" href="../../../foundations/Anyscale_For_Admins/02_02b_Deploy_to_VM_GCP_GCE/output/deploy_to_GCE_04.html">2. Create Anyscale Resources with Terraform</a></li>
+<li class="toctree-l1"><a class="reference internal" href="../../../foundations/Anyscale_For_Admins/02_02b_Deploy_to_VM_GCP_GCE/output/deploy_to_GCE_05.html">3. Register the Anyscale Cloud</a></li>
+<li class="toctree-l1"><a class="reference internal" href="../../../foundations/Anyscale_For_Admins/02_02b_Deploy_to_VM_GCP_GCE/output/deploy_to_GCE_06.html">4. Test</a></li>
+<li class="toctree-l1"><a class="reference internal" href="../../../foundations/Anyscale_For_Admins/02_02b_Deploy_to_VM_GCP_GCE/output/deploy_to_GCE_07.html">5. Cleanup</a></li>
+<li class="toctree-l1"><a class="reference internal" href="../../../foundations/Anyscale_For_Admins/02_03a_Deploy_to_K8s_New_AWS_EKS/output/deploy_to_a_new_EKS_01.html">Introduction: Deploy Anyscale Ray on A New AWS EKS Cluster</a></li>
+<li class="toctree-l1"><a class="reference internal" href="../../../foundations/Anyscale_For_Admins/02_03a_Deploy_to_K8s_New_AWS_EKS/output/deploy_to_a_new_EKS_02.html">1. Create Anyscale Resources with Terraform</a></li>
+<li class="toctree-l1"><a class="reference internal" href="../../../foundations/Anyscale_For_Admins/02_03a_Deploy_to_K8s_New_AWS_EKS/output/deploy_to_a_new_EKS_03.html">2. Install Kubernetes Components</a></li>
+<li class="toctree-l1"><a class="reference internal" href="../../../foundations/Anyscale_For_Admins/02_03a_Deploy_to_K8s_New_AWS_EKS/output/deploy_to_a_new_EKS_04.html">3. Register the Anyscale Cloud</a></li>
+<li class="toctree-l1"><a class="reference internal" href="../../../foundations/Anyscale_For_Admins/02_03a_Deploy_to_K8s_New_AWS_EKS/output/deploy_to_a_new_EKS_05.html">4. Install the Anyscale Operator</a></li>
+<li class="toctree-l1"><a class="reference internal" href="../../../foundations/Anyscale_For_Admins/02_03a_Deploy_to_K8s_New_AWS_EKS/output/deploy_to_a_new_EKS_06.html">5. Verify the Installation</a></li>
+<li class="toctree-l1"><a class="reference internal" href="../../../foundations/Anyscale_For_Admins/02_03a_Deploy_to_K8s_New_AWS_EKS/output/deploy_to_a_new_EKS_07.html">6. Test</a></li>
+<li class="toctree-l1"><a class="reference internal" href="../../../foundations/Anyscale_For_Admins/02_03a_Deploy_to_K8s_New_AWS_EKS/output/deploy_to_a_new_EKS_08.html">7. Clean up</a></li>
+<li class="toctree-l1"><a class="reference internal" href="../../../foundations/Anyscale_For_Admins/02_03a_Deploy_to_K8s_New_AWS_EKS/output/deploy_to_a_new_EKS_09.html">8. Conclusion</a></li>
+<li class="toctree-l1"><a class="reference internal" href="../../../foundations/Anyscale_For_Admins/02_03b_Deploy_to_K8s_Existing_AWS_EKS/output/deploy_to_an_existing_EKS_01.html">Introduction: Deploy Anyscale Ray on An Existing AWS EKS Cluster</a></li>
+<li class="toctree-l1"><a class="reference internal" href="../../../foundations/Anyscale_For_Admins/02_03b_Deploy_to_K8s_Existing_AWS_EKS/output/deploy_to_an_existing_EKS_02.html">Prerequisites</a></li>
+<li class="toctree-l1"><a class="reference internal" href="../../../foundations/Anyscale_For_Admins/02_03b_Deploy_to_K8s_Existing_AWS_EKS/output/deploy_to_an_existing_EKS_03.html">1. Create Anyscale Resources with Terraform</a></li>
+<li class="toctree-l1"><a class="reference internal" href="../../../foundations/Anyscale_For_Admins/02_03b_Deploy_to_K8s_Existing_AWS_EKS/output/deploy_to_an_existing_EKS_04.html">2. Attach Required IAM Policies to Your existing EKS’s Node Role</a></li>
+<li class="toctree-l1"><a class="reference internal" href="../../../foundations/Anyscale_For_Admins/02_03b_Deploy_to_K8s_Existing_AWS_EKS/output/deploy_to_an_existing_EKS_05.html">3. Install Kubernetes Components</a></li>
+<li class="toctree-l1"><a class="reference internal" href="../../../foundations/Anyscale_For_Admins/02_03b_Deploy_to_K8s_Existing_AWS_EKS/output/deploy_to_an_existing_EKS_06.html">4. Register the Anyscale Cloud</a></li>
+<li class="toctree-l1"><a class="reference internal" href="../../../foundations/Anyscale_For_Admins/02_03b_Deploy_to_K8s_Existing_AWS_EKS/output/deploy_to_an_existing_EKS_07.html">5. Install the Anyscale Operator</a></li>
+<li class="toctree-l1"><a class="reference internal" href="../../../foundations/Anyscale_For_Admins/02_03b_Deploy_to_K8s_Existing_AWS_EKS/output/deploy_to_an_existing_EKS_08.html">6. Verify the Installation</a></li>
+<li class="toctree-l1"><a class="reference internal" href="../../../foundations/Anyscale_For_Admins/02_03b_Deploy_to_K8s_Existing_AWS_EKS/output/deploy_to_an_existing_EKS_09.html">7. Test</a></li>
+<li class="toctree-l1"><a class="reference internal" href="../../../foundations/Anyscale_For_Admins/02_03b_Deploy_to_K8s_Existing_AWS_EKS/output/deploy_to_an_existing_EKS_10.html">8. Troubleshooting</a></li>
+<li class="toctree-l1"><a class="reference internal" href="../../../foundations/Anyscale_For_Admins/02_03b_Deploy_to_K8s_Existing_AWS_EKS/output/deploy_to_an_existing_EKS_11.html">9. Clean up</a></li>
+<li class="toctree-l1"><a class="reference internal" href="../../../foundations/Anyscale_For_Admins/02_03b_Deploy_to_K8s_Existing_AWS_EKS/output/deploy_to_an_existing_EKS_12.html">10. Conclusion</a></li>
+<li class="toctree-l1"><a class="reference internal" href="../../../foundations/Anyscale_For_Admins/02_03c_Deploy_to_K8s_New_GCP_GKE/output/deploy_to_new_GKE_01.html">Introduction: Deploy Anyscale Ray on A New Google Kubernetes Engine (GKE) Cluster</a></li>
+<li class="toctree-l1"><a class="reference internal" href="../../../foundations/Anyscale_For_Admins/02_03c_Deploy_to_K8s_New_GCP_GKE/output/deploy_to_new_GKE_02.html">Prerequisites</a></li>
+<li class="toctree-l1"><a class="reference internal" href="../../../foundations/Anyscale_For_Admins/02_03c_Deploy_to_K8s_New_GCP_GKE/output/deploy_to_new_GKE_03.html">1. Installation</a></li>
+<li class="toctree-l1"><a class="reference internal" href="../../../foundations/Anyscale_For_Admins/02_03c_Deploy_to_K8s_New_GCP_GKE/output/deploy_to_new_GKE_04.html">2. Create Anyscale Resources with Terraform</a></li>
+<li class="toctree-l1"><a class="reference internal" href="../../../foundations/Anyscale_For_Admins/02_03c_Deploy_to_K8s_New_GCP_GKE/output/deploy_to_new_GKE_05.html">3. Troubleshooting GPU Availability</a></li>
+<li class="toctree-l1"><a class="reference internal" href="../../../foundations/Anyscale_For_Admins/02_03c_Deploy_to_K8s_New_GCP_GKE/output/deploy_to_new_GKE_06.html">4. kubectl Configuration</a></li>
+<li class="toctree-l1"><a class="reference internal" href="../../../foundations/Anyscale_For_Admins/02_03c_Deploy_to_K8s_New_GCP_GKE/output/deploy_to_new_GKE_07.html">5. Install NGINX Ingress Controller</a></li>
+<li class="toctree-l1"><a class="reference internal" href="../../../foundations/Anyscale_For_Admins/02_03c_Deploy_to_K8s_New_GCP_GKE/output/deploy_to_new_GKE_08.html">6. (Optional) Upgrade Anyscale Dependencies</a></li>
+<li class="toctree-l1"><a class="reference internal" href="../../../foundations/Anyscale_For_Admins/02_03c_Deploy_to_K8s_New_GCP_GKE/output/deploy_to_new_GKE_09.html">7. Register the Anyscale Cloud</a></li>
+<li class="toctree-l1"><a class="reference internal" href="../../../foundations/Anyscale_For_Admins/02_03c_Deploy_to_K8s_New_GCP_GKE/output/deploy_to_new_GKE_10.html">8. Install the Anyscale Operator</a></li>
+<li class="toctree-l1"><a class="reference internal" href="../../../foundations/Anyscale_For_Admins/02_03c_Deploy_to_K8s_New_GCP_GKE/output/deploy_to_new_GKE_11.html">8. Test</a></li>
+<li class="toctree-l1"><a class="reference internal" href="../../../foundations/Anyscale_For_Admins/02_03c_Deploy_to_K8s_New_GCP_GKE/output/deploy_to_new_GKE_12.html">9. Cleanup</a></li>
+</ul>
+<p aria-level="2" class="caption" role="heading"><span class="caption-text">Llm Serving</span></p>
+<ul class="nav bd-sidenav">
+<li class="toctree-l1"><a class="reference internal" href="../../../foundations/LLM_Serving/00_intro_serve_llm/output/notebook_01.html">Introduction to Ray Serve LLM: Foundations of Large Language Model Serving</a></li>
+<li class="toctree-l1"><a class="reference internal" href="../../../foundations/LLM_Serving/00_intro_serve_llm/output/notebook_02.html">What is LLM Serving?</a></li>
+<li class="toctree-l1"><a class="reference internal" href="../../../foundations/LLM_Serving/00_intro_serve_llm/output/notebook_03.html">Key Concepts and Optimizations</a></li>
+<li class="toctree-l1"><a class="reference internal" href="../../../foundations/LLM_Serving/00_intro_serve_llm/output/notebook_04.html">Challenges in LLM Serving</a></li>
+<li class="toctree-l1"><a class="reference internal" href="../../../foundations/LLM_Serving/00_intro_serve_llm/output/notebook_05.html">Ray Serve LLM + Anyscale Architecture</a></li>
+<li class="toctree-l1"><a class="reference internal" href="../../../foundations/LLM_Serving/00_intro_serve_llm/output/notebook_06.html">Getting Started with Ray Serve LLM</a></li>
+<li class="toctree-l1"><a class="reference internal" href="../../../foundations/LLM_Serving/00_intro_serve_llm/output/notebook_07.html">Key Takeaways</a></li>
+<li class="toctree-l1"><a class="reference internal" href="../../../foundations/LLM_Serving/01_deploy_medium_llm/output/notebook_01.html">Deploy a Medium-Sized LLM with Ray Serve LLM</a></li>
+<li class="toctree-l1"><a class="reference internal" href="../../../foundations/LLM_Serving/01_deploy_medium_llm/output/notebook_02.html">Overview: Why Medium-Sized Models?</a></li>
+<li class="toctree-l1"><a class="reference internal" href="../../../foundations/LLM_Serving/01_deploy_medium_llm/output/notebook_03.html">Setting up Ray Serve LLM</a></li>
+<li class="toctree-l1"><a class="reference internal" href="../../../foundations/LLM_Serving/01_deploy_medium_llm/output/notebook_04.html">Local Deployment &amp; Inference</a></li>
+<li class="toctree-l1"><a class="reference internal" href="../../../foundations/LLM_Serving/01_deploy_medium_llm/output/notebook_05.html">Deploying to Anyscale Services</a></li>
+<li class="toctree-l1"><a class="reference internal" href="../../../foundations/LLM_Serving/01_deploy_medium_llm/output/notebook_06.html">Advanced Topics: Monitoring &amp; Optimization</a></li>
+<li class="toctree-l1"><a class="reference internal" href="../../../foundations/LLM_Serving/01_deploy_medium_llm/output/notebook_07.html">Summary &amp; Outlook</a></li>
+<li class="toctree-l1"><a class="reference internal" href="../../../foundations/LLM_Serving/02_advanced_llm_features/output/notebook_01.html">Advanced LLM Features with Ray Serve LLM</a></li>
+<li class="toctree-l1"><a class="reference internal" href="../../../foundations/LLM_Serving/02_advanced_llm_features/output/notebook_02.html">Overview: Advanced Features Preview</a></li>
+<li class="toctree-l1"><a class="reference internal" href="../../../foundations/LLM_Serving/02_advanced_llm_features/output/notebook_03.html">Example: Deploying LoRA Adapters</a></li>
+<li class="toctree-l1"><a class="reference internal" href="../../../foundations/LLM_Serving/02_advanced_llm_features/output/notebook_04.html">Example: Getting Structured JSON Output</a></li>
+<li class="toctree-l1"><a class="reference internal" href="../../../foundations/LLM_Serving/02_advanced_llm_features/output/notebook_05.html">Example: Setting up Tool Calling</a></li>
+<li class="toctree-l1"><a class="reference internal" href="../../../foundations/LLM_Serving/02_advanced_llm_features/output/notebook_06.html">How to Choose an LLM?</a></li>
+<li class="toctree-l1"><a class="reference internal" href="../../../foundations/LLM_Serving/02_advanced_llm_features/output/notebook_07.html">Conclusion: Next Steps</a></li>
+</ul>
+<p aria-level="2" class="caption" role="heading"><span class="caption-text">Observability</span></p>
+<ul class="nav bd-sidenav">
+<li class="toctree-l1"><a class="reference internal" href="../../../foundations/Observability/01_Intro_and_setup/output/01_general_intro_and_setup_01.html">Observability Introduction</a></li>
+<li class="toctree-l1"><a class="reference internal" href="../../../foundations/Observability/01_Intro_and_setup/output/01_general_intro_and_setup_02.html">Observability Overview</a></li>
+<li class="toctree-l1"><a class="reference internal" href="../../../foundations/Observability/01_Intro_and_setup/output/01_general_intro_and_setup_03.html">Setting Up Local Ray Observability</a></li>
+<li class="toctree-l1"><a class="reference internal" href="../../../foundations/Observability/02_Ray_Anyscale_Introduction/output/2_Ray_Anyscale_Observability_Overview_01.html">Ray and Anyscale Observability Introduction</a></li>
+<li class="toctree-l1"><a class="reference internal" href="../../../foundations/Observability/02_Ray_Anyscale_Introduction/output/2_Ray_Anyscale_Observability_Overview_02.html">Ray Observability</a></li>
+<li class="toctree-l1"><a class="reference internal" href="../../../foundations/Observability/02_Ray_Anyscale_Introduction/output/2_Ray_Anyscale_Observability_Overview_03.html">Anyscale Observability</a></li>
+<li class="toctree-l1"><a class="reference internal" href="../../../foundations/Observability/02_Ray_Anyscale_Introduction/output/2_Ray_Anyscale_Observability_Overview_04.html">Example</a></li>
+<li class="toctree-l1"><a class="reference internal" href="../../../foundations/Observability/03_Ray_Anyscale_Observability_in_Detail/output/03_Ray_Anyscale_Observability_in_Details_01.html">Ray and Anyscale Observability in Detail</a></li>
+<li class="toctree-l1"><a class="reference internal" href="../../../foundations/Observability/03_Ray_Anyscale_Observability_in_Detail/output/03_Ray_Anyscale_Observability_in_Details_02.html">Data Pipeline Observability (Ray Data)</a></li>
+<li class="toctree-l1"><a class="reference internal" href="../../../foundations/Observability/03_Ray_Anyscale_Observability_in_Detail/output/03_Ray_Anyscale_Observability_in_Details_03.html">Web Application Observability (Ray Serve)</a></li>
+</ul>
+<p aria-level="2" class="caption" role="heading"><span class="caption-text">Ray Train Foundation</span></p>
+<ul class="nav bd-sidenav">
+<li class="toctree-l1"><a class="reference internal" href="../../../foundations/Ray_Train_Foundation/output/01_02_03_intro_to_ray_train_01.html">📚 01 · Introduction to Ray Train</a></li>
+<li class="toctree-l1"><a class="reference internal" href="../../../foundations/Ray_Train_Foundation/output/01_02_03_intro_to_ray_train_02.html">01 · Imports</a></li>
+<li class="toctree-l1"><a class="reference internal" href="../../../foundations/Ray_Train_Foundation/output/01_02_03_intro_to_ray_train_03.html">04 · Define ResNet-18 Model for MNIST</a></li>
+<li class="toctree-l1"><a class="reference internal" href="../../../foundations/Ray_Train_Foundation/output/01_02_03_intro_to_ray_train_04.html">05 · Define the Ray Train Loop (DDP per-worker)</a></li>
+<li class="toctree-l1"><a class="reference internal" href="../../../foundations/Ray_Train_Foundation/output/01_02_03_intro_to_ray_train_05.html">06 · Define <code class="docutils literal notranslate"><span class="pre">train_loop_config</span></code></a></li>
+<li class="toctree-l1"><a class="reference internal" href="../../../foundations/Ray_Train_Foundation/output/01_02_03_intro_to_ray_train_06.html">07 · Configure Scaling with <code class="docutils literal notranslate"><span class="pre">ScalingConfig</span></code></a></li>
+<li class="toctree-l1"><a class="reference internal" href="../../../foundations/Ray_Train_Foundation/output/01_02_03_intro_to_ray_train_07.html">08 · Wrap the Model with <code class="docutils literal notranslate"><span class="pre">prepare_model()</span></code></a></li>
+<li class="toctree-l1"><a class="reference internal" href="../../../foundations/Ray_Train_Foundation/output/01_02_03_intro_to_ray_train_08.html">09 · Build the DataLoader with <code class="docutils literal notranslate"><span class="pre">prepare_data_loader()</span></code></a></li>
+<li class="toctree-l1"><a class="reference internal" href="../../../foundations/Ray_Train_Foundation/output/01_02_03_intro_to_ray_train_09.html">10 · Report Training Metrics</a></li>
+<li class="toctree-l1"><a class="reference internal" href="../../../foundations/Ray_Train_Foundation/output/01_02_03_intro_to_ray_train_10.html">11 · Save Checkpoints and Report Metrics</a></li>
+<li class="toctree-l1"><a class="reference internal" href="../../../foundations/Ray_Train_Foundation/output/01_02_03_intro_to_ray_train_11.html">14 · Create the <code class="docutils literal notranslate"><span class="pre">TorchTrainer</span></code></a></li>
+<li class="toctree-l1"><a class="reference internal" href="../../../foundations/Ray_Train_Foundation/output/01_02_03_intro_to_ray_train_12.html">16 · Inspect the Training Results</a></li>
+<li class="toctree-l1"><a class="reference internal" href="../../../foundations/Ray_Train_Foundation/output/01_02_03_intro_to_ray_train_13.html">18 · Load a Checkpoint for Inference</a></li>
+<li class="toctree-l1"><a class="reference internal" href="../../../foundations/Ray_Train_Foundation/output/01_02_03_intro_to_ray_train_14.html">🔄 02 · Integrating Ray Train with Ray Data</a></li>
+<li class="toctree-l1"><a class="reference internal" href="../../../foundations/Ray_Train_Foundation/output/01_02_03_intro_to_ray_train_15.html">01 · Define Training Loop with Ray Data</a></li>
+<li class="toctree-l1"><a class="reference internal" href="../../../foundations/Ray_Train_Foundation/output/01_02_03_intro_to_ray_train_16.html">02 · Build DataLoader from Ray Data</a></li>
+<li class="toctree-l1"><a class="reference internal" href="../../../foundations/Ray_Train_Foundation/output/01_02_03_intro_to_ray_train_17.html">03 · Prepare Dataset for Ray Data</a></li>
+<li class="toctree-l1"><a class="reference internal" href="../../../foundations/Ray_Train_Foundation/output/01_02_03_intro_to_ray_train_18.html">05 · Define Image Transformation</a></li>
+<li class="toctree-l1"><a class="reference internal" href="../../../foundations/Ray_Train_Foundation/output/01_02_03_intro_to_ray_train_19.html">07 · Configure <code class="docutils literal notranslate"><span class="pre">TorchTrainer</span></code> with Ray Data</a></li>
+<li class="toctree-l1"><a class="reference internal" href="../../../foundations/Ray_Train_Foundation/output/01_02_03_intro_to_ray_train_20.html">🛡️ 03 · Fault Tolerance in Ray Train</a></li>
+<li class="toctree-l1"><a class="reference internal" href="../../../foundations/Ray_Train_Foundation/output/01_02_03_intro_to_ray_train_21.html">01 · Modify Training Loop to Enable Checkpoint Loading</a></li>
+<li class="toctree-l1"><a class="reference internal" href="../../../foundations/Ray_Train_Foundation/output/01_02_03_intro_to_ray_train_22.html">02 · Save Full Checkpoint with Extra State</a></li>
+<li class="toctree-l1"><a class="reference internal" href="../../../foundations/Ray_Train_Foundation/output/01_02_03_intro_to_ray_train_23.html">04 · Launch Fault-Tolerant Training</a></li>
+<li class="toctree-l1"><a class="reference internal" href="../../../foundations/Ray_Train_Foundation/output/01_02_03_intro_to_ray_train_24.html">05 · Manual Restoration from Checkpoints</a></li>
+<li class="toctree-l1"><a class="reference internal" href="../../../foundations/Ray_Train_Foundation/output/01_02_03_intro_to_ray_train_25.html">07 · Clean Up Cluster Storage</a></li>
+<li class="toctree-l1"><a class="reference internal" href="../../../foundations/Ray_Train_Foundation/output/01_02_03_intro_to_ray_train_26.html">🎉 Wrapping Up &amp; Next Steps</a></li>
+</ul>
+<p aria-level="2" class="caption" role="heading"><span class="caption-text">Ray Data Batch Inference/00 Workload</span></p>
+<ul class="nav bd-sidenav">
+<li class="toctree-l1"><a class="reference internal" href="../../Ray_Data_Batch_Inference/00_workload/output/01_Ray_Data_batch_inference_01.html">Batch Inference with Ray Data</a></li>
+<li class="toctree-l1"><a class="reference internal" href="../../Ray_Data_Batch_Inference/00_workload/output/01_Ray_Data_batch_inference_02.html">Architecture</a></li>
+<li class="toctree-l1"><a class="reference internal" href="../../Ray_Data_Batch_Inference/00_workload/output/01_Ray_Data_batch_inference_03.html">Load a dataset</a></li>
+<li class="toctree-l1"><a class="reference internal" href="../../Ray_Data_Batch_Inference/00_workload/output/01_Ray_Data_batch_inference_04.html">Batch Inference Class</a></li>
+<li class="toctree-l1"><a class="reference internal" href="../../Ray_Data_Batch_Inference/00_workload/output/01_Ray_Data_batch_inference_05.html">Create a batch data and call the model</a></li>
+<li class="toctree-l1"><a class="reference internal" href="../../Ray_Data_Batch_Inference/00_workload/output/01_Ray_Data_batch_inference_06.html">Run inference on the entire dataset</a></li>
+</ul>
+<p aria-level="2" class="caption" role="heading"><span class="caption-text">Ray Data Processing/00 Workload</span></p>
+<ul class="nav bd-sidenav">
+<li class="toctree-l1"><a class="reference internal" href="../../Ray_Data_Processing/00_workload/output/02_Ray_Data_data_processing_01.html">Data Processing with Ray Data</a></li>
+<li class="toctree-l1"><a class="reference internal" href="../../Ray_Data_Processing/00_workload/output/02_Ray_Data_data_processing_02.html">Library Imports</a></li>
+<li class="toctree-l1"><a class="reference internal" href="../../Ray_Data_Processing/00_workload/output/02_Ray_Data_data_processing_03.html">Convert to Ray Dataset</a></li>
+<li class="toctree-l1"><a class="reference internal" href="../../Ray_Data_Processing/00_workload/output/02_Ray_Data_data_processing_04.html">Filter Ray Dataset</a></li>
+<li class="toctree-l1"><a class="reference internal" href="../../Ray_Data_Processing/00_workload/output/02_Ray_Data_data_processing_05.html">Join Two Ray Datasets</a></li>
+<li class="toctree-l1"><a class="reference internal" href="../../Ray_Data_Processing/00_workload/output/02_Ray_Data_data_processing_06.html">Preprocessing with a Tokenizer</a></li>
+</ul>
+<p aria-level="2" class="caption" role="heading"><span class="caption-text">Ray Distributed Training/00 Workload</span></p>
+<ul class="nav bd-sidenav">
+<li class="toctree-l1"><a class="reference internal" href="../../Ray_Distributed_Training/00_workload/output/04_Ray_Train_distributed_training_01.html">Distributed training with Ray Train, PyTorch and Hugging Face</a></li>
+<li class="toctree-l1"><a class="reference internal" href="../../Ray_Distributed_Training/00_workload/output/04_Ray_Train_distributed_training_02.html">1. Architecture</a></li>
+<li class="toctree-l1"><a class="reference internal" href="../../Ray_Distributed_Training/00_workload/output/04_Ray_Train_distributed_training_03.html">3. Metrics Setup</a></li>
+<li class="toctree-l1"><a class="reference internal" href="../../Ray_Distributed_Training/00_workload/output/04_Ray_Train_distributed_training_04.html">4. Training function per worker</a></li>
+<li class="toctree-l1"><a class="reference internal" href="../../Ray_Distributed_Training/00_workload/output/04_Ray_Train_distributed_training_05.html">5. Main Training Function</a></li>
+<li class="toctree-l1"><a class="reference internal" href="../../Ray_Distributed_Training/00_workload/output/04_Ray_Train_distributed_training_06.html">6. Start Training</a></li>
+</ul>
+<p aria-level="2" class="caption" role="heading"><span class="caption-text">Ray Serve Online Serving/00 Workload</span></p>
+<ul class="nav bd-sidenav">
+<li class="toctree-l1"><a class="reference internal" href="../../Ray_Serve_Online_Serving/00_workload/output/03_Ray_Serve_online_serving_01.html">Online Model Serving with Ray Serve</a></li>
+<li class="toctree-l1"><a class="reference internal" href="../../Ray_Serve_Online_Serving/00_workload/output/03_Ray_Serve_online_serving_02.html">Architecture</a></li>
+<li class="toctree-l1"><a class="reference internal" href="../../Ray_Serve_Online_Serving/00_workload/output/03_Ray_Serve_online_serving_03.html">FastAPI webservice and deploy a model</a></li>
+<li class="toctree-l1"><a class="reference internal" href="../../Ray_Serve_Online_Serving/00_workload/output/03_Ray_Serve_online_serving_04.html">Simulate Client: Send test requests</a></li>
+</ul>
+<p aria-level="2" class="caption" role="heading"><span class="caption-text">Train Generative Cv/00 Workload</span></p>
+<ul class="nav bd-sidenav">
+<li class="toctree-l1"><a class="reference internal" href="../../Train_Generative_CV/00_workload/output/04d1_generative_cv_pattern_01.html">04-d1 Generative computer-vision pattern with Ray Train</a></li>
+<li class="toctree-l1"><a class="reference internal" href="../../Train_Generative_CV/00_workload/output/04d1_generative_cv_pattern_02.html">1. Imports and setup</a></li>
+<li class="toctree-l1"><a class="reference internal" href="../../Train_Generative_CV/00_workload/output/04d1_generative_cv_pattern_03.html">8. Pixel diffusion LightningModule</a></li>
+<li class="toctree-l1"><a class="reference internal" href="../../Train_Generative_CV/00_workload/output/04d1_generative_cv_pattern_04.html">9. Ray Train <code class="docutils literal notranslate"><span class="pre">train_loop</span></code> (Lightning + Ray integration)</a></li>
+<li class="toctree-l1"><a class="reference internal" href="../../Train_Generative_CV/00_workload/output/04d1_generative_cv_pattern_05.html">12. Resume from latest checkpoint</a></li>
+<li class="toctree-l1"><a class="reference internal" href="../../Train_Generative_CV/00_workload/output/04d1_generative_cv_pattern_06.html">13. Reverse diffusion sampler</a></li>
+</ul>
+<p aria-level="2" class="caption" role="heading"><span class="caption-text">Train Policy Learning/00 Workload</span></p>
+<ul class="nav bd-sidenav">
+<li class="toctree-l1"><a class="reference internal" href="../../Train_Policy_Learning/00_workload/output/04d2_policy_learning_pattern_01.html">04-d2 Diffusion-Policy Pattern with Ray Train</a></li>
+<li class="toctree-l1"><a class="reference internal" href="../../Train_Policy_Learning/00_workload/output/04d2_policy_learning_pattern_02.html">1. Imports and setup</a></li>
+<li class="toctree-l1"><a class="reference internal" href="../../Train_Policy_Learning/00_workload/output/04d2_policy_learning_pattern_03.html">4. DiffusionPolicy LightningModule</a></li>
+<li class="toctree-l1"><a class="reference internal" href="../../Train_Policy_Learning/00_workload/output/04d2_policy_learning_pattern_04.html">5. Distributed Train loop with checkpointing</a></li>
+<li class="toctree-l1"><a class="reference internal" href="../../Train_Policy_Learning/00_workload/output/04d2_policy_learning_pattern_05.html">8. Reverse diffusion helper</a></li>
+</ul>
+<p aria-level="2" class="caption" role="heading"><span class="caption-text">Train Rec Sys/00 Workload</span></p>
+<ul class="nav bd-sidenav">
+<li class="toctree-l1"><a class="reference internal" href="../../Train_Rec_sys/00_workload/output/04e_rec_sys_workload_pattern_01.html">04e Recommendation system pattern with Ray Train</a></li>
+<li class="toctree-l1"><a class="reference internal" href="../../Train_Rec_sys/00_workload/output/04e_rec_sys_workload_pattern_02.html">1. Imports</a></li>
+<li class="toctree-l1"><a class="reference internal" href="../../Train_Rec_sys/00_workload/output/04e_rec_sys_workload_pattern_03.html">7. Define matrix factorization model</a></li>
+<li class="toctree-l1"><a class="reference internal" href="../../Train_Rec_sys/00_workload/output/04e_rec_sys_workload_pattern_04.html">8. Define Ray Train loop (with validation, checkpointing, and Ray-managed metrics)</a></li>
+<li class="toctree-l1"><a class="reference internal" href="../../Train_Rec_sys/00_workload/output/04e_rec_sys_workload_pattern_05.html">11. Resume training from checkpoint</a></li>
+<li class="toctree-l1"><a class="reference internal" href="../../Train_Rec_sys/00_workload/output/04e_rec_sys_workload_pattern_06.html">12. Inference: recommend top-N items for a user</a></li>
+</ul>
+<p aria-level="2" class="caption" role="heading"><span class="caption-text">Train Tabular/00 Workload</span></p>
+<ul class="nav bd-sidenav">
+<li class="toctree-l1"><a class="reference internal" href="output/04b_tabular_workload_pattern_01.html">04b Tabular workload pattern with Ray Train</a></li>
+<li class="toctree-l1"><a class="reference internal" href="output/04b_tabular_workload_pattern_02.html">1. Imports</a></li>
+<li class="toctree-l1"><a class="reference internal" href="output/04b_tabular_workload_pattern_03.html">8. Define the Ray Train worker loop (Arrow-based, memory-efficient)</a></li>
+<li class="toctree-l1"><a class="reference internal" href="output/04b_tabular_workload_pattern_04.html">12. Confusion matrix visualization</a></li>
+<li class="toctree-l1"><a class="reference internal" href="output/04b_tabular_workload_pattern_05.html">15. Continue training from the latest checkpoint</a></li>
+</ul>
+<p aria-level="2" class="caption" role="heading"><span class="caption-text">Train Time Series/00 Workload</span></p>
+<ul class="nav bd-sidenav">
+<li class="toctree-l1"><a class="reference internal" href="../../Train_Time_Series/00_workload/output/04c_time_series_workload_pattern_01.html">04c Time-Series workload pattern with Ray Train</a></li>
+<li class="toctree-l1"><a class="reference internal" href="../../Train_Time_Series/00_workload/output/04c_time_series_workload_pattern_02.html">1. Imports</a></li>
+<li class="toctree-l1"><a class="reference internal" href="../../Train_Time_Series/00_workload/output/04c_time_series_workload_pattern_03.html">9. PositionalEncoding and Transformer model</a></li>
+<li class="toctree-l1"><a class="reference internal" href="../../Train_Time_Series/00_workload/output/04c_time_series_workload_pattern_04.html">10. Ray Train training loop (with teacher forcing)</a></li>
+<li class="toctree-l1"><a class="reference internal" href="../../Train_Time_Series/00_workload/output/04c_time_series_workload_pattern_05.html">13. Resume training from checkpoint</a></li>
+<li class="toctree-l1"><a class="reference internal" href="../../Train_Time_Series/00_workload/output/04c_time_series_workload_pattern_06.html">14. Inference helper — Ray Data batch predictor on GPU</a></li>
+</ul>
+<p aria-level="2" class="caption" role="heading"><span class="caption-text">Train Vision Pattern/00 Workload</span></p>
+<ul class="nav bd-sidenav">
+<li class="toctree-l1"><a class="reference internal" href="../../Train_Vision_Pattern/00_workload/output/04a_vision_pattern_01.html">04a Computer-vision pattern with Ray Train</a></li>
+<li class="toctree-l1"><a class="reference internal" href="../../Train_Vision_Pattern/00_workload/output/04a_vision_pattern_02.html">1. Imports</a></li>
+<li class="toctree-l1"><a class="reference internal" href="../../Train_Vision_Pattern/00_workload/output/04a_vision_pattern_03.html">6. Custom <code class="docutils literal notranslate"><span class="pre">Food101Dataset</span></code> for Parquet</a></li>
+<li class="toctree-l1"><a class="reference internal" href="../../Train_Vision_Pattern/00_workload/output/04a_vision_pattern_04.html">10. Helper: Ray-prepared DataLoaders</a></li>
+<li class="toctree-l1"><a class="reference internal" href="../../Train_Vision_Pattern/00_workload/output/04a_vision_pattern_05.html">11. <code class="docutils literal notranslate"><span class="pre">train_loop_per_worker</span></code></a></li>
+<li class="toctree-l1"><a class="reference internal" href="../../Train_Vision_Pattern/00_workload/output/04a_vision_pattern_06.html">12. Launch distributed training with <code class="docutils literal notranslate"><span class="pre">TorchTrainer</span></code></a></li>
+<li class="toctree-l1"><a class="reference internal" href="../../Train_Vision_Pattern/00_workload/output/04a_vision_pattern_07.html">13. Plot training and validation loss curves</a></li>
+<li class="toctree-l1"><a class="reference internal" href="../../Train_Vision_Pattern/00_workload/output/04a_vision_pattern_08.html">14. Demonstrate fault-tolerant resumption</a></li>
+<li class="toctree-l1"><a class="reference internal" href="../../Train_Vision_Pattern/00_workload/output/04a_vision_pattern_09.html">15. Batch inference with Ray Data</a></li>
+</ul>
+
+    </div>
+</nav></div>
+    </div>
+  
+  
+  <div class="sidebar-primary-items__end sidebar-primary__section">
+  </div>
+  
+  <div id="rtd-footer-container"></div>
+
+
+      </div>
+      
+      <main id="main-content" class="bd-main" role="main">
+        
+        
+
+<div class="sbt-scroll-pixel-helper"></div>
+
+          <div class="bd-content">
+            <div class="bd-article-container">
+              
+              <div class="bd-header-article d-print-none">
+<div class="header-article-items header-article__inner">
+  
+    <div class="header-article-items__start">
+      
+        <div class="header-article-item"><button class="sidebar-toggle primary-toggle btn btn-sm" title="Toggle primary sidebar" data-bs-placement="bottom" data-bs-toggle="tooltip">
+  <span class="fa-solid fa-bars"></span>
+</button></div>
+      
+    </div>
+  
+  
+    <div class="header-article-items__end">
+      
+        <div class="header-article-item">
+
+<div class="article-header-buttons">
+
+
+
+
+
+<div class="dropdown dropdown-download-buttons">
+  <button class="btn dropdown-toggle" type="button" data-bs-toggle="dropdown" aria-expanded="false" aria-label="Download this page">
+    <i class="fas fa-download"></i>
+  </button>
+  <ul class="dropdown-menu">
+      
+      
+      
+      <li><a href="../../../../_sources/courses/workloads/Train_Tabular/00_workload/04b_tabular_workload_pattern.ipynb" target="_blank"
+   class="btn btn-sm btn-download-source-button dropdown-item"
+   title="Download source file"
+   data-bs-placement="left" data-bs-toggle="tooltip"
+>
+  
+
+<span class="btn__icon-container">
+  <i class="fas fa-file"></i>
+  </span>
+<span class="btn__text-container">.ipynb</span>
+</a>
+</li>
+      
+      
+      
+      
+      <li>
+<button onclick="window.print()"
+  class="btn btn-sm btn-download-pdf-button dropdown-item"
+  title="Print to PDF"
+  data-bs-placement="left" data-bs-toggle="tooltip"
+>
+  
+
+<span class="btn__icon-container">
+  <i class="fas fa-file-pdf"></i>
+  </span>
+<span class="btn__text-container">.pdf</span>
+</button>
+</li>
+      
+  </ul>
+</div>
+
+
+
+
+<button onclick="toggleFullScreen()"
+  class="btn btn-sm btn-fullscreen-button"
+  title="Fullscreen mode"
+  data-bs-placement="bottom" data-bs-toggle="tooltip"
+>
+  
+
+<span class="btn__icon-container">
+  <i class="fas fa-expand"></i>
+  </span>
+
+</button>
+
+
+
+<script>
+document.write(`
+  <button class="btn btn-sm nav-link pst-navbar-icon theme-switch-button" title="light/dark" aria-label="light/dark" data-bs-placement="bottom" data-bs-toggle="tooltip">
+    <i class="theme-switch fa-solid fa-sun fa-lg" data-mode="light"></i>
+    <i class="theme-switch fa-solid fa-moon fa-lg" data-mode="dark"></i>
+    <i class="theme-switch fa-solid fa-circle-half-stroke fa-lg" data-mode="auto"></i>
+  </button>
+`);
+</script>
+
+
+<script>
+document.write(`
+  <button class="btn btn-sm pst-navbar-icon search-button search-button__button" title="Search" aria-label="Search" data-bs-placement="bottom" data-bs-toggle="tooltip">
+    <i class="fa-solid fa-magnifying-glass fa-lg"></i>
+  </button>
+`);
+</script>
+<button class="sidebar-toggle secondary-toggle btn btn-sm" title="Toggle secondary sidebar" data-bs-placement="bottom" data-bs-toggle="tooltip">
+    <span class="fa-solid fa-list"></span>
+</button>
+</div></div>
+      
+    </div>
+  
+</div>
+</div>
+              
+              
+
+<div id="jb-print-docs-body" class="onlyprint">
+    <h1>04b Tabular workload pattern with Ray Train</h1>
+    <!-- Table of contents -->
+    <div id="print-main-content">
+        <div id="jb-print-toc">
+            
+            <div>
+                <h2> Contents </h2>
+            </div>
+            <nav aria-label="Page">
+                <ul class="visible nav section-nav flex-column">
+<li class="toc-h2 nav-item toc-entry"><a class="reference internal nav-link" href="#what-you-learn-and-take-away">What you learn and take away</a></li>
+<li class="toc-h2 nav-item toc-entry"><a class="reference internal nav-link" href="#what-problem-are-you-solving-forest-cover-classification-with-xgboost">What problem are you solving? (Forest cover classification with XGBoost)</a></li>
+<li class="toc-h2 nav-item toc-entry"><a class="reference internal nav-link" href="#what-s-xgboost">What’s XGBoost?</a></li>
+<li class="toc-h2 nav-item toc-entry"><a class="reference internal nav-link" href="#how-to-migrate-this-tabular-workload-to-a-distributed-setup-using-ray-on-anyscale">How to migrate this tabular workload to a distributed setup using Ray on Anyscale</a></li>
+<li class="toc-h2 nav-item toc-entry"><a class="reference internal nav-link" href="#imports">1. Imports</a><ul class="nav section-nav flex-column">
+<li class="toc-h3 nav-item toc-entry"><a class="reference internal nav-link" href="#load-the-university-of-california-irvine-uci-cover-type-dataset">2. Load the University of California, Irvine (UCI) Cover type dataset</a></li>
+<li class="toc-h3 nav-item toc-entry"><a class="reference internal nav-link" href="#visualize-class-balance">3. Visualize class balance</a></li>
+<li class="toc-h3 nav-item toc-entry"><a class="reference internal nav-link" href="#write-train-validation-parquet-files">4. Write train / validation Parquet files</a></li>
+<li class="toc-h3 nav-item toc-entry"><a class="reference internal nav-link" href="#load-the-train-and-validation-splits-as-ray-datasets">5. Load the train and validation splits as Ray Datasets</a></li>
+<li class="toc-h3 nav-item toc-entry"><a class="reference internal nav-link" href="#inspect-dataset-sizes-optional">6. Inspect dataset sizes (optional)</a></li>
+<li class="toc-h3 nav-item toc-entry"><a class="reference internal nav-link" href="#inspect-a-mini-batch">7. Inspect a mini-batch</a></li>
+</ul>
+</li>
+<li class="toc-h2 nav-item toc-entry"><a class="reference internal nav-link" href="#define-the-ray-train-worker-loop-arrow-based-memory-efficient">8. Define the Ray Train worker loop (Arrow-based, memory-efficient)</a><ul class="nav section-nav flex-column">
+<li class="toc-h3 nav-item toc-entry"><a class="reference internal nav-link" href="#configure-xgboost-and-build-the-trainer">9. Configure XGBoost and build the Trainer</a></li>
+<li class="toc-h3 nav-item toc-entry"><a class="reference internal nav-link" href="#start-distributed-training">10. Start distributed training</a></li>
+<li class="toc-h3 nav-item toc-entry"><a class="reference internal nav-link" href="#evaluate-the-trained-model">11. Evaluate the trained model</a></li>
+</ul>
+</li>
+<li class="toc-h2 nav-item toc-entry"><a class="reference internal nav-link" href="#confusion-matrix-visualization">12. Confusion matrix visualization</a><ul class="nav section-nav flex-column">
+<li class="toc-h3 nav-item toc-entry"><a class="reference internal nav-link" href="#cpu-batch-inference-with-ray-data">13. CPU batch inference with Ray Data</a></li>
+<li class="toc-h3 nav-item toc-entry"><a class="reference internal nav-link" href="#feature-importance-diagnostics">14. Feature-importance diagnostics</a></li>
+</ul>
+</li>
+<li class="toc-h2 nav-item toc-entry"><a class="reference internal nav-link" href="#continue-training-from-the-latest-checkpoint">15. Continue training from the latest checkpoint</a><ul class="nav section-nav flex-column">
+<li class="toc-h3 nav-item toc-entry"><a class="reference internal nav-link" href="#verify-post-training-inference">16. Verify post-training inference</a></li>
+<li class="toc-h3 nav-item toc-entry"><a class="reference internal nav-link" href="#clean-up">17. Clean up</a></li>
+<li class="toc-h3 nav-item toc-entry"><a class="reference internal nav-link" href="#wrap-up-and-next-steps">Wrap up and next steps</a></li>
+<li class="toc-h3 nav-item toc-entry"><a class="reference internal nav-link" href="#where-can-you-take-this-next">Where can you take this next?</a></li>
+</ul>
+</li>
+</ul>
+            </nav>
+        </div>
+    </div>
+</div>
+
+              
+                
+<div id="searchbox"></div>
+                <article class="bd-article">
+                  
+  <section class="tex2jax_ignore mathjax_ignore" id="b-tabular-workload-pattern-with-ray-train">
+<h1>04b Tabular workload pattern with Ray Train<a class="headerlink" href="#b-tabular-workload-pattern-with-ray-train" title="Link to this heading">#</a></h1>
+<p>In this tutorial you take the classic <strong>Cover type forest-cover dataset</strong> (580 k rows, 54 tabular features) and scale an <strong>XGBoost</strong> model across an Anyscale cluster using <strong>Ray Train V2</strong>.</p>
+<section id="what-you-learn-and-take-away">
+<h2>What you learn and take away<a class="headerlink" href="#what-you-learn-and-take-away" title="Link to this heading">#</a></h2>
+<ul class="simple">
+<li><p>Ingest tabular data at scale using <strong>Ray Data</strong> and persist it to Parquet for reproducibility</p></li>
+<li><p>Launch a fault-tolerant, checkpoint enabled <strong>XGBoost training loop</strong> on multiple CPUs using <strong>Ray Train</strong></p></li>
+<li><p>Resume training from checkpoints for protection agains job restarts and hardware failures</p></li>
+<li><p>Evaluate model accuracy, visualize feature importance, and scale batch inference using <strong>Ray Data</strong></p></li>
+<li><p>Understand how to port classic gradient boosting workflows into a <strong>fully distributed, multi-node training setup on Anyscale</strong></p></li>
+</ul>
+</section>
+<section id="what-problem-are-you-solving-forest-cover-classification-with-xgboost">
+<h2>What problem are you solving? (Forest cover classification with XGBoost)<a class="headerlink" href="#what-problem-are-you-solving-forest-cover-classification-with-xgboost" title="Link to this heading">#</a></h2>
+<p>You’re predicting which <strong>type of forest vegetation</strong> (for example, Lodge-pole Pine, Spruce/Fir, Aspen) is present at a given land location, using only numeric and binary cartographic features such as elevation, slope, soil type, and proximity to roads or hydrology.</p>
+<hr class="docutils" />
+</section>
+<section id="what-s-xgboost">
+<h2>What’s XGBoost?<a class="headerlink" href="#what-s-xgboost" title="Link to this heading">#</a></h2>
+<p><strong>XGBoost</strong> (Extreme Gradient Boosting) is a fast, scalable machine learning algorithm based on <strong>gradient-boosted decision trees</strong>. It builds a sequence of shallow decision trees, where each new tree tries to correct the errors of the previous ensemble by minimizing a differentiable loss (like log-loss).</p>
+<p>In your case, minimize the <strong>multi-class Softmax log-loss</strong>, learning a function:</p>
+<div class="math notranslate nohighlight">
+\[
+f_\theta: \mathbb{R}^{54} \rightarrow \{0, 1, \dots, 6\}
+\]</div>
+<p>that maps a 54-dimensional tabular input (raw geo-spatial features) to a forest cover type. Each boosting round fits a new tree on the gradient of the loss, gradually improving accuracy over hundreds of rounds.</p>
+<hr class="docutils" />
+</section>
+<section id="how-to-migrate-this-tabular-workload-to-a-distributed-setup-using-ray-on-anyscale">
+<h2>How to migrate this tabular workload to a distributed setup using Ray on Anyscale<a class="headerlink" href="#how-to-migrate-this-tabular-workload-to-a-distributed-setup-using-ray-on-anyscale" title="Link to this heading">#</a></h2>
+<p>This tutorial walks through the end-to-end process of <strong>migrating a local XGBoost training pipeline to a distributed Ray cluster running on Anyscale</strong>.</p>
+<p>The following steps make that transition:</p>
+<ol class="arabic simple">
+<li><p><strong>Store local data as remote data</strong><br />
+Store the raw data as Parquet in a shared cloud directory and load it using <strong>Ray Data</strong>, which streams and shards the dataset across workers automatically.</p></li>
+<li><p><strong>Convert a single-process to multi-worker training</strong><br />
+Define a custom <code class="docutils literal notranslate"><span class="pre">train_func</span></code>, then let <strong>Ray Train</strong> spin up 16 distributed training workers (1 per CPU) and run <code class="docutils literal notranslate"><span class="pre">xgb.train</span></code> in parallel, each with its own data shard.</p></li>
+<li><p><strong>Configure Ray for automated fault tolerance</strong><br />
+With <code class="docutils literal notranslate"><span class="pre">RayTrainReportCallback</span></code> and <code class="docutils literal notranslate"><span class="pre">CheckpointConfig</span></code>, Ray saves checkpoints every 10 boosting rounds and can resume mid-training if any worker crashes or a job is re-launched.</p></li>
+<li><p><strong>Use Ray’s cluster-scale abstractions</strong><br />
+Skip the boilerplate of manually slicing datasets, coordinating workers, or building launch scripts. Instead, declare intent (with <code class="docutils literal notranslate"><span class="pre">ScalingConfig</span></code>, <code class="docutils literal notranslate"><span class="pre">RunConfig</span></code>, and <code class="docutils literal notranslate"><span class="pre">FailureConfig</span></code>) and let <strong>Ray and Anyscale</strong> manage the execution.</p></li>
+<li><p><strong>Use offline inference</strong><br />
+Batch inference is done with <strong>Ray Data</strong> on CPU workers. This is useful for seamlessly evolving the pipeline to large-scale production environments.</p></li>
+</ol>
+<p>This pattern turns a traditional single-node workflow into a scalable, resilient training pipeline with minimal code changes, and it works seamlessly on any cluster you provision through Anyscale.</p>
+</section>
+<section id="imports">
+<h2>1. Imports<a class="headerlink" href="#imports" title="Link to this heading">#</a></h2>
+<p>Before you touch any data, import every tool you need.<br />
+Alongside the standard scientific-Python stack, bring in <strong>XGBoost</strong> for gradient-boosted decision trees and <strong>Ray</strong> for distributed data loading and training. Ray Train’s helper classes (RunConfig, ScalingConfig, CheckpointConfig, FailureConfig) give you fault-tolerant, CPU training with almost no extra code.</p>
+<div class="cell docutils container">
+<div class="cell_input docutils container">
+<div class="highlight-ipython3 notranslate"><div class="highlight"><pre><span></span><span class="c1"># 00. Runtime setup </span>
+<span class="kn">import</span><span class="w"> </span><span class="nn">os</span><span class="o">,</span><span class="w"> </span><span class="nn">sys</span><span class="o">,</span><span class="w"> </span><span class="nn">subprocess</span>
+
+<span class="c1"># Non-secret env var </span>
+<span class="n">os</span><span class="o">.</span><span class="n">environ</span><span class="p">[</span><span class="s2">&quot;RAY_TRAIN_V2_ENABLED&quot;</span><span class="p">]</span> <span class="o">=</span> <span class="s2">&quot;1&quot;</span>
+
+<span class="c1"># Install Python dependencies </span>
+<span class="n">subprocess</span><span class="o">.</span><span class="n">check_call</span><span class="p">([</span>
+    <span class="n">sys</span><span class="o">.</span><span class="n">executable</span><span class="p">,</span> <span class="s2">&quot;-m&quot;</span><span class="p">,</span> <span class="s2">&quot;pip&quot;</span><span class="p">,</span> <span class="s2">&quot;install&quot;</span><span class="p">,</span> <span class="s2">&quot;--no-cache-dir&quot;</span><span class="p">,</span>
+    <span class="s2">&quot;matplotlib==3.10.6&quot;</span><span class="p">,</span>
+    <span class="s2">&quot;scikit-learn==1.7.2&quot;</span><span class="p">,</span>
+    <span class="s2">&quot;pyarrow==14.0.2&quot;</span><span class="p">,</span>    
+    <span class="s2">&quot;xgboost==3.0.5&quot;</span><span class="p">,</span>
+    <span class="s2">&quot;seaborn==0.13.2&quot;</span><span class="p">,</span>
+<span class="p">])</span>
+</pre></div>
+</div>
+</div>
+</div>
+<div class="cell docutils container">
+<div class="cell_input docutils container">
+<div class="highlight-ipython3 notranslate"><div class="highlight"><pre><span></span><span class="c1"># 01. Imports</span>
+<span class="kn">import</span><span class="w"> </span><span class="nn">os</span><span class="o">,</span><span class="w"> </span><span class="nn">shutil</span><span class="o">,</span><span class="w"> </span><span class="nn">json</span><span class="o">,</span><span class="w"> </span><span class="nn">uuid</span><span class="o">,</span><span class="w"> </span><span class="nn">tempfile</span><span class="o">,</span><span class="w"> </span><span class="nn">random</span>
+<span class="kn">import</span><span class="w"> </span><span class="nn">numpy</span><span class="w"> </span><span class="k">as</span><span class="w"> </span><span class="nn">np</span>
+<span class="kn">import</span><span class="w"> </span><span class="nn">pandas</span><span class="w"> </span><span class="k">as</span><span class="w"> </span><span class="nn">pd</span>
+<span class="kn">import</span><span class="w"> </span><span class="nn">matplotlib.pyplot</span><span class="w"> </span><span class="k">as</span><span class="w"> </span><span class="nn">plt</span>
+<span class="kn">import</span><span class="w"> </span><span class="nn">seaborn</span><span class="w"> </span><span class="k">as</span><span class="w"> </span><span class="nn">sns</span>
+<span class="kn">from</span><span class="w"> </span><span class="nn">sklearn.datasets</span><span class="w"> </span><span class="kn">import</span> <span class="n">fetch_covtype</span>
+<span class="kn">from</span><span class="w"> </span><span class="nn">sklearn.metrics</span><span class="w"> </span><span class="kn">import</span> <span class="n">accuracy_score</span><span class="p">,</span> <span class="n">confusion_matrix</span>
+<span class="kn">from</span><span class="w"> </span><span class="nn">sklearn.model_selection</span><span class="w"> </span><span class="kn">import</span> <span class="n">train_test_split</span>
+<span class="kn">import</span><span class="w"> </span><span class="nn">xgboost</span><span class="w"> </span><span class="k">as</span><span class="w"> </span><span class="nn">xgb</span>
+<span class="kn">import</span><span class="w"> </span><span class="nn">pyarrow</span><span class="w"> </span><span class="k">as</span><span class="w"> </span><span class="nn">pa</span>
+
+<span class="kn">import</span><span class="w"> </span><span class="nn">ray</span>
+<span class="kn">import</span><span class="w"> </span><span class="nn">ray.data</span><span class="w"> </span><span class="k">as</span><span class="w"> </span><span class="nn">rd</span>
+<span class="kn">from</span><span class="w"> </span><span class="nn">ray.data</span><span class="w"> </span><span class="kn">import</span> <span class="n">ActorPoolStrategy</span>
+<span class="kn">from</span><span class="w"> </span><span class="nn">ray.train</span><span class="w"> </span><span class="kn">import</span> <span class="n">RunConfig</span><span class="p">,</span> <span class="n">ScalingConfig</span><span class="p">,</span> <span class="n">CheckpointConfig</span><span class="p">,</span> <span class="n">FailureConfig</span><span class="p">,</span> <span class="n">get_dataset_shard</span><span class="p">,</span> <span class="n">get_checkpoint</span><span class="p">,</span> <span class="n">get_context</span>
+<span class="kn">from</span><span class="w"> </span><span class="nn">ray.train.xgboost</span><span class="w"> </span><span class="kn">import</span> <span class="n">XGBoostTrainer</span><span class="p">,</span> <span class="n">RayTrainReportCallback</span>
+</pre></div>
+</div>
+</div>
+</div>
+<section id="load-the-university-of-california-irvine-uci-cover-type-dataset">
+<h3>2. Load the University of California, Irvine (UCI) Cover type dataset<a class="headerlink" href="#load-the-university-of-california-irvine-uci-cover-type-dataset" title="Link to this heading">#</a></h3>
+<p>The Cover type dataset contains ~580 000 forest-cover observations with 54 tabular features and a 7-class label. Fetch it from <code class="docutils literal notranslate"><span class="pre">sklearn.datasets</span></code>, rename the target column to <code class="docutils literal notranslate"><span class="pre">label</span></code> (Ray’s default), and shift the classes from <strong>1-7</strong> to <strong>0-6</strong> so they’re zero-indexed as XGBoost expects. A quick <code class="docutils literal notranslate"><span class="pre">value_counts</span></code> sanity-check confirms the mapping worked.</p>
+<div class="cell docutils container">
+<div class="cell_input docutils container">
+<div class="highlight-ipython3 notranslate"><div class="highlight"><pre><span></span><span class="c1"># 02. Load the UCI Cover type dataset (~580k rows, 54 features)</span>
+<span class="n">data</span> <span class="o">=</span> <span class="n">fetch_covtype</span><span class="p">(</span><span class="n">as_frame</span><span class="o">=</span><span class="kc">True</span><span class="p">)</span>
+<span class="n">df</span> <span class="o">=</span> <span class="n">data</span><span class="o">.</span><span class="n">frame</span>
+<span class="n">df</span><span class="o">.</span><span class="n">rename</span><span class="p">(</span><span class="n">columns</span><span class="o">=</span><span class="p">{</span><span class="s2">&quot;Cover_Type&quot;</span><span class="p">:</span> <span class="s2">&quot;label&quot;</span><span class="p">},</span> <span class="n">inplace</span><span class="o">=</span><span class="kc">True</span><span class="p">)</span>   <span class="c1"># Ray expects &quot;label&quot;</span>
+<span class="n">df</span><span class="p">[</span><span class="s2">&quot;label&quot;</span><span class="p">]</span> <span class="o">=</span> <span class="n">df</span><span class="p">[</span><span class="s2">&quot;label&quot;</span><span class="p">]</span> <span class="o">-</span> <span class="mi">1</span>          <span class="c1"># 1-7  →  0-6</span>
+<span class="k">assert</span> <span class="n">df</span><span class="p">[</span><span class="s2">&quot;label&quot;</span><span class="p">]</span><span class="o">.</span><span class="n">between</span><span class="p">(</span><span class="mi">0</span><span class="p">,</span> <span class="mi">6</span><span class="p">)</span><span class="o">.</span><span class="n">all</span><span class="p">()</span>
+<span class="nb">print</span><span class="p">(</span><span class="n">df</span><span class="o">.</span><span class="n">shape</span><span class="p">,</span> <span class="n">df</span><span class="o">.</span><span class="n">label</span><span class="o">.</span><span class="n">value_counts</span><span class="p">(</span><span class="n">normalize</span><span class="o">=</span><span class="kc">True</span><span class="p">)</span><span class="o">.</span><span class="n">head</span><span class="p">())</span>
+</pre></div>
+</div>
+</div>
+</div>
+</section>
+<section id="visualize-class-balance">
+<h3>3. Visualize class balance<a class="headerlink" href="#visualize-class-balance" title="Link to this heading">#</a></h3>
+<p>Highly imbalanced targets can bias tree-based models, so plot the raw label counts. The cover type distribution shows skew, but not much—the bar chart lets you judge whether extra re-scaling or class-weighting is necessary. Rely on XGBoost’s built-in handling for this step.</p>
+<div class="cell docutils container">
+<div class="cell_input docutils container">
+<div class="highlight-ipython3 notranslate"><div class="highlight"><pre><span></span><span class="c1"># 03. Visualize class distribution</span>
+<span class="n">df</span><span class="o">.</span><span class="n">label</span><span class="o">.</span><span class="n">value_counts</span><span class="p">()</span><span class="o">.</span><span class="n">plot</span><span class="p">(</span><span class="n">kind</span><span class="o">=</span><span class="s2">&quot;bar&quot;</span><span class="p">,</span> <span class="n">figsize</span><span class="o">=</span><span class="p">(</span><span class="mi">6</span><span class="p">,</span><span class="mi">3</span><span class="p">),</span> <span class="n">title</span><span class="o">=</span><span class="s2">&quot;Cover Type distribution&quot;</span><span class="p">)</span>
+<span class="n">plt</span><span class="o">.</span><span class="n">ylabel</span><span class="p">(</span><span class="s2">&quot;Frequency&quot;</span><span class="p">);</span> <span class="n">plt</span><span class="o">.</span><span class="n">show</span><span class="p">()</span>
+</pre></div>
+</div>
+</div>
+</div>
+</section>
+<section id="write-train-validation-parquet-files">
+<h3>4. Write train / validation Parquet files<a class="headerlink" href="#write-train-validation-parquet-files" title="Link to this heading">#</a></h3>
+<p>Rather than splitting a large dataset in memory later, you persist <strong>train</strong> and <strong>validation</strong> splits up front.<br />
+Each split is written to the cluster’s shared volume (<code class="docutils literal notranslate"><span class="pre">/mnt/cluster_storage</span></code>) so that all Ray workers can access it directly.<br />
+This approach keeps the workflow reproducible and avoids rematerializing the dataset during distributed training.</p>
+<p>You perform a <strong>stratified 80 / 20 split</strong> to preserve class balance across splits, then write each subset to its own Parquet file.<br />
+Parquet is columnar and compressed, making it ideal for Ray Data ingestion and parallel reads.</p>
+<div class="cell docutils container">
+<div class="cell_input docutils container">
+<div class="highlight-ipython3 notranslate"><div class="highlight"><pre><span></span><span class="c1"># 04. Write separate train/val Parquets to /mnt/cluster_storage/covtype/</span>
+
+<span class="n">PARQUET_DIR</span> <span class="o">=</span> <span class="s2">&quot;/mnt/cluster_storage/covtype/parquet&quot;</span>
+<span class="n">os</span><span class="o">.</span><span class="n">makedirs</span><span class="p">(</span><span class="n">PARQUET_DIR</span><span class="p">,</span> <span class="n">exist_ok</span><span class="o">=</span><span class="kc">True</span><span class="p">)</span>
+
+<span class="n">TRAIN_PARQUET</span> <span class="o">=</span> <span class="n">os</span><span class="o">.</span><span class="n">path</span><span class="o">.</span><span class="n">join</span><span class="p">(</span><span class="n">PARQUET_DIR</span><span class="p">,</span> <span class="s2">&quot;train.parquet&quot;</span><span class="p">)</span>
+<span class="n">VAL_PARQUET</span>   <span class="o">=</span> <span class="n">os</span><span class="o">.</span><span class="n">path</span><span class="o">.</span><span class="n">join</span><span class="p">(</span><span class="n">PARQUET_DIR</span><span class="p">,</span> <span class="s2">&quot;val.parquet&quot;</span><span class="p">)</span>
+
+<span class="c1"># Stratified 80/20 split for reproducibility</span>
+<span class="n">train_df</span><span class="p">,</span> <span class="n">val_df</span> <span class="o">=</span> <span class="n">train_test_split</span><span class="p">(</span>
+    <span class="n">df</span><span class="p">,</span> <span class="n">test_size</span><span class="o">=</span><span class="mf">0.2</span><span class="p">,</span> <span class="n">random_state</span><span class="o">=</span><span class="mi">42</span><span class="p">,</span> <span class="n">stratify</span><span class="o">=</span><span class="n">df</span><span class="p">[</span><span class="s2">&quot;label&quot;</span><span class="p">]</span>
+<span class="p">)</span>
+
+<span class="n">train_df</span><span class="o">.</span><span class="n">to_parquet</span><span class="p">(</span><span class="n">TRAIN_PARQUET</span><span class="p">,</span> <span class="n">index</span><span class="o">=</span><span class="kc">False</span><span class="p">)</span>
+<span class="n">val_df</span><span class="o">.</span><span class="n">to_parquet</span><span class="p">(</span><span class="n">VAL_PARQUET</span><span class="p">,</span> <span class="n">index</span><span class="o">=</span><span class="kc">False</span><span class="p">)</span>
+
+<span class="nb">print</span><span class="p">(</span><span class="sa">f</span><span class="s2">&quot;Wrote Train → </span><span class="si">{</span><span class="n">TRAIN_PARQUET</span><span class="si">}</span><span class="s2"> (</span><span class="si">{</span><span class="nb">len</span><span class="p">(</span><span class="n">train_df</span><span class="p">)</span><span class="si">:</span><span class="s2">,</span><span class="si">}</span><span class="s2"> rows)&quot;</span><span class="p">)</span>
+<span class="nb">print</span><span class="p">(</span><span class="sa">f</span><span class="s2">&quot;Wrote Val   → </span><span class="si">{</span><span class="n">VAL_PARQUET</span><span class="si">}</span><span class="s2">   (</span><span class="si">{</span><span class="nb">len</span><span class="p">(</span><span class="n">val_df</span><span class="p">)</span><span class="si">:</span><span class="s2">,</span><span class="si">}</span><span class="s2"> rows)&quot;</span><span class="p">)</span>
+</pre></div>
+</div>
+</div>
+</div>
+</section>
+<section id="load-the-train-and-validation-splits-as-ray-datasets">
+<h3>5. Load the train and validation splits as Ray Datasets<a class="headerlink" href="#load-the-train-and-validation-splits-as-ray-datasets" title="Link to this heading">#</a></h3>
+<p>Now that the data is stored in Parquet, you load each split directly with <code class="docutils literal notranslate"><span class="pre">ray.data.read_parquet</span></code>.<br />
+Each call returns a <strong>lazy, columnar Ray Dataset</strong> that supports distributed reads and transformations across the cluster.</p>
+<p>Calling <code class="docutils literal notranslate"><span class="pre">.random_shuffle()</span></code> on the training split ensures balanced sampling during training,<br />
+while leaving the validation split unshuffled preserves its deterministic order for evaluation.</p>
+<p>From this point forward, all data access is <strong>parallel and streaming</strong>, eliminating single-node I/O bottlenecks.</p>
+<div class="cell docutils container">
+<div class="cell_input docutils container">
+<div class="highlight-ipython3 notranslate"><div class="highlight"><pre><span></span><span class="c1"># 05. Load the two splits as Ray Datasets (lazy, columnar)</span>
+<span class="n">train_ds</span> <span class="o">=</span> <span class="n">rd</span><span class="o">.</span><span class="n">read_parquet</span><span class="p">(</span><span class="n">TRAIN_PARQUET</span><span class="p">)</span><span class="o">.</span><span class="n">random_shuffle</span><span class="p">()</span>
+<span class="n">val_ds</span>   <span class="o">=</span> <span class="n">rd</span><span class="o">.</span><span class="n">read_parquet</span><span class="p">(</span><span class="n">VAL_PARQUET</span><span class="p">)</span>
+
+<span class="nb">print</span><span class="p">(</span><span class="n">train_ds</span><span class="p">)</span>
+<span class="nb">print</span><span class="p">(</span><span class="n">val_ds</span><span class="p">)</span>
+</pre></div>
+</div>
+</div>
+</div>
+</section>
+<section id="inspect-dataset-sizes-optional">
+<h3>6. Inspect dataset sizes (optional)<a class="headerlink" href="#inspect-dataset-sizes-optional" title="Link to this heading">#</a></h3>
+<p>After loading the Parquet files, quickly confirm that both splits were read correctly by counting their rows.<br />
+This step triggers a lightweight distributed count across the cluster and verifies that the<br />
+<strong>train / validation partitioning</strong> matches the expected 80 / 20 ratio before moving on to distributed training.</p>
+<div class="cell docutils container">
+<div class="cell_input docutils container">
+<div class="highlight-ipython3 notranslate"><div class="highlight"><pre><span></span><span class="nb">print</span><span class="p">(</span><span class="sa">f</span><span class="s2">&quot;Train rows: </span><span class="si">{</span><span class="n">train_ds</span><span class="o">.</span><span class="n">count</span><span class="p">()</span><span class="si">:</span><span class="s2">,</span><span class="si">}</span><span class="s2">,  Val rows: </span><span class="si">{</span><span class="n">val_ds</span><span class="o">.</span><span class="n">count</span><span class="p">()</span><span class="si">:</span><span class="s2">,</span><span class="si">}</span><span class="s2">&quot;</span><span class="p">)</span>  <span class="c1"># Note that this will materialize the dataset (skip at scale)</span>
+</pre></div>
+</div>
+</div>
+</div>
+</section>
+<section id="inspect-a-mini-batch">
+<h3>7. Inspect a mini-batch<a class="headerlink" href="#inspect-a-mini-batch" title="Link to this heading">#</a></h3>
+<p>Taking a tiny pandas batch helps verify that feature columns and labels have the expected shapes and types. You also build <code class="docutils literal notranslate"><span class="pre">feature_columns</span></code>, a list you reuse when building XGBoost’s <code class="docutils literal notranslate"><span class="pre">DMatrix</span></code>.</p>
+<div class="cell docutils container">
+<div class="cell_input docutils container">
+<div class="highlight-ipython3 notranslate"><div class="highlight"><pre><span></span><span class="c1"># 07. Look into one batch to confirm feature dimensionality</span>
+<span class="n">batch</span> <span class="o">=</span> <span class="n">train_ds</span><span class="o">.</span><span class="n">take_batch</span><span class="p">(</span><span class="n">batch_size</span><span class="o">=</span><span class="mi">5</span><span class="p">,</span> <span class="n">batch_format</span><span class="o">=</span><span class="s2">&quot;pandas&quot;</span><span class="p">)</span>
+<span class="nb">print</span><span class="p">(</span><span class="n">batch</span><span class="o">.</span><span class="n">head</span><span class="p">())</span>
+<span class="n">feature_columns</span> <span class="o">=</span> <span class="p">[</span><span class="n">c</span> <span class="k">for</span> <span class="n">c</span> <span class="ow">in</span> <span class="n">batch</span><span class="o">.</span><span class="n">columns</span> <span class="k">if</span> <span class="n">c</span> <span class="o">!=</span> <span class="s2">&quot;label&quot;</span><span class="p">]</span>
+</pre></div>
+</div>
+</div>
+</div>
+</section>
+</section>
+<section id="define-the-ray-train-worker-loop-arrow-based-memory-efficient">
+<h2>8. Define the Ray Train worker loop (Arrow-based, memory-efficient)<a class="headerlink" href="#define-the-ray-train-worker-loop-arrow-based-memory-efficient" title="Link to this heading">#</a></h2>
+<p>Each Ray Train worker runs its own copy of <code class="docutils literal notranslate"><span class="pre">train_func</span></code>.<br />
+Inside the loop, the worker pulls its <strong>shard</strong> of the train and validation datasets directly as <strong>Arrow tables</strong>.</p>
+<p>You then:</p>
+<ol class="arabic simple">
+<li><p><strong>Materialize each shard</strong> into a <code class="docutils literal notranslate"><span class="pre">pyarrow.Table</span></code> and drop any accidental index columns (like <code class="docutils literal notranslate"><span class="pre">__index_level_0__</span></code>)<br />
+that might have been added during Parquet serialization.</p></li>
+<li><p><strong>Convert Arrow → NumPy → XGBoost DMatrix</strong> with explicit <code class="docutils literal notranslate"><span class="pre">feature_names</span></code>, ensuring consistent column order<br />
+across all workers and splits.</p></li>
+<li><p><strong>Optionally resume</strong> from a prior checkpoint using <code class="docutils literal notranslate"><span class="pre">get_checkpoint()</span></code>.</p></li>
+<li><p><strong>Train the booster</strong> with <code class="docutils literal notranslate"><span class="pre">xgb.train</span></code>, using the built-in <code class="docutils literal notranslate"><span class="pre">RayTrainReportCallback()</span></code> to automatically stream<br />
+per-round metrics and checkpoints back to Ray Train.</p></li>
+</ol>
+<p>This design keeps the data path fully distributed and avoids unnecessary copies or manual metric handling.</p>
+<div class="cell docutils container">
+<div class="cell_input docutils container">
+<div class="highlight-ipython3 notranslate"><div class="highlight"><pre><span></span><span class="n">INDEX_COLS</span> <span class="o">=</span> <span class="p">{</span><span class="s2">&quot;__index_level_0__&quot;</span><span class="p">}</span>  <span class="c1"># extend if needed</span>
+
+<span class="k">def</span><span class="w"> </span><span class="nf">_arrow_table_from_shard</span><span class="p">(</span><span class="n">name</span><span class="p">:</span> <span class="nb">str</span><span class="p">)</span> <span class="o">-&gt;</span> <span class="n">pa</span><span class="o">.</span><span class="n">Table</span><span class="p">:</span>
+<span class="w">    </span><span class="sd">&quot;&quot;&quot;Collect this worker&#39;s Ray Dataset shard into one pyarrow. Table and</span>
+<span class="sd">    drop accidental index columns (e.g., from pandas Parquet).&quot;&quot;&quot;</span>
+    <span class="n">ds_iter</span> <span class="o">=</span> <span class="n">get_dataset_shard</span><span class="p">(</span><span class="n">name</span><span class="p">)</span>
+    <span class="n">arrow_refs</span> <span class="o">=</span> <span class="n">ds_iter</span><span class="o">.</span><span class="n">materialize</span><span class="p">()</span><span class="o">.</span><span class="n">to_arrow_refs</span><span class="p">()</span>
+    <span class="n">tables</span> <span class="o">=</span> <span class="p">[</span><span class="n">ray</span><span class="o">.</span><span class="n">get</span><span class="p">(</span><span class="n">r</span><span class="p">)</span> <span class="k">for</span> <span class="n">r</span> <span class="ow">in</span> <span class="n">arrow_refs</span><span class="p">]</span>
+    <span class="n">tbl</span> <span class="o">=</span> <span class="n">pa</span><span class="o">.</span><span class="n">concat_tables</span><span class="p">(</span><span class="n">tables</span><span class="p">,</span> <span class="n">promote_options</span><span class="o">=</span><span class="s2">&quot;none&quot;</span><span class="p">)</span> <span class="k">if</span> <span class="n">tables</span> <span class="k">else</span> <span class="n">pa</span><span class="o">.</span><span class="n">table</span><span class="p">({})</span>
+    <span class="c1"># Drop index columns if present</span>
+    <span class="n">keep</span> <span class="o">=</span> <span class="p">[</span><span class="n">c</span> <span class="k">for</span> <span class="n">c</span> <span class="ow">in</span> <span class="n">tbl</span><span class="o">.</span><span class="n">column_names</span> <span class="k">if</span> <span class="n">c</span> <span class="ow">not</span> <span class="ow">in</span> <span class="n">INDEX_COLS</span><span class="p">]</span>
+    <span class="k">if</span> <span class="nb">len</span><span class="p">(</span><span class="n">keep</span><span class="p">)</span> <span class="o">!=</span> <span class="nb">len</span><span class="p">(</span><span class="n">tbl</span><span class="o">.</span><span class="n">column_names</span><span class="p">):</span>
+        <span class="n">tbl</span> <span class="o">=</span> <span class="n">tbl</span><span class="o">.</span><span class="n">select</span><span class="p">(</span><span class="n">keep</span><span class="p">)</span>
+    <span class="k">return</span> <span class="n">tbl</span>
+
+<span class="k">def</span><span class="w"> </span><span class="nf">_dmat_from_arrow</span><span class="p">(</span><span class="n">table</span><span class="p">:</span> <span class="n">pa</span><span class="o">.</span><span class="n">Table</span><span class="p">,</span> <span class="n">feature_cols</span><span class="p">,</span> <span class="n">label_col</span><span class="p">:</span> <span class="nb">str</span><span class="p">):</span>
+<span class="w">    </span><span class="sd">&quot;&quot;&quot;Build XGBoost DMatrix from pyarrow.Table with explicit feature_names.&quot;&quot;&quot;</span>
+    <span class="n">X</span> <span class="o">=</span> <span class="n">np</span><span class="o">.</span><span class="n">column_stack</span><span class="p">([</span><span class="n">table</span><span class="p">[</span><span class="n">c</span><span class="p">]</span><span class="o">.</span><span class="n">to_numpy</span><span class="p">(</span><span class="n">zero_copy_only</span><span class="o">=</span><span class="kc">False</span><span class="p">)</span> <span class="k">for</span> <span class="n">c</span> <span class="ow">in</span> <span class="n">feature_cols</span><span class="p">])</span>
+    <span class="n">y</span> <span class="o">=</span> <span class="n">table</span><span class="p">[</span><span class="n">label_col</span><span class="p">]</span><span class="o">.</span><span class="n">to_numpy</span><span class="p">(</span><span class="n">zero_copy_only</span><span class="o">=</span><span class="kc">False</span><span class="p">)</span>
+    <span class="k">return</span> <span class="n">xgb</span><span class="o">.</span><span class="n">DMatrix</span><span class="p">(</span><span class="n">X</span><span class="p">,</span> <span class="n">label</span><span class="o">=</span><span class="n">y</span><span class="p">,</span> <span class="n">feature_names</span><span class="o">=</span><span class="n">feature_cols</span><span class="p">)</span>
+
+<span class="k">def</span><span class="w"> </span><span class="nf">train_func</span><span class="p">(</span><span class="n">config</span><span class="p">):</span>
+    <span class="n">label_col</span> <span class="o">=</span> <span class="n">config</span><span class="p">[</span><span class="s2">&quot;label_column&quot;</span><span class="p">]</span>
+
+    <span class="c1"># Arrow tables </span>
+    <span class="n">train_arrow</span> <span class="o">=</span> <span class="n">_arrow_table_from_shard</span><span class="p">(</span><span class="s2">&quot;train&quot;</span><span class="p">)</span>
+    <span class="n">eval_arrow</span>  <span class="o">=</span> <span class="n">_arrow_table_from_shard</span><span class="p">(</span><span class="s2">&quot;evaluation&quot;</span><span class="p">)</span>
+
+    <span class="c1"># Use the SAME ordered feature list for both splits</span>
+    <span class="n">feature_cols</span> <span class="o">=</span> <span class="p">[</span><span class="n">c</span> <span class="k">for</span> <span class="n">c</span> <span class="ow">in</span> <span class="n">train_arrow</span><span class="o">.</span><span class="n">column_names</span> <span class="k">if</span> <span class="n">c</span> <span class="o">!=</span> <span class="n">label_col</span><span class="p">]</span>
+
+    <span class="n">dtrain</span> <span class="o">=</span> <span class="n">_dmat_from_arrow</span><span class="p">(</span><span class="n">train_arrow</span><span class="p">,</span> <span class="n">feature_cols</span><span class="p">,</span> <span class="n">label_col</span><span class="p">)</span>
+    <span class="n">deval</span>  <span class="o">=</span> <span class="n">_dmat_from_arrow</span><span class="p">(</span><span class="n">eval_arrow</span><span class="p">,</span>  <span class="n">feature_cols</span><span class="p">,</span> <span class="n">label_col</span><span class="p">)</span>
+
+    <span class="c1"># -------- 2) Optional resume from checkpoint ------------------------------</span>
+    <span class="n">ckpt</span> <span class="o">=</span> <span class="n">get_checkpoint</span><span class="p">()</span>
+    <span class="k">if</span> <span class="n">ckpt</span><span class="p">:</span>
+        <span class="k">with</span> <span class="n">ckpt</span><span class="o">.</span><span class="n">as_directory</span><span class="p">()</span> <span class="k">as</span> <span class="n">d</span><span class="p">:</span>
+            <span class="n">model_path</span> <span class="o">=</span> <span class="n">os</span><span class="o">.</span><span class="n">path</span><span class="o">.</span><span class="n">join</span><span class="p">(</span><span class="n">d</span><span class="p">,</span> <span class="n">RayTrainReportCallback</span><span class="o">.</span><span class="n">CHECKPOINT_NAME</span><span class="p">)</span>
+            <span class="n">booster</span> <span class="o">=</span> <span class="n">xgb</span><span class="o">.</span><span class="n">Booster</span><span class="p">()</span>
+            <span class="n">booster</span><span class="o">.</span><span class="n">load_model</span><span class="p">(</span><span class="n">model_path</span><span class="p">)</span>
+            <span class="nb">print</span><span class="p">(</span><span class="sa">f</span><span class="s2">&quot;[Rank </span><span class="si">{</span><span class="n">get_context</span><span class="p">()</span><span class="o">.</span><span class="n">get_world_rank</span><span class="p">()</span><span class="si">}</span><span class="s2">] Resumed from checkpoint&quot;</span><span class="p">)</span>
+    <span class="k">else</span><span class="p">:</span>
+        <span class="n">booster</span> <span class="o">=</span> <span class="kc">None</span>
+
+    <span class="c1"># -------- 3) Train with per-round reporting &amp; checkpointing ---------------</span>
+    <span class="n">evals_result</span> <span class="o">=</span> <span class="p">{}</span>
+    <span class="n">xgb</span><span class="o">.</span><span class="n">train</span><span class="p">(</span>
+        <span class="n">params</span>          <span class="o">=</span> <span class="n">config</span><span class="p">[</span><span class="s2">&quot;params&quot;</span><span class="p">],</span>
+        <span class="n">dtrain</span>          <span class="o">=</span> <span class="n">dtrain</span><span class="p">,</span>
+        <span class="n">evals</span>           <span class="o">=</span> <span class="p">[(</span><span class="n">dtrain</span><span class="p">,</span> <span class="s2">&quot;train&quot;</span><span class="p">),</span> <span class="p">(</span><span class="n">deval</span><span class="p">,</span> <span class="s2">&quot;validation&quot;</span><span class="p">)],</span>
+        <span class="n">num_boost_round</span> <span class="o">=</span> <span class="n">config</span><span class="p">[</span><span class="s2">&quot;num_boost_round&quot;</span><span class="p">],</span>
+        <span class="n">xgb_model</span>       <span class="o">=</span> <span class="n">booster</span><span class="p">,</span>
+        <span class="n">evals_result</span>    <span class="o">=</span> <span class="n">evals_result</span><span class="p">,</span>
+        <span class="n">callbacks</span>       <span class="o">=</span> <span class="p">[</span><span class="n">RayTrainReportCallback</span><span class="p">()],</span>
+    <span class="p">)</span>
+</pre></div>
+</div>
+</div>
+</div>
+<section id="configure-xgboost-and-build-the-trainer">
+<h3>9. Configure XGBoost and build the Trainer<a class="headerlink" href="#configure-xgboost-and-build-the-trainer" title="Link to this heading">#</a></h3>
+<p>Next, define the XGBoost hyperparameters and wrap the <code class="docutils literal notranslate"><span class="pre">train_func</span></code> in an <code class="docutils literal notranslate"><span class="pre">XGBoostTrainer</span></code> for distributed execution.<br />
+Each worker is assigned an entire CPU node (<code class="docutils literal notranslate"><span class="pre">resources_per_worker={&quot;CPU&quot;:</span> <span class="pre">CPUS_PER_WORKER}</span></code>),<br />
+allowing XGBoost to use all local cores efficiently through the <code class="docutils literal notranslate"><span class="pre">nthread</span></code> parameter.</p>
+<p>Key settings:</p>
+<ul class="simple">
+<li><p><strong><code class="docutils literal notranslate"><span class="pre">ScalingConfig</span></code></strong> — controls how many workers to launch and their CPU/GPU allocation.</p></li>
+<li><p><strong><code class="docutils literal notranslate"><span class="pre">CheckpointConfig</span></code></strong> — saves a checkpoint every 10 boosting rounds and scores each checkpoint by<br />
+validation log-loss (<code class="docutils literal notranslate"><span class="pre">validation-mlogloss</span></code>), retaining only the best model.</p></li>
+<li><p><strong><code class="docutils literal notranslate"><span class="pre">FailureConfig</span></code></strong> — automatically retries failed workers up to one time for fault tolerance.</p></li>
+</ul>
+<p>By passing the Ray Datasets directly into the trainer, Ray handles dataset sharding and distributed streaming automatically,<br />
+so each worker trains on its own slice of the data without manual coordination.</p>
+<div class="cell docutils container">
+<div class="cell_input docutils container">
+<div class="highlight-ipython3 notranslate"><div class="highlight"><pre><span></span><span class="c1"># 09. XGBoost config and Trainer (full-node CPU workers)</span>
+
+<span class="c1"># Adjust this to your node size if different (e.g., 16, 32, etc.)</span>
+<span class="n">CPUS_PER_WORKER</span> <span class="o">=</span> <span class="mi">4</span>
+
+<span class="n">xgb_params</span> <span class="o">=</span> <span class="p">{</span>
+    <span class="s2">&quot;objective&quot;</span><span class="p">:</span> <span class="s2">&quot;multi:softprob&quot;</span><span class="p">,</span>
+    <span class="s2">&quot;num_class&quot;</span><span class="p">:</span> <span class="mi">7</span><span class="p">,</span>
+    <span class="s2">&quot;eval_metric&quot;</span><span class="p">:</span> <span class="s2">&quot;mlogloss&quot;</span><span class="p">,</span>
+    <span class="s2">&quot;tree_method&quot;</span><span class="p">:</span> <span class="s2">&quot;hist&quot;</span><span class="p">,</span>
+    <span class="s2">&quot;eta&quot;</span><span class="p">:</span> <span class="mf">0.3</span><span class="p">,</span>
+    <span class="s2">&quot;max_depth&quot;</span><span class="p">:</span> <span class="mi">8</span><span class="p">,</span>
+    <span class="s2">&quot;nthread&quot;</span><span class="p">:</span> <span class="n">CPUS_PER_WORKER</span><span class="p">,</span>  
+<span class="p">}</span>
+
+<span class="n">trainer</span> <span class="o">=</span> <span class="n">XGBoostTrainer</span><span class="p">(</span>
+    <span class="n">train_func</span><span class="p">,</span>
+    <span class="n">scaling_config</span><span class="o">=</span><span class="n">ScalingConfig</span><span class="p">(</span>
+        <span class="n">num_workers</span><span class="o">=</span><span class="mi">2</span><span class="p">,</span>
+        <span class="n">use_gpu</span><span class="o">=</span><span class="kc">False</span><span class="p">,</span>
+        <span class="n">resources_per_worker</span><span class="o">=</span><span class="p">{</span><span class="s2">&quot;CPU&quot;</span><span class="p">:</span> <span class="n">CPUS_PER_WORKER</span><span class="p">},</span>
+    <span class="p">),</span>
+    <span class="n">datasets</span><span class="o">=</span><span class="p">{</span><span class="s2">&quot;train&quot;</span><span class="p">:</span> <span class="n">train_ds</span><span class="p">,</span> <span class="s2">&quot;evaluation&quot;</span><span class="p">:</span> <span class="n">val_ds</span><span class="p">},</span>
+    <span class="n">train_loop_config</span><span class="o">=</span><span class="p">{</span>
+        <span class="s2">&quot;label_column&quot;</span><span class="p">:</span> <span class="s2">&quot;label&quot;</span><span class="p">,</span>
+        <span class="s2">&quot;params&quot;</span><span class="p">:</span> <span class="n">xgb_params</span><span class="p">,</span>
+        <span class="s2">&quot;num_boost_round&quot;</span><span class="p">:</span> <span class="mi">50</span><span class="p">,</span>
+    <span class="p">},</span>
+    <span class="n">run_config</span><span class="o">=</span><span class="n">RunConfig</span><span class="p">(</span>
+        <span class="n">name</span><span class="o">=</span><span class="s2">&quot;covtype_xgb_cpu&quot;</span><span class="p">,</span>
+        <span class="n">storage_path</span><span class="o">=</span><span class="s2">&quot;/mnt/cluster_storage/covtype/results&quot;</span><span class="p">,</span>
+        <span class="n">checkpoint_config</span><span class="o">=</span><span class="n">CheckpointConfig</span><span class="p">(</span>
+            <span class="n">checkpoint_frequency</span><span class="o">=</span><span class="mi">10</span><span class="p">,</span>
+            <span class="n">num_to_keep</span><span class="o">=</span><span class="mi">1</span><span class="p">,</span>
+            <span class="n">checkpoint_score_attribute</span><span class="o">=</span><span class="s2">&quot;validation-mlogloss&quot;</span><span class="p">,</span>  <span class="c1"># score by val loss</span>
+            <span class="n">checkpoint_score_order</span><span class="o">=</span><span class="s2">&quot;min&quot;</span><span class="p">,</span>
+        <span class="p">),</span>
+        <span class="n">failure_config</span><span class="o">=</span><span class="n">FailureConfig</span><span class="p">(</span><span class="n">max_failures</span><span class="o">=</span><span class="mi">1</span><span class="p">),</span>
+    <span class="p">),</span>
+<span class="p">)</span>
+</pre></div>
+</div>
+</div>
+</div>
+</section>
+<section id="start-distributed-training">
+<h3>10. Start distributed training<a class="headerlink" href="#start-distributed-training" title="Link to this heading">#</a></h3>
+<p><code class="docutils literal notranslate"><span class="pre">trainer.fit()</span></code> blocks until all boosting rounds finish, or until Ray exhausts retries.  The result object contains the last reported metrics and the best checkpoint found so far. Print the final validation log-loss and keep a handle to the checkpoint for inference.</p>
+<div class="cell docutils container">
+<div class="cell_input docutils container">
+<div class="highlight-ipython3 notranslate"><div class="highlight"><pre><span></span><span class="c1"># 10. Fit the trainer (reports eval metrics every boosting round)</span>
+<span class="n">result</span> <span class="o">=</span> <span class="n">trainer</span><span class="o">.</span><span class="n">fit</span><span class="p">()</span>
+<span class="n">best_ckpt</span> <span class="o">=</span> <span class="n">result</span><span class="o">.</span><span class="n">checkpoint</span>            <span class="c1"># saved automatically by Trainer </span>
+</pre></div>
+</div>
+</div>
+</div>
+</section>
+<section id="evaluate-the-trained-model">
+<h3>11. Evaluate the trained model<a class="headerlink" href="#evaluate-the-trained-model" title="Link to this heading">#</a></h3>
+<p>Pull the XGBoost <code class="docutils literal notranslate"><span class="pre">Booster</span></code> back from the checkpoint, run predictions on the entire validation set, and compute overall accuracy. Converting the Ray Dataset to pandas keeps the example short. In production you stream batches instead of materializing the whole frame.</p>
+<div class="cell docutils container">
+<div class="cell_input docutils container">
+<div class="highlight-ipython3 notranslate"><div class="highlight"><pre><span></span><span class="c1"># 11. Retrieve Booster object from Ray checkpoint</span>
+<span class="n">booster</span> <span class="o">=</span> <span class="n">RayTrainReportCallback</span><span class="o">.</span><span class="n">get_model</span><span class="p">(</span><span class="n">best_ckpt</span><span class="p">)</span>
+
+<span class="c1"># Convert Ray Dataset to pandas for quick local scoring</span>
+<span class="n">val_pd</span> <span class="o">=</span> <span class="n">val_ds</span><span class="o">.</span><span class="n">to_pandas</span><span class="p">()</span>
+<span class="n">dmatrix</span> <span class="o">=</span> <span class="n">xgb</span><span class="o">.</span><span class="n">DMatrix</span><span class="p">(</span><span class="n">val_pd</span><span class="p">[</span><span class="n">feature_columns</span><span class="p">])</span>
+<span class="n">pred_prob</span> <span class="o">=</span> <span class="n">booster</span><span class="o">.</span><span class="n">predict</span><span class="p">(</span><span class="n">dmatrix</span><span class="p">)</span>
+<span class="n">pred_labels</span> <span class="o">=</span> <span class="n">np</span><span class="o">.</span><span class="n">argmax</span><span class="p">(</span><span class="n">pred_prob</span><span class="p">,</span> <span class="n">axis</span><span class="o">=</span><span class="mi">1</span><span class="p">)</span>
+
+<span class="n">acc</span> <span class="o">=</span> <span class="n">accuracy_score</span><span class="p">(</span><span class="n">val_pd</span><span class="o">.</span><span class="n">label</span><span class="p">,</span> <span class="n">pred_labels</span><span class="p">)</span>
+<span class="nb">print</span><span class="p">(</span><span class="sa">f</span><span class="s2">&quot;Validation accuracy: </span><span class="si">{</span><span class="n">acc</span><span class="si">:</span><span class="s2">.3f</span><span class="si">}</span><span class="s2">&quot;</span><span class="p">)</span>
+</pre></div>
+</div>
+</div>
+</div>
+</section>
+</section>
+<section id="confusion-matrix-visualization">
+<h2>12. Confusion matrix visualization<a class="headerlink" href="#confusion-matrix-visualization" title="Link to this heading">#</a></h2>
+<p>Raw counts and row-normalized ratios highlight which cover types the model confuses most often. Diagonal dominance indicates good performance; off-diagonal hot spots may suggest a need for more data or feature engineering for those specific classes.</p>
+<div class="cell docutils container">
+<div class="cell_input docutils container">
+<div class="highlight-ipython3 notranslate"><div class="highlight"><pre><span></span><span class="c1"># 12. Confusion matrix</span>
+
+<span class="n">cm</span> <span class="o">=</span> <span class="n">confusion_matrix</span><span class="p">(</span><span class="n">val_pd</span><span class="o">.</span><span class="n">label</span><span class="p">,</span> <span class="n">pred_labels</span><span class="p">)</span>  <span class="c1"># or sample_batch.label if used</span>
+
+<span class="n">sns</span><span class="o">.</span><span class="n">heatmap</span><span class="p">(</span><span class="n">cm</span><span class="p">,</span> <span class="n">annot</span><span class="o">=</span><span class="kc">True</span><span class="p">,</span> <span class="n">fmt</span><span class="o">=</span><span class="s2">&quot;d&quot;</span><span class="p">,</span> <span class="n">cmap</span><span class="o">=</span><span class="s2">&quot;viridis&quot;</span><span class="p">)</span>
+<span class="n">plt</span><span class="o">.</span><span class="n">title</span><span class="p">(</span><span class="s2">&quot;Confusion Matrix with Counts&quot;</span><span class="p">)</span>
+<span class="n">plt</span><span class="o">.</span><span class="n">xlabel</span><span class="p">(</span><span class="s2">&quot;Predicted&quot;</span><span class="p">)</span>
+<span class="n">plt</span><span class="o">.</span><span class="n">ylabel</span><span class="p">(</span><span class="s2">&quot;True&quot;</span><span class="p">)</span>
+<span class="n">plt</span><span class="o">.</span><span class="n">show</span><span class="p">()</span>
+
+<span class="n">cm_norm</span> <span class="o">=</span> <span class="n">cm</span><span class="o">.</span><span class="n">astype</span><span class="p">(</span><span class="s2">&quot;float&quot;</span><span class="p">)</span> <span class="o">/</span> <span class="n">cm</span><span class="o">.</span><span class="n">sum</span><span class="p">(</span><span class="n">axis</span><span class="o">=</span><span class="mi">1</span><span class="p">)[:,</span> <span class="n">np</span><span class="o">.</span><span class="n">newaxis</span><span class="p">]</span>
+<span class="n">sns</span><span class="o">.</span><span class="n">heatmap</span><span class="p">(</span><span class="n">cm_norm</span><span class="p">,</span> <span class="n">annot</span><span class="o">=</span><span class="kc">True</span><span class="p">,</span> <span class="n">fmt</span><span class="o">=</span><span class="s2">&quot;.2f&quot;</span><span class="p">,</span> <span class="n">cmap</span><span class="o">=</span><span class="s2">&quot;viridis&quot;</span><span class="p">)</span>
+<span class="n">plt</span><span class="o">.</span><span class="n">title</span><span class="p">(</span><span class="s2">&quot;Normalized Confusion Matrix&quot;</span><span class="p">)</span>
+<span class="n">plt</span><span class="o">.</span><span class="n">xlabel</span><span class="p">(</span><span class="s2">&quot;Predicted&quot;</span><span class="p">)</span>
+<span class="n">plt</span><span class="o">.</span><span class="n">ylabel</span><span class="p">(</span><span class="s2">&quot;True&quot;</span><span class="p">)</span>
+<span class="n">plt</span><span class="o">.</span><span class="n">show</span><span class="p">()</span>
+</pre></div>
+</div>
+</div>
+</div>
+<section id="cpu-batch-inference-with-ray-data">
+<h3>13. CPU batch inference with Ray Data<a class="headerlink" href="#cpu-batch-inference-with-ray-data" title="Link to this heading">#</a></h3>
+<p>Use <strong>Ray Data</strong> for scalable, parallel inference.<br />
+Each actor loads the trained model once and processes data batches in parallel,<br />
+providing better throughput than ad-hoc remote tasks and avoiding repeated model loads.</p>
+<div class="cell docutils container">
+<div class="cell_input docutils container">
+<div class="highlight-ipython3 notranslate"><div class="highlight"><pre><span></span><span class="c1"># 13. CPU batch inference with Ray Data </span>
+
+<span class="c1"># Assumes: val_ds, feature_columns, best_ckpt already defined.</span>
+
+<span class="k">class</span><span class="w"> </span><span class="nc">XGBPredictor</span><span class="p">:</span>
+<span class="w">    </span><span class="sd">&quot;&quot;&quot;Stateful actor: load Booster once, reuse across batches.&quot;&quot;&quot;</span>
+    <span class="k">def</span><span class="w"> </span><span class="fm">__init__</span><span class="p">(</span><span class="bp">self</span><span class="p">,</span> <span class="n">ckpt</span><span class="p">,</span> <span class="n">feature_cols</span><span class="p">):</span>
+        <span class="bp">self</span><span class="o">.</span><span class="n">model</span> <span class="o">=</span> <span class="n">RayTrainReportCallback</span><span class="o">.</span><span class="n">get_model</span><span class="p">(</span><span class="n">ckpt</span><span class="p">)</span>
+        <span class="bp">self</span><span class="o">.</span><span class="n">feature_cols</span> <span class="o">=</span> <span class="n">feature_cols</span>
+
+    <span class="k">def</span><span class="w"> </span><span class="fm">__call__</span><span class="p">(</span><span class="bp">self</span><span class="p">,</span> <span class="n">batch</span><span class="p">:</span> <span class="n">pd</span><span class="o">.</span><span class="n">DataFrame</span><span class="p">)</span> <span class="o">-&gt;</span> <span class="n">pd</span><span class="o">.</span><span class="n">DataFrame</span><span class="p">:</span>
+        <span class="n">dmatrix</span> <span class="o">=</span> <span class="n">xgb</span><span class="o">.</span><span class="n">DMatrix</span><span class="p">(</span><span class="n">batch</span><span class="p">[</span><span class="bp">self</span><span class="o">.</span><span class="n">feature_cols</span><span class="p">])</span>
+        <span class="n">probs</span> <span class="o">=</span> <span class="bp">self</span><span class="o">.</span><span class="n">model</span><span class="o">.</span><span class="n">predict</span><span class="p">(</span><span class="n">dmatrix</span><span class="p">)</span>
+        <span class="n">preds</span> <span class="o">=</span> <span class="n">np</span><span class="o">.</span><span class="n">argmax</span><span class="p">(</span><span class="n">probs</span><span class="p">,</span> <span class="n">axis</span><span class="o">=</span><span class="mi">1</span><span class="p">)</span>
+        <span class="k">return</span> <span class="n">pd</span><span class="o">.</span><span class="n">DataFrame</span><span class="p">(</span>
+            <span class="p">{</span><span class="s2">&quot;pred&quot;</span><span class="p">:</span> <span class="n">preds</span><span class="o">.</span><span class="n">astype</span><span class="p">(</span><span class="n">np</span><span class="o">.</span><span class="n">int32</span><span class="p">),</span> <span class="s2">&quot;label&quot;</span><span class="p">:</span> <span class="n">batch</span><span class="p">[</span><span class="s2">&quot;label&quot;</span><span class="p">]</span><span class="o">.</span><span class="n">astype</span><span class="p">(</span><span class="n">np</span><span class="o">.</span><span class="n">int32</span><span class="p">)}</span>
+        <span class="p">)</span>
+
+<span class="c1"># Use an ActorPoolStrategy instead of compute=&quot;actors&quot;</span>
+<span class="n">pred_ds</span> <span class="o">=</span> <span class="n">val_ds</span><span class="o">.</span><span class="n">map_batches</span><span class="p">(</span>
+    <span class="n">XGBPredictor</span><span class="p">,</span>
+    <span class="n">fn_constructor_args</span><span class="o">=</span><span class="p">(</span><span class="n">best_ckpt</span><span class="p">,</span> <span class="n">feature_columns</span><span class="p">),</span>
+    <span class="n">batch_format</span><span class="o">=</span><span class="s2">&quot;pandas&quot;</span><span class="p">,</span>
+    <span class="n">compute</span><span class="o">=</span><span class="n">ActorPoolStrategy</span><span class="p">(),</span>   
+    <span class="n">num_cpus</span><span class="o">=</span><span class="mi">1</span><span class="p">,</span>                    <span class="c1"># per-actor CPU; tune as needed</span>
+<span class="p">)</span>
+
+<span class="c1"># Aggregate accuracy without collecting to driver</span>
+<span class="n">stats_ds</span> <span class="o">=</span> <span class="n">pred_ds</span><span class="o">.</span><span class="n">map_batches</span><span class="p">(</span>
+    <span class="k">lambda</span> <span class="n">df</span><span class="p">:</span> <span class="n">pd</span><span class="o">.</span><span class="n">DataFrame</span><span class="p">({</span>
+        <span class="s2">&quot;correct&quot;</span><span class="p">:</span> <span class="p">[</span><span class="nb">int</span><span class="p">((</span><span class="n">df</span><span class="p">[</span><span class="s2">&quot;pred&quot;</span><span class="p">]</span><span class="o">.</span><span class="n">to_numpy</span><span class="p">()</span> <span class="o">==</span> <span class="n">df</span><span class="p">[</span><span class="s2">&quot;label&quot;</span><span class="p">]</span><span class="o">.</span><span class="n">to_numpy</span><span class="p">())</span><span class="o">.</span><span class="n">sum</span><span class="p">())],</span>
+        <span class="s2">&quot;n&quot;</span><span class="p">:</span> <span class="p">[</span><span class="nb">int</span><span class="p">(</span><span class="nb">len</span><span class="p">(</span><span class="n">df</span><span class="p">))]</span>
+    <span class="p">}),</span>
+    <span class="n">batch_format</span><span class="o">=</span><span class="s2">&quot;pandas&quot;</span><span class="p">,</span>
+<span class="p">)</span>
+
+<span class="n">correct</span> <span class="o">=</span> <span class="nb">int</span><span class="p">(</span><span class="n">stats_ds</span><span class="o">.</span><span class="n">sum</span><span class="p">(</span><span class="s2">&quot;correct&quot;</span><span class="p">))</span>
+<span class="n">n</span> <span class="o">=</span> <span class="nb">int</span><span class="p">(</span><span class="n">stats_ds</span><span class="o">.</span><span class="n">sum</span><span class="p">(</span><span class="s2">&quot;n&quot;</span><span class="p">))</span>
+<span class="nb">print</span><span class="p">(</span><span class="sa">f</span><span class="s2">&quot;Validation accuracy (Ray Data inference): </span><span class="si">{</span><span class="n">correct</span><span class="w"> </span><span class="o">/</span><span class="w"> </span><span class="n">n</span><span class="si">:</span><span class="s2">.3f</span><span class="si">}</span><span class="s2">&quot;</span><span class="p">)</span>
+</pre></div>
+</div>
+</div>
+</div>
+</section>
+<section id="feature-importance-diagnostics">
+<h3>14. Feature-importance diagnostics<a class="headerlink" href="#feature-importance-diagnostics" title="Link to this heading">#</a></h3>
+<p>XGBoost’s built-in <code class="docutils literal notranslate"><span class="pre">get_score(importance_type=&quot;gain&quot;)</span></code> ranks each feature by its average gain across all splits. Visualizing the top-15 helps connect model behaviour back to domain knowledge. For example, elevation, and soil-type often dominate forest-cover prediction.</p>
+<div class="cell docutils container">
+<div class="cell_input docutils container">
+<div class="highlight-ipython3 notranslate"><div class="highlight"><pre><span></span><span class="c1"># 14. Gain‑based feature importance</span>
+<span class="n">importances</span> <span class="o">=</span> <span class="n">booster</span><span class="o">.</span><span class="n">get_score</span><span class="p">(</span><span class="n">importance_type</span><span class="o">=</span><span class="s2">&quot;gain&quot;</span><span class="p">)</span>
+<span class="n">keys</span><span class="p">,</span> <span class="n">gains</span> <span class="o">=</span> <span class="nb">zip</span><span class="p">(</span><span class="o">*</span><span class="nb">sorted</span><span class="p">(</span><span class="n">importances</span><span class="o">.</span><span class="n">items</span><span class="p">(),</span> <span class="n">key</span><span class="o">=</span><span class="k">lambda</span> <span class="n">kv</span><span class="p">:</span> <span class="n">kv</span><span class="p">[</span><span class="mi">1</span><span class="p">],</span> <span class="n">reverse</span><span class="o">=</span><span class="kc">True</span><span class="p">)[:</span><span class="mi">15</span><span class="p">])</span>
+
+<span class="n">plt</span><span class="o">.</span><span class="n">barh</span><span class="p">(</span><span class="nb">range</span><span class="p">(</span><span class="nb">len</span><span class="p">(</span><span class="n">gains</span><span class="p">)),</span> <span class="n">gains</span><span class="p">)</span>
+<span class="n">plt</span><span class="o">.</span><span class="n">yticks</span><span class="p">(</span><span class="nb">range</span><span class="p">(</span><span class="nb">len</span><span class="p">(</span><span class="n">gains</span><span class="p">)),</span> <span class="n">keys</span><span class="p">)</span>
+<span class="n">plt</span><span class="o">.</span><span class="n">gca</span><span class="p">()</span><span class="o">.</span><span class="n">invert_yaxis</span><span class="p">()</span>
+<span class="n">plt</span><span class="o">.</span><span class="n">title</span><span class="p">(</span><span class="s2">&quot;Top-15 Feature Importances (gain)&quot;</span><span class="p">);</span> <span class="n">plt</span><span class="o">.</span><span class="n">xlabel</span><span class="p">(</span><span class="s2">&quot;Average gain&quot;</span><span class="p">);</span> <span class="n">plt</span><span class="o">.</span><span class="n">show</span><span class="p">()</span>
+</pre></div>
+</div>
+</div>
+</div>
+</section>
+</section>
+<section id="continue-training-from-the-latest-checkpoint">
+<h2>15. Continue training from the latest checkpoint<a class="headerlink" href="#continue-training-from-the-latest-checkpoint" title="Link to this heading">#</a></h2>
+<p>Because <code class="docutils literal notranslate"><span class="pre">train_func</span></code> always checks for <code class="docutils literal notranslate"><span class="pre">get_checkpoint()</span></code>, re-invoking <code class="docutils literal notranslate"><span class="pre">trainer.fit()</span></code> automatically resumes boosting from where you left off. Simply call <code class="docutils literal notranslate"><span class="pre">fit()</span></code> a second time and print the new best validation log-loss.</p>
+<div class="cell docutils container">
+<div class="cell_input docutils container">
+<div class="highlight-ipython3 notranslate"><div class="highlight"><pre><span></span><span class="c1"># 15. Run 50 more training iterations from the last saved checkpoint</span>
+<span class="n">result</span> <span class="o">=</span> <span class="n">trainer</span><span class="o">.</span><span class="n">fit</span><span class="p">()</span>
+<span class="n">best_ckpt</span> <span class="o">=</span> <span class="n">result</span><span class="o">.</span><span class="n">checkpoint</span>            <span class="c1"># Saved automatically by Trainer </span>
+</pre></div>
+</div>
+</div>
+</div>
+<section id="verify-post-training-inference">
+<h3>16. Verify post-training inference<a class="headerlink" href="#verify-post-training-inference" title="Link to this heading">#</a></h3>
+<p>Rerun the Ray Data inference pipeline with the latest checkpoint to confirm that<br />
+additional boosting rounds improved validation accuracy.<br />
+This reuses the same distributed actors, ensuring consistent and scalable evaluation.</p>
+<div class="cell docutils container">
+<div class="cell_input docutils container">
+<div class="highlight-ipython3 notranslate"><div class="highlight"><pre><span></span><span class="c1"># 16. Rerun Ray Data inference to verify improved accuracy after continued training</span>
+
+<span class="c1"># Reuse the existing Ray Data inference setup with the latest checkpoint</span>
+<span class="n">pred_ds</span> <span class="o">=</span> <span class="n">val_ds</span><span class="o">.</span><span class="n">map_batches</span><span class="p">(</span>
+    <span class="n">XGBPredictor</span><span class="p">,</span>
+    <span class="n">fn_constructor_args</span><span class="o">=</span><span class="p">(</span><span class="n">best_ckpt</span><span class="p">,</span> <span class="n">feature_columns</span><span class="p">),</span>
+    <span class="n">batch_format</span><span class="o">=</span><span class="s2">&quot;pandas&quot;</span><span class="p">,</span>
+    <span class="n">compute</span><span class="o">=</span><span class="n">ActorPoolStrategy</span><span class="p">(),</span>
+    <span class="n">num_cpus</span><span class="o">=</span><span class="mi">1</span><span class="p">,</span>
+<span class="p">)</span>
+
+<span class="c1"># Aggregate accuracy across all batches</span>
+<span class="n">stats_ds</span> <span class="o">=</span> <span class="n">pred_ds</span><span class="o">.</span><span class="n">map_batches</span><span class="p">(</span>
+    <span class="k">lambda</span> <span class="n">df</span><span class="p">:</span> <span class="n">pd</span><span class="o">.</span><span class="n">DataFrame</span><span class="p">({</span>
+        <span class="s2">&quot;correct&quot;</span><span class="p">:</span> <span class="p">[</span><span class="nb">int</span><span class="p">((</span><span class="n">df</span><span class="p">[</span><span class="s2">&quot;pred&quot;</span><span class="p">]</span> <span class="o">==</span> <span class="n">df</span><span class="p">[</span><span class="s2">&quot;label&quot;</span><span class="p">])</span><span class="o">.</span><span class="n">sum</span><span class="p">())],</span>
+        <span class="s2">&quot;n&quot;</span><span class="p">:</span> <span class="p">[</span><span class="nb">int</span><span class="p">(</span><span class="nb">len</span><span class="p">(</span><span class="n">df</span><span class="p">))]</span>
+    <span class="p">}),</span>
+    <span class="n">batch_format</span><span class="o">=</span><span class="s2">&quot;pandas&quot;</span><span class="p">,</span>
+<span class="p">)</span>
+
+<span class="n">correct</span> <span class="o">=</span> <span class="nb">int</span><span class="p">(</span><span class="n">stats_ds</span><span class="o">.</span><span class="n">sum</span><span class="p">(</span><span class="s2">&quot;correct&quot;</span><span class="p">))</span>
+<span class="n">n</span> <span class="o">=</span> <span class="nb">int</span><span class="p">(</span><span class="n">stats_ds</span><span class="o">.</span><span class="n">sum</span><span class="p">(</span><span class="s2">&quot;n&quot;</span><span class="p">))</span>
+<span class="nb">print</span><span class="p">(</span><span class="sa">f</span><span class="s2">&quot;Validation accuracy after continued training: </span><span class="si">{</span><span class="n">correct</span><span class="w"> </span><span class="o">/</span><span class="w"> </span><span class="n">n</span><span class="si">:</span><span class="s2">.3f</span><span class="si">}</span><span class="s2">&quot;</span><span class="p">)</span>
+</pre></div>
+</div>
+</div>
+</div>
+</section>
+<section id="clean-up">
+<h3>17. Clean up<a class="headerlink" href="#clean-up" title="Link to this heading">#</a></h3>
+<p>Finally, tidy up by deleting temporary checkpoint folders, the metrics CSV, and any intermediate result directories. Clearing out old artifacts frees disk space and leaves your workspace clean for whatever comes next.</p>
+<div class="cell docutils container">
+<div class="cell_input docutils container">
+<div class="highlight-ipython3 notranslate"><div class="highlight"><pre><span></span><span class="c1"># 17. Optional cleanup to free space</span>
+<span class="n">ARTIFACT_DIR</span> <span class="o">=</span> <span class="s2">&quot;/mnt/cluster_storage/covtype&quot;</span>
+<span class="k">if</span> <span class="n">os</span><span class="o">.</span><span class="n">path</span><span class="o">.</span><span class="n">exists</span><span class="p">(</span><span class="n">ARTIFACT_DIR</span><span class="p">):</span>
+    <span class="n">shutil</span><span class="o">.</span><span class="n">rmtree</span><span class="p">(</span><span class="n">ARTIFACT_DIR</span><span class="p">)</span>
+    <span class="nb">print</span><span class="p">(</span><span class="sa">f</span><span class="s2">&quot;Deleted </span><span class="si">{</span><span class="n">ARTIFACT_DIR</span><span class="si">}</span><span class="s2">&quot;</span><span class="p">)</span>
+</pre></div>
+</div>
+</div>
+</div>
+</section>
+<section id="wrap-up-and-next-steps">
+<h3>Wrap up and next steps<a class="headerlink" href="#wrap-up-and-next-steps" title="Link to this heading">#</a></h3>
+<p>You built a fast and fault-tolerant XGBoost training loop that runs on real data, scales across CPUs, recovers from worker failures, and supports batch inference, all inside a single notebook.</p>
+<p>You should now feel confident:</p>
+<ul class="simple">
+<li><p>Using <strong>Ray Data</strong> to ingest, shuffle, and shard large tabular datasets across a cluster</p></li>
+<li><p>Defining custom <code class="docutils literal notranslate"><span class="pre">train_func</span></code>s that run on <strong>Ray Train</strong> workers and resume seamlessly from checkpoints</p></li>
+<li><p>Tracking per-round metrics and saving checkpoints with <strong>RayTrainReportCallback</strong></p></li>
+<li><p>Leveraging <strong>Ray’s distributed execution model</strong> to evaluate and monitor models without manual orchestration</p></li>
+<li><p>Launching remote CPU-powered inference tasks using <strong>Ray Data</strong> for scalable batch scoring</p></li>
+</ul>
+</section>
+<hr class="docutils" />
+<section id="where-can-you-take-this-next">
+<h3>Where can you take this next?<a class="headerlink" href="#where-can-you-take-this-next" title="Link to this heading">#</a></h3>
+<p>Below are a few directions you might explore to adapt or extend the pattern:</p>
+<ol class="arabic simple">
+<li><p><strong>Early stopping and best iteration tracking</strong></p>
+<ul class="simple">
+<li><p>Add <code class="docutils literal notranslate"><span class="pre">early_stopping_rounds=10</span></code> to <code class="docutils literal notranslate"><span class="pre">xgb.train</span></code> and log the best round.</p></li>
+<li><p>Track performance delta across resumed runs.</p></li>
+</ul>
+</li>
+<li><p><strong>Hyperparameter sweeps</strong></p>
+<ul class="simple">
+<li><p>Wrap the trainer with <strong>Ray Tune</strong> and search over <code class="docutils literal notranslate"><span class="pre">eta</span></code>, <code class="docutils literal notranslate"><span class="pre">max_depth</span></code>, or <code class="docutils literal notranslate"><span class="pre">subsample</span></code>.</p></li>
+<li><p>Use Tune’s built-in checkpoint pruning and log callbacks.</p></li>
+</ul>
+</li>
+<li><p><strong>Feature engineering at scale</strong></p>
+<ul class="simple">
+<li><p>Create new features using <code class="docutils literal notranslate"><span class="pre">Ray</span> <span class="pre">Dataset.map_batches</span></code>, such as terrain interactions or log-scaled distances.</p></li>
+<li><p>Materialize multiple Parquet shards and benchmark load time.</p></li>
+</ul>
+</li>
+<li><p><strong>Model interpretability</strong></p>
+<ul class="simple">
+<li><p>Use XGBoost’s built-in <code class="docutils literal notranslate"><span class="pre">Booster.get_score</span></code> for feature attributions.</p></li>
+<li><p>Rank features by importance and validate with domain knowledge.</p></li>
+</ul>
+</li>
+<li><p><strong>Serving the model</strong></p>
+<ul class="simple">
+<li><p>Package the Booster as a Ray task or <strong>Ray Serve</strong> endpoint.</p></li>
+<li><p>Deploy an API that takes a feature vector and returns the predicted cover type.</p></li>
+</ul>
+</li>
+<li><p><strong>Real-time logging</strong></p>
+<ul class="simple">
+<li><p>Integrate with MLflow or Weights &amp; Biases to store logs, plots, and checkpoints.</p></li>
+<li><p>Use tags and metadata to track experiments over time.</p></li>
+</ul>
+</li>
+<li><p><strong>Alternative objectives</strong></p>
+<ul class="simple">
+<li><p>Try a binary objective (for example, presence versus absence of a species) or regression target (for example, canopy height).</p></li>
+<li><p>Fine-tune loss functions for specific ecological tasks.</p></li>
+</ul>
+</li>
+<li><p><strong>End-to-end MLOps</strong></p>
+<ul class="simple">
+<li><p>Schedule retraining with Ray Jobs or Anyscale Jobs.</p></li>
+<li><p>Upload new data snapshots and trigger daily training runs with automatic checkpoint cleanup.</p></li>
+</ul>
+</li>
+</ol>
+</section>
+</section>
+</section>
+
+    <script type="text/x-thebe-config">
+    {
+        requestKernel: true,
+        binderOptions: {
+            repo: "binder-examples/jupyter-stacks-datascience",
+            ref: "master",
+        },
+        codeMirrorConfig: {
+            theme: "abcdef",
+            mode: "python"
+        },
+        kernelOptions: {
+            name: "python3",
+            path: "./courses/workloads/Train_Tabular/00_workload"
+        },
+        predefinedOutput: true
+    }
+    </script>
+    <script>kernelName = 'python3'</script>
+
+                </article>
+              
+
+              
+              
+              
+              
+                <footer class="prev-next-footer d-print-none">
+                  
+<div class="prev-next-area">
+</div>
+                </footer>
+              
+            </div>
+            
+            
+              
+                <div class="bd-sidebar-secondary bd-toc"><div class="sidebar-secondary-items sidebar-secondary__inner">
+
+
+  <div class="sidebar-secondary-item">
+  <div class="page-toc tocsection onthispage">
+    <i class="fa-solid fa-list"></i> Contents
+  </div>
+  <nav class="bd-toc-nav page-toc">
+    <ul class="visible nav section-nav flex-column">
+<li class="toc-h2 nav-item toc-entry"><a class="reference internal nav-link" href="#what-you-learn-and-take-away">What you learn and take away</a></li>
+<li class="toc-h2 nav-item toc-entry"><a class="reference internal nav-link" href="#what-problem-are-you-solving-forest-cover-classification-with-xgboost">What problem are you solving? (Forest cover classification with XGBoost)</a></li>
+<li class="toc-h2 nav-item toc-entry"><a class="reference internal nav-link" href="#what-s-xgboost">What’s XGBoost?</a></li>
+<li class="toc-h2 nav-item toc-entry"><a class="reference internal nav-link" href="#how-to-migrate-this-tabular-workload-to-a-distributed-setup-using-ray-on-anyscale">How to migrate this tabular workload to a distributed setup using Ray on Anyscale</a></li>
+<li class="toc-h2 nav-item toc-entry"><a class="reference internal nav-link" href="#imports">1. Imports</a><ul class="nav section-nav flex-column">
+<li class="toc-h3 nav-item toc-entry"><a class="reference internal nav-link" href="#load-the-university-of-california-irvine-uci-cover-type-dataset">2. Load the University of California, Irvine (UCI) Cover type dataset</a></li>
+<li class="toc-h3 nav-item toc-entry"><a class="reference internal nav-link" href="#visualize-class-balance">3. Visualize class balance</a></li>
+<li class="toc-h3 nav-item toc-entry"><a class="reference internal nav-link" href="#write-train-validation-parquet-files">4. Write train / validation Parquet files</a></li>
+<li class="toc-h3 nav-item toc-entry"><a class="reference internal nav-link" href="#load-the-train-and-validation-splits-as-ray-datasets">5. Load the train and validation splits as Ray Datasets</a></li>
+<li class="toc-h3 nav-item toc-entry"><a class="reference internal nav-link" href="#inspect-dataset-sizes-optional">6. Inspect dataset sizes (optional)</a></li>
+<li class="toc-h3 nav-item toc-entry"><a class="reference internal nav-link" href="#inspect-a-mini-batch">7. Inspect a mini-batch</a></li>
+</ul>
+</li>
+<li class="toc-h2 nav-item toc-entry"><a class="reference internal nav-link" href="#define-the-ray-train-worker-loop-arrow-based-memory-efficient">8. Define the Ray Train worker loop (Arrow-based, memory-efficient)</a><ul class="nav section-nav flex-column">
+<li class="toc-h3 nav-item toc-entry"><a class="reference internal nav-link" href="#configure-xgboost-and-build-the-trainer">9. Configure XGBoost and build the Trainer</a></li>
+<li class="toc-h3 nav-item toc-entry"><a class="reference internal nav-link" href="#start-distributed-training">10. Start distributed training</a></li>
+<li class="toc-h3 nav-item toc-entry"><a class="reference internal nav-link" href="#evaluate-the-trained-model">11. Evaluate the trained model</a></li>
+</ul>
+</li>
+<li class="toc-h2 nav-item toc-entry"><a class="reference internal nav-link" href="#confusion-matrix-visualization">12. Confusion matrix visualization</a><ul class="nav section-nav flex-column">
+<li class="toc-h3 nav-item toc-entry"><a class="reference internal nav-link" href="#cpu-batch-inference-with-ray-data">13. CPU batch inference with Ray Data</a></li>
+<li class="toc-h3 nav-item toc-entry"><a class="reference internal nav-link" href="#feature-importance-diagnostics">14. Feature-importance diagnostics</a></li>
+</ul>
+</li>
+<li class="toc-h2 nav-item toc-entry"><a class="reference internal nav-link" href="#continue-training-from-the-latest-checkpoint">15. Continue training from the latest checkpoint</a><ul class="nav section-nav flex-column">
+<li class="toc-h3 nav-item toc-entry"><a class="reference internal nav-link" href="#verify-post-training-inference">16. Verify post-training inference</a></li>
+<li class="toc-h3 nav-item toc-entry"><a class="reference internal nav-link" href="#clean-up">17. Clean up</a></li>
+<li class="toc-h3 nav-item toc-entry"><a class="reference internal nav-link" href="#wrap-up-and-next-steps">Wrap up and next steps</a></li>
+<li class="toc-h3 nav-item toc-entry"><a class="reference internal nav-link" href="#where-can-you-take-this-next">Where can you take this next?</a></li>
+</ul>
+</li>
+</ul>
+  </nav></div>
+
+</div></div>
+              
+            
+          </div>
+          <footer class="bd-footer-content">
+            
+<div class="bd-footer-content__inner container">
+  
+  <div class="footer-item">
+    
+<p class="component-author">
+By The Jupyter Book community
+</p>
+
+  </div>
+  
+  <div class="footer-item">
+    
+
+  </div>
+  
+  <div class="footer-item">
+    
+  </div>
+  
+  <div class="footer-item">
+    
+  </div>
+  
+</div>
+          </footer>
+        
+
+      </main>
+    </div>
+  </div>
+  
+  <!-- Scripts loaded after <body> so the DOM is not blocked -->
+  <script src="../../../../_static/scripts/bootstrap.js?digest=dfe6caa3a7d634c4db9b"></script>
+<script src="../../../../_static/scripts/pydata-sphinx-theme.js?digest=dfe6caa3a7d634c4db9b"></script>
+
+  <footer class="bd-footer">
+  </footer>
+  </body>
+</html>
