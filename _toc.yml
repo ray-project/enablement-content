@@ -1,119 +1,6 @@
 format: jb-book
 root: index.md
 parts:
-- caption: Developer Intro to Ray
-  chapters:
-  - file: courses/00_Developer_Intro_to_Ray/output/00_Intro_Ray_Core_Basics_01.ipynb
-  - file: courses/00_Developer_Intro_to_Ray/output/00_Intro_Ray_Core_Basics_02.ipynb
-  - file: courses/00_Developer_Intro_to_Ray/output/00_Intro_Ray_Core_Basics_03.ipynb
-  - file: courses/00_Developer_Intro_to_Ray/output/00_Intro_Ray_Core_Basics_04.ipynb
-  - file: courses/00_Developer_Intro_to_Ray/output/00_Intro_Ray_Core_Basics_05.ipynb
-  - file: courses/00_Developer_Intro_to_Ray/output/00a_Intro_Ray_Core_Advancement_01.ipynb
-  - file: courses/00_Developer_Intro_to_Ray/output/00a_Intro_Ray_Core_Advancement_02.ipynb
-  - file: courses/00_Developer_Intro_to_Ray/output/00a_Intro_Ray_Core_Advancement_03.ipynb
-  - file: courses/00_Developer_Intro_to_Ray/output/00a_Intro_Ray_Core_Advancement_04.ipynb
-  - file: courses/00_Developer_Intro_to_Ray/output/00a_Intro_Ray_Core_Advancement_05.ipynb
-  - file: courses/00_Developer_Intro_to_Ray/output/00a_Intro_Ray_Core_Advancement_06.ipynb
-  - file: courses/00_Developer_Intro_to_Ray/output/00a_Intro_Ray_Core_Advancement_07.ipynb
-  - file: courses/00_Developer_Intro_to_Ray/output/00a_Intro_Ray_Core_Advancement_08.ipynb
-  - file: courses/00_Developer_Intro_to_Ray/output/00a_Intro_Ray_Core_Advancement_09.ipynb
-  - file: courses/00_Developer_Intro_to_Ray/output/01_Intro_Ray_AI_Libs_Overview_01.ipynb
-  - file: courses/00_Developer_Intro_to_Ray/output/01_Intro_Ray_AI_Libs_Overview_02.ipynb
-  - file: courses/00_Developer_Intro_to_Ray/output/01_Intro_Ray_AI_Libs_Overview_03.ipynb
-  - file: courses/00_Developer_Intro_to_Ray/output/02a_Intro_Ray_Train_with_PyTorch_01.ipynb
-  - file: courses/00_Developer_Intro_to_Ray/output/02a_Intro_Ray_Train_with_PyTorch_02.ipynb
-  - file: courses/00_Developer_Intro_to_Ray/output/02a_Intro_Ray_Train_with_PyTorch_03.ipynb
-  - file: courses/00_Developer_Intro_to_Ray/output/02a_Intro_Ray_Train_with_PyTorch_04.ipynb
-  - file: courses/00_Developer_Intro_to_Ray/output/02b_Intro_Ray_Train_with_PyTorch_Lightning_01.ipynb
-  - file: courses/00_Developer_Intro_to_Ray/output/02b_Intro_Ray_Train_with_PyTorch_Lightning_02.ipynb
-  - file: courses/00_Developer_Intro_to_Ray/output/02b_Intro_Ray_Train_with_PyTorch_Lightning_03.ipynb
-  - file: courses/00_Developer_Intro_to_Ray/output/02b_Intro_Ray_Train_with_PyTorch_Lightning_04.ipynb
-  - file: courses/00_Developer_Intro_to_Ray/output/02b_Intro_Ray_Train_with_PyTorch_Lightning_05.ipynb
-  - file: courses/00_Developer_Intro_to_Ray/output/03_Intro_Ray_Tune_01.ipynb
-  - file: courses/00_Developer_Intro_to_Ray/output/03_Intro_Ray_Tune_02.ipynb
-  - file: courses/00_Developer_Intro_to_Ray/output/03_Intro_Ray_Tune_03.ipynb
-  - file: courses/00_Developer_Intro_to_Ray/output/03_Intro_Ray_Tune_04.ipynb
-  - file: courses/00_Developer_Intro_to_Ray/output/03_Intro_Ray_Tune_05.ipynb
-  - file: courses/00_Developer_Intro_to_Ray/output/04a_Intro_Ray_Data_Industry_Landscape_01.ipynb
-  - file: courses/00_Developer_Intro_to_Ray/output/04a_Intro_Ray_Data_Industry_Landscape_02.ipynb
-  - file: courses/00_Developer_Intro_to_Ray/output/04a_Intro_Ray_Data_Industry_Landscape_03.ipynb
-  - file: courses/00_Developer_Intro_to_Ray/output/04a_Intro_Ray_Data_Industry_Landscape_04.ipynb
-  - file: courses/00_Developer_Intro_to_Ray/output/04a_Intro_Ray_Data_Industry_Landscape_05.ipynb
-  - file: courses/00_Developer_Intro_to_Ray/output/04a_Intro_Ray_Data_Industry_Landscape_06.ipynb
-  - file: courses/00_Developer_Intro_to_Ray/output/04b_Intro_Ray_Data_Structured_01.ipynb
-  - file: courses/00_Developer_Intro_to_Ray/output/04b_Intro_Ray_Data_Structured_02.ipynb
-  - file: courses/00_Developer_Intro_to_Ray/output/04b_Intro_Ray_Data_Structured_03.ipynb
-  - file: courses/00_Developer_Intro_to_Ray/output/04b_Intro_Ray_Data_Structured_04.ipynb
-  - file: courses/00_Developer_Intro_to_Ray/output/04b_Intro_Ray_Data_Structured_05.ipynb
-  - file: courses/00_Developer_Intro_to_Ray/output/04b_Intro_Ray_Data_Structured_06.ipynb
-  - file: courses/00_Developer_Intro_to_Ray/output/04b_Intro_Ray_Data_Structured_07.ipynb
-  - file: courses/00_Developer_Intro_to_Ray/output/04c_Intro_Ray_Data_Unstructured_01.ipynb
-  - file: courses/00_Developer_Intro_to_Ray/output/04c_Intro_Ray_Data_Unstructured_02.ipynb
-  - file: courses/00_Developer_Intro_to_Ray/output/04c_Intro_Ray_Data_Unstructured_03.ipynb
-  - file: courses/00_Developer_Intro_to_Ray/output/04c_Intro_Ray_Data_Unstructured_04.ipynb
-  - file: courses/00_Developer_Intro_to_Ray/output/04c_Intro_Ray_Data_Unstructured_05.ipynb
-  - file: courses/00_Developer_Intro_to_Ray/output/04c_Intro_Ray_Data_Unstructured_06.ipynb
-  - file: courses/00_Developer_Intro_to_Ray/output/04c_Intro_Ray_Data_Unstructured_07.ipynb
-  - file: courses/00_Developer_Intro_to_Ray/output/04c_Intro_Ray_Data_Unstructured_08.ipynb
-  - file: courses/00_Developer_Intro_to_Ray/output/04c_Intro_Ray_Data_Unstructured_09.ipynb
-  - file: courses/00_Developer_Intro_to_Ray/output/04c_Intro_Ray_Data_Unstructured_10.ipynb
-  - file: courses/00_Developer_Intro_to_Ray/output/04c_Intro_Ray_Data_Unstructured_11.ipynb
-  - file: courses/00_Developer_Intro_to_Ray/output/05_Intro_Ray_Serve_PyTorch_01.ipynb
-  - file: courses/00_Developer_Intro_to_Ray/output/05_Intro_Ray_Serve_PyTorch_02.ipynb
-  - file: courses/00_Developer_Intro_to_Ray/output/05_Intro_Ray_Serve_PyTorch_03.ipynb
-  - file: courses/00_Developer_Intro_to_Ray/output/05_Intro_Ray_Serve_PyTorch_04.ipynb
-  - file: courses/00_Developer_Intro_to_Ray/output/05_Intro_Ray_Serve_PyTorch_05.ipynb
-  - file: courses/00_Developer_Intro_to_Ray/output/README_01.ipynb
-- caption: Gettingstarted
-  chapters:
-  - file: courses/GettingStarted/output/101_01_anyscale_intro_workspace_01.ipynb
-  - file: courses/GettingStarted/output/101_02_anyscale_development_intro_01.ipynb
-  - file: courses/GettingStarted/output/101_03_anyscale_compute_runtime_intro_01.ipynb
-  - file: courses/GettingStarted/output/101_04_anyscale_storage_options_01.ipynb
-  - file: courses/GettingStarted/output/101_05_anyscale_logging_metrics_01.ipynb
-  - file: courses/GettingStarted/output/101_06_anyscale_intro_jobs_01.ipynb
-  - file: courses/GettingStarted/output/101_07_anyscale_intro_services_01.ipynb
-  - file: courses/GettingStarted/output/101_08_anyscale_collaboration_01.ipynb
-  - file: courses/GettingStarted/output/101_09_anyscale_org_setup_01.ipynb
-  - file: courses/GettingStarted/output/101_09_anyscale_org_setup_02.ipynb
-  - file: courses/GettingStarted/output/101_09_anyscale_org_setup_03.ipynb
-  - file: courses/GettingStarted/output/101_anyscale_intro_jobs_01.ipynb
-  - file: courses/GettingStarted/output/101_anyscale_intro_jobs_02.ipynb
-  - file: courses/GettingStarted/output/101_anyscale_intro_jobs_03.ipynb
-  - file: courses/GettingStarted/output/101_anyscale_intro_services_01.ipynb
-  - file: courses/GettingStarted/output/101_anyscale_intro_services_02.ipynb
-- caption: Ray 101
-  chapters:
-  - file: courses/ray-101/output/1_AI_Libs_Intro_01.ipynb
-  - file: courses/ray-101/output/1_AI_Libs_Intro_02.ipynb
-  - file: courses/ray-101/output/1_AI_Libs_Intro_03.ipynb
-  - file: courses/ray-101/output/2_Intro_Train_01.ipynb
-  - file: courses/ray-101/output/2_Intro_Train_02.ipynb
-  - file: courses/ray-101/output/2_Intro_Train_03.ipynb
-  - file: courses/ray-101/output/2_Intro_Train_04.ipynb
-  - file: courses/ray-101/output/2_Intro_Train_05.ipynb
-  - file: courses/ray-101/output/2_Intro_Train_06.ipynb
-  - file: courses/ray-101/output/2_Intro_Train_07.ipynb
-  - file: courses/ray-101/output/2_Intro_Train_08.ipynb
-  - file: courses/ray-101/output/2_Intro_Train_09.ipynb
-  - file: courses/ray-101/output/3_Intro_Tune_01.ipynb
-  - file: courses/ray-101/output/3_Intro_Tune_02.ipynb
-  - file: courses/ray-101/output/3_Intro_Tune_03.ipynb
-  - file: courses/ray-101/output/3_Intro_Tune_04.ipynb
-  - file: courses/ray-101/output/3_Intro_Tune_05.ipynb
-  - file: courses/ray-101/output/3_Intro_Tune_06.ipynb
-  - file: courses/ray-101/output/4_Intro_Data_01.ipynb
-  - file: courses/ray-101/output/4_Intro_Data_02.ipynb
-  - file: courses/ray-101/output/4_Intro_Data_03.ipynb
-  - file: courses/ray-101/output/4_Intro_Data_04.ipynb
-  - file: courses/ray-101/output/4_Intro_Data_05.ipynb
-  - file: courses/ray-101/output/4_Intro_Data_06.ipynb
-  - file: courses/ray-101/output/5_Intro_Serve_01.ipynb
-  - file: courses/ray-101/output/5_Intro_Serve_02.ipynb
-  - file: courses/ray-101/output/5_Intro_Serve_03.ipynb
-  - file: courses/ray-101/output/5_Intro_Serve_04.ipynb
-  - file: courses/ray-101/output/5_Intro_Serve_05.ipynb
-  - file: courses/ray-101/output/5_Intro_Serve_06.ipynb
 - caption: Anyscale For Admins
   chapters:
   - file: courses/foundations/Anyscale_For_Admins/02_00_Anyscale_Admin_Overview/output/anyscale_administrator_overview_01.ipynb
@@ -171,6 +58,26 @@ parts:
   - file: courses/foundations/Anyscale_For_Admins/02_03c_Deploy_to_K8s_New_GCP_GKE/output/deploy_to_new_GKE_10.ipynb
   - file: courses/foundations/Anyscale_For_Admins/02_03c_Deploy_to_K8s_New_GCP_GKE/output/deploy_to_new_GKE_11.ipynb
   - file: courses/foundations/Anyscale_For_Admins/02_03c_Deploy_to_K8s_New_GCP_GKE/output/deploy_to_new_GKE_12.ipynb
+
+- caption: Anyscale Getting Started
+  chapters:
+  - file: courses/foundations/Anyscale_Getting_Started/output/101_01_anyscale_intro_workspace_01.ipynb
+  - file: courses/foundations/Anyscale_Getting_Started/output/101_02_anyscale_development_intro_01.ipynb
+  - file: courses/foundations/Anyscale_Getting_Started/output/101_03_anyscale_compute_runtime_intro_01.ipynb
+  - file: courses/foundations/Anyscale_Getting_Started/output/101_04_anyscale_storage_options_01.ipynb
+  - file: courses/foundations/Anyscale_Getting_Started/output/101_05_anyscale_logging_metrics_01.ipynb
+  - file: courses/foundations/Anyscale_Getting_Started/output/101_06_anyscale_intro_jobs_01.ipynb
+  - file: courses/foundations/Anyscale_Getting_Started/output/101_07_anyscale_intro_services_01.ipynb
+  - file: courses/foundations/Anyscale_Getting_Started/output/101_08_anyscale_collaboration_01.ipynb
+  - file: courses/foundations/Anyscale_Getting_Started/output/101_09_anyscale_org_setup_01.ipynb
+  - file: courses/foundations/Anyscale_Getting_Started/output/101_09_anyscale_org_setup_02.ipynb
+  - file: courses/foundations/Anyscale_Getting_Started/output/101_09_anyscale_org_setup_03.ipynb
+  - file: courses/foundations/Anyscale_Getting_Started/output/101_anyscale_intro_jobs_01.ipynb
+  - file: courses/foundations/Anyscale_Getting_Started/output/101_anyscale_intro_jobs_02.ipynb
+  - file: courses/foundations/Anyscale_Getting_Started/output/101_anyscale_intro_jobs_03.ipynb
+  - file: courses/foundations/Anyscale_Getting_Started/output/101_anyscale_intro_services_01.ipynb
+  - file: courses/foundations/Anyscale_Getting_Started/output/101_anyscale_intro_services_02.ipynb
+
 - caption: Llm Serving
   chapters:
   - file: courses/foundations/LLM_Serving/00_intro_serve_llm/output/notebook_01.ipynb
@@ -194,6 +101,7 @@ parts:
   - file: courses/foundations/LLM_Serving/02_advanced_llm_features/output/notebook_05.ipynb
   - file: courses/foundations/LLM_Serving/02_advanced_llm_features/output/notebook_06.ipynb
   - file: courses/foundations/LLM_Serving/02_advanced_llm_features/output/notebook_07.ipynb
+
 - caption: Observability
   chapters:
   - file: courses/foundations/Observability/01_Intro_and_setup/output/01_general_intro_and_setup_01.ipynb
@@ -206,12 +114,14 @@ parts:
   - file: courses/foundations/Observability/03_Ray_Anyscale_Observability_in_Detail/output/03_Ray_Anyscale_Observability_in_Details_01.ipynb
   - file: courses/foundations/Observability/03_Ray_Anyscale_Observability_in_Detail/output/03_Ray_Anyscale_Observability_in_Details_02.ipynb
   - file: courses/foundations/Observability/03_Ray_Anyscale_Observability_in_Detail/output/03_Ray_Anyscale_Observability_in_Details_03.ipynb
+
 - caption: Ray Ai Libs
   chapters:
   - file: courses/foundations/Ray_AI_Libs/00_Overview/output/01_Intro_Ray_AI_Libs_Overview_01.ipynb
   - file: courses/foundations/Ray_AI_Libs/00_Overview/output/01_Intro_Ray_AI_Libs_Overview_02.ipynb
   - file: courses/foundations/Ray_AI_Libs/00_Overview/output/01_Intro_Ray_AI_Libs_Overview_03.ipynb
   - file: courses/foundations/Ray_AI_Libs/00_intro/output/README_01.ipynb
+
 - caption: Ray Core
   chapters:
   - file: courses/foundations/Ray_Core/00_Basics/output/00_Intro_Ray_Core_Basics_01.ipynb
@@ -228,6 +138,7 @@ parts:
   - file: courses/foundations/Ray_Core/01_Advanced/output/00a_Intro_Ray_Core_Advancement_07.ipynb
   - file: courses/foundations/Ray_Core/01_Advanced/output/00a_Intro_Ray_Core_Advancement_08.ipynb
   - file: courses/foundations/Ray_Core/01_Advanced/output/00a_Intro_Ray_Core_Advancement_09.ipynb
+
 - caption: Ray Data
   chapters:
   - file: courses/foundations/Ray_Data/00_Landscape/output/04a_Intro_Ray_Data_Industry_Landscape_01.ipynb
@@ -254,13 +165,15 @@ parts:
   - file: courses/foundations/Ray_Data/02_Unstructured/output/04c_Intro_Ray_Data_Unstructured_09.ipynb
   - file: courses/foundations/Ray_Data/02_Unstructured/output/04c_Intro_Ray_Data_Unstructured_10.ipynb
   - file: courses/foundations/Ray_Data/02_Unstructured/output/04c_Intro_Ray_Data_Unstructured_11.ipynb
-- caption: Ray Serve/00 Serve
+
+- caption: Ray Serve
   chapters:
   - file: courses/foundations/Ray_Serve/00_Serve/output/05_Intro_Ray_Serve_PyTorch_01.ipynb
   - file: courses/foundations/Ray_Serve/00_Serve/output/05_Intro_Ray_Serve_PyTorch_02.ipynb
   - file: courses/foundations/Ray_Serve/00_Serve/output/05_Intro_Ray_Serve_PyTorch_03.ipynb
   - file: courses/foundations/Ray_Serve/00_Serve/output/05_Intro_Ray_Serve_PyTorch_04.ipynb
   - file: courses/foundations/Ray_Serve/00_Serve/output/05_Intro_Ray_Serve_PyTorch_05.ipynb
+
 - caption: Ray Train
   chapters:
   - file: courses/foundations/Ray_Train/output/01_02_03_intro_to_ray_train_01.ipynb
@@ -289,21 +202,24 @@ parts:
   - file: courses/foundations/Ray_Train/output/01_02_03_intro_to_ray_train_24.ipynb
   - file: courses/foundations/Ray_Train/output/01_02_03_intro_to_ray_train_25.ipynb
   - file: courses/foundations/Ray_Train/output/01_02_03_intro_to_ray_train_26.ipynb
-- caption: Ray Tune/00 Tune
+
+- caption: Ray Tune
   chapters:
   - file: courses/foundations/Ray_Tune/00_Tune/output/03_Intro_Ray_Tune_01.ipynb
   - file: courses/foundations/Ray_Tune/00_Tune/output/03_Intro_Ray_Tune_02.ipynb
   - file: courses/foundations/Ray_Tune/00_Tune/output/03_Intro_Ray_Tune_03.ipynb
   - file: courses/foundations/Ray_Tune/00_Tune/output/03_Intro_Ray_Tune_04.ipynb
   - file: courses/foundations/Ray_Tune/00_Tune/output/03_Intro_Ray_Tune_05.ipynb
-- caption: Pytorch Lightning/00 Workload
+
+- caption: Pytorch Lightning
   chapters:
   - file: courses/workloads/PyTorch_Lightning/00_workload/output/02b_Intro_Ray_Train_with_PyTorch_Lightning_01.ipynb
   - file: courses/workloads/PyTorch_Lightning/00_workload/output/02b_Intro_Ray_Train_with_PyTorch_Lightning_02.ipynb
   - file: courses/workloads/PyTorch_Lightning/00_workload/output/02b_Intro_Ray_Train_with_PyTorch_Lightning_03.ipynb
   - file: courses/workloads/PyTorch_Lightning/00_workload/output/02b_Intro_Ray_Train_with_PyTorch_Lightning_04.ipynb
   - file: courses/workloads/PyTorch_Lightning/00_workload/output/02b_Intro_Ray_Train_with_PyTorch_Lightning_05.ipynb
-- caption: Ray Data Batch Inference/00 Workload
+
+- caption: Ray Data Batch Inference
   chapters:
   - file: courses/workloads/Ray_Data_Batch_Inference/00_workload/output/01_Ray_Data_batch_inference_01.ipynb
   - file: courses/workloads/Ray_Data_Batch_Inference/00_workload/output/01_Ray_Data_batch_inference_02.ipynb
@@ -311,7 +227,8 @@ parts:
   - file: courses/workloads/Ray_Data_Batch_Inference/00_workload/output/01_Ray_Data_batch_inference_04.ipynb
   - file: courses/workloads/Ray_Data_Batch_Inference/00_workload/output/01_Ray_Data_batch_inference_05.ipynb
   - file: courses/workloads/Ray_Data_Batch_Inference/00_workload/output/01_Ray_Data_batch_inference_06.ipynb
-- caption: Ray Data Processing/00 Workload
+
+- caption: Ray Data Processing
   chapters:
   - file: courses/workloads/Ray_Data_Processing/00_workload/output/02_Ray_Data_data_processing_01.ipynb
   - file: courses/workloads/Ray_Data_Processing/00_workload/output/02_Ray_Data_data_processing_02.ipynb
@@ -319,7 +236,8 @@ parts:
   - file: courses/workloads/Ray_Data_Processing/00_workload/output/02_Ray_Data_data_processing_04.ipynb
   - file: courses/workloads/Ray_Data_Processing/00_workload/output/02_Ray_Data_data_processing_05.ipynb
   - file: courses/workloads/Ray_Data_Processing/00_workload/output/02_Ray_Data_data_processing_06.ipynb
-- caption: Ray Distributed Training/00 Workload
+
+- caption: Ray Distributed Training
   chapters:
   - file: courses/workloads/Ray_Distributed_Training/00_workload/output/04_Ray_Train_distributed_training_01.ipynb
   - file: courses/workloads/Ray_Distributed_Training/00_workload/output/04_Ray_Train_distributed_training_02.ipynb
@@ -327,13 +245,15 @@ parts:
   - file: courses/workloads/Ray_Distributed_Training/00_workload/output/04_Ray_Train_distributed_training_04.ipynb
   - file: courses/workloads/Ray_Distributed_Training/00_workload/output/04_Ray_Train_distributed_training_05.ipynb
   - file: courses/workloads/Ray_Distributed_Training/00_workload/output/04_Ray_Train_distributed_training_06.ipynb
-- caption: Ray Serve Online Serving/00 Workload
+
+- caption: Ray Serve Online Serving
   chapters:
   - file: courses/workloads/Ray_Serve_Online_Serving/00_workload/output/03_Ray_Serve_online_serving_01.ipynb
   - file: courses/workloads/Ray_Serve_Online_Serving/00_workload/output/03_Ray_Serve_online_serving_02.ipynb
   - file: courses/workloads/Ray_Serve_Online_Serving/00_workload/output/03_Ray_Serve_online_serving_03.ipynb
   - file: courses/workloads/Ray_Serve_Online_Serving/00_workload/output/03_Ray_Serve_online_serving_04.ipynb
-- caption: Train Generative Cv/00 Workload
+
+- caption: Train Generative Cv
   chapters:
   - file: courses/workloads/Train_Generative_CV/00_workload/output/04d1_generative_cv_pattern_01.ipynb
   - file: courses/workloads/Train_Generative_CV/00_workload/output/04d1_generative_cv_pattern_02.ipynb
@@ -341,14 +261,16 @@ parts:
   - file: courses/workloads/Train_Generative_CV/00_workload/output/04d1_generative_cv_pattern_04.ipynb
   - file: courses/workloads/Train_Generative_CV/00_workload/output/04d1_generative_cv_pattern_05.ipynb
   - file: courses/workloads/Train_Generative_CV/00_workload/output/04d1_generative_cv_pattern_06.ipynb
-- caption: Train Policy Learning/00 Workload
+
+- caption: Train Policy Learning
   chapters:
   - file: courses/workloads/Train_Policy_Learning/00_workload/output/04d2_policy_learning_pattern_01.ipynb
   - file: courses/workloads/Train_Policy_Learning/00_workload/output/04d2_policy_learning_pattern_02.ipynb
   - file: courses/workloads/Train_Policy_Learning/00_workload/output/04d2_policy_learning_pattern_03.ipynb
   - file: courses/workloads/Train_Policy_Learning/00_workload/output/04d2_policy_learning_pattern_04.ipynb
   - file: courses/workloads/Train_Policy_Learning/00_workload/output/04d2_policy_learning_pattern_05.ipynb
-- caption: Train Rec Sys/00 Workload
+
+- caption: Train Rec Sys
   chapters:
   - file: courses/workloads/Train_Rec_sys/00_workload/output/04e_rec_sys_workload_pattern_01.ipynb
   - file: courses/workloads/Train_Rec_sys/00_workload/output/04e_rec_sys_workload_pattern_02.ipynb
@@ -356,14 +278,16 @@ parts:
   - file: courses/workloads/Train_Rec_sys/00_workload/output/04e_rec_sys_workload_pattern_04.ipynb
   - file: courses/workloads/Train_Rec_sys/00_workload/output/04e_rec_sys_workload_pattern_05.ipynb
   - file: courses/workloads/Train_Rec_sys/00_workload/output/04e_rec_sys_workload_pattern_06.ipynb
-- caption: Train Tabular/00 Workload
+
+- caption: Train Tabular
   chapters:
   - file: courses/workloads/Train_Tabular/00_workload/output/04b_tabular_workload_pattern_01.ipynb
   - file: courses/workloads/Train_Tabular/00_workload/output/04b_tabular_workload_pattern_02.ipynb
   - file: courses/workloads/Train_Tabular/00_workload/output/04b_tabular_workload_pattern_03.ipynb
   - file: courses/workloads/Train_Tabular/00_workload/output/04b_tabular_workload_pattern_04.ipynb
   - file: courses/workloads/Train_Tabular/00_workload/output/04b_tabular_workload_pattern_05.ipynb
-- caption: Train Time Series/00 Workload
+
+- caption: Train Time Series
   chapters:
   - file: courses/workloads/Train_Time_Series/00_workload/output/04c_time_series_workload_pattern_01.ipynb
   - file: courses/workloads/Train_Time_Series/00_workload/output/04c_time_series_workload_pattern_02.ipynb
@@ -371,7 +295,8 @@ parts:
   - file: courses/workloads/Train_Time_Series/00_workload/output/04c_time_series_workload_pattern_04.ipynb
   - file: courses/workloads/Train_Time_Series/00_workload/output/04c_time_series_workload_pattern_05.ipynb
   - file: courses/workloads/Train_Time_Series/00_workload/output/04c_time_series_workload_pattern_06.ipynb
-- caption: Train Vision Pattern/00 Workload
+
+- caption: Train Vision Pattern
   chapters:
   - file: courses/workloads/Train_Vision_Pattern/00_workload/output/04a_vision_pattern_01.ipynb
   - file: courses/workloads/Train_Vision_Pattern/00_workload/output/04a_vision_pattern_02.ipynb

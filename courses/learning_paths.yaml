@@ -1,0 +1,20 @@
+- name: Introduction to Ray
+  description: "The Ray 101 learning path is the perfect entry point to get you started with Ray. You'll learn about all of our libraries, from low-level distributed computing with Ray Core to running AI workloads with Ray Data, Train, Tune and Serve"
+  courses:
+    - foundations/Ray_AI_Libs
+    - foundations/Ray_Core
+    - foundations/Ray_Data
+    - foundations/Ray_Train
+    - foundations/Ray_Tune
+    - foundations/Ray_Serve
+
+- name: Ray Train Specialization
+  description: "The Ray Train learning path is a deep dive into distributed model training with Ray Train and gives you a large sample of interesting workloads to explore."
+  courses:
+    - foundations/Ray_Train
+    - workloads/Train_Tabular
+    - workloads/Train_Time_Series
+    - workloads/Train_Vision_Pattern
+    - workloads/Train_Generative_CV
+    - workloads/Train_Policy_Learning
+    - workloads/Train_Rec_sys

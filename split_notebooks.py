@@ -221,8 +221,14 @@ def find_notebooks_by_course(root="courses", target_course=None):
             course_folders.update(children)
             continue
 
-        # Check if parent has notebooks directly
-        if parent_id in directories_with_direct_notebooks:
+        # Category directories (like "foundations", "workloads", "deprecated") should never be course folders
+        # Always use children as course folders for category structures
+        is_category_directory = parent_id in ["foundations", "workloads", "deprecated"]
+
+        if is_category_directory:
+            # Category directory - always use children as course folders, never the parent
+            course_folders.update(children)
+        elif parent_id in directories_with_direct_notebooks:
             # Parent has notebooks directly - parent is the course folder
             # (This handles cases where both parent and child have notebooks)
             course_folders.add(parent_id)
@@ -241,11 +247,15 @@ def find_notebooks_by_course(root="courses", target_course=None):
                 course_folders.add(parent_id)
             else:
                 # Parent has only one immediate subdirectory with notebooks
-                # Use the children as course folders (handles category structures)
+                # Use the children as course folders
                 course_folders.update(children)
 
     # Also add any directories that weren't processed (shouldn't happen, but safety check)
+    # But exclude category directories and deprecated
     for dir_with_nb in directories_with_direct_notebooks:
+        # Skip category directories and deprecated - they should never be course folders
+        if dir_with_nb in ["foundations", "workloads", "deprecated"]:
+            continue
         if not any(
             dir_with_nb.startswith(cf + "/") or dir_with_nb == cf
             for cf in course_folders
@@ -287,6 +297,10 @@ def find_notebooks_by_course(root="courses", target_course=None):
         course_folders_ordered = sorted(course_folders)
 
     for course_id in course_folders_ordered:
+        # Skip deprecated courses
+        if course_id.startswith("deprecated") or "deprecated" in course_id.split("/"):
+            continue
+
         course_path = os.path.join(root, course_id)
         all_notebooks = []
 
@@ -314,13 +328,62 @@ def load_course_display_names(config_path="_config.yml"):
         return {}
 
 
-def get_course_display_name(course_folder, display_names):
+def strip_single_module_from_course_name(
+    course_base, course_folder_full, courses_root="courses"
+):
+    """
+    If course_base contains a module (e.g., "Ray_Tune/00_Tune") and there's only one module,
+    strip the module part and return just the course name (e.g., "Ray_Tune").
+
+    Args:
+        course_base: The course name with optional module (e.g., "Ray_Tune/00_Tune")
+        course_folder_full: The full course folder path (e.g., "foundations/Ray_Tune/00_Tune")
+        courses_root: Root directory for courses (default: "courses")
+    """
+    if "/" not in course_base:
+        return course_base  # No module, return as-is
+
+    parts = course_base.split("/")
+    if len(parts) < 2:
+        return course_base  # Invalid format, return as-is
+
+    # parts[0] is the course name, parts[1] is the module name
+    # We want to keep the course name (first part) and strip the module (second part)
+    course_name = parts[0]  # e.g., "Ray_Tune" from "Ray_Tune/00_Tune"
+    # Construct the full path to check: courses/{category}/{course_name} or courses/{course_name}
+    # Use the full course_folder to get the category if present
+    category, _ = extract_category(course_folder_full)
+    if category:
+        course_path = os.path.join(courses_root, category, course_name)
+    else:
+        course_path = os.path.join(courses_root, course_name)
+
+    if os.path.exists(course_path) and os.path.isdir(course_path):
+        # Count subdirectories (excluding output and other non-module dirs)
+        subdirs = [
+            d
+            for d in os.listdir(course_path)
+            if os.path.isdir(os.path.join(course_path, d)) and d != "output"
+        ]
+        if len(subdirs) == 1:
+            # Only one module, strip it from the name
+            return course_name
+
+    return course_base  # Multiple modules or can't determine, keep full name
+
+
+def get_course_display_name(course_folder, display_names, courses_root="courses"):
     """Get display name for course folder from config, with fallback logic."""
     if course_folder in display_names:
         return display_names[course_folder]
     else:
         # Fallback: Convert underscores to spaces and title case
-        return course_folder.replace("_", " ").replace("-", " ").title()
+        # First, strip single modules if applicable
+        category, course_base = extract_category(course_folder)
+        course_name = strip_single_module_from_course_name(
+            course_base, course_folder, courses_root
+        )
+        return course_name.replace("_", " ").replace("-", " ").title()
 
 
 def extract_category(course_folder):
@@ -380,7 +443,9 @@ def group_courses_by_category(courses_data):
         return categorized, insertion_order
 
 
-def write_index_md_from_courses(courses_data, display_names, index_path="index.md"):
+def write_index_md_from_courses(
+    courses_data, display_names, index_path="index.md", courses_root="courses"
+):
     """Generate an index.md file with links organized by category and course."""
     lines = [
         "# Ray Enablement Content",
@@ -399,7 +464,9 @@ def write_index_md_from_courses(courses_data, display_names, index_path="index.m
     if not has_categories:
         # No categories - iterate in original order from courses_data (same as _toc.yml)
         for course_folder, notebook_parts in courses_data.items():
-            course_name = get_course_display_name(course_folder, display_names)
+            course_name = get_course_display_name(
+                course_folder, display_names, courses_root
+            )
             lines.append(f"## {course_name}")
             lines.append("")
             for part in notebook_parts:
@@ -420,14 +487,11 @@ def write_index_md_from_courses(courses_data, display_names, index_path="index.m
 
             # Add courses in this category
             for course_folder, notebook_parts in courses_in_category:
-                course_name = get_course_display_name(course_folder, display_names)
-                # If course is nested, use just the course name part for display
-                _, course_base = extract_category(course_folder)
-                if category is not None:
-                    # Use the base course name, not the full path
-                    course_display = get_course_display_name(course_base, display_names)
-                else:
-                    course_display = course_name
+                # Always pass full course_folder to preserve category info for path checking
+                # The function will extract the category internally and return the appropriate display name
+                course_display = get_course_display_name(
+                    course_folder, display_names, courses_root
+                )
 
                 # Use H3 for courses when there are categories
                 lines.append(f"### {course_display}")
@@ -561,8 +625,14 @@ def main():
     courses_data = {}
     first_notebook = None
 
-    # Process each course
+    # Process each course (skip deprecated folder)
     for course_folder, notebooks in courses_notebooks.items():
+        # Skip deprecated courses
+        if course_folder.startswith(
+            "deprecated"
+        ) or "deprecated" in course_folder.split("/"):
+            continue
+
         course_parts = []
         for nb_path in notebooks:
             nb_dir = os.path.dirname(nb_path)
@@ -593,7 +663,9 @@ def main():
         sorted_courses = sorted(courses_data.keys())
         for course_folder in sorted_courses:
             course_parts = courses_data[course_folder]
-            course_name = get_course_display_name(course_folder, display_names)
+            course_name = get_course_display_name(
+                course_folder, display_names, courses_root
+            )
 
             # Add course part with chapters
             course_part = {"caption": course_name, "chapters": []}
@@ -608,12 +680,10 @@ def main():
             courses_in_category = categorized[category]
 
             for course_folder, course_parts in courses_in_category:
-                # Get display name - use base course name if categorized
-                _, course_base = extract_category(course_folder)
-                if category is not None:
-                    course_name = get_course_display_name(course_base, display_names)
-                else:
-                    course_name = get_course_display_name(course_folder, display_names)
+                # Get display name - pass full course_folder to preserve category info for path checking
+                course_name = get_course_display_name(
+                    course_folder, display_names, courses_root
+                )
 
                 # Add course part with chapters
                 course_part = {"caption": course_name, "chapters": []}
@@ -623,9 +693,24 @@ def main():
 
                 toc_data["parts"].append(course_part)
 
-    # Write _toc.yml
+    # Write _toc.yml with blank lines between courses for readability
     with open("_toc.yml", "w", encoding="utf-8") as f:
-        yaml.dump(toc_data, f, default_flow_style=False, sort_keys=False)
+        # Write header
+        f.write("format: jb-book\n")
+        f.write("root: index.md\n")
+        f.write("parts:\n")
+
+        # Write each course part with a blank line between them
+        for i, part in enumerate(toc_data["parts"]):
+            if i > 0:
+                f.write("\n")  # Blank line between courses
+            # Use yaml.dump to format each part as a list item
+            part_yaml = yaml.dump(
+                [part], default_flow_style=False, sort_keys=False, allow_unicode=True
+            )
+            # The output will be "- caption: ...\n  chapters:\n  - file: ..."
+            # Write it directly - yaml.dump already produces the correct relative indentation
+            f.write(part_yaml)
 
     # Generate index.md with links organized by course
     write_index_md_from_courses(courses_data, display_names, "index.md")

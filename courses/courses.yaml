@@ -1,23 +1,34 @@
-# Split up into intro, core, AI Libs, Train, Tune, Data, Serve courses
-- name: New Ray 101
-  source: 00_Developer_Intro_to_Ray
-
-- name: Getting Started with Anyscale for Developers
-  source: GettingStarted
-
   # FOUNDATIONS
-
-- name: Ray Train Foundation
-  source: Ray_Train_Foundation
 
 - name: Getting Started with Anyscale for Administrators
   source: foundations/Anyscale_For_Admins
 
-- name: Introduction to Observability
-  source: foundations/Observability
+- name: Getting Started with Anyscale for Developers
+  source: foundations/Developer_Intro_to_Ray
 
 - name: LLM Serving Foundations
   source: foundations/LLM_Serving
+
+- name: Introduction to Observability
+  source: foundations/Observability
+
+- name: Ray Core Foundation
+  source: foundations/Ray_Core
+
+- name: Ray AI Libs Foundation
+  source: foundations/Ray_AI_Libs
+
+- name: Ray Train Foundation
+  source: foundations/Ray_Train
+
+- name: Ray Tune Foundation
+  source: foundations/Ray_Tune
+
+- name: Ray Data Foundation
+  source: foundations/Ray_Data
+
+- name: Ray Serve Foundation
+  source: foundations/Ray_Serve
 
 
 # WORKLOADS
@@ -51,8 +62,3 @@
 
 - name: Ray Train Vision Pattern
   source: workloads/Train_Vision_Pattern
-
-# DEPRECATED
-# Remove soon
-- name: Ray 101 (Old)
-  source: ray-101

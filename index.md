@@ -2,122 +2,6 @@
 
 This collection contains multiple courses on Ray and Anyscale:
 
-### Developer Intro to Ray
-
-- [00 Intro Ray Core Basics 01](courses/00_Developer_Intro_to_Ray/output/00_Intro_Ray_Core_Basics_01.ipynb)
-- [00 Intro Ray Core Basics 02](courses/00_Developer_Intro_to_Ray/output/00_Intro_Ray_Core_Basics_02.ipynb)
-- [00 Intro Ray Core Basics 03](courses/00_Developer_Intro_to_Ray/output/00_Intro_Ray_Core_Basics_03.ipynb)
-- [00 Intro Ray Core Basics 04](courses/00_Developer_Intro_to_Ray/output/00_Intro_Ray_Core_Basics_04.ipynb)
-- [00 Intro Ray Core Basics 05](courses/00_Developer_Intro_to_Ray/output/00_Intro_Ray_Core_Basics_05.ipynb)
-- [00a Intro Ray Core Advancement 01](courses/00_Developer_Intro_to_Ray/output/00a_Intro_Ray_Core_Advancement_01.ipynb)
-- [00a Intro Ray Core Advancement 02](courses/00_Developer_Intro_to_Ray/output/00a_Intro_Ray_Core_Advancement_02.ipynb)
-- [00a Intro Ray Core Advancement 03](courses/00_Developer_Intro_to_Ray/output/00a_Intro_Ray_Core_Advancement_03.ipynb)
-- [00a Intro Ray Core Advancement 04](courses/00_Developer_Intro_to_Ray/output/00a_Intro_Ray_Core_Advancement_04.ipynb)
-- [00a Intro Ray Core Advancement 05](courses/00_Developer_Intro_to_Ray/output/00a_Intro_Ray_Core_Advancement_05.ipynb)
-- [00a Intro Ray Core Advancement 06](courses/00_Developer_Intro_to_Ray/output/00a_Intro_Ray_Core_Advancement_06.ipynb)
-- [00a Intro Ray Core Advancement 07](courses/00_Developer_Intro_to_Ray/output/00a_Intro_Ray_Core_Advancement_07.ipynb)
-- [00a Intro Ray Core Advancement 08](courses/00_Developer_Intro_to_Ray/output/00a_Intro_Ray_Core_Advancement_08.ipynb)
-- [00a Intro Ray Core Advancement 09](courses/00_Developer_Intro_to_Ray/output/00a_Intro_Ray_Core_Advancement_09.ipynb)
-- [01 Intro Ray AI Libs Overview 01](courses/00_Developer_Intro_to_Ray/output/01_Intro_Ray_AI_Libs_Overview_01.ipynb)
-- [01 Intro Ray AI Libs Overview 02](courses/00_Developer_Intro_to_Ray/output/01_Intro_Ray_AI_Libs_Overview_02.ipynb)
-- [01 Intro Ray AI Libs Overview 03](courses/00_Developer_Intro_to_Ray/output/01_Intro_Ray_AI_Libs_Overview_03.ipynb)
-- [02a Intro Ray Train with PyTorch 01](courses/00_Developer_Intro_to_Ray/output/02a_Intro_Ray_Train_with_PyTorch_01.ipynb)
-- [02a Intro Ray Train with PyTorch 02](courses/00_Developer_Intro_to_Ray/output/02a_Intro_Ray_Train_with_PyTorch_02.ipynb)
-- [02a Intro Ray Train with PyTorch 03](courses/00_Developer_Intro_to_Ray/output/02a_Intro_Ray_Train_with_PyTorch_03.ipynb)
-- [02a Intro Ray Train with PyTorch 04](courses/00_Developer_Intro_to_Ray/output/02a_Intro_Ray_Train_with_PyTorch_04.ipynb)
-- [02b Intro Ray Train with PyTorch Lightning 01](courses/00_Developer_Intro_to_Ray/output/02b_Intro_Ray_Train_with_PyTorch_Lightning_01.ipynb)
-- [02b Intro Ray Train with PyTorch Lightning 02](courses/00_Developer_Intro_to_Ray/output/02b_Intro_Ray_Train_with_PyTorch_Lightning_02.ipynb)
-- [02b Intro Ray Train with PyTorch Lightning 03](courses/00_Developer_Intro_to_Ray/output/02b_Intro_Ray_Train_with_PyTorch_Lightning_03.ipynb)
-- [02b Intro Ray Train with PyTorch Lightning 04](courses/00_Developer_Intro_to_Ray/output/02b_Intro_Ray_Train_with_PyTorch_Lightning_04.ipynb)
-- [02b Intro Ray Train with PyTorch Lightning 05](courses/00_Developer_Intro_to_Ray/output/02b_Intro_Ray_Train_with_PyTorch_Lightning_05.ipynb)
-- [03 Intro Ray Tune 01](courses/00_Developer_Intro_to_Ray/output/03_Intro_Ray_Tune_01.ipynb)
-- [03 Intro Ray Tune 02](courses/00_Developer_Intro_to_Ray/output/03_Intro_Ray_Tune_02.ipynb)
-- [03 Intro Ray Tune 03](courses/00_Developer_Intro_to_Ray/output/03_Intro_Ray_Tune_03.ipynb)
-- [03 Intro Ray Tune 04](courses/00_Developer_Intro_to_Ray/output/03_Intro_Ray_Tune_04.ipynb)
-- [03 Intro Ray Tune 05](courses/00_Developer_Intro_to_Ray/output/03_Intro_Ray_Tune_05.ipynb)
-- [04a Intro Ray Data Industry Landscape 01](courses/00_Developer_Intro_to_Ray/output/04a_Intro_Ray_Data_Industry_Landscape_01.ipynb)
-- [04a Intro Ray Data Industry Landscape 02](courses/00_Developer_Intro_to_Ray/output/04a_Intro_Ray_Data_Industry_Landscape_02.ipynb)
-- [04a Intro Ray Data Industry Landscape 03](courses/00_Developer_Intro_to_Ray/output/04a_Intro_Ray_Data_Industry_Landscape_03.ipynb)
-- [04a Intro Ray Data Industry Landscape 04](courses/00_Developer_Intro_to_Ray/output/04a_Intro_Ray_Data_Industry_Landscape_04.ipynb)
-- [04a Intro Ray Data Industry Landscape 05](courses/00_Developer_Intro_to_Ray/output/04a_Intro_Ray_Data_Industry_Landscape_05.ipynb)
-- [04a Intro Ray Data Industry Landscape 06](courses/00_Developer_Intro_to_Ray/output/04a_Intro_Ray_Data_Industry_Landscape_06.ipynb)
-- [04b Intro Ray Data Structured 01](courses/00_Developer_Intro_to_Ray/output/04b_Intro_Ray_Data_Structured_01.ipynb)
-- [04b Intro Ray Data Structured 02](courses/00_Developer_Intro_to_Ray/output/04b_Intro_Ray_Data_Structured_02.ipynb)
-- [04b Intro Ray Data Structured 03](courses/00_Developer_Intro_to_Ray/output/04b_Intro_Ray_Data_Structured_03.ipynb)
-- [04b Intro Ray Data Structured 04](courses/00_Developer_Intro_to_Ray/output/04b_Intro_Ray_Data_Structured_04.ipynb)
-- [04b Intro Ray Data Structured 05](courses/00_Developer_Intro_to_Ray/output/04b_Intro_Ray_Data_Structured_05.ipynb)
-- [04b Intro Ray Data Structured 06](courses/00_Developer_Intro_to_Ray/output/04b_Intro_Ray_Data_Structured_06.ipynb)
-- [04b Intro Ray Data Structured 07](courses/00_Developer_Intro_to_Ray/output/04b_Intro_Ray_Data_Structured_07.ipynb)
-- [04c Intro Ray Data Unstructured 01](courses/00_Developer_Intro_to_Ray/output/04c_Intro_Ray_Data_Unstructured_01.ipynb)
-- [04c Intro Ray Data Unstructured 02](courses/00_Developer_Intro_to_Ray/output/04c_Intro_Ray_Data_Unstructured_02.ipynb)
-- [04c Intro Ray Data Unstructured 03](courses/00_Developer_Intro_to_Ray/output/04c_Intro_Ray_Data_Unstructured_03.ipynb)
-- [04c Intro Ray Data Unstructured 04](courses/00_Developer_Intro_to_Ray/output/04c_Intro_Ray_Data_Unstructured_04.ipynb)
-- [04c Intro Ray Data Unstructured 05](courses/00_Developer_Intro_to_Ray/output/04c_Intro_Ray_Data_Unstructured_05.ipynb)
-- [04c Intro Ray Data Unstructured 06](courses/00_Developer_Intro_to_Ray/output/04c_Intro_Ray_Data_Unstructured_06.ipynb)
-- [04c Intro Ray Data Unstructured 07](courses/00_Developer_Intro_to_Ray/output/04c_Intro_Ray_Data_Unstructured_07.ipynb)
-- [04c Intro Ray Data Unstructured 08](courses/00_Developer_Intro_to_Ray/output/04c_Intro_Ray_Data_Unstructured_08.ipynb)
-- [04c Intro Ray Data Unstructured 09](courses/00_Developer_Intro_to_Ray/output/04c_Intro_Ray_Data_Unstructured_09.ipynb)
-- [04c Intro Ray Data Unstructured 10](courses/00_Developer_Intro_to_Ray/output/04c_Intro_Ray_Data_Unstructured_10.ipynb)
-- [04c Intro Ray Data Unstructured 11](courses/00_Developer_Intro_to_Ray/output/04c_Intro_Ray_Data_Unstructured_11.ipynb)
-- [05 Intro Ray Serve PyTorch 01](courses/00_Developer_Intro_to_Ray/output/05_Intro_Ray_Serve_PyTorch_01.ipynb)
-- [05 Intro Ray Serve PyTorch 02](courses/00_Developer_Intro_to_Ray/output/05_Intro_Ray_Serve_PyTorch_02.ipynb)
-- [05 Intro Ray Serve PyTorch 03](courses/00_Developer_Intro_to_Ray/output/05_Intro_Ray_Serve_PyTorch_03.ipynb)
-- [05 Intro Ray Serve PyTorch 04](courses/00_Developer_Intro_to_Ray/output/05_Intro_Ray_Serve_PyTorch_04.ipynb)
-- [05 Intro Ray Serve PyTorch 05](courses/00_Developer_Intro_to_Ray/output/05_Intro_Ray_Serve_PyTorch_05.ipynb)
-- [README 01](courses/00_Developer_Intro_to_Ray/output/README_01.ipynb)
-
-### Gettingstarted
-
-- [101 01 anyscale intro workspace 01](courses/GettingStarted/output/101_01_anyscale_intro_workspace_01.ipynb)
-- [101 02 anyscale development intro 01](courses/GettingStarted/output/101_02_anyscale_development_intro_01.ipynb)
-- [101 03 anyscale compute runtime intro 01](courses/GettingStarted/output/101_03_anyscale_compute_runtime_intro_01.ipynb)
-- [101 04 anyscale storage options 01](courses/GettingStarted/output/101_04_anyscale_storage_options_01.ipynb)
-- [101 05 anyscale logging metrics 01](courses/GettingStarted/output/101_05_anyscale_logging_metrics_01.ipynb)
-- [101 06 anyscale intro jobs 01](courses/GettingStarted/output/101_06_anyscale_intro_jobs_01.ipynb)
-- [101 07 anyscale intro services 01](courses/GettingStarted/output/101_07_anyscale_intro_services_01.ipynb)
-- [101 08 anyscale collaboration 01](courses/GettingStarted/output/101_08_anyscale_collaboration_01.ipynb)
-- [101 09 anyscale org setup 01](courses/GettingStarted/output/101_09_anyscale_org_setup_01.ipynb)
-- [101 09 anyscale org setup 02](courses/GettingStarted/output/101_09_anyscale_org_setup_02.ipynb)
-- [101 09 anyscale org setup 03](courses/GettingStarted/output/101_09_anyscale_org_setup_03.ipynb)
-- [101 anyscale intro jobs 01](courses/GettingStarted/output/101_anyscale_intro_jobs_01.ipynb)
-- [101 anyscale intro jobs 02](courses/GettingStarted/output/101_anyscale_intro_jobs_02.ipynb)
-- [101 anyscale intro jobs 03](courses/GettingStarted/output/101_anyscale_intro_jobs_03.ipynb)
-- [101 anyscale intro services 01](courses/GettingStarted/output/101_anyscale_intro_services_01.ipynb)
-- [101 anyscale intro services 02](courses/GettingStarted/output/101_anyscale_intro_services_02.ipynb)
-
-### Ray 101
-
-- [1 AI Libs Intro 01](courses/ray-101/output/1_AI_Libs_Intro_01.ipynb)
-- [1 AI Libs Intro 02](courses/ray-101/output/1_AI_Libs_Intro_02.ipynb)
-- [1 AI Libs Intro 03](courses/ray-101/output/1_AI_Libs_Intro_03.ipynb)
-- [2 Intro Train 01](courses/ray-101/output/2_Intro_Train_01.ipynb)
-- [2 Intro Train 02](courses/ray-101/output/2_Intro_Train_02.ipynb)
-- [2 Intro Train 03](courses/ray-101/output/2_Intro_Train_03.ipynb)
-- [2 Intro Train 04](courses/ray-101/output/2_Intro_Train_04.ipynb)
-- [2 Intro Train 05](courses/ray-101/output/2_Intro_Train_05.ipynb)
-- [2 Intro Train 06](courses/ray-101/output/2_Intro_Train_06.ipynb)
-- [2 Intro Train 07](courses/ray-101/output/2_Intro_Train_07.ipynb)
-- [2 Intro Train 08](courses/ray-101/output/2_Intro_Train_08.ipynb)
-- [2 Intro Train 09](courses/ray-101/output/2_Intro_Train_09.ipynb)
-- [3 Intro Tune 01](courses/ray-101/output/3_Intro_Tune_01.ipynb)
-- [3 Intro Tune 02](courses/ray-101/output/3_Intro_Tune_02.ipynb)
-- [3 Intro Tune 03](courses/ray-101/output/3_Intro_Tune_03.ipynb)
-- [3 Intro Tune 04](courses/ray-101/output/3_Intro_Tune_04.ipynb)
-- [3 Intro Tune 05](courses/ray-101/output/3_Intro_Tune_05.ipynb)
-- [3 Intro Tune 06](courses/ray-101/output/3_Intro_Tune_06.ipynb)
-- [4 Intro Data 01](courses/ray-101/output/4_Intro_Data_01.ipynb)
-- [4 Intro Data 02](courses/ray-101/output/4_Intro_Data_02.ipynb)
-- [4 Intro Data 03](courses/ray-101/output/4_Intro_Data_03.ipynb)
-- [4 Intro Data 04](courses/ray-101/output/4_Intro_Data_04.ipynb)
-- [4 Intro Data 05](courses/ray-101/output/4_Intro_Data_05.ipynb)
-- [4 Intro Data 06](courses/ray-101/output/4_Intro_Data_06.ipynb)
-- [5 Intro Serve 01](courses/ray-101/output/5_Intro_Serve_01.ipynb)
-- [5 Intro Serve 02](courses/ray-101/output/5_Intro_Serve_02.ipynb)
-- [5 Intro Serve 03](courses/ray-101/output/5_Intro_Serve_03.ipynb)
-- [5 Intro Serve 04](courses/ray-101/output/5_Intro_Serve_04.ipynb)
-- [5 Intro Serve 05](courses/ray-101/output/5_Intro_Serve_05.ipynb)
-- [5 Intro Serve 06](courses/ray-101/output/5_Intro_Serve_06.ipynb)
-
 ## Foundations
 
 ### Anyscale For Admins
@@ -177,6 +61,25 @@ This collection contains multiple courses on Ray and Anyscale:
 - [deploy to new GKE 10](courses/foundations/Anyscale_For_Admins/02_03c_Deploy_to_K8s_New_GCP_GKE/output/deploy_to_new_GKE_10.ipynb)
 - [deploy to new GKE 11](courses/foundations/Anyscale_For_Admins/02_03c_Deploy_to_K8s_New_GCP_GKE/output/deploy_to_new_GKE_11.ipynb)
 - [deploy to new GKE 12](courses/foundations/Anyscale_For_Admins/02_03c_Deploy_to_K8s_New_GCP_GKE/output/deploy_to_new_GKE_12.ipynb)
+
+### Anyscale Getting Started
+
+- [101 01 anyscale intro workspace 01](courses/foundations/Anyscale_Getting_Started/output/101_01_anyscale_intro_workspace_01.ipynb)
+- [101 02 anyscale development intro 01](courses/foundations/Anyscale_Getting_Started/output/101_02_anyscale_development_intro_01.ipynb)
+- [101 03 anyscale compute runtime intro 01](courses/foundations/Anyscale_Getting_Started/output/101_03_anyscale_compute_runtime_intro_01.ipynb)
+- [101 04 anyscale storage options 01](courses/foundations/Anyscale_Getting_Started/output/101_04_anyscale_storage_options_01.ipynb)
+- [101 05 anyscale logging metrics 01](courses/foundations/Anyscale_Getting_Started/output/101_05_anyscale_logging_metrics_01.ipynb)
+- [101 06 anyscale intro jobs 01](courses/foundations/Anyscale_Getting_Started/output/101_06_anyscale_intro_jobs_01.ipynb)
+- [101 07 anyscale intro services 01](courses/foundations/Anyscale_Getting_Started/output/101_07_anyscale_intro_services_01.ipynb)
+- [101 08 anyscale collaboration 01](courses/foundations/Anyscale_Getting_Started/output/101_08_anyscale_collaboration_01.ipynb)
+- [101 09 anyscale org setup 01](courses/foundations/Anyscale_Getting_Started/output/101_09_anyscale_org_setup_01.ipynb)
+- [101 09 anyscale org setup 02](courses/foundations/Anyscale_Getting_Started/output/101_09_anyscale_org_setup_02.ipynb)
+- [101 09 anyscale org setup 03](courses/foundations/Anyscale_Getting_Started/output/101_09_anyscale_org_setup_03.ipynb)
+- [101 anyscale intro jobs 01](courses/foundations/Anyscale_Getting_Started/output/101_anyscale_intro_jobs_01.ipynb)
+- [101 anyscale intro jobs 02](courses/foundations/Anyscale_Getting_Started/output/101_anyscale_intro_jobs_02.ipynb)
+- [101 anyscale intro jobs 03](courses/foundations/Anyscale_Getting_Started/output/101_anyscale_intro_jobs_03.ipynb)
+- [101 anyscale intro services 01](courses/foundations/Anyscale_Getting_Started/output/101_anyscale_intro_services_01.ipynb)
+- [101 anyscale intro services 02](courses/foundations/Anyscale_Getting_Started/output/101_anyscale_intro_services_02.ipynb)
 
 ### Llm Serving
 
@@ -266,7 +169,7 @@ This collection contains multiple courses on Ray and Anyscale:
 - [04c Intro Ray Data Unstructured 10](courses/foundations/Ray_Data/02_Unstructured/output/04c_Intro_Ray_Data_Unstructured_10.ipynb)
 - [04c Intro Ray Data Unstructured 11](courses/foundations/Ray_Data/02_Unstructured/output/04c_Intro_Ray_Data_Unstructured_11.ipynb)
 
-### Ray Serve/00 Serve
+### Ray Serve
 
 - [05 Intro Ray Serve PyTorch 01](courses/foundations/Ray_Serve/00_Serve/output/05_Intro_Ray_Serve_PyTorch_01.ipynb)
 - [05 Intro Ray Serve PyTorch 02](courses/foundations/Ray_Serve/00_Serve/output/05_Intro_Ray_Serve_PyTorch_02.ipynb)
@@ -303,7 +206,7 @@ This collection contains multiple courses on Ray and Anyscale:
 - [01 02 03 intro to ray train 25](courses/foundations/Ray_Train/output/01_02_03_intro_to_ray_train_25.ipynb)
 - [01 02 03 intro to ray train 26](courses/foundations/Ray_Train/output/01_02_03_intro_to_ray_train_26.ipynb)
 
-### Ray Tune/00 Tune
+### Ray Tune
 
 - [03 Intro Ray Tune 01](courses/foundations/Ray_Tune/00_Tune/output/03_Intro_Ray_Tune_01.ipynb)
 - [03 Intro Ray Tune 02](courses/foundations/Ray_Tune/00_Tune/output/03_Intro_Ray_Tune_02.ipynb)
@@ -313,7 +216,7 @@ This collection contains multiple courses on Ray and Anyscale:
 
 ## Workloads
 
-### Pytorch Lightning/00 Workload
+### Pytorch Lightning
 
 - [02b Intro Ray Train with PyTorch Lightning 01](courses/workloads/PyTorch_Lightning/00_workload/output/02b_Intro_Ray_Train_with_PyTorch_Lightning_01.ipynb)
 - [02b Intro Ray Train with PyTorch Lightning 02](courses/workloads/PyTorch_Lightning/00_workload/output/02b_Intro_Ray_Train_with_PyTorch_Lightning_02.ipynb)
@@ -321,7 +224,7 @@ This collection contains multiple courses on Ray and Anyscale:
 - [02b Intro Ray Train with PyTorch Lightning 04](courses/workloads/PyTorch_Lightning/00_workload/output/02b_Intro_Ray_Train_with_PyTorch_Lightning_04.ipynb)
 - [02b Intro Ray Train with PyTorch Lightning 05](courses/workloads/PyTorch_Lightning/00_workload/output/02b_Intro_Ray_Train_with_PyTorch_Lightning_05.ipynb)
 
-### Ray Data Batch Inference/00 Workload
+### Ray Data Batch Inference
 
 - [01 Ray Data batch inference 01](courses/workloads/Ray_Data_Batch_Inference/00_workload/output/01_Ray_Data_batch_inference_01.ipynb)
 - [01 Ray Data batch inference 02](courses/workloads/Ray_Data_Batch_Inference/00_workload/output/01_Ray_Data_batch_inference_02.ipynb)
@@ -330,7 +233,7 @@ This collection contains multiple courses on Ray and Anyscale:
 - [01 Ray Data batch inference 05](courses/workloads/Ray_Data_Batch_Inference/00_workload/output/01_Ray_Data_batch_inference_05.ipynb)
 - [01 Ray Data batch inference 06](courses/workloads/Ray_Data_Batch_Inference/00_workload/output/01_Ray_Data_batch_inference_06.ipynb)
 
-### Ray Data Processing/00 Workload
+### Ray Data Processing
 
 - [02 Ray Data data processing 01](courses/workloads/Ray_Data_Processing/00_workload/output/02_Ray_Data_data_processing_01.ipynb)
 - [02 Ray Data data processing 02](courses/workloads/Ray_Data_Processing/00_workload/output/02_Ray_Data_data_processing_02.ipynb)
@@ -339,7 +242,7 @@ This collection contains multiple courses on Ray and Anyscale:
 - [02 Ray Data data processing 05](courses/workloads/Ray_Data_Processing/00_workload/output/02_Ray_Data_data_processing_05.ipynb)
 - [02 Ray Data data processing 06](courses/workloads/Ray_Data_Processing/00_workload/output/02_Ray_Data_data_processing_06.ipynb)
 
-### Ray Distributed Training/00 Workload
+### Ray Distributed Training
 
 - [04 Ray Train distributed training 01](courses/workloads/Ray_Distributed_Training/00_workload/output/04_Ray_Train_distributed_training_01.ipynb)
 - [04 Ray Train distributed training 02](courses/workloads/Ray_Distributed_Training/00_workload/output/04_Ray_Train_distributed_training_02.ipynb)
@@ -348,14 +251,14 @@ This collection contains multiple courses on Ray and Anyscale:
 - [04 Ray Train distributed training 05](courses/workloads/Ray_Distributed_Training/00_workload/output/04_Ray_Train_distributed_training_05.ipynb)
 - [04 Ray Train distributed training 06](courses/workloads/Ray_Distributed_Training/00_workload/output/04_Ray_Train_distributed_training_06.ipynb)
 
-### Ray Serve Online Serving/00 Workload
+### Ray Serve Online Serving
 
 - [03 Ray Serve online serving 01](courses/workloads/Ray_Serve_Online_Serving/00_workload/output/03_Ray_Serve_online_serving_01.ipynb)
 - [03 Ray Serve online serving 02](courses/workloads/Ray_Serve_Online_Serving/00_workload/output/03_Ray_Serve_online_serving_02.ipynb)
 - [03 Ray Serve online serving 03](courses/workloads/Ray_Serve_Online_Serving/00_workload/output/03_Ray_Serve_online_serving_03.ipynb)
 - [03 Ray Serve online serving 04](courses/workloads/Ray_Serve_Online_Serving/00_workload/output/03_Ray_Serve_online_serving_04.ipynb)
 
-### Train Generative Cv/00 Workload
+### Train Generative Cv
 
 - [04d1 generative cv pattern 01](courses/workloads/Train_Generative_CV/00_workload/output/04d1_generative_cv_pattern_01.ipynb)
 - [04d1 generative cv pattern 02](courses/workloads/Train_Generative_CV/00_workload/output/04d1_generative_cv_pattern_02.ipynb)
@@ -364,7 +267,7 @@ This collection contains multiple courses on Ray and Anyscale:
 - [04d1 generative cv pattern 05](courses/workloads/Train_Generative_CV/00_workload/output/04d1_generative_cv_pattern_05.ipynb)
 - [04d1 generative cv pattern 06](courses/workloads/Train_Generative_CV/00_workload/output/04d1_generative_cv_pattern_06.ipynb)
 
-### Train Policy Learning/00 Workload
+### Train Policy Learning
 
 - [04d2 policy learning pattern 01](courses/workloads/Train_Policy_Learning/00_workload/output/04d2_policy_learning_pattern_01.ipynb)
 - [04d2 policy learning pattern 02](courses/workloads/Train_Policy_Learning/00_workload/output/04d2_policy_learning_pattern_02.ipynb)
@@ -372,7 +275,7 @@ This collection contains multiple courses on Ray and Anyscale:
 - [04d2 policy learning pattern 04](courses/workloads/Train_Policy_Learning/00_workload/output/04d2_policy_learning_pattern_04.ipynb)
 - [04d2 policy learning pattern 05](courses/workloads/Train_Policy_Learning/00_workload/output/04d2_policy_learning_pattern_05.ipynb)
 
-### Train Rec Sys/00 Workload
+### Train Rec Sys
 
 - [04e rec sys workload pattern 01](courses/workloads/Train_Rec_sys/00_workload/output/04e_rec_sys_workload_pattern_01.ipynb)
 - [04e rec sys workload pattern 02](courses/workloads/Train_Rec_sys/00_workload/output/04e_rec_sys_workload_pattern_02.ipynb)
@@ -381,7 +284,7 @@ This collection contains multiple courses on Ray and Anyscale:
 - [04e rec sys workload pattern 05](courses/workloads/Train_Rec_sys/00_workload/output/04e_rec_sys_workload_pattern_05.ipynb)
 - [04e rec sys workload pattern 06](courses/workloads/Train_Rec_sys/00_workload/output/04e_rec_sys_workload_pattern_06.ipynb)
 
-### Train Tabular/00 Workload
+### Train Tabular
 
 - [04b tabular workload pattern 01](courses/workloads/Train_Tabular/00_workload/output/04b_tabular_workload_pattern_01.ipynb)
 - [04b tabular workload pattern 02](courses/workloads/Train_Tabular/00_workload/output/04b_tabular_workload_pattern_02.ipynb)
@@ -389,7 +292,7 @@ This collection contains multiple courses on Ray and Anyscale:
 - [04b tabular workload pattern 04](courses/workloads/Train_Tabular/00_workload/output/04b_tabular_workload_pattern_04.ipynb)
 - [04b tabular workload pattern 05](courses/workloads/Train_Tabular/00_workload/output/04b_tabular_workload_pattern_05.ipynb)
 
-### Train Time Series/00 Workload
+### Train Time Series
 
 - [04c time series workload pattern 01](courses/workloads/Train_Time_Series/00_workload/output/04c_time_series_workload_pattern_01.ipynb)
 - [04c time series workload pattern 02](courses/workloads/Train_Time_Series/00_workload/output/04c_time_series_workload_pattern_02.ipynb)
@@ -398,7 +301,7 @@ This collection contains multiple courses on Ray and Anyscale:
 - [04c time series workload pattern 05](courses/workloads/Train_Time_Series/00_workload/output/04c_time_series_workload_pattern_05.ipynb)
 - [04c time series workload pattern 06](courses/workloads/Train_Time_Series/00_workload/output/04c_time_series_workload_pattern_06.ipynb)
 
-### Train Vision Pattern/00 Workload
+### Train Vision Pattern
 
 - [04a vision pattern 01](courses/workloads/Train_Vision_Pattern/00_workload/output/04a_vision_pattern_01.ipynb)
 - [04a vision pattern 02](courses/workloads/Train_Vision_Pattern/00_workload/output/04a_vision_pattern_02.ipynb)
