@@ -1,0 +1,1321 @@
+{
+  "notebook_path": "04_Ray_Train_distributed_training.ipynb",
+  "notebook_hash": "03a357ba57141e28",
+  "cells": {
+    "2bb7130e-6914-4a69-8d6f-a54fec43d2b6": {
+      "source": "# Distributed training with Ray Train, PyTorch and Hugging Face\n© 2025, Anyscale. All Rights Reserved",
+      "cell_type": "markdown",
+      "is_output": false
+    },
+    "535f298d-bfb8-41e0-8963-40b22f61f56e": {
+      "source": "💻 **Launch Locally**: You can run this notebook locally.\n\n🚀 **Launch on Cloud**: Think about running this notebook on a Ray Cluster (Click [here](http://console.anyscale.com/register) to easily start a Ray cluster on Anyscale)",
+      "cell_type": "markdown",
+      "is_output": false
+    },
+    "30605f4e-3931-459a-8de7-d465fee04769": {
+      "source": "\nThis notebook demonstrates how to perform distributed training of a BERT model for sequence classification using Ray Train, PyTorch, and Hugging Face libraries. The goal is to classify Yelp reviews into categories by leveraging the power of distributed computing, which allows you to train large models efficiently across multiple CPUs or GPUs.\n\nThe notebook starts by importing all the necessary libraries, including PyTorch for deep learning, Hugging Face Transformers for model and tokenizer utilities, and Ray Train for distributed training. It then sets up the evaluation metric (accuracy) and defines a function to compute this metric during model evaluation.\n\nA key part of the notebook is the training function, which is executed by each worker in the distributed setup. This function handles loading the Yelp review dataset, tokenizing the text data, preparing data loaders for batching, and setting up the BERT model for training. The function is designed to automatically use the best available hardware, whether that's a CPU, GPU, or Apple Silicon's MPS.\n\nThe main training function, `train_bert`, configures the distributed environment using Ray, sets up the training parameters, and launches the training process across multiple workers. This approach allows you to scale up your training easily, making it suitable for both local machines and cloud platforms. After training, Ray is properly shut down to free up resources.\n\nOverall, this notebook provides a practical introduction to distributed deep learning with modern Python tools, making it easier for machine learning engineers to train large models on big datasets efficiently.",
+      "cell_type": "markdown",
+      "is_output": false
+    },
+    "ce8593c8-fff5-42f5-9805-9d6dd4891de9": {
+      "source": "### Outline\n<div class=\"alert alert-block alert-info\">\n<ol>\n    <li>Architecture Diagram\n    <li>Library Imports\n        <ul>\n            <li>Importing PyTorch, Hugging Face Transformers, Ray Train, and other dependencies\n        </ul>\n    <li>Metrics Setup\n        <ul>\n            <li>Defining accuracy as the evaluation metric\n            <li>Function to compute metrics during evaluation\n        </ul>\n    <li>Training Function Per Worker\n        <ul>\n            <li>Data loading and preprocessing (tokenization)\n            <li>Preparing data loaders for batching\n            <li>Model initialization (BERT for sequence classification)\n            <li>Device selection (CPU, GPU, or MPS)\n            <li>Training and evaluation loop\n        </ul>\n    <li>Main Training Function\n        <ul>\n            <li>Setting up distributed training configuration with Ray\n            <li>Scaling configuration for CPUs/GPUs\n            <li>Initializing and running the Ray TorchTrainer\n        </ul>\n    <li>Running the Training\n        <ul>\n            <li>Executing the main training function with a specified number of workers\n        </ul>\n    <li>Shutdown Ray Cluster\n    <li>Summary\n</ol>\n</div>\n",
+      "cell_type": "markdown",
+      "is_output": false
+    },
+    "c733dd12-5cbd-423e-87e5-3f33d49a1c90": {
+      "source": "## 1. Architecture",
+      "cell_type": "markdown",
+      "is_output": false
+    },
+    "5f0d5b7e-69e7-4a73-9afa-e6e335584c16": {
+      "source": "![Architecture Diagram](https://lz-public-demo.s3.us-east-1.amazonaws.com/anyscale101/01_examples/04_Ray_Train_architecture.svg?sanitize=true)",
+      "cell_type": "markdown",
+      "is_output": false
+    },
+    "71c36c0d-ed5e-4041-ac5d-722c12b32c59": {
+      "source": "### 2. Library Imports",
+      "cell_type": "markdown",
+      "is_output": false
+    },
+    "22585009-6dff-4def-a275-b56929b87cdb": {
+      "source": "# Import necessary libraries\n\nimport os\nfrom typing import Dict # For type hinting\n\nimport torch # PyTorch for tensor operations\nfrom torch import nn # PyTorch for deep learning\nfrom torch.utils.data import DataLoader # DataLoader for batching and shuffling data\nfrom tqdm import tqdm\n\nimport numpy as np\nimport evaluate\nfrom datasets import load_dataset # To load datasets from Hugging Face\nimport transformers # Transformers library for model and tokenizer\nfrom transformers import (\n    Trainer, # \n    TrainingArguments,\n    AutoTokenizer, # Tokenizer for Hugging Face models\n    AutoModelForSequenceClassification, # Model for sequence classification\n)\n\nimport ray.train # Ray Train for distributed training\nfrom ray.train import ScalingConfig\nfrom ray.train.torch import TorchTrainer # Trainer for PyTorch\nfrom ray.train.torch import TorchConfig # Configuration for PyTorch training\nfrom ray.runtime_env import RuntimeEnv # Runtime environment for Ray tasks\n",
+      "cell_type": "code",
+      "is_output": false
+    },
+    "835f5d34-baf6-4f4a-81be-9846d858bbe2": {
+      "source": "## 3. Metrics Setup\nWe will use accuracy as our evaluation metric. The compute_metrics function will calculate the accuracy of our model’s predictions.",
+      "cell_type": "markdown",
+      "is_output": false
+    },
+    "16891880-871e-4875-95cb-03fb6545d0dc": {
+      "source": "# Metrics\nmetric = evaluate.load(\"accuracy\") # Load accuracy metric from Hugging Face evaluate library\n\n# Function to compute metrics\n# This function takes the evaluation predictions and computes the accuracy metric\ndef compute_metrics(eval_pred):\n    logits, labels = eval_pred\n    predictions = np.argmax(logits, axis=-1)\n    return metric.compute(predictions=predictions, references=labels)",
+      "cell_type": "code",
+      "is_output": false
+    },
+    "c2c14721-9497-44d2-8b32-fe961b4c742e": {
+      "source": "## 4. Training function per worker\nThis function will be executed by each worker during training. It handles data loading, tokenization, model initialization, and the training loop. This will automatically select GPU, MPS (on Apple Silicon), or CPU.\n\n### Tokenizer\nTokenizer function is used to convert text into input IDs and attention masks.\n\nPadding and truncation are applied to ensure uniform input size. This is essential for training models that require fixed-size inputs. The function is applied to the dataset using the map method. The map method applies the function to each example in the dataset. The batched=True argument allows processing multiple examples at once, which is more efficient.\n\nThe resulting dataset will have the tokenized inputs ready for training. This is a crucial step in preparing the dataset for model training. It ensures that the text data is converted into a format that the model can understand.",
+      "cell_type": "markdown",
+      "is_output": false
+    },
+    "17af6988-f571-4472-8035-f725d97d69ee": {
+      "source": "### Dataloaders\nDataloaders are used to load the dataset in batches for training and evaluation. This is essential for efficient training, especially with large datasets. The DataLoader will shuffle the training data and collate it into batches\nThe collate_fn is set to transformers.default_data_collator, which handles padding and batching automatically. The batch_size is set to the batch size per worker, which is defined in the config. This allows each worker to process a subset of the data in parallel. This is crucial for distributed training, where each worker processes a portion of the dataset.",
+      "cell_type": "markdown",
+      "is_output": false
+    },
+    "1eef119d-8785-45d2-89fb-7042dee915a0": {
+      "source": "def train_func_per_worker(config: Dict):\n    \n    # Datasets\n    dataset = load_dataset(\"yelp_review_full\")\n    tokenizer = AutoTokenizer.from_pretrained(\"bert-base-cased\")\n    \n    # Tokenization function\n    def tokenize_function(examples):\n        \"\"\"    \n        This function will tokenize the text data in the dataset\n        It uses the tokenizer to convert text into input IDs and attention masks\n        Padding and truncation are applied to ensure uniform input size\n        This is essential for training models that require fixed-size inputs\n        \"\"\"\n        return tokenizer(examples[\"text\"], padding=\"max_length\", truncation=True)\n\n    lr = config[\"lr\"]\n    epochs = config[\"epochs\"]\n    batch_size = config[\"batch_size_per_worker\"]\n\n    # select a subset of the dataset for training and evaluation\n    # In a real-world scenario, you would use the entire dataset\n    SMALL_SIZE = 100\n    # The map method applies the function to each example in the dataset\n    # The batched=True argument allows processing multiple examples at once, which is more efficient\n    # The resulting dataset will have the tokenized inputs ready for training\n    # This is a crucial step in preparing the dataset for model training\n    # It ensures that the text data is converted into a format that the model can understand\n    train_dataset = dataset[\"train\"].select(range(SMALL_SIZE)).map(tokenize_function, batched=True)\n    eval_dataset = dataset[\"test\"].select(range(SMALL_SIZE)).map(tokenize_function, batched=True)\n\n    # Prepare dataloader for each worker\n    # Dataloaders are used to load the dataset in batches for training and evaluation\n    # The dataloaders dictionary will hold the training and evaluation dataloaders\n    # This allows for easy access to the dataloaders during training and evaluation\n    # The dataloaders will be used in the training loop to fetch batches of data for each worker\n    dataloaders = {}\n    dataloaders[\"train\"] = torch.utils.data.DataLoader(\n        train_dataset, \n        shuffle=True, \n        collate_fn=transformers.default_data_collator, \n        batch_size=batch_size\n    )\n    dataloaders[\"test\"] = torch.utils.data.DataLoader(\n        eval_dataset, \n        shuffle=True, \n        collate_fn=transformers.default_data_collator, \n        batch_size=batch_size\n    )\n\n    # Obtain GPU device automatically\n    # device = ray.train.torch.get_device()\n    \n    # Alternatively, you can specify the device manually\n    # Check if CUDA or MPS is available and set device accordingly\n    # This is useful for running on different hardware configurations\n    if torch.cuda.is_available():\n        device = torch.device(\"cuda\")\n    elif torch.backends.mps.is_available():\n        device = torch.device(\"mps\") # For Apple Silicon Macs\n    else:\n        device = torch.device(\"cpu\")\n\n    # Prepare model and optimizer\n    # Load a pre-trained BERT model for sequence classification\n    # The model is initialized with the number of labels for classification\n    model = AutoModelForSequenceClassification.from_pretrained(\n        \"bert-base-cased\", num_labels=5\n    )\n    # The model is moved to the selected device (GPU, MPS, or CPU)\n    model = model.to(device)\n    \n    # The optimizer is set to SGD with momentum\n    # This is essential for training the model\n    # The optimizer will update the model parameters during training\n    # The learning rate and momentum are set based on the configuration\n    optimizer = torch.optim.SGD(model.parameters(), lr=lr, momentum=0.9)\n\n    # Start training loops\n    # The model will be trained for the specified number of epochs\n    # The model will be trained using the training dataloader\n    # The model will be evaluated using the evaluation dataloader\n    # The training loop will iterate over the epochs and batches\n    for epoch in range(epochs):\n        # Each epoch has a training and validation phase\n        for phase in [\"train\", \"test\"]:\n            if phase == \"train\":\n                model.train()  # Set model to training mode\n            else:\n                model.eval()  # Set model to evaluate mode\n\n            # breakpoint()\n            for batch in dataloaders[phase]: # Iterate over batches in the dataloader\n                batch = {k: v.to(device) for k, v in batch.items()}\n\n                # zero the parameter gradients\n                optimizer.zero_grad()\n\n                # forward pass\n                with torch.set_grad_enabled(phase == \"train\"):\n                    # Get model outputs and calculate loss\n                    # The model processes the input batch and returns outputs\n                    # The outputs include the loss and logits\n                    # The loss is calculated based on the model's predictions and the true labels\n                    # The logits are the raw predictions from the model\n                    # The loss is used to update the model parameters during training\n                    outputs = model(**batch)\n                    loss = outputs.loss\n\n                    # backward + optimize only if in training phase\n                    if phase == \"train\":\n                        loss.backward() # Backpropagate the loss to compute gradients\n                        # The optimizer updates the model parameters based on the computed gradients\n                        optimizer.step()\n                        print(f\"train epoch:[{epoch}]\\tloss:{loss:.6f}\")",
+      "cell_type": "code",
+      "is_output": false
+    },
+    "7ef466d5-a410-4691-b892-83ca88643b86": {
+      "source": "## 5. Main Training Function\nThe *train_bert* function sets up the distributed training environment using Ray and starts the training process. To enable training using GPU, we only need to make the following changes:\n\n* Require an GPU for each worker in ScalingConfig\n* Set backend to “nccl” in TorchConfig\n\nThis function is designed to train a BERT model using Ray Train. It sets up the training configuration, scaling, and starts the Ray cluster. The function initializes the Ray Train environment, configures the trainer, and starts the training process.\n* It is intended to be run in a distributed setting with multiple workers, allowing for efficient training of large models on large datasets by leveraging Ray's distributed computing capabilities.\n* The function uses the Ray Train library to manage distributed training and the TorchTrainer for PyTorch models.\n* It supports both GPU and CPU training, making it flexible for different hardware configurations. \n* Additionally, it can be easily adapted for different models and datasets by changing the model and dataset loading parts. \n* This approach provides a scalable solution for training deep learning models in a distributed manner and can be used in various environments, including local machines and cloud platforms.\n* It is a powerful tool for researchers and developers working with large-scale machine learning tasks, enabling efficient training on large datasets and easy integration into existing machine learning workflows with minimal changes.",
+      "cell_type": "markdown",
+      "is_output": false
+    },
+    "ca26285c-37c9-4a73-acb0-435fc99e2de1": {
+      "source": "# function to train BERT model using Ray Train\n# This function sets up the training configuration, scaling, and starts the Ray cluster.\n# It initializes the Ray Train environment, configures the trainer, and starts the training process.\ndef train_bert(num_workers=2):\n    global_batch_size = 8 # This is the total batch size across all workers\n\n    # Define the training configuration\n    # This configuration includes the learning rate, number of epochs, and batch size per worker\n    train_config = {\n        \"lr\": 1e-3,  # Learning rate\n        \"epochs\": 2,  # Reduced for faster testing\n        \"batch_size_per_worker\": global_batch_size // num_workers,\n    }\n\n    # Configure computation resources\n    # if using CPUs or MPS\n    scaling_config = ScalingConfig(num_workers=num_workers, resources_per_worker={\"CPU\": 1,})\n    \n    # If using GPUs, you can specify resources_per_worker={\"CPU\": 1, \"GPU\": 1}\n    # scaling_config = ScalingConfig(num_workers=num_workers, resources_per_worker={\"CPU\": 1, \"GPU\": 1})\n    # Set backend to nccl in TorchConfig\n    # torch_config = TorchConfig(backend = \"nccl\")\n    \n    # start your ray cluster\n    ray.init() \n    \n    # Initialize a Ray TorchTrainer\n    trainer = TorchTrainer(\n        train_loop_per_worker=train_func_per_worker,\n        train_loop_config=train_config,\n        # torch_config=torch_config, # Uncomment if using nccl backend\n        scaling_config=scaling_config,\n    )\n\n    result = trainer.fit() # Start the training process\n    print(f\"Training result: {result}\") # This will print the training result, which includes metrics like loss and accuracy",
+      "cell_type": "code",
+      "is_output": false
+    },
+    "7563e1c1-01db-43df-8d8d-ad29a598b65b": {
+      "source": "## 6. Start Training\nFinally, we call the train_bert function to start the training process. You can adjust the number of workers to use.",
+      "cell_type": "markdown",
+      "is_output": false
+    },
+    "92638c3b-26a9-4c03-8722-329e87f48cd0": {
+      "source": "# Run the training function with the specified number of workers\n# You can adjust the number of workers based on your hardware configuration\ntrain_bert(num_workers=2)",
+      "cell_type": "code",
+      "is_output": false
+    },
+    "7efb9312-bf0e-4eb3-8fd6-128dc9ec0638": {
+      "source": "2025-07-11 10:16:10,519\tINFO worker.py:1908 -- Started a local Ray instance. View the dashboard at \u001b[1m\u001b[32mhttp://127.0.0.1:8265 \u001b[39m\u001b[22m\n2025-07-11 10:16:11,092\tINFO tune.py:616 -- [output] This uses the legacy output and progress reporter, as Jupyter notebooks are not supported by the new engine, yet. For more information, please see https://github.com/ray-project/ray/issues/36949\n",
+      "cell_type": "output",
+      "is_output": true
+    },
+    "f763fcd0-3e61-4d25-b4f4-6602387735f8": {
+      "source": "== Status ==\nCurrent time: 2025-07-11 10:16:11 (running for 00:00:00.11)\nUsing FIFO scheduling algorithm.\nLogical resource usage: 3.0/16 CPUs, 0/0 GPUs\nResult logdir: /tmp/ray/session_2025-07-11_10-16-09_200164_18044/artifacts/2025-07-11_10-16-11/TorchTrainer_2025-07-11_10-16-11/driver_artifacts\nNumber of trials: 1/1 (1 PENDING)\n\n\n== Status ==\nCurrent time: 2025-07-11 10:16:16 (running for 00:00:05.14)\nUsing FIFO scheduling algorithm.\nLogical resource usage: 3.0/16 CPUs, 0/0 GPUs\nResult logdir: /tmp/ray/session_2025-07-11_10-16-09_200164_18044/artifacts/2025-07-11_10-16-11/TorchTrainer_2025-07-11_10-16-11/driver_artifacts\nNumber of trials: 1/1 (1 RUNNING)\n\n\n",
+      "cell_type": "output",
+      "is_output": true
+    },
+    "1d34b3b5-5e07-4ef7-805b-ef9d2377f8fe": {
+      "source": "\u001b[36m(RayTrainWorker pid=41599)\u001b[0m Setting up process group for: env:// [rank=0, world_size=2]\n\u001b[36m(TorchTrainer pid=41521)\u001b[0m Started distributed worker processes: \n\u001b[36m(TorchTrainer pid=41521)\u001b[0m - (node_id=0eca5bdc14957219701f50108487dbd39f13987d253f812c0d6b29a9, ip=127.0.0.1, pid=41599) world_rank=0, local_rank=0, node_rank=0\n\u001b[36m(TorchTrainer pid=41521)\u001b[0m - (node_id=0eca5bdc14957219701f50108487dbd39f13987d253f812c0d6b29a9, ip=127.0.0.1, pid=41598) world_rank=1, local_rank=1, node_rank=0\n",
+      "cell_type": "output",
+      "is_output": true
+    },
+    "9599c2a3-ea75-4a54-8c71-45d6d77dbf98": {
+      "source": "== Status ==\nCurrent time: 2025-07-11 10:16:21 (running for 00:00:10.22)\nUsing FIFO scheduling algorithm.\nLogical resource usage: 3.0/16 CPUs, 0/0 GPUs\nResult logdir: /tmp/ray/session_2025-07-11_10-16-09_200164_18044/artifacts/2025-07-11_10-16-11/TorchTrainer_2025-07-11_10-16-11/driver_artifacts\nNumber of trials: 1/1 (1 RUNNING)\n\n\n",
+      "cell_type": "output",
+      "is_output": true
+    },
+    "7ee34075-cbf2-449d-b5b5-16e4ee98f162": {
+      "source": "Map: 100%|██████████| 100/100 [00:00<00:00, 5090.92 examples/s]\n\u001b[36m(RayTrainWorker pid=41599)\u001b[0m Some weights of BertForSequenceClassification were not initialized from the model checkpoint at bert-base-cased and are newly initialized: ['classifier.bias', 'classifier.weight']\n\u001b[36m(RayTrainWorker pid=41599)\u001b[0m You should probably TRAIN this model on a down-stream task to be able to use it for predictions and inference.\n",
+      "cell_type": "output",
+      "is_output": true
+    },
+    "2fec7503-264d-40eb-90a6-1011a1cfc500": {
+      "source": "\u001b[36m(RayTrainWorker pid=41599)\u001b[0m train epoch:[0]\tloss:1.764641\n== Status ==\nCurrent time: 2025-07-11 10:16:26 (running for 00:00:15.28)\nUsing FIFO scheduling algorithm.\nLogical resource usage: 3.0/16 CPUs, 0/0 GPUs\nResult logdir: /tmp/ray/session_2025-07-11_10-16-09_200164_18044/artifacts/2025-07-11_10-16-11/TorchTrainer_2025-07-11_10-16-11/driver_artifacts\nNumber of trials: 1/1 (1 RUNNING)\n\n\n\u001b[36m(RayTrainWorker pid=41598)\u001b[0m train epoch:[0]\tloss:1.949393\u001b[32m [repeated 27x across cluster] (Ray deduplicates logs by default. Set RAY_DEDUP_LOGS=0 to disable log deduplication, or see https://docs.ray.io/en/master/ray-observability/user-guides/configure-logging.html#log-deduplication for more options.)\u001b[0m\n== Status ==\nCurrent time: 2025-07-11 10:16:31 (running for 00:00:20.35)\nUsing FIFO scheduling algorithm.\nLogical resource usage: 3.0/16 CPUs, 0/0 GPUs\nResult logdir: /tmp/ray/session_2025-07-11_10-16-09_200164_18044/artifacts/2025-07-11_10-16-11/TorchTrainer_2025-07-11_10-16-11/driver_artifacts\nNumber of trials: 1/1 (1 RUNNING)\n\n\n== Status ==\nCurrent time: 2025-07-11 10:16:36 (running for 00:00:25.46)\nUsing FIFO scheduling algorithm.\nLogical resource usage: 3.0/16 CPUs, 0/0 GPUs\nResult logdir: /tmp/ray/session_2025-07-11_10-16-09_200164_18044/artifacts/2025-07-11_10-16-11/TorchTrainer_2025-07-11_10-16-11/driver_artifacts\nNumber of trials: 1/1 (1 RUNNING)\n\n\n\u001b[36m(RayTrainWorker pid=41599)\u001b[0m train epoch:[1]\tloss:1.799808\u001b[32m [repeated 23x across cluster]\u001b[0m\n== Status ==\nCurrent time: 2025-07-11 10:16:41 (running for 00:00:30.54)\nUsing FIFO scheduling algorithm.\nLogical resource usage: 3.0/16 CPUs, 0/0 GPUs\nResult logdir: /tmp/ray/session_2025-07-11_10-16-09_200164_18044/artifacts/2025-07-11_10-16-11/TorchTrainer_2025-07-11_10-16-11/driver_artifacts\nNumber of trials: 1/1 (1 RUNNING)\n\n\n\u001b[36m(RayTrainWorker pid=41598)\u001b[0m train epoch:[1]\tloss:1.422321\u001b[32m [repeated 27x across cluster]\u001b[0m\n== Status ==\nCurrent time: 2025-07-11 10:16:46 (running for 00:00:35.63)\nUsing FIFO scheduling algorithm.\nLogical resource usage: 3.0/16 CPUs, 0/0 GPUs\nResult logdir: /tmp/ray/session_2025-07-11_10-16-09_200164_18044/artifacts/2025-07-11_10-16-11/TorchTrainer_2025-07-11_10-16-11/driver_artifacts\nNumber of trials: 1/1 (1 RUNNING)\n\n\n",
+      "cell_type": "output",
+      "is_output": true
+    },
+    "1f7490f8-7591-41eb-8a31-16539f2b4b83": {
+      "source": "2025-07-11 10:16:49,397\tINFO tune.py:1009 -- Wrote the latest version of all result files and experiment state to '/Users/maxpumperla/ray_results/TorchTrainer_2025-07-11_10-16-11' in 0.0033s.\n2025-07-11 10:16:49,400\tINFO tune.py:1041 -- Total run time: 38.31 seconds (38.29 seconds for the tuning loop).\n",
+      "cell_type": "output",
+      "is_output": true
+    },
+    "331de33c-80e4-4f65-b8f0-c521154b2bbb": {
+      "source": "Trial TorchTrainer_4dd7a_00000 completed. Last result: \n== Status ==\nCurrent time: 2025-07-11 10:16:49 (running for 00:00:38.30)\nUsing FIFO scheduling algorithm.\nLogical resource usage: 3.0/16 CPUs, 0/0 GPUs\nResult logdir: /tmp/ray/session_2025-07-11_10-16-09_200164_18044/artifacts/2025-07-11_10-16-11/TorchTrainer_2025-07-11_10-16-11/driver_artifacts\nNumber of trials: 1/1 (1 TERMINATED)\n\n\nTraining result: Result(\n  metrics={},\n  path='/Users/maxpumperla/ray_results/TorchTrainer_2025-07-11_10-16-11/TorchTrainer_4dd7a_00000_0_2025-07-11_10-16-11',\n  filesystem='local',\n  checkpoint=None\n)\n",
+      "cell_type": "output",
+      "is_output": true
+    },
+    "088e15d9-62ad-48d0-a438-acf6f4dcf239": {
+      "source": "### 7. Shutdown Ray Cluster",
+      "cell_type": "markdown",
+      "is_output": false
+    },
+    "d4003e52-2b62-4941-b1b4-be111374964e": {
+      "source": "# Shutdown Ray after training is complete\nray.shutdown()",
+      "cell_type": "code",
+      "is_output": false
+    },
+    "3e1670d8-11e1-4f3f-8ba0-c8079fb99af1": {
+      "source": "### 8. Summary\nThis notebook demonstrates how to use Ray Train, PyTorch, and Hugging Face Transformers to perform distributed training of a BERT model for sequence classification on the Yelp review dataset. It covers data loading, tokenization, model setup, and distributed training configuration, allowing you to efficiently train large models across multiple CPUs or GPUs. The notebook is designed to be accessible for machine learning engineers who want to learn scalable deep learning workflows using modern Python tools.",
+      "cell_type": "markdown",
+      "is_output": false
+    },
+    "63fb2fb2-66c9-4880-81d3-d16b0d8a7baa": {
+      "source": "",
+      "cell_type": "code",
+      "is_output": false
+    }
+  },
+  "cuts": [
+    {
+      "type": "cut",
+      "cell_id": "ce8593c8-fff5-42f5-9805-9d6dd4891de9",
+      "line_index": 20,
+      "id": "cut-ce8593c8-fff5-42f5-9805-9d6dd4891de9-655022"
+    },
+    {
+      "type": "cut",
+      "cell_id": "22585009-6dff-4def-a275-b56929b87cdb",
+      "line_index": 10,
+      "id": "cut-22585009-6dff-4def-a275-b56929b87cdb-459000"
+    },
+    {
+      "type": "cut",
+      "cell_id": "1eef119d-8785-45d2-89fb-7042dee915a0",
+      "line_index": 16,
+      "id": "cut-1eef119d-8785-45d2-89fb-7042dee915a0-996181"
+    },
+    {
+      "type": "cut",
+      "cell_id": "1eef119d-8785-45d2-89fb-7042dee915a0",
+      "line_index": 31,
+      "id": "cut-1eef119d-8785-45d2-89fb-7042dee915a0-169081"
+    },
+    {
+      "type": "cut",
+      "cell_id": "1eef119d-8785-45d2-89fb-7042dee915a0",
+      "line_index": 50,
+      "id": "cut-1eef119d-8785-45d2-89fb-7042dee915a0-447938"
+    },
+    {
+      "type": "cut",
+      "cell_id": "1eef119d-8785-45d2-89fb-7042dee915a0",
+      "line_index": 63,
+      "id": "cut-1eef119d-8785-45d2-89fb-7042dee915a0-583004"
+    },
+    {
+      "type": "cut",
+      "cell_id": "1eef119d-8785-45d2-89fb-7042dee915a0",
+      "line_index": 78,
+      "id": "cut-1eef119d-8785-45d2-89fb-7042dee915a0-235486"
+    },
+    {
+      "type": "cut",
+      "cell_id": "1eef119d-8785-45d2-89fb-7042dee915a0",
+      "line_index": 95,
+      "id": "cut-1eef119d-8785-45d2-89fb-7042dee915a0-945710"
+    },
+    {
+      "type": "cut",
+      "cell_id": "1eef119d-8785-45d2-89fb-7042dee915a0",
+      "line_index": 109,
+      "id": "cut-1eef119d-8785-45d2-89fb-7042dee915a0-787608"
+    },
+    {
+      "type": "cut",
+      "cell_id": "ca26285c-37c9-4a73-acb0-435fc99e2de1",
+      "line_index": 18,
+      "id": "cut-ca26285c-37c9-4a73-acb0-435fc99e2de1-542407"
+    }
+  ],
+  "merges": [],
+  "hidden_raw_scenes": [
+    "7efb9312-bf0e-4eb3-8fd6-128dc9ec0638-before-null-after-null",
+    "f763fcd0-3e61-4d25-b4f4-6602387735f8-before-null-after-null",
+    "1d34b3b5-5e07-4ef7-805b-ef9d2377f8fe-before-null-after-null",
+    "9599c2a3-ea75-4a54-8c71-45d6d77dbf98-before-null-after-null",
+    "7ee34075-cbf2-449d-b5b5-16e4ee98f162-before-null-after-null",
+    "2fec7503-264d-40eb-90a6-1011a1cfc500-before-null-after-null",
+    "1f7490f8-7591-41eb-8a31-16539f2b4b83-before-null-after-null",
+    "331de33c-80e4-4f65-b8f0-c521154b2bbb-before-null-after-null"
+  ],
+  "hidden_lines": {},
+  "inserts": [],
+  "cell_titles": {},
+  "insert_titles": {},
+  "cell_limits": {},
+  "lesson_cuts": [
+    {
+      "type": "lesson",
+      "id": "c733dd12-5cbd-423e-87e5-3f33d49a1c90-before-null-after-null"
+    },
+    {
+      "type": "lesson",
+      "id": "835f5d34-baf6-4f4a-81be-9846d858bbe2-before-null-after-null"
+    },
+    {
+      "type": "lesson",
+      "id": "c2c14721-9497-44d2-8b32-fe961b4c742e-before-null-after-null"
+    },
+    {
+      "type": "lesson",
+      "id": "7ef466d5-a410-4691-b892-83ca88643b86-before-null-after-null"
+    },
+    {
+      "type": "lesson",
+      "id": "7563e1c1-01db-43df-8d8d-ad29a598b65b-before-null-after-null"
+    }
+  ],
+  "lesson_titles": {
+    "0": "Distributed training with Ray Train, PyTorch and Hugging Face",
+    "1": "1. Architecture",
+    "2": "3. Metrics Setup",
+    "3": "4. Training function per worker",
+    "4": "5. Main Training Function",
+    "5": "6. Start Training"
+  },
+  "scene_notes": {},
+  "raw_scenes": [
+    {
+      "index": 0,
+      "name": "raw_scene_0",
+      "id": "2bb7130e-6914-4a69-8d6f-a54fec43d2b6-before-null-after-null",
+      "data": {
+        "original_cell_id": "2bb7130e-6914-4a69-8d6f-a54fec43d2b6",
+        "origin_file": "04_Ray_Train_distributed_training.ipynb",
+        "cut_before": null,
+        "cut_after": null,
+        "range": {
+          "start_line": 1,
+          "end_line": 2
+        }
+      },
+      "type": "markdown"
+    },
+    {
+      "index": 1,
+      "name": "raw_scene_1",
+      "id": "535f298d-bfb8-41e0-8963-40b22f61f56e-before-null-after-null",
+      "data": {
+        "original_cell_id": "535f298d-bfb8-41e0-8963-40b22f61f56e",
+        "origin_file": "04_Ray_Train_distributed_training.ipynb",
+        "cut_before": null,
+        "cut_after": null,
+        "range": {
+          "start_line": 1,
+          "end_line": 3
+        }
+      },
+      "type": "markdown"
+    },
+    {
+      "index": 2,
+      "name": "raw_scene_2",
+      "id": "30605f4e-3931-459a-8de7-d465fee04769-before-null-after-null",
+      "data": {
+        "original_cell_id": "30605f4e-3931-459a-8de7-d465fee04769",
+        "origin_file": "04_Ray_Train_distributed_training.ipynb",
+        "cut_before": null,
+        "cut_after": null,
+        "range": {
+          "start_line": 1,
+          "end_line": 10
+        }
+      },
+      "type": "markdown"
+    },
+    {
+      "index": 3,
+      "name": "raw_scene_3",
+      "id": "ce8593c8-fff5-42f5-9805-9d6dd4891de9-before-null-after-655022",
+      "data": {
+        "original_cell_id": "ce8593c8-fff5-42f5-9805-9d6dd4891de9",
+        "origin_file": "04_Ray_Train_distributed_training.ipynb",
+        "cut_before": null,
+        "cut_after": "cut-ce8593c8-fff5-42f5-9805-9d6dd4891de9-655022",
+        "range": {
+          "start_line": 1,
+          "end_line": 20
+        }
+      },
+      "type": "markdown"
+    },
+    {
+      "index": 4,
+      "name": "raw_scene_4",
+      "id": "ce8593c8-fff5-42f5-9805-9d6dd4891de9-before-655022-after-null",
+      "data": {
+        "original_cell_id": "ce8593c8-fff5-42f5-9805-9d6dd4891de9",
+        "origin_file": "04_Ray_Train_distributed_training.ipynb",
+        "cut_before": "cut-ce8593c8-fff5-42f5-9805-9d6dd4891de9-655022",
+        "cut_after": null,
+        "range": {
+          "start_line": 21,
+          "end_line": 36
+        }
+      },
+      "type": "markdown"
+    },
+    {
+      "index": 5,
+      "name": "raw_scene_5",
+      "id": "c733dd12-5cbd-423e-87e5-3f33d49a1c90-before-null-after-null",
+      "data": {
+        "original_cell_id": "c733dd12-5cbd-423e-87e5-3f33d49a1c90",
+        "origin_file": "04_Ray_Train_distributed_training.ipynb",
+        "cut_before": null,
+        "cut_after": null,
+        "range": {
+          "start_line": 1,
+          "end_line": 1
+        }
+      },
+      "type": "markdown"
+    },
+    {
+      "index": 6,
+      "name": "raw_scene_6",
+      "id": "5f0d5b7e-69e7-4a73-9afa-e6e335584c16-before-null-after-null",
+      "data": {
+        "original_cell_id": "5f0d5b7e-69e7-4a73-9afa-e6e335584c16",
+        "origin_file": "04_Ray_Train_distributed_training.ipynb",
+        "cut_before": null,
+        "cut_after": null,
+        "range": {
+          "start_line": 1,
+          "end_line": 1
+        }
+      },
+      "type": "markdown"
+    },
+    {
+      "index": 7,
+      "name": "raw_scene_7",
+      "id": "71c36c0d-ed5e-4041-ac5d-722c12b32c59-before-null-after-null",
+      "data": {
+        "original_cell_id": "71c36c0d-ed5e-4041-ac5d-722c12b32c59",
+        "origin_file": "04_Ray_Train_distributed_training.ipynb",
+        "cut_before": null,
+        "cut_after": null,
+        "range": {
+          "start_line": 1,
+          "end_line": 1
+        }
+      },
+      "type": "markdown"
+    },
+    {
+      "index": 8,
+      "name": "raw_scene_8",
+      "id": "22585009-6dff-4def-a275-b56929b87cdb-before-null-after-459000",
+      "data": {
+        "original_cell_id": "22585009-6dff-4def-a275-b56929b87cdb",
+        "origin_file": "04_Ray_Train_distributed_training.ipynb",
+        "cut_before": null,
+        "cut_after": "cut-22585009-6dff-4def-a275-b56929b87cdb-459000",
+        "range": {
+          "start_line": 1,
+          "end_line": 10
+        }
+      },
+      "type": "code"
+    },
+    {
+      "index": 9,
+      "name": "raw_scene_9",
+      "id": "22585009-6dff-4def-a275-b56929b87cdb-before-459000-after-null",
+      "data": {
+        "original_cell_id": "22585009-6dff-4def-a275-b56929b87cdb",
+        "origin_file": "04_Ray_Train_distributed_training.ipynb",
+        "cut_before": "cut-22585009-6dff-4def-a275-b56929b87cdb-459000",
+        "cut_after": null,
+        "range": {
+          "start_line": 11,
+          "end_line": 27
+        }
+      },
+      "type": "code"
+    },
+    {
+      "index": 10,
+      "name": "raw_scene_10",
+      "id": "835f5d34-baf6-4f4a-81be-9846d858bbe2-before-null-after-null",
+      "data": {
+        "original_cell_id": "835f5d34-baf6-4f4a-81be-9846d858bbe2",
+        "origin_file": "04_Ray_Train_distributed_training.ipynb",
+        "cut_before": null,
+        "cut_after": null,
+        "range": {
+          "start_line": 1,
+          "end_line": 2
+        }
+      },
+      "type": "markdown"
+    },
+    {
+      "index": 11,
+      "name": "raw_scene_11",
+      "id": "16891880-871e-4875-95cb-03fb6545d0dc-before-null-after-null",
+      "data": {
+        "original_cell_id": "16891880-871e-4875-95cb-03fb6545d0dc",
+        "origin_file": "04_Ray_Train_distributed_training.ipynb",
+        "cut_before": null,
+        "cut_after": null,
+        "range": {
+          "start_line": 1,
+          "end_line": 9
+        }
+      },
+      "type": "code"
+    },
+    {
+      "index": 12,
+      "name": "raw_scene_12",
+      "id": "c2c14721-9497-44d2-8b32-fe961b4c742e-before-null-after-null",
+      "data": {
+        "original_cell_id": "c2c14721-9497-44d2-8b32-fe961b4c742e",
+        "origin_file": "04_Ray_Train_distributed_training.ipynb",
+        "cut_before": null,
+        "cut_after": null,
+        "range": {
+          "start_line": 1,
+          "end_line": 9
+        }
+      },
+      "type": "markdown"
+    },
+    {
+      "index": 13,
+      "name": "raw_scene_13",
+      "id": "17af6988-f571-4472-8035-f725d97d69ee-before-null-after-null",
+      "data": {
+        "original_cell_id": "17af6988-f571-4472-8035-f725d97d69ee",
+        "origin_file": "04_Ray_Train_distributed_training.ipynb",
+        "cut_before": null,
+        "cut_after": null,
+        "range": {
+          "start_line": 1,
+          "end_line": 3
+        }
+      },
+      "type": "markdown"
+    },
+    {
+      "index": 14,
+      "name": "raw_scene_14",
+      "id": "1eef119d-8785-45d2-89fb-7042dee915a0-before-null-after-996181",
+      "data": {
+        "original_cell_id": "1eef119d-8785-45d2-89fb-7042dee915a0",
+        "origin_file": "04_Ray_Train_distributed_training.ipynb",
+        "cut_before": null,
+        "cut_after": "cut-1eef119d-8785-45d2-89fb-7042dee915a0-996181",
+        "range": {
+          "start_line": 1,
+          "end_line": 16
+        }
+      },
+      "type": "code"
+    },
+    {
+      "index": 15,
+      "name": "raw_scene_15",
+      "id": "1eef119d-8785-45d2-89fb-7042dee915a0-before-996181-after-169081",
+      "data": {
+        "original_cell_id": "1eef119d-8785-45d2-89fb-7042dee915a0",
+        "origin_file": "04_Ray_Train_distributed_training.ipynb",
+        "cut_before": "cut-1eef119d-8785-45d2-89fb-7042dee915a0-996181",
+        "cut_after": "cut-1eef119d-8785-45d2-89fb-7042dee915a0-169081",
+        "range": {
+          "start_line": 17,
+          "end_line": 31
+        }
+      },
+      "type": "code"
+    },
+    {
+      "index": 16,
+      "name": "raw_scene_16",
+      "id": "1eef119d-8785-45d2-89fb-7042dee915a0-before-169081-after-447938",
+      "data": {
+        "original_cell_id": "1eef119d-8785-45d2-89fb-7042dee915a0",
+        "origin_file": "04_Ray_Train_distributed_training.ipynb",
+        "cut_before": "cut-1eef119d-8785-45d2-89fb-7042dee915a0-169081",
+        "cut_after": "cut-1eef119d-8785-45d2-89fb-7042dee915a0-447938",
+        "range": {
+          "start_line": 32,
+          "end_line": 50
+        }
+      },
+      "type": "code"
+    },
+    {
+      "index": 17,
+      "name": "raw_scene_17",
+      "id": "1eef119d-8785-45d2-89fb-7042dee915a0-before-447938-after-583004",
+      "data": {
+        "original_cell_id": "1eef119d-8785-45d2-89fb-7042dee915a0",
+        "origin_file": "04_Ray_Train_distributed_training.ipynb",
+        "cut_before": "cut-1eef119d-8785-45d2-89fb-7042dee915a0-447938",
+        "cut_after": "cut-1eef119d-8785-45d2-89fb-7042dee915a0-583004",
+        "range": {
+          "start_line": 51,
+          "end_line": 63
+        }
+      },
+      "type": "code"
+    },
+    {
+      "index": 18,
+      "name": "raw_scene_18",
+      "id": "1eef119d-8785-45d2-89fb-7042dee915a0-before-583004-after-235486",
+      "data": {
+        "original_cell_id": "1eef119d-8785-45d2-89fb-7042dee915a0",
+        "origin_file": "04_Ray_Train_distributed_training.ipynb",
+        "cut_before": "cut-1eef119d-8785-45d2-89fb-7042dee915a0-583004",
+        "cut_after": "cut-1eef119d-8785-45d2-89fb-7042dee915a0-235486",
+        "range": {
+          "start_line": 64,
+          "end_line": 78
+        }
+      },
+      "type": "code"
+    },
+    {
+      "index": 19,
+      "name": "raw_scene_19",
+      "id": "1eef119d-8785-45d2-89fb-7042dee915a0-before-235486-after-945710",
+      "data": {
+        "original_cell_id": "1eef119d-8785-45d2-89fb-7042dee915a0",
+        "origin_file": "04_Ray_Train_distributed_training.ipynb",
+        "cut_before": "cut-1eef119d-8785-45d2-89fb-7042dee915a0-235486",
+        "cut_after": "cut-1eef119d-8785-45d2-89fb-7042dee915a0-945710",
+        "range": {
+          "start_line": 79,
+          "end_line": 95
+        }
+      },
+      "type": "code"
+    },
+    {
+      "index": 20,
+      "name": "raw_scene_20",
+      "id": "1eef119d-8785-45d2-89fb-7042dee915a0-before-945710-after-787608",
+      "data": {
+        "original_cell_id": "1eef119d-8785-45d2-89fb-7042dee915a0",
+        "origin_file": "04_Ray_Train_distributed_training.ipynb",
+        "cut_before": "cut-1eef119d-8785-45d2-89fb-7042dee915a0-945710",
+        "cut_after": "cut-1eef119d-8785-45d2-89fb-7042dee915a0-787608",
+        "range": {
+          "start_line": 96,
+          "end_line": 109
+        }
+      },
+      "type": "code"
+    },
+    {
+      "index": 21,
+      "name": "raw_scene_21",
+      "id": "1eef119d-8785-45d2-89fb-7042dee915a0-before-787608-after-null",
+      "data": {
+        "original_cell_id": "1eef119d-8785-45d2-89fb-7042dee915a0",
+        "origin_file": "04_Ray_Train_distributed_training.ipynb",
+        "cut_before": "cut-1eef119d-8785-45d2-89fb-7042dee915a0-787608",
+        "cut_after": null,
+        "range": {
+          "start_line": 110,
+          "end_line": 115
+        }
+      },
+      "type": "code"
+    },
+    {
+      "index": 22,
+      "name": "raw_scene_22",
+      "id": "7ef466d5-a410-4691-b892-83ca88643b86-before-null-after-null",
+      "data": {
+        "original_cell_id": "7ef466d5-a410-4691-b892-83ca88643b86",
+        "origin_file": "04_Ray_Train_distributed_training.ipynb",
+        "cut_before": null,
+        "cut_after": null,
+        "range": {
+          "start_line": 1,
+          "end_line": 13
+        }
+      },
+      "type": "markdown"
+    },
+    {
+      "index": 23,
+      "name": "raw_scene_23",
+      "id": "ca26285c-37c9-4a73-acb0-435fc99e2de1-before-null-after-542407",
+      "data": {
+        "original_cell_id": "ca26285c-37c9-4a73-acb0-435fc99e2de1",
+        "origin_file": "04_Ray_Train_distributed_training.ipynb",
+        "cut_before": null,
+        "cut_after": "cut-ca26285c-37c9-4a73-acb0-435fc99e2de1-542407",
+        "range": {
+          "start_line": 1,
+          "end_line": 18
+        }
+      },
+      "type": "code"
+    },
+    {
+      "index": 24,
+      "name": "raw_scene_24",
+      "id": "ca26285c-37c9-4a73-acb0-435fc99e2de1-before-542407-after-null",
+      "data": {
+        "original_cell_id": "ca26285c-37c9-4a73-acb0-435fc99e2de1",
+        "origin_file": "04_Ray_Train_distributed_training.ipynb",
+        "cut_before": "cut-ca26285c-37c9-4a73-acb0-435fc99e2de1-542407",
+        "cut_after": null,
+        "range": {
+          "start_line": 19,
+          "end_line": 36
+        }
+      },
+      "type": "code"
+    },
+    {
+      "index": 25,
+      "name": "raw_scene_25",
+      "id": "7563e1c1-01db-43df-8d8d-ad29a598b65b-before-null-after-null",
+      "data": {
+        "original_cell_id": "7563e1c1-01db-43df-8d8d-ad29a598b65b",
+        "origin_file": "04_Ray_Train_distributed_training.ipynb",
+        "cut_before": null,
+        "cut_after": null,
+        "range": {
+          "start_line": 1,
+          "end_line": 2
+        }
+      },
+      "type": "markdown"
+    },
+    {
+      "index": 26,
+      "name": "raw_scene_26",
+      "id": "92638c3b-26a9-4c03-8722-329e87f48cd0-before-null-after-null",
+      "data": {
+        "original_cell_id": "92638c3b-26a9-4c03-8722-329e87f48cd0",
+        "origin_file": "04_Ray_Train_distributed_training.ipynb",
+        "cut_before": null,
+        "cut_after": null,
+        "range": {
+          "start_line": 1,
+          "end_line": 3
+        }
+      },
+      "type": "code"
+    },
+    {
+      "index": 35,
+      "name": "raw_scene_35",
+      "id": "088e15d9-62ad-48d0-a438-acf6f4dcf239-before-null-after-null",
+      "data": {
+        "original_cell_id": "088e15d9-62ad-48d0-a438-acf6f4dcf239",
+        "origin_file": "04_Ray_Train_distributed_training.ipynb",
+        "cut_before": null,
+        "cut_after": null,
+        "range": {
+          "start_line": 1,
+          "end_line": 1
+        }
+      },
+      "type": "markdown"
+    },
+    {
+      "index": 36,
+      "name": "raw_scene_36",
+      "id": "d4003e52-2b62-4941-b1b4-be111374964e-before-null-after-null",
+      "data": {
+        "original_cell_id": "d4003e52-2b62-4941-b1b4-be111374964e",
+        "origin_file": "04_Ray_Train_distributed_training.ipynb",
+        "cut_before": null,
+        "cut_after": null,
+        "range": {
+          "start_line": 1,
+          "end_line": 2
+        }
+      },
+      "type": "code"
+    },
+    {
+      "index": 37,
+      "name": "raw_scene_37",
+      "id": "3e1670d8-11e1-4f3f-8ba0-c8079fb99af1-before-null-after-null",
+      "data": {
+        "original_cell_id": "3e1670d8-11e1-4f3f-8ba0-c8079fb99af1",
+        "origin_file": "04_Ray_Train_distributed_training.ipynb",
+        "cut_before": null,
+        "cut_after": null,
+        "range": {
+          "start_line": 1,
+          "end_line": 2
+        }
+      },
+      "type": "markdown"
+    },
+    {
+      "index": 38,
+      "name": "raw_scene_38",
+      "id": "63fb2fb2-66c9-4880-81d3-d16b0d8a7baa-before-null-after-null",
+      "data": {
+        "original_cell_id": "63fb2fb2-66c9-4880-81d3-d16b0d8a7baa",
+        "origin_file": "04_Ray_Train_distributed_training.ipynb",
+        "cut_before": null,
+        "cut_after": null,
+        "range": {
+          "start_line": 1,
+          "end_line": 1
+        }
+      },
+      "type": "code"
+    }
+  ],
+  "scenes": [
+    {
+      "index": 0,
+      "name": "scene_0",
+      "id": "2bb7130e-6914-4a69-8d6f-a54fec43d2b6-before-null-after-null",
+      "data": {
+        "0": {
+          "original_cell_id": "2bb7130e-6914-4a69-8d6f-a54fec43d2b6",
+          "origin_file": "04_Ray_Train_distributed_training.ipynb",
+          "range": {
+            "start_line": 1,
+            "end_line": 2
+          },
+          "raw_scene_id": "2bb7130e-6914-4a69-8d6f-a54fec43d2b6-before-null-after-null"
+        }
+      },
+      "type": "markdown",
+      "title": null
+    },
+    {
+      "index": 1,
+      "name": "scene_1",
+      "id": "535f298d-bfb8-41e0-8963-40b22f61f56e-before-null-after-null",
+      "data": {
+        "0": {
+          "original_cell_id": "535f298d-bfb8-41e0-8963-40b22f61f56e",
+          "origin_file": "04_Ray_Train_distributed_training.ipynb",
+          "range": {
+            "start_line": 1,
+            "end_line": 3
+          },
+          "raw_scene_id": "535f298d-bfb8-41e0-8963-40b22f61f56e-before-null-after-null"
+        }
+      },
+      "type": "markdown",
+      "title": null
+    },
+    {
+      "index": 2,
+      "name": "scene_2",
+      "id": "30605f4e-3931-459a-8de7-d465fee04769-before-null-after-null",
+      "data": {
+        "0": {
+          "original_cell_id": "30605f4e-3931-459a-8de7-d465fee04769",
+          "origin_file": "04_Ray_Train_distributed_training.ipynb",
+          "range": {
+            "start_line": 1,
+            "end_line": 10
+          },
+          "raw_scene_id": "30605f4e-3931-459a-8de7-d465fee04769-before-null-after-null"
+        }
+      },
+      "type": "markdown",
+      "title": null
+    },
+    {
+      "index": 3,
+      "name": "scene_3",
+      "id": "ce8593c8-fff5-42f5-9805-9d6dd4891de9-before-null-after-655022",
+      "data": {
+        "0": {
+          "original_cell_id": "ce8593c8-fff5-42f5-9805-9d6dd4891de9",
+          "origin_file": "04_Ray_Train_distributed_training.ipynb",
+          "range": {
+            "start_line": 1,
+            "end_line": 20
+          },
+          "raw_scene_id": "ce8593c8-fff5-42f5-9805-9d6dd4891de9-before-null-after-655022"
+        }
+      },
+      "type": "markdown",
+      "title": null
+    },
+    {
+      "index": 4,
+      "name": "scene_4",
+      "id": "ce8593c8-fff5-42f5-9805-9d6dd4891de9-before-655022-after-null",
+      "data": {
+        "0": {
+          "original_cell_id": "ce8593c8-fff5-42f5-9805-9d6dd4891de9",
+          "origin_file": "04_Ray_Train_distributed_training.ipynb",
+          "range": {
+            "start_line": 21,
+            "end_line": 36
+          },
+          "raw_scene_id": "ce8593c8-fff5-42f5-9805-9d6dd4891de9-before-655022-after-null"
+        }
+      },
+      "type": "markdown",
+      "title": null
+    },
+    {
+      "index": 5,
+      "name": "scene_5",
+      "id": "c733dd12-5cbd-423e-87e5-3f33d49a1c90-before-null-after-null",
+      "data": {
+        "0": {
+          "original_cell_id": "c733dd12-5cbd-423e-87e5-3f33d49a1c90",
+          "origin_file": "04_Ray_Train_distributed_training.ipynb",
+          "range": {
+            "start_line": 1,
+            "end_line": 1
+          },
+          "raw_scene_id": "c733dd12-5cbd-423e-87e5-3f33d49a1c90-before-null-after-null"
+        }
+      },
+      "type": "markdown",
+      "title": null
+    },
+    {
+      "index": 6,
+      "name": "scene_6",
+      "id": "5f0d5b7e-69e7-4a73-9afa-e6e335584c16-before-null-after-null",
+      "data": {
+        "0": {
+          "original_cell_id": "5f0d5b7e-69e7-4a73-9afa-e6e335584c16",
+          "origin_file": "04_Ray_Train_distributed_training.ipynb",
+          "range": {
+            "start_line": 1,
+            "end_line": 1
+          },
+          "raw_scene_id": "5f0d5b7e-69e7-4a73-9afa-e6e335584c16-before-null-after-null"
+        }
+      },
+      "type": "markdown",
+      "title": null
+    },
+    {
+      "index": 7,
+      "name": "scene_7",
+      "id": "71c36c0d-ed5e-4041-ac5d-722c12b32c59-before-null-after-null",
+      "data": {
+        "0": {
+          "original_cell_id": "71c36c0d-ed5e-4041-ac5d-722c12b32c59",
+          "origin_file": "04_Ray_Train_distributed_training.ipynb",
+          "range": {
+            "start_line": 1,
+            "end_line": 1
+          },
+          "raw_scene_id": "71c36c0d-ed5e-4041-ac5d-722c12b32c59-before-null-after-null"
+        }
+      },
+      "type": "markdown",
+      "title": null
+    },
+    {
+      "index": 8,
+      "name": "scene_8",
+      "id": "22585009-6dff-4def-a275-b56929b87cdb-before-null-after-459000",
+      "data": {
+        "0": {
+          "original_cell_id": "22585009-6dff-4def-a275-b56929b87cdb",
+          "origin_file": "04_Ray_Train_distributed_training.ipynb",
+          "range": {
+            "start_line": 1,
+            "end_line": 10
+          },
+          "raw_scene_id": "22585009-6dff-4def-a275-b56929b87cdb-before-null-after-459000"
+        }
+      },
+      "type": "code",
+      "title": null
+    },
+    {
+      "index": 9,
+      "name": "scene_9",
+      "id": "22585009-6dff-4def-a275-b56929b87cdb-before-459000-after-null",
+      "data": {
+        "0": {
+          "original_cell_id": "22585009-6dff-4def-a275-b56929b87cdb",
+          "origin_file": "04_Ray_Train_distributed_training.ipynb",
+          "range": {
+            "start_line": 11,
+            "end_line": 27
+          },
+          "raw_scene_id": "22585009-6dff-4def-a275-b56929b87cdb-before-459000-after-null"
+        }
+      },
+      "type": "code",
+      "title": null
+    },
+    {
+      "index": 10,
+      "name": "scene_10",
+      "id": "835f5d34-baf6-4f4a-81be-9846d858bbe2-before-null-after-null",
+      "data": {
+        "0": {
+          "original_cell_id": "835f5d34-baf6-4f4a-81be-9846d858bbe2",
+          "origin_file": "04_Ray_Train_distributed_training.ipynb",
+          "range": {
+            "start_line": 1,
+            "end_line": 2
+          },
+          "raw_scene_id": "835f5d34-baf6-4f4a-81be-9846d858bbe2-before-null-after-null"
+        }
+      },
+      "type": "markdown",
+      "title": null
+    },
+    {
+      "index": 11,
+      "name": "scene_11",
+      "id": "16891880-871e-4875-95cb-03fb6545d0dc-before-null-after-null",
+      "data": {
+        "0": {
+          "original_cell_id": "16891880-871e-4875-95cb-03fb6545d0dc",
+          "origin_file": "04_Ray_Train_distributed_training.ipynb",
+          "range": {
+            "start_line": 1,
+            "end_line": 9
+          },
+          "raw_scene_id": "16891880-871e-4875-95cb-03fb6545d0dc-before-null-after-null"
+        }
+      },
+      "type": "code",
+      "title": null
+    },
+    {
+      "index": 12,
+      "name": "scene_12",
+      "id": "c2c14721-9497-44d2-8b32-fe961b4c742e-before-null-after-null",
+      "data": {
+        "0": {
+          "original_cell_id": "c2c14721-9497-44d2-8b32-fe961b4c742e",
+          "origin_file": "04_Ray_Train_distributed_training.ipynb",
+          "range": {
+            "start_line": 1,
+            "end_line": 9
+          },
+          "raw_scene_id": "c2c14721-9497-44d2-8b32-fe961b4c742e-before-null-after-null"
+        }
+      },
+      "type": "markdown",
+      "title": null
+    },
+    {
+      "index": 13,
+      "name": "scene_13",
+      "id": "17af6988-f571-4472-8035-f725d97d69ee-before-null-after-null",
+      "data": {
+        "0": {
+          "original_cell_id": "17af6988-f571-4472-8035-f725d97d69ee",
+          "origin_file": "04_Ray_Train_distributed_training.ipynb",
+          "range": {
+            "start_line": 1,
+            "end_line": 3
+          },
+          "raw_scene_id": "17af6988-f571-4472-8035-f725d97d69ee-before-null-after-null"
+        }
+      },
+      "type": "markdown",
+      "title": null
+    },
+    {
+      "index": 14,
+      "name": "scene_14",
+      "id": "1eef119d-8785-45d2-89fb-7042dee915a0-before-null-after-996181",
+      "data": {
+        "0": {
+          "original_cell_id": "1eef119d-8785-45d2-89fb-7042dee915a0",
+          "origin_file": "04_Ray_Train_distributed_training.ipynb",
+          "range": {
+            "start_line": 1,
+            "end_line": 16
+          },
+          "raw_scene_id": "1eef119d-8785-45d2-89fb-7042dee915a0-before-null-after-996181"
+        }
+      },
+      "type": "code",
+      "title": null
+    },
+    {
+      "index": 15,
+      "name": "scene_15",
+      "id": "1eef119d-8785-45d2-89fb-7042dee915a0-before-996181-after-169081",
+      "data": {
+        "0": {
+          "original_cell_id": "1eef119d-8785-45d2-89fb-7042dee915a0",
+          "origin_file": "04_Ray_Train_distributed_training.ipynb",
+          "range": {
+            "start_line": 17,
+            "end_line": 31
+          },
+          "raw_scene_id": "1eef119d-8785-45d2-89fb-7042dee915a0-before-996181-after-169081"
+        }
+      },
+      "type": "code",
+      "title": null
+    },
+    {
+      "index": 16,
+      "name": "scene_16",
+      "id": "1eef119d-8785-45d2-89fb-7042dee915a0-before-169081-after-447938",
+      "data": {
+        "0": {
+          "original_cell_id": "1eef119d-8785-45d2-89fb-7042dee915a0",
+          "origin_file": "04_Ray_Train_distributed_training.ipynb",
+          "range": {
+            "start_line": 32,
+            "end_line": 50
+          },
+          "raw_scene_id": "1eef119d-8785-45d2-89fb-7042dee915a0-before-169081-after-447938"
+        }
+      },
+      "type": "code",
+      "title": null
+    },
+    {
+      "index": 17,
+      "name": "scene_17",
+      "id": "1eef119d-8785-45d2-89fb-7042dee915a0-before-447938-after-583004",
+      "data": {
+        "0": {
+          "original_cell_id": "1eef119d-8785-45d2-89fb-7042dee915a0",
+          "origin_file": "04_Ray_Train_distributed_training.ipynb",
+          "range": {
+            "start_line": 51,
+            "end_line": 63
+          },
+          "raw_scene_id": "1eef119d-8785-45d2-89fb-7042dee915a0-before-447938-after-583004"
+        }
+      },
+      "type": "code",
+      "title": null
+    },
+    {
+      "index": 18,
+      "name": "scene_18",
+      "id": "1eef119d-8785-45d2-89fb-7042dee915a0-before-583004-after-235486",
+      "data": {
+        "0": {
+          "original_cell_id": "1eef119d-8785-45d2-89fb-7042dee915a0",
+          "origin_file": "04_Ray_Train_distributed_training.ipynb",
+          "range": {
+            "start_line": 64,
+            "end_line": 78
+          },
+          "raw_scene_id": "1eef119d-8785-45d2-89fb-7042dee915a0-before-583004-after-235486"
+        }
+      },
+      "type": "code",
+      "title": null
+    },
+    {
+      "index": 19,
+      "name": "scene_19",
+      "id": "1eef119d-8785-45d2-89fb-7042dee915a0-before-235486-after-945710",
+      "data": {
+        "0": {
+          "original_cell_id": "1eef119d-8785-45d2-89fb-7042dee915a0",
+          "origin_file": "04_Ray_Train_distributed_training.ipynb",
+          "range": {
+            "start_line": 79,
+            "end_line": 95
+          },
+          "raw_scene_id": "1eef119d-8785-45d2-89fb-7042dee915a0-before-235486-after-945710"
+        }
+      },
+      "type": "code",
+      "title": null
+    },
+    {
+      "index": 20,
+      "name": "scene_20",
+      "id": "1eef119d-8785-45d2-89fb-7042dee915a0-before-945710-after-787608",
+      "data": {
+        "0": {
+          "original_cell_id": "1eef119d-8785-45d2-89fb-7042dee915a0",
+          "origin_file": "04_Ray_Train_distributed_training.ipynb",
+          "range": {
+            "start_line": 96,
+            "end_line": 109
+          },
+          "raw_scene_id": "1eef119d-8785-45d2-89fb-7042dee915a0-before-945710-after-787608"
+        }
+      },
+      "type": "code",
+      "title": null
+    },
+    {
+      "index": 21,
+      "name": "scene_21",
+      "id": "1eef119d-8785-45d2-89fb-7042dee915a0-before-787608-after-null",
+      "data": {
+        "0": {
+          "original_cell_id": "1eef119d-8785-45d2-89fb-7042dee915a0",
+          "origin_file": "04_Ray_Train_distributed_training.ipynb",
+          "range": {
+            "start_line": 110,
+            "end_line": 115
+          },
+          "raw_scene_id": "1eef119d-8785-45d2-89fb-7042dee915a0-before-787608-after-null"
+        }
+      },
+      "type": "code",
+      "title": null
+    },
+    {
+      "index": 22,
+      "name": "scene_22",
+      "id": "7ef466d5-a410-4691-b892-83ca88643b86-before-null-after-null",
+      "data": {
+        "0": {
+          "original_cell_id": "7ef466d5-a410-4691-b892-83ca88643b86",
+          "origin_file": "04_Ray_Train_distributed_training.ipynb",
+          "range": {
+            "start_line": 1,
+            "end_line": 13
+          },
+          "raw_scene_id": "7ef466d5-a410-4691-b892-83ca88643b86-before-null-after-null"
+        }
+      },
+      "type": "markdown",
+      "title": null
+    },
+    {
+      "index": 23,
+      "name": "scene_23",
+      "id": "ca26285c-37c9-4a73-acb0-435fc99e2de1-before-null-after-542407",
+      "data": {
+        "0": {
+          "original_cell_id": "ca26285c-37c9-4a73-acb0-435fc99e2de1",
+          "origin_file": "04_Ray_Train_distributed_training.ipynb",
+          "range": {
+            "start_line": 1,
+            "end_line": 18
+          },
+          "raw_scene_id": "ca26285c-37c9-4a73-acb0-435fc99e2de1-before-null-after-542407"
+        }
+      },
+      "type": "code",
+      "title": null
+    },
+    {
+      "index": 24,
+      "name": "scene_24",
+      "id": "ca26285c-37c9-4a73-acb0-435fc99e2de1-before-542407-after-null",
+      "data": {
+        "0": {
+          "original_cell_id": "ca26285c-37c9-4a73-acb0-435fc99e2de1",
+          "origin_file": "04_Ray_Train_distributed_training.ipynb",
+          "range": {
+            "start_line": 19,
+            "end_line": 36
+          },
+          "raw_scene_id": "ca26285c-37c9-4a73-acb0-435fc99e2de1-before-542407-after-null"
+        }
+      },
+      "type": "code",
+      "title": null
+    },
+    {
+      "index": 25,
+      "name": "scene_25",
+      "id": "7563e1c1-01db-43df-8d8d-ad29a598b65b-before-null-after-null",
+      "data": {
+        "0": {
+          "original_cell_id": "7563e1c1-01db-43df-8d8d-ad29a598b65b",
+          "origin_file": "04_Ray_Train_distributed_training.ipynb",
+          "range": {
+            "start_line": 1,
+            "end_line": 2
+          },
+          "raw_scene_id": "7563e1c1-01db-43df-8d8d-ad29a598b65b-before-null-after-null"
+        }
+      },
+      "type": "markdown",
+      "title": null
+    },
+    {
+      "index": 26,
+      "name": "scene_26",
+      "id": "92638c3b-26a9-4c03-8722-329e87f48cd0-before-null-after-null",
+      "data": {
+        "0": {
+          "original_cell_id": "92638c3b-26a9-4c03-8722-329e87f48cd0",
+          "origin_file": "04_Ray_Train_distributed_training.ipynb",
+          "range": {
+            "start_line": 1,
+            "end_line": 3
+          },
+          "raw_scene_id": "92638c3b-26a9-4c03-8722-329e87f48cd0-before-null-after-null"
+        }
+      },
+      "type": "code",
+      "title": null
+    },
+    {
+      "index": 27,
+      "name": "scene_27",
+      "id": "088e15d9-62ad-48d0-a438-acf6f4dcf239-before-null-after-null",
+      "data": {
+        "0": {
+          "original_cell_id": "088e15d9-62ad-48d0-a438-acf6f4dcf239",
+          "origin_file": "04_Ray_Train_distributed_training.ipynb",
+          "range": {
+            "start_line": 1,
+            "end_line": 1
+          },
+          "raw_scene_id": "088e15d9-62ad-48d0-a438-acf6f4dcf239-before-null-after-null"
+        }
+      },
+      "type": "markdown",
+      "title": null
+    },
+    {
+      "index": 28,
+      "name": "scene_28",
+      "id": "d4003e52-2b62-4941-b1b4-be111374964e-before-null-after-null",
+      "data": {
+        "0": {
+          "original_cell_id": "d4003e52-2b62-4941-b1b4-be111374964e",
+          "origin_file": "04_Ray_Train_distributed_training.ipynb",
+          "range": {
+            "start_line": 1,
+            "end_line": 2
+          },
+          "raw_scene_id": "d4003e52-2b62-4941-b1b4-be111374964e-before-null-after-null"
+        }
+      },
+      "type": "code",
+      "title": null
+    },
+    {
+      "index": 29,
+      "name": "scene_29",
+      "id": "3e1670d8-11e1-4f3f-8ba0-c8079fb99af1-before-null-after-null",
+      "data": {
+        "0": {
+          "original_cell_id": "3e1670d8-11e1-4f3f-8ba0-c8079fb99af1",
+          "origin_file": "04_Ray_Train_distributed_training.ipynb",
+          "range": {
+            "start_line": 1,
+            "end_line": 2
+          },
+          "raw_scene_id": "3e1670d8-11e1-4f3f-8ba0-c8079fb99af1-before-null-after-null"
+        }
+      },
+      "type": "markdown",
+      "title": null
+    },
+    {
+      "index": 30,
+      "name": "scene_30",
+      "id": "63fb2fb2-66c9-4880-81d3-d16b0d8a7baa-before-null-after-null",
+      "data": {
+        "0": {
+          "original_cell_id": "63fb2fb2-66c9-4880-81d3-d16b0d8a7baa",
+          "origin_file": "04_Ray_Train_distributed_training.ipynb",
+          "range": {
+            "start_line": 1,
+            "end_line": 1
+          },
+          "raw_scene_id": "63fb2fb2-66c9-4880-81d3-d16b0d8a7baa-before-null-after-null"
+        }
+      },
+      "type": "code",
+      "title": null
+    }
+  ],
+  "creation_date": "2026-01-28T14:16:56.136Z",
+  "updated_date": "2026-01-28T14:16:58.226Z",
+  "version": "2.0"
+}

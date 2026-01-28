@@ -1,0 +1,48 @@
+00_workload:
+  title: Workload
+  description: In this module, you’ll deploy a Hugging Face sentiment model as a scalable
+    online inference service using Ray Serve with a FastAPI HTTP endpoint. You’ll
+    learn how to run and scale the deployment with replicas, send test client requests,
+    and properly shut down the Serve app and Ray cluster.
+  sources:
+  - 03_Ray_Serve_online_serving.ipynb
+  lessons:
+    00_lesson:
+      title: Online Model Serving with Ray Serve
+      description: Learn how to deploy and scale an online machine learning inference
+        API using Ray Serve, including building a FastAPI endpoint to handle HTTP
+        requests. You’ll also simulate client traffic to test the service and then
+        cleanly shut down the Serve app and Ray cluster.
+    01_lesson:
+      title: Architecture Overview
+      description: Learn the high-level architecture of a Ray Serve application and
+        how its components fit together. You’ll also set up the core dependencies—Ray
+        Serve, FastAPI, and Hugging Face Transformers—to build a model-backed web
+        service.
+    02_lesson:
+      title: Building a FastAPI Web Service and Deploying a Model
+      description: In this lesson, you’ll build a FastAPI web service that accepts
+        HTTP requests and serves real-time predictions from a loaded sentiment model.
+        You’ll also deploy the model with Ray Serve using `@serve.deployment` and
+        `@serve.ingress`, configuring replicas for scalable, load-balanced inference.
+    03_lesson:
+      title: Deploying Our Model and Testing it
+      description: In this lesson, you’ll deploy your sentiment analysis model with
+        Ray Serve and expose it as an HTTP endpoint. You’ll then use the `requests`
+        library to send test queries to `/predict` and validate the returned sentiment
+        results (and see how input text is handled/truncated).
+    04_lesson:
+      title: Shutdown and Summary
+      description: Learn how to properly shut down Ray Serve deployments and the underlying
+        Ray cluster using `serve.shutdown()` and `ray.shutdown()`. You’ll also recap
+        how the notebook deployed and scaled a Hugging Face sentiment analysis model
+        with Ray Serve and FastAPI using replicas and autoscaling concepts.
+    05_lesson:
+      title: Lesson 5
+      description: ''
+    06_lesson:
+      title: Lesson 6
+      description: ''
+    07_lesson:
+      title: Lesson 7
+      description: ''

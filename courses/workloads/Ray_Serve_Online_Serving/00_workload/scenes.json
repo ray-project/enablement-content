@@ -1,0 +1,1239 @@
+{
+  "notebook_path": "03_Ray_Serve_online_serving.ipynb",
+  "notebook_hash": "9297d8540983f8bf",
+  "cells": {
+    "b94b0c6e-3392-4ad6-8ec0-2b3669d6c669": {
+      "source": "# Online Model Serving with Ray Serve\n© 2025, Anyscale. All Rights Reserved",
+      "cell_type": "markdown",
+      "is_output": false
+    },
+    "c4a9f6e5-af6d-4aaa-93cd-79ac2959d682": {
+      "source": "💻 **Launch Locally**: You can run this notebook locally.\n\n🚀 **Launch on Cloud**: Think about running this notebook on a Ray Cluster (Click [here](http://console.anyscale.com/register) to easily start a Ray cluster on Anyscale)",
+      "cell_type": "markdown",
+      "is_output": false
+    },
+    "d5207a6a-b1ca-465c-95fd-a36d2ba38868": {
+      "source": "Model serving is the process of deploying machine learning models to production so that they can be accessed and \nused by applications or users. It involves creating an API or interface that allows users to send requests to the model\nand receive predictions in response. There are several libraries and frameworks available for model serving, \neach with its own features and capabilities. In this notebook, we showcase Ray Serve and FastAPI to deploy a sentiment analysis\nmachine learning (ML) model.",
+      "cell_type": "markdown",
+      "is_output": false
+    },
+    "70b894b6-d2e2-460d-a3ef-fad22a710bbf": {
+      "source": "\n### What is Ray Serve?\nRay Serve is a scalable model serving library that allows you to deploy and manage machine learning models in production.\nWith Ray Serve, you can easily create a scalable and distributed serving architecture that\ncan handle high traffic and large workloads. It is built on top of Ray, a distributed computing framework\nthat allows you to run Python code in parallel across multiple machines. \nRay Serve provides a simple API for deploying and managing models, as well as features like autoscaling,\nload balancing, and versioning.\n\nRay Serve is designed to be easy to use and integrate with existing machine learning workflows.\nIt supports a wide range of machine learning frameworks, including TensorFlow, PyTorch, and Scikit-learn.\nRay Serve also provides a simple way to deploy models as REST APIs, using FastAPI,\nmaking it easy to integrate with web applications and other services.\n\nMore information: https://docs.ray.io/en/latest/serve/index.html\n\n\n### Why not use just FastAPI or Flask?\nWe could have simply used FastAPI or Flask to create a REST API for the model,\nbut Ray Serve provides additional features like autoscaling and load balancing that \nmake it a better choice for production deployments. Ray Serve also allows you to easily\ndeploy multiple models and manage their versions, which can be useful in a production environment \nwhere you may need to deploy multiple models or update existing ones.\"\"\"",
+      "cell_type": "markdown",
+      "is_output": false
+    },
+    "45423b5c-43ef-4c33-b30a-391f25f9d776": {
+      "source": "### Outline\n<div class=\"alert alert-block alert-info\">\n<ul>\n    <li>Architecture\n    <li>Import Libraries\n    <li>FastAPI service to accept HTTP requests and scaling with Ray Serve\n    <li>Simulate Client: Send test requests\n    <li>Shutdown the Serve app and the ray cluster\n</ul>\n</div>",
+      "cell_type": "markdown",
+      "is_output": false
+    },
+    "7aec1dd2-e4f8-4183-a635-22295844f3c1": {
+      "source": "## Architecture",
+      "cell_type": "markdown",
+      "is_output": false
+    },
+    "799c075a-fed4-4791-86e2-ed4f77998ef7": {
+      "source": "![Architecture Diagram](https://lz-public-demo.s3.us-east-1.amazonaws.com/anyscale101/01_examples/03_Ray_Serve_architecture.svg?sanitize=true)",
+      "cell_type": "markdown",
+      "is_output": false
+    },
+    "54649951-08b6-4d4e-a53f-22d50b89f398": {
+      "source": "### Import libraries\nIn addition to ray and serve, we also import FastAPI to create webservice and Hugging Face transformers to download ML models.",
+      "cell_type": "markdown",
+      "is_output": false
+    },
+    "133584bc-9007-47c1-8045-f91f0deb09f1": {
+      "source": "# Import ray serve and FastAPI libraries\nimport ray\nfrom ray import serve\nfrom fastapi import FastAPI\n\n# library for pre-trained models\nfrom transformers import pipeline",
+      "cell_type": "code",
+      "is_output": false
+    },
+    "dc87c5e3-b907-41e9-bb14-d252c23eb776": {
+      "source": "## FastAPI webservice and deploy a model\nFastAPI is used to create a webservice 'app' to accept HTTP requests.\n\nMySentimentModel class loads the ML model and defines *predict* function for online inference. @serve.deployment decorator defines the Ray Serve deployment.\n\n*@app.get()* is used to create a GET '/predict' route. Similarly, @app.post() can be used POST requests. See https://docs.ray.io/en/latest/serve/http-guide.html for more details.\n\nIn this example, *application_logic()* function is used to define a sample transformation or business logic that can be applied before sending the input to the ML model for inference. See inline comments for further explanation.\n\n### Scaling deployment\n*num_replicas* parameter sets the number of instances of the deployment. FastAPI and RayServe automatically load balances to send requests to each instance. There are more options to set the *accelerator_type* to GPU and even use fractional GPUs. See configuration options here: https://docs.ray.io/en/latest/serve/configure-serve-deployment.html .",
+      "cell_type": "markdown",
+      "is_output": false
+    },
+    "a882636d-bb42-4a38-bb74-0bde8e297cc5": {
+      "source": "\n# Define a simple FastAPI app\napp = FastAPI()\n\n# Define a Ray Serve deployment\n# This decorator registers the class as a Ray Serve deployment\n@serve.deployment(num_replicas=2) # num_replicas specifies the number of replicas for load balancing\n@serve.ingress(app) # This decorator allows the FastAPI app to be served by Ray Serve\nclass MySentimentModel:\n    def __init__(self):\n        # Load a pre-trained sentiment analysis model\n        self.model = pipeline(\"sentiment-analysis\",\n                              model=\"distilbert-base-uncased-finetuned-sst-2-english\")\n\n    # Define any necessary application logic or transformation logic\n    def application_logic(self, text):\n        \"\"\"        Apply any necessary application logic to the input text.\n        \"\"\"\n        # simple application logic: truncate text if it exceeds a certain length\n        if len(text) > 50:\n            return text[:50].lower()  # Truncate and convert to lowercase\n        else:\n            return text.lower()\n        \n    @app.get(\"/predict\") # Define an endpoint for predictions\n    def predict(self, text: str):\n        \"\"\"        Predict sentiment for the given text.\n        \"\"\"\n        # Define any necessary application logic or transformation logic\n        text = self.application_logic(text) # Apply any necessary application logic to the input text\n\n        # Use the model to make a prediction\n        result = self.model(text)\n        return {\"text\": text, \"sentiment\": result}\n \n\n",
+      "cell_type": "code",
+      "is_output": false
+    },
+    "4ef74078-3d52-4d40-b8ac-ed858e946bfe": {
+      "source": "\n ### Deploy the model",
+      "cell_type": "markdown",
+      "is_output": false
+    },
+    "3d435b5e-679f-49c9-9188-6ba392118c5a": {
+      "source": "\nserve.run(MySentimentModel.bind()) # Bind the deployment to the Ray Serve runtime\n",
+      "cell_type": "code",
+      "is_output": false
+    },
+    "8b22dc6c-627e-4191-a1fc-57512a1e0916": {
+      "source": "2025-07-11 09:16:58,624\tINFO worker.py:1908 -- Started a local Ray instance. View the dashboard at \u001b[1m\u001b[32mhttp://127.0.0.1:8265 \u001b[39m\u001b[22m\n\u001b[36m(ProxyActor pid=56603)\u001b[0m INFO 2025-07-11 09:16:59,927 proxy 127.0.0.1 -- Proxy starting on node c2986ec5ee9361515a52f3c506843d5d247ffc6732250203b8a47f21 (HTTP port: 8000).\n\u001b[36m(ProxyActor pid=56603)\u001b[0m INFO 2025-07-11 09:16:59,946 proxy 127.0.0.1 -- Got updated endpoints: {}.\nINFO 2025-07-11 09:16:59,975 serve 18071 -- Started Serve in namespace \"serve\".\n\u001b[36m(ServeController pid=56591)\u001b[0m INFO 2025-07-11 09:17:00,075 controller 56591 -- Deploying new version of Deployment(name='MySentimentModel', app='default') (initial target replicas: 2).\n\u001b[36m(ServeController pid=56591)\u001b[0m INFO 2025-07-11 09:17:00,178 controller 56591 -- Adding 2 replicas to Deployment(name='MySentimentModel', app='default').\n\u001b[36m(ProxyActor pid=56603)\u001b[0m INFO 2025-07-11 09:17:00,076 proxy 127.0.0.1 -- Got updated endpoints: {Deployment(name='MySentimentModel', app='default'): EndpointInfo(route='/', app_is_cross_language=False)}.\n\u001b[36m(ProxyActor pid=56603)\u001b[0m INFO 2025-07-11 09:17:00,080 proxy 127.0.0.1 -- Started <ray.serve._private.router.SharedRouterLongPollClient object at 0x169597d10>.\n\u001b[36m(ServeReplica:default:MySentimentModel pid=56595)\u001b[0m Device set to use mps:0\nINFO 2025-07-11 09:17:05,114 serve 18071 -- Application 'default' is ready at http://127.0.0.1:8000/.\nINFO 2025-07-11 09:17:05,120 serve 18071 -- Started <ray.serve._private.router.SharedRouterLongPollClient object at 0x337673dd0>.\n",
+      "cell_type": "output",
+      "is_output": true
+    },
+    "0a9d77e2-bd6f-4a27-82dc-8c7468b5206b": {
+      "source": "DeploymentHandle(deployment='MySentimentModel')",
+      "cell_type": "output",
+      "is_output": true
+    },
+    "49fb4964-193f-4f9c-b08b-861c9e36c10c": {
+      "source": "\u001b[36m(ServeReplica:default:MySentimentModel pid=56599)\u001b[0m INFO 2025-07-11 09:20:39,996 default_MySentimentModel kcd1ofsq 1d920c68-1c59-4e2e-a64c-04f87d31bab7 -- GET /predict 200 128.0ms\n\u001b[36m(ServeReplica:default:MySentimentModel pid=56595)\u001b[0m INFO 2025-07-11 09:21:11,350 default_MySentimentModel t4o4t2pu dda6dadc-f201-421d-9bbc-638d92b9f065 -- GET /predict 200 543.2ms\n\u001b[36m(ServeReplica:default:MySentimentModel pid=56599)\u001b[0m INFO 2025-07-11 09:21:15,969 default_MySentimentModel kcd1ofsq e3611603-54d1-491a-8b05-1f693f413243 -- GET /predict 200 36.5ms\n\u001b[36m(ServeReplica:default:MySentimentModel pid=56599)\u001b[0m INFO 2025-07-11 09:22:16,285 default_MySentimentModel kcd1ofsq 5be0e806-0bd5-4992-b15d-c59fd52e6195 -- GET /predict 200 422.7ms\n\u001b[36m(ServeReplica:default:MySentimentModel pid=56599)\u001b[0m INFO 2025-07-11 09:22:58,953 default_MySentimentModel kcd1ofsq 8890c548-abf6-49b2-b923-b525fcc403da -- GET /predict 200 76.5ms\n\u001b[36m(ServeController pid=56591)\u001b[0m INFO 2025-07-11 09:23:20,248 controller 56591 -- Removing 2 replicas from Deployment(name='MySentimentModel', app='default').\n\u001b[36m(ServeController pid=56591)\u001b[0m INFO 2025-07-11 09:23:22,283 controller 56591 -- Replica(id='t4o4t2pu', deployment='MySentimentModel', app='default') is stopped.\n\u001b[36m(ServeController pid=56591)\u001b[0m INFO 2025-07-11 09:23:22,283 controller 56591 -- Replica(id='kcd1ofsq', deployment='MySentimentModel', app='default') is stopped.\n",
+      "cell_type": "output",
+      "is_output": true
+    },
+    "37629e39-6352-4f32-9377-7a6fa92d2030": {
+      "source": "## Simulate Client: Send test requests\n\nWe use *requests* library to send HTTP requests to the deployed model.\n\nNote: if you encounter any errors with serve not able to start, most likely it is due to previous instance of serve not being shutdown properly. Restart the notebook or see towards the end of notebook to see how to gracefully shutdown ray serve and the ray cluster.",
+      "cell_type": "markdown",
+      "is_output": false
+    },
+    "76547e4b-1f1e-4da3-8a66-ccc930d934dc": {
+      "source": "import requests # used to send HTTP requests to the deployed model",
+      "cell_type": "code",
+      "is_output": false
+    },
+    "18f3c180-cd82-459e-9b2c-c7709f68fe50": {
+      "source": "\n# Query the deployed model\nresponse = requests.get(\"http://localhost:8000/predict\", params={\"text\": \"I love Ray Serve!\"})\nprint(response.json())  # Should print the sentiment analysis result\n",
+      "cell_type": "code",
+      "is_output": false
+    },
+    "47a04cff-10b6-44fc-95ea-06142fcf3fe9": {
+      "source": "{'text': 'i love ray serve!', 'sentiment': [{'label': 'POSITIVE', 'score': 0.9998507499694824}]}\n",
+      "cell_type": "output",
+      "is_output": true
+    },
+    "f78a88bd-aa3c-4050-b495-9771746e3f3d": {
+      "source": "text = \"Mars landscape is a tough place to live, but it has its own beauty. Venus is even tougher, with its extreme heat and pressure. \"\nresponse = requests.get(\"http://localhost:8000/predict\", params={\"text\": text})\nprint(response.json())  # prints result, note the text is truncated to 50 characters in the application logic",
+      "cell_type": "code",
+      "is_output": false
+    },
+    "b8a75639-0a7d-4803-937d-6647056289cf": {
+      "source": "{'text': 'mars landscape is a tough place to live, but it ha', 'sentiment': [{'label': 'NEGATIVE', 'score': 0.9590334296226501}]}\n",
+      "cell_type": "output",
+      "is_output": true
+    },
+    "29bb986e-5edf-41bf-b0fc-09db228d4519": {
+      "source": "text = \"National Parks are a great way to experience nature and wildlife.\"\nresponse = requests.get(\"http://localhost:8000/predict\", params={\"text\": text})\nprint(response.json())  # # prints result, note the text is truncated to 50 characters in the application logic",
+      "cell_type": "code",
+      "is_output": false
+    },
+    "1e3a1e53-b407-43bd-abfd-3c2dbc0f38fe": {
+      "source": "{'text': 'national parks are a great way to experience natur', 'sentiment': [{'label': 'POSITIVE', 'score': 0.9996353387832642}]}\n",
+      "cell_type": "output",
+      "is_output": true
+    },
+    "ff8d2469-21a9-45a7-a7ce-feb691332f71": {
+      "source": "### Shutdown the Ray Serve instances and Ray Cluster",
+      "cell_type": "markdown",
+      "is_output": false
+    },
+    "1cbac2d1-25e3-4401-b1f7-97e44633f5cb": {
+      "source": "# stop ray serve\nserve.shutdown()  # Shutdown Ray Serve when done, ray cluster will still be running",
+      "cell_type": "code",
+      "is_output": false
+    },
+    "c3b92d26-20a7-4998-b38e-6d1aa8d542b1": {
+      "source": "ray.shutdown()  # Shutdown Ray cluster",
+      "cell_type": "code",
+      "is_output": false
+    },
+    "298a69bb-2bab-4719-9749-15756243d92f": {
+      "source": "### Summary\nIn this notebook, we deployed a sentiment analysis model from Hugging Face using Ray Serve and FastAPI. Using *num_replicas* we scaled the number of instances of the model. There are many more options to autoscale to increase the replicas when the traffic is high and downscale to zero when there is no traffic.",
+      "cell_type": "markdown",
+      "is_output": false
+    }
+  },
+  "cuts": [
+    {
+      "type": "cut",
+      "cell_id": "41858f7f-7df1-4ec0-ae2d-d32417259e49",
+      "line_index": 14,
+      "id": "cut-41858f7f-7df1-4ec0-ae2d-d32417259e49-500566"
+    },
+    {
+      "type": "cut",
+      "cell_id": "41858f7f-7df1-4ec0-ae2d-d32417259e49",
+      "line_index": 31,
+      "id": "cut-41858f7f-7df1-4ec0-ae2d-d32417259e49-010856"
+    },
+    {
+      "type": "cut",
+      "cell_id": "4464ff9d-80f5-45e1-9606-bfe308e8f4d7",
+      "line_index": 17,
+      "id": "cut-4464ff9d-80f5-45e1-9606-bfe308e8f4d7-367241"
+    },
+    {
+      "type": "cut",
+      "cell_id": "70b894b6-d2e2-460d-a3ef-fad22a710bbf",
+      "line_index": 17,
+      "id": "cut-70b894b6-d2e2-460d-a3ef-fad22a710bbf-508822"
+    },
+    {
+      "type": "cut",
+      "cell_id": "a882636d-bb42-4a38-bb74-0bde8e297cc5",
+      "line_index": 14,
+      "id": "cut-a882636d-bb42-4a38-bb74-0bde8e297cc5-757156"
+    },
+    {
+      "type": "cut",
+      "cell_id": "a882636d-bb42-4a38-bb74-0bde8e297cc5",
+      "line_index": 24,
+      "id": "cut-a882636d-bb42-4a38-bb74-0bde8e297cc5-770750"
+    }
+  ],
+  "merges": [
+    {
+      "raw_scene_ids": [
+        "b94b0c6e-3392-4ad6-8ec0-2b3669d6c669-before-null-after-null",
+        "c4a9f6e5-af6d-4aaa-93cd-79ac2959d682-before-null-after-null"
+      ],
+      "id": "merge-b94b0c6e-3392-4ad6-8ec0-2b3669d6c669-before-null-after-null-c4a9f6e5-af6d-4aaa-93cd-79ac2959d682-before-null-after-null-1769610082228"
+    },
+    {
+      "raw_scene_ids": [
+        "b94b0c6e-3392-4ad6-8ec0-2b3669d6c669-before-null-after-null",
+        "c4a9f6e5-af6d-4aaa-93cd-79ac2959d682-before-null-after-null",
+        "d5207a6a-b1ca-465c-95fd-a36d2ba38868-before-null-after-null"
+      ],
+      "id": "merge-b94b0c6e-3392-4ad6-8ec0-2b3669d6c669-before-null-after-null-c4a9f6e5-af6d-4aaa-93cd-79ac2959d682-before-null-after-null-d5207a6a-b1ca-465c-95fd-a36d2ba38868-before-null-after-null-1769610083315"
+    },
+    {
+      "raw_scene_ids": [
+        "7aec1dd2-e4f8-4183-a635-22295844f3c1-before-null-after-null",
+        "54649951-08b6-4d4e-a53f-22d50b89f398-before-null-after-null"
+      ],
+      "id": "merge-7aec1dd2-e4f8-4183-a635-22295844f3c1-before-null-after-null-54649951-08b6-4d4e-a53f-22d50b89f398-before-null-after-null-1769610090067"
+    },
+    {
+      "raw_scene_ids": [
+        "7aec1dd2-e4f8-4183-a635-22295844f3c1-before-null-after-null",
+        "54649951-08b6-4d4e-a53f-22d50b89f398-before-null-after-null",
+        "133584bc-9007-47c1-8045-f91f0deb09f1-before-null-after-null"
+      ],
+      "id": "merge-7aec1dd2-e4f8-4183-a635-22295844f3c1-before-null-after-null-54649951-08b6-4d4e-a53f-22d50b89f398-before-null-after-null-133584bc-9007-47c1-8045-f91f0deb09f1-before-null-after-null-1769610091043"
+    },
+    {
+      "raw_scene_ids": [
+        "4ef74078-3d52-4d40-b8ac-ed858e946bfe-before-null-after-null",
+        "3d435b5e-679f-49c9-9188-6ba392118c5a-before-null-after-null"
+      ],
+      "id": "merge-4ef74078-3d52-4d40-b8ac-ed858e946bfe-before-null-after-null-3d435b5e-679f-49c9-9188-6ba392118c5a-before-null-after-null-1769612233398"
+    },
+    {
+      "raw_scene_ids": [
+        "4ef74078-3d52-4d40-b8ac-ed858e946bfe-before-null-after-null",
+        "3d435b5e-679f-49c9-9188-6ba392118c5a-before-null-after-null",
+        "0a9d77e2-bd6f-4a27-82dc-8c7468b5206b-before-null-after-null"
+      ],
+      "id": "merge-4ef74078-3d52-4d40-b8ac-ed858e946bfe-before-null-after-null-3d435b5e-679f-49c9-9188-6ba392118c5a-before-null-after-null-0a9d77e2-bd6f-4a27-82dc-8c7468b5206b-before-null-after-null-1769612237295"
+    },
+    {
+      "raw_scene_ids": [
+        "37629e39-6352-4f32-9377-7a6fa92d2030-before-null-after-null",
+        "76547e4b-1f1e-4da3-8a66-ccc930d934dc-before-null-after-null"
+      ],
+      "id": "merge-37629e39-6352-4f32-9377-7a6fa92d2030-before-null-after-null-76547e4b-1f1e-4da3-8a66-ccc930d934dc-before-null-after-null-1769612249997"
+    },
+    {
+      "raw_scene_ids": [
+        "37629e39-6352-4f32-9377-7a6fa92d2030-before-null-after-null",
+        "76547e4b-1f1e-4da3-8a66-ccc930d934dc-before-null-after-null",
+        "18f3c180-cd82-459e-9b2c-c7709f68fe50-before-null-after-null"
+      ],
+      "id": "merge-37629e39-6352-4f32-9377-7a6fa92d2030-before-null-after-null-76547e4b-1f1e-4da3-8a66-ccc930d934dc-before-null-after-null-18f3c180-cd82-459e-9b2c-c7709f68fe50-before-null-after-null-1769612252278"
+    },
+    {
+      "raw_scene_ids": [
+        "37629e39-6352-4f32-9377-7a6fa92d2030-before-null-after-null",
+        "76547e4b-1f1e-4da3-8a66-ccc930d934dc-before-null-after-null",
+        "18f3c180-cd82-459e-9b2c-c7709f68fe50-before-null-after-null",
+        "47a04cff-10b6-44fc-95ea-06142fcf3fe9-before-null-after-null"
+      ],
+      "id": "merge-37629e39-6352-4f32-9377-7a6fa92d2030-before-null-after-null-76547e4b-1f1e-4da3-8a66-ccc930d934dc-before-null-after-null-18f3c180-cd82-459e-9b2c-c7709f68fe50-before-null-after-null-47a04cff-10b6-44fc-95ea-06142fcf3fe9-before-null-after-null-1769612254695"
+    },
+    {
+      "raw_scene_ids": [
+        "f78a88bd-aa3c-4050-b495-9771746e3f3d-before-null-after-null",
+        "b8a75639-0a7d-4803-937d-6647056289cf-before-null-after-null"
+      ],
+      "id": "merge-f78a88bd-aa3c-4050-b495-9771746e3f3d-before-null-after-null-b8a75639-0a7d-4803-937d-6647056289cf-before-null-after-null-1769612258912"
+    },
+    {
+      "raw_scene_ids": [
+        "29bb986e-5edf-41bf-b0fc-09db228d4519-before-null-after-null",
+        "1e3a1e53-b407-43bd-abfd-3c2dbc0f38fe-before-null-after-null"
+      ],
+      "id": "merge-29bb986e-5edf-41bf-b0fc-09db228d4519-before-null-after-null-1e3a1e53-b407-43bd-abfd-3c2dbc0f38fe-before-null-after-null-1769612263397"
+    },
+    {
+      "raw_scene_ids": [
+        "ff8d2469-21a9-45a7-a7ce-feb691332f71-before-null-after-null",
+        "1cbac2d1-25e3-4401-b1f7-97e44633f5cb-before-null-after-null"
+      ],
+      "id": "merge-ff8d2469-21a9-45a7-a7ce-feb691332f71-before-null-after-null-1cbac2d1-25e3-4401-b1f7-97e44633f5cb-before-null-after-null-1769612266911"
+    },
+    {
+      "raw_scene_ids": [
+        "ff8d2469-21a9-45a7-a7ce-feb691332f71-before-null-after-null",
+        "1cbac2d1-25e3-4401-b1f7-97e44633f5cb-before-null-after-null",
+        "c3b92d26-20a7-4998-b38e-6d1aa8d542b1-before-null-after-null"
+      ],
+      "id": "merge-ff8d2469-21a9-45a7-a7ce-feb691332f71-before-null-after-null-1cbac2d1-25e3-4401-b1f7-97e44633f5cb-before-null-after-null-c3b92d26-20a7-4998-b38e-6d1aa8d542b1-before-null-after-null-1769612270373"
+    }
+  ],
+  "hidden_raw_scenes": [
+    "8b22dc6c-627e-4191-a1fc-57512a1e0916-before-null-after-null",
+    "49fb4964-193f-4f9c-b08b-861c9e36c10c-before-null-after-null"
+  ],
+  "hidden_lines": {},
+  "inserts": [],
+  "cell_titles": {},
+  "insert_titles": {},
+  "cell_limits": {},
+  "lesson_cuts": [
+    {
+      "type": "lesson",
+      "id": "a7070509-fcae-46aa-9b21-d3508130eb8c-before-null-after-null"
+    },
+    {
+      "type": "lesson",
+      "id": "e2fb6fda-2762-4da6-a364-18bb82303747-before-null-after-null"
+    },
+    {
+      "type": "lesson",
+      "id": "d010e417-0e7f-438d-b7ac-5c9b861d4c03-before-null-after-null"
+    },
+    {
+      "type": "lesson",
+      "id": "7aec1dd2-e4f8-4183-a635-22295844f3c1-before-null-after-null"
+    },
+    {
+      "type": "lesson",
+      "id": "dc87c5e3-b907-41e9-bb14-d252c23eb776-before-null-after-null"
+    },
+    {
+      "type": "lesson",
+      "id": "4ef74078-3d52-4d40-b8ac-ed858e946bfe-before-null-after-null"
+    },
+    {
+      "type": "lesson",
+      "id": "ff8d2469-21a9-45a7-a7ce-feb691332f71-before-null-after-null"
+    }
+  ],
+  "lesson_titles": {
+    "0": "Online Model Serving with Ray Serve",
+    "1": "Architecture Overview",
+    "2": "Building a FastAPI Web Service and Deploying a Model",
+    "3": "Deploying Our Model and Testing it",
+    "4": "Shutdown and Summary"
+  },
+  "scene_notes": {},
+  "raw_scenes": [
+    {
+      "index": 0,
+      "name": "raw_scene_0",
+      "id": "b94b0c6e-3392-4ad6-8ec0-2b3669d6c669-before-null-after-null",
+      "data": {
+        "original_cell_id": "b94b0c6e-3392-4ad6-8ec0-2b3669d6c669",
+        "origin_file": "03_Ray_Serve_online_serving.ipynb",
+        "cut_before": null,
+        "cut_after": null,
+        "range": {
+          "start_line": 1,
+          "end_line": 2
+        }
+      },
+      "type": "markdown"
+    },
+    {
+      "index": 1,
+      "name": "raw_scene_1",
+      "id": "c4a9f6e5-af6d-4aaa-93cd-79ac2959d682-before-null-after-null",
+      "data": {
+        "original_cell_id": "c4a9f6e5-af6d-4aaa-93cd-79ac2959d682",
+        "origin_file": "03_Ray_Serve_online_serving.ipynb",
+        "cut_before": null,
+        "cut_after": null,
+        "range": {
+          "start_line": 1,
+          "end_line": 3
+        }
+      },
+      "type": "markdown"
+    },
+    {
+      "index": 2,
+      "name": "raw_scene_2",
+      "id": "d5207a6a-b1ca-465c-95fd-a36d2ba38868-before-null-after-null",
+      "data": {
+        "original_cell_id": "d5207a6a-b1ca-465c-95fd-a36d2ba38868",
+        "origin_file": "03_Ray_Serve_online_serving.ipynb",
+        "cut_before": null,
+        "cut_after": null,
+        "range": {
+          "start_line": 1,
+          "end_line": 5
+        }
+      },
+      "type": "markdown"
+    },
+    {
+      "index": 3,
+      "name": "raw_scene_3",
+      "id": "70b894b6-d2e2-460d-a3ef-fad22a710bbf-before-null-after-508822",
+      "data": {
+        "original_cell_id": "70b894b6-d2e2-460d-a3ef-fad22a710bbf",
+        "origin_file": "03_Ray_Serve_online_serving.ipynb",
+        "cut_before": null,
+        "cut_after": "cut-70b894b6-d2e2-460d-a3ef-fad22a710bbf-508822",
+        "range": {
+          "start_line": 1,
+          "end_line": 17
+        }
+      },
+      "type": "markdown"
+    },
+    {
+      "index": 4,
+      "name": "raw_scene_4",
+      "id": "70b894b6-d2e2-460d-a3ef-fad22a710bbf-before-508822-after-null",
+      "data": {
+        "original_cell_id": "70b894b6-d2e2-460d-a3ef-fad22a710bbf",
+        "origin_file": "03_Ray_Serve_online_serving.ipynb",
+        "cut_before": "cut-70b894b6-d2e2-460d-a3ef-fad22a710bbf-508822",
+        "cut_after": null,
+        "range": {
+          "start_line": 18,
+          "end_line": 23
+        }
+      },
+      "type": "markdown"
+    },
+    {
+      "index": 5,
+      "name": "raw_scene_5",
+      "id": "45423b5c-43ef-4c33-b30a-391f25f9d776-before-null-after-null",
+      "data": {
+        "original_cell_id": "45423b5c-43ef-4c33-b30a-391f25f9d776",
+        "origin_file": "03_Ray_Serve_online_serving.ipynb",
+        "cut_before": null,
+        "cut_after": null,
+        "range": {
+          "start_line": 1,
+          "end_line": 10
+        }
+      },
+      "type": "markdown"
+    },
+    {
+      "index": 6,
+      "name": "raw_scene_6",
+      "id": "7aec1dd2-e4f8-4183-a635-22295844f3c1-before-null-after-null",
+      "data": {
+        "original_cell_id": "7aec1dd2-e4f8-4183-a635-22295844f3c1",
+        "origin_file": "03_Ray_Serve_online_serving.ipynb",
+        "cut_before": null,
+        "cut_after": null,
+        "range": {
+          "start_line": 1,
+          "end_line": 1
+        }
+      },
+      "type": "markdown"
+    },
+    {
+      "index": 7,
+      "name": "raw_scene_7",
+      "id": "799c075a-fed4-4791-86e2-ed4f77998ef7-before-null-after-null",
+      "data": {
+        "original_cell_id": "799c075a-fed4-4791-86e2-ed4f77998ef7",
+        "origin_file": "03_Ray_Serve_online_serving.ipynb",
+        "cut_before": null,
+        "cut_after": null,
+        "range": {
+          "start_line": 1,
+          "end_line": 1
+        }
+      },
+      "type": "markdown"
+    },
+    {
+      "index": 8,
+      "name": "raw_scene_8",
+      "id": "54649951-08b6-4d4e-a53f-22d50b89f398-before-null-after-null",
+      "data": {
+        "original_cell_id": "54649951-08b6-4d4e-a53f-22d50b89f398",
+        "origin_file": "03_Ray_Serve_online_serving.ipynb",
+        "cut_before": null,
+        "cut_after": null,
+        "range": {
+          "start_line": 1,
+          "end_line": 2
+        }
+      },
+      "type": "markdown"
+    },
+    {
+      "index": 9,
+      "name": "raw_scene_9",
+      "id": "133584bc-9007-47c1-8045-f91f0deb09f1-before-null-after-null",
+      "data": {
+        "original_cell_id": "133584bc-9007-47c1-8045-f91f0deb09f1",
+        "origin_file": "03_Ray_Serve_online_serving.ipynb",
+        "cut_before": null,
+        "cut_after": null,
+        "range": {
+          "start_line": 1,
+          "end_line": 7
+        }
+      },
+      "type": "code"
+    },
+    {
+      "index": 10,
+      "name": "raw_scene_10",
+      "id": "dc87c5e3-b907-41e9-bb14-d252c23eb776-before-null-after-null",
+      "data": {
+        "original_cell_id": "dc87c5e3-b907-41e9-bb14-d252c23eb776",
+        "origin_file": "03_Ray_Serve_online_serving.ipynb",
+        "cut_before": null,
+        "cut_after": null,
+        "range": {
+          "start_line": 1,
+          "end_line": 11
+        }
+      },
+      "type": "markdown"
+    },
+    {
+      "index": 11,
+      "name": "raw_scene_11",
+      "id": "a882636d-bb42-4a38-bb74-0bde8e297cc5-before-null-after-757156",
+      "data": {
+        "original_cell_id": "a882636d-bb42-4a38-bb74-0bde8e297cc5",
+        "origin_file": "03_Ray_Serve_online_serving.ipynb",
+        "cut_before": null,
+        "cut_after": "cut-a882636d-bb42-4a38-bb74-0bde8e297cc5-757156",
+        "range": {
+          "start_line": 1,
+          "end_line": 14
+        }
+      },
+      "type": "code"
+    },
+    {
+      "index": 12,
+      "name": "raw_scene_12",
+      "id": "a882636d-bb42-4a38-bb74-0bde8e297cc5-before-757156-after-770750",
+      "data": {
+        "original_cell_id": "a882636d-bb42-4a38-bb74-0bde8e297cc5",
+        "origin_file": "03_Ray_Serve_online_serving.ipynb",
+        "cut_before": "cut-a882636d-bb42-4a38-bb74-0bde8e297cc5-757156",
+        "cut_after": "cut-a882636d-bb42-4a38-bb74-0bde8e297cc5-770750",
+        "range": {
+          "start_line": 15,
+          "end_line": 24
+        }
+      },
+      "type": "code"
+    },
+    {
+      "index": 13,
+      "name": "raw_scene_13",
+      "id": "a882636d-bb42-4a38-bb74-0bde8e297cc5-before-770750-after-null",
+      "data": {
+        "original_cell_id": "a882636d-bb42-4a38-bb74-0bde8e297cc5",
+        "origin_file": "03_Ray_Serve_online_serving.ipynb",
+        "cut_before": "cut-a882636d-bb42-4a38-bb74-0bde8e297cc5-770750",
+        "cut_after": null,
+        "range": {
+          "start_line": 25,
+          "end_line": 37
+        }
+      },
+      "type": "code"
+    },
+    {
+      "index": 14,
+      "name": "raw_scene_14",
+      "id": "4ef74078-3d52-4d40-b8ac-ed858e946bfe-before-null-after-null",
+      "data": {
+        "original_cell_id": "4ef74078-3d52-4d40-b8ac-ed858e946bfe",
+        "origin_file": "03_Ray_Serve_online_serving.ipynb",
+        "cut_before": null,
+        "cut_after": null,
+        "range": {
+          "start_line": 1,
+          "end_line": 2
+        }
+      },
+      "type": "markdown"
+    },
+    {
+      "index": 15,
+      "name": "raw_scene_15",
+      "id": "3d435b5e-679f-49c9-9188-6ba392118c5a-before-null-after-null",
+      "data": {
+        "original_cell_id": "3d435b5e-679f-49c9-9188-6ba392118c5a",
+        "origin_file": "03_Ray_Serve_online_serving.ipynb",
+        "cut_before": null,
+        "cut_after": null,
+        "range": {
+          "start_line": 1,
+          "end_line": 3
+        }
+      },
+      "type": "code"
+    },
+    {
+      "index": 16,
+      "name": "raw_scene_16",
+      "id": "8b22dc6c-627e-4191-a1fc-57512a1e0916-before-null-after-null",
+      "data": {
+        "original_cell_id": "8b22dc6c-627e-4191-a1fc-57512a1e0916",
+        "origin_file": "03_Ray_Serve_online_serving.ipynb",
+        "cut_before": null,
+        "cut_after": null,
+        "range": {
+          "start_line": 1,
+          "end_line": 12
+        }
+      },
+      "type": "output"
+    },
+    {
+      "index": 17,
+      "name": "raw_scene_17",
+      "id": "0a9d77e2-bd6f-4a27-82dc-8c7468b5206b-before-null-after-null",
+      "data": {
+        "original_cell_id": "0a9d77e2-bd6f-4a27-82dc-8c7468b5206b",
+        "origin_file": "03_Ray_Serve_online_serving.ipynb",
+        "cut_before": null,
+        "cut_after": null,
+        "range": {
+          "start_line": 1,
+          "end_line": 1
+        }
+      },
+      "type": "output"
+    },
+    {
+      "index": 18,
+      "name": "raw_scene_18",
+      "id": "49fb4964-193f-4f9c-b08b-861c9e36c10c-before-null-after-null",
+      "data": {
+        "original_cell_id": "49fb4964-193f-4f9c-b08b-861c9e36c10c",
+        "origin_file": "03_Ray_Serve_online_serving.ipynb",
+        "cut_before": null,
+        "cut_after": null,
+        "range": {
+          "start_line": 1,
+          "end_line": 9
+        }
+      },
+      "type": "output"
+    },
+    {
+      "index": 19,
+      "name": "raw_scene_19",
+      "id": "37629e39-6352-4f32-9377-7a6fa92d2030-before-null-after-null",
+      "data": {
+        "original_cell_id": "37629e39-6352-4f32-9377-7a6fa92d2030",
+        "origin_file": "03_Ray_Serve_online_serving.ipynb",
+        "cut_before": null,
+        "cut_after": null,
+        "range": {
+          "start_line": 1,
+          "end_line": 5
+        }
+      },
+      "type": "markdown"
+    },
+    {
+      "index": 20,
+      "name": "raw_scene_20",
+      "id": "76547e4b-1f1e-4da3-8a66-ccc930d934dc-before-null-after-null",
+      "data": {
+        "original_cell_id": "76547e4b-1f1e-4da3-8a66-ccc930d934dc",
+        "origin_file": "03_Ray_Serve_online_serving.ipynb",
+        "cut_before": null,
+        "cut_after": null,
+        "range": {
+          "start_line": 1,
+          "end_line": 1
+        }
+      },
+      "type": "code"
+    },
+    {
+      "index": 21,
+      "name": "raw_scene_21",
+      "id": "18f3c180-cd82-459e-9b2c-c7709f68fe50-before-null-after-null",
+      "data": {
+        "original_cell_id": "18f3c180-cd82-459e-9b2c-c7709f68fe50",
+        "origin_file": "03_Ray_Serve_online_serving.ipynb",
+        "cut_before": null,
+        "cut_after": null,
+        "range": {
+          "start_line": 1,
+          "end_line": 5
+        }
+      },
+      "type": "code"
+    },
+    {
+      "index": 22,
+      "name": "raw_scene_22",
+      "id": "47a04cff-10b6-44fc-95ea-06142fcf3fe9-before-null-after-null",
+      "data": {
+        "original_cell_id": "47a04cff-10b6-44fc-95ea-06142fcf3fe9",
+        "origin_file": "03_Ray_Serve_online_serving.ipynb",
+        "cut_before": null,
+        "cut_after": null,
+        "range": {
+          "start_line": 1,
+          "end_line": 2
+        }
+      },
+      "type": "output"
+    },
+    {
+      "index": 23,
+      "name": "raw_scene_23",
+      "id": "f78a88bd-aa3c-4050-b495-9771746e3f3d-before-null-after-null",
+      "data": {
+        "original_cell_id": "f78a88bd-aa3c-4050-b495-9771746e3f3d",
+        "origin_file": "03_Ray_Serve_online_serving.ipynb",
+        "cut_before": null,
+        "cut_after": null,
+        "range": {
+          "start_line": 1,
+          "end_line": 3
+        }
+      },
+      "type": "code"
+    },
+    {
+      "index": 24,
+      "name": "raw_scene_24",
+      "id": "b8a75639-0a7d-4803-937d-6647056289cf-before-null-after-null",
+      "data": {
+        "original_cell_id": "b8a75639-0a7d-4803-937d-6647056289cf",
+        "origin_file": "03_Ray_Serve_online_serving.ipynb",
+        "cut_before": null,
+        "cut_after": null,
+        "range": {
+          "start_line": 1,
+          "end_line": 2
+        }
+      },
+      "type": "output"
+    },
+    {
+      "index": 25,
+      "name": "raw_scene_25",
+      "id": "29bb986e-5edf-41bf-b0fc-09db228d4519-before-null-after-null",
+      "data": {
+        "original_cell_id": "29bb986e-5edf-41bf-b0fc-09db228d4519",
+        "origin_file": "03_Ray_Serve_online_serving.ipynb",
+        "cut_before": null,
+        "cut_after": null,
+        "range": {
+          "start_line": 1,
+          "end_line": 3
+        }
+      },
+      "type": "code"
+    },
+    {
+      "index": 26,
+      "name": "raw_scene_26",
+      "id": "1e3a1e53-b407-43bd-abfd-3c2dbc0f38fe-before-null-after-null",
+      "data": {
+        "original_cell_id": "1e3a1e53-b407-43bd-abfd-3c2dbc0f38fe",
+        "origin_file": "03_Ray_Serve_online_serving.ipynb",
+        "cut_before": null,
+        "cut_after": null,
+        "range": {
+          "start_line": 1,
+          "end_line": 2
+        }
+      },
+      "type": "output"
+    },
+    {
+      "index": 27,
+      "name": "raw_scene_27",
+      "id": "ff8d2469-21a9-45a7-a7ce-feb691332f71-before-null-after-null",
+      "data": {
+        "original_cell_id": "ff8d2469-21a9-45a7-a7ce-feb691332f71",
+        "origin_file": "03_Ray_Serve_online_serving.ipynb",
+        "cut_before": null,
+        "cut_after": null,
+        "range": {
+          "start_line": 1,
+          "end_line": 1
+        }
+      },
+      "type": "markdown"
+    },
+    {
+      "index": 28,
+      "name": "raw_scene_28",
+      "id": "1cbac2d1-25e3-4401-b1f7-97e44633f5cb-before-null-after-null",
+      "data": {
+        "original_cell_id": "1cbac2d1-25e3-4401-b1f7-97e44633f5cb",
+        "origin_file": "03_Ray_Serve_online_serving.ipynb",
+        "cut_before": null,
+        "cut_after": null,
+        "range": {
+          "start_line": 1,
+          "end_line": 2
+        }
+      },
+      "type": "code"
+    },
+    {
+      "index": 29,
+      "name": "raw_scene_29",
+      "id": "c3b92d26-20a7-4998-b38e-6d1aa8d542b1-before-null-after-null",
+      "data": {
+        "original_cell_id": "c3b92d26-20a7-4998-b38e-6d1aa8d542b1",
+        "origin_file": "03_Ray_Serve_online_serving.ipynb",
+        "cut_before": null,
+        "cut_after": null,
+        "range": {
+          "start_line": 1,
+          "end_line": 1
+        }
+      },
+      "type": "code"
+    },
+    {
+      "index": 30,
+      "name": "raw_scene_30",
+      "id": "298a69bb-2bab-4719-9749-15756243d92f-before-null-after-null",
+      "data": {
+        "original_cell_id": "298a69bb-2bab-4719-9749-15756243d92f",
+        "origin_file": "03_Ray_Serve_online_serving.ipynb",
+        "cut_before": null,
+        "cut_after": null,
+        "range": {
+          "start_line": 1,
+          "end_line": 2
+        }
+      },
+      "type": "markdown"
+    }
+  ],
+  "scenes": [
+    {
+      "index": 0,
+      "name": "scene_0",
+      "id": "bbd7d30273d191c0",
+      "data": {
+        "0": {
+          "original_cell_id": "b94b0c6e-3392-4ad6-8ec0-2b3669d6c669",
+          "origin_file": "03_Ray_Serve_online_serving.ipynb",
+          "range": {
+            "start_line": 1,
+            "end_line": 2
+          },
+          "raw_scene_id": "b94b0c6e-3392-4ad6-8ec0-2b3669d6c669-before-null-after-null"
+        },
+        "1": {
+          "original_cell_id": "c4a9f6e5-af6d-4aaa-93cd-79ac2959d682",
+          "origin_file": "03_Ray_Serve_online_serving.ipynb",
+          "range": {
+            "start_line": 1,
+            "end_line": 3
+          },
+          "raw_scene_id": "c4a9f6e5-af6d-4aaa-93cd-79ac2959d682-before-null-after-null"
+        },
+        "2": {
+          "original_cell_id": "d5207a6a-b1ca-465c-95fd-a36d2ba38868",
+          "origin_file": "03_Ray_Serve_online_serving.ipynb",
+          "range": {
+            "start_line": 1,
+            "end_line": 5
+          },
+          "raw_scene_id": "d5207a6a-b1ca-465c-95fd-a36d2ba38868-before-null-after-null"
+        }
+      },
+      "type": "markdown",
+      "title": null
+    },
+    {
+      "index": 1,
+      "name": "scene_1",
+      "id": "70b894b6-d2e2-460d-a3ef-fad22a710bbf-before-null-after-508822",
+      "data": {
+        "0": {
+          "original_cell_id": "70b894b6-d2e2-460d-a3ef-fad22a710bbf",
+          "origin_file": "03_Ray_Serve_online_serving.ipynb",
+          "range": {
+            "start_line": 1,
+            "end_line": 17
+          },
+          "raw_scene_id": "70b894b6-d2e2-460d-a3ef-fad22a710bbf-before-null-after-508822"
+        }
+      },
+      "type": "markdown",
+      "title": null
+    },
+    {
+      "index": 2,
+      "name": "scene_2",
+      "id": "70b894b6-d2e2-460d-a3ef-fad22a710bbf-before-508822-after-null",
+      "data": {
+        "0": {
+          "original_cell_id": "70b894b6-d2e2-460d-a3ef-fad22a710bbf",
+          "origin_file": "03_Ray_Serve_online_serving.ipynb",
+          "range": {
+            "start_line": 18,
+            "end_line": 23
+          },
+          "raw_scene_id": "70b894b6-d2e2-460d-a3ef-fad22a710bbf-before-508822-after-null"
+        }
+      },
+      "type": "markdown",
+      "title": null
+    },
+    {
+      "index": 3,
+      "name": "scene_3",
+      "id": "45423b5c-43ef-4c33-b30a-391f25f9d776-before-null-after-null",
+      "data": {
+        "0": {
+          "original_cell_id": "45423b5c-43ef-4c33-b30a-391f25f9d776",
+          "origin_file": "03_Ray_Serve_online_serving.ipynb",
+          "range": {
+            "start_line": 1,
+            "end_line": 10
+          },
+          "raw_scene_id": "45423b5c-43ef-4c33-b30a-391f25f9d776-before-null-after-null"
+        }
+      },
+      "type": "markdown",
+      "title": null
+    },
+    {
+      "index": 4,
+      "name": "scene_4",
+      "id": "0ecf379b41fef113",
+      "data": {
+        "0": {
+          "original_cell_id": "7aec1dd2-e4f8-4183-a635-22295844f3c1",
+          "origin_file": "03_Ray_Serve_online_serving.ipynb",
+          "range": {
+            "start_line": 1,
+            "end_line": 1
+          },
+          "raw_scene_id": "7aec1dd2-e4f8-4183-a635-22295844f3c1-before-null-after-null"
+        },
+        "1": {
+          "original_cell_id": "54649951-08b6-4d4e-a53f-22d50b89f398",
+          "origin_file": "03_Ray_Serve_online_serving.ipynb",
+          "range": {
+            "start_line": 1,
+            "end_line": 2
+          },
+          "raw_scene_id": "54649951-08b6-4d4e-a53f-22d50b89f398-before-null-after-null"
+        },
+        "2": {
+          "original_cell_id": "133584bc-9007-47c1-8045-f91f0deb09f1",
+          "origin_file": "03_Ray_Serve_online_serving.ipynb",
+          "range": {
+            "start_line": 1,
+            "end_line": 7
+          },
+          "raw_scene_id": "133584bc-9007-47c1-8045-f91f0deb09f1-before-null-after-null"
+        }
+      },
+      "type": "markdown",
+      "title": null
+    },
+    {
+      "index": 5,
+      "name": "scene_5",
+      "id": "799c075a-fed4-4791-86e2-ed4f77998ef7-before-null-after-null",
+      "data": {
+        "0": {
+          "original_cell_id": "799c075a-fed4-4791-86e2-ed4f77998ef7",
+          "origin_file": "03_Ray_Serve_online_serving.ipynb",
+          "range": {
+            "start_line": 1,
+            "end_line": 1
+          },
+          "raw_scene_id": "799c075a-fed4-4791-86e2-ed4f77998ef7-before-null-after-null"
+        }
+      },
+      "type": "markdown",
+      "title": null
+    },
+    {
+      "index": 6,
+      "name": "scene_6",
+      "id": "dc87c5e3-b907-41e9-bb14-d252c23eb776-before-null-after-null",
+      "data": {
+        "0": {
+          "original_cell_id": "dc87c5e3-b907-41e9-bb14-d252c23eb776",
+          "origin_file": "03_Ray_Serve_online_serving.ipynb",
+          "range": {
+            "start_line": 1,
+            "end_line": 11
+          },
+          "raw_scene_id": "dc87c5e3-b907-41e9-bb14-d252c23eb776-before-null-after-null"
+        }
+      },
+      "type": "markdown",
+      "title": null
+    },
+    {
+      "index": 7,
+      "name": "scene_7",
+      "id": "a882636d-bb42-4a38-bb74-0bde8e297cc5-before-null-after-757156",
+      "data": {
+        "0": {
+          "original_cell_id": "a882636d-bb42-4a38-bb74-0bde8e297cc5",
+          "origin_file": "03_Ray_Serve_online_serving.ipynb",
+          "range": {
+            "start_line": 1,
+            "end_line": 14
+          },
+          "raw_scene_id": "a882636d-bb42-4a38-bb74-0bde8e297cc5-before-null-after-757156"
+        }
+      },
+      "type": "code",
+      "title": null
+    },
+    {
+      "index": 8,
+      "name": "scene_8",
+      "id": "a882636d-bb42-4a38-bb74-0bde8e297cc5-before-757156-after-770750",
+      "data": {
+        "0": {
+          "original_cell_id": "a882636d-bb42-4a38-bb74-0bde8e297cc5",
+          "origin_file": "03_Ray_Serve_online_serving.ipynb",
+          "range": {
+            "start_line": 15,
+            "end_line": 24
+          },
+          "raw_scene_id": "a882636d-bb42-4a38-bb74-0bde8e297cc5-before-757156-after-770750"
+        }
+      },
+      "type": "code",
+      "title": null
+    },
+    {
+      "index": 9,
+      "name": "scene_9",
+      "id": "a882636d-bb42-4a38-bb74-0bde8e297cc5-before-770750-after-null",
+      "data": {
+        "0": {
+          "original_cell_id": "a882636d-bb42-4a38-bb74-0bde8e297cc5",
+          "origin_file": "03_Ray_Serve_online_serving.ipynb",
+          "range": {
+            "start_line": 25,
+            "end_line": 37
+          },
+          "raw_scene_id": "a882636d-bb42-4a38-bb74-0bde8e297cc5-before-770750-after-null"
+        }
+      },
+      "type": "code",
+      "title": null
+    },
+    {
+      "index": 10,
+      "name": "scene_10",
+      "id": "c40c1e385469d4fb",
+      "data": {
+        "0": {
+          "original_cell_id": "4ef74078-3d52-4d40-b8ac-ed858e946bfe",
+          "origin_file": "03_Ray_Serve_online_serving.ipynb",
+          "range": {
+            "start_line": 1,
+            "end_line": 2
+          },
+          "raw_scene_id": "4ef74078-3d52-4d40-b8ac-ed858e946bfe-before-null-after-null"
+        },
+        "1": {
+          "original_cell_id": "3d435b5e-679f-49c9-9188-6ba392118c5a",
+          "origin_file": "03_Ray_Serve_online_serving.ipynb",
+          "range": {
+            "start_line": 1,
+            "end_line": 3
+          },
+          "raw_scene_id": "3d435b5e-679f-49c9-9188-6ba392118c5a-before-null-after-null"
+        },
+        "2": {
+          "original_cell_id": "0a9d77e2-bd6f-4a27-82dc-8c7468b5206b",
+          "origin_file": "03_Ray_Serve_online_serving.ipynb",
+          "range": {
+            "start_line": 1,
+            "end_line": 1
+          },
+          "raw_scene_id": "0a9d77e2-bd6f-4a27-82dc-8c7468b5206b-before-null-after-null"
+        }
+      },
+      "type": "markdown",
+      "title": null
+    },
+    {
+      "index": 11,
+      "name": "scene_11",
+      "id": "392e4b6b7dd421bb",
+      "data": {
+        "0": {
+          "original_cell_id": "37629e39-6352-4f32-9377-7a6fa92d2030",
+          "origin_file": "03_Ray_Serve_online_serving.ipynb",
+          "range": {
+            "start_line": 1,
+            "end_line": 5
+          },
+          "raw_scene_id": "37629e39-6352-4f32-9377-7a6fa92d2030-before-null-after-null"
+        },
+        "1": {
+          "original_cell_id": "76547e4b-1f1e-4da3-8a66-ccc930d934dc",
+          "origin_file": "03_Ray_Serve_online_serving.ipynb",
+          "range": {
+            "start_line": 1,
+            "end_line": 1
+          },
+          "raw_scene_id": "76547e4b-1f1e-4da3-8a66-ccc930d934dc-before-null-after-null"
+        },
+        "2": {
+          "original_cell_id": "18f3c180-cd82-459e-9b2c-c7709f68fe50",
+          "origin_file": "03_Ray_Serve_online_serving.ipynb",
+          "range": {
+            "start_line": 1,
+            "end_line": 5
+          },
+          "raw_scene_id": "18f3c180-cd82-459e-9b2c-c7709f68fe50-before-null-after-null"
+        },
+        "3": {
+          "original_cell_id": "47a04cff-10b6-44fc-95ea-06142fcf3fe9",
+          "origin_file": "03_Ray_Serve_online_serving.ipynb",
+          "range": {
+            "start_line": 1,
+            "end_line": 2
+          },
+          "raw_scene_id": "47a04cff-10b6-44fc-95ea-06142fcf3fe9-before-null-after-null"
+        }
+      },
+      "type": "markdown",
+      "title": null
+    },
+    {
+      "index": 12,
+      "name": "scene_12",
+      "id": "adc8bb7af582a603",
+      "data": {
+        "0": {
+          "original_cell_id": "f78a88bd-aa3c-4050-b495-9771746e3f3d",
+          "origin_file": "03_Ray_Serve_online_serving.ipynb",
+          "range": {
+            "start_line": 1,
+            "end_line": 3
+          },
+          "raw_scene_id": "f78a88bd-aa3c-4050-b495-9771746e3f3d-before-null-after-null"
+        },
+        "1": {
+          "original_cell_id": "b8a75639-0a7d-4803-937d-6647056289cf",
+          "origin_file": "03_Ray_Serve_online_serving.ipynb",
+          "range": {
+            "start_line": 1,
+            "end_line": 2
+          },
+          "raw_scene_id": "b8a75639-0a7d-4803-937d-6647056289cf-before-null-after-null"
+        }
+      },
+      "type": "code",
+      "title": null
+    },
+    {
+      "index": 13,
+      "name": "scene_13",
+      "id": "9f1bdd7be9aeff5e",
+      "data": {
+        "0": {
+          "original_cell_id": "29bb986e-5edf-41bf-b0fc-09db228d4519",
+          "origin_file": "03_Ray_Serve_online_serving.ipynb",
+          "range": {
+            "start_line": 1,
+            "end_line": 3
+          },
+          "raw_scene_id": "29bb986e-5edf-41bf-b0fc-09db228d4519-before-null-after-null"
+        },
+        "1": {
+          "original_cell_id": "1e3a1e53-b407-43bd-abfd-3c2dbc0f38fe",
+          "origin_file": "03_Ray_Serve_online_serving.ipynb",
+          "range": {
+            "start_line": 1,
+            "end_line": 2
+          },
+          "raw_scene_id": "1e3a1e53-b407-43bd-abfd-3c2dbc0f38fe-before-null-after-null"
+        }
+      },
+      "type": "code",
+      "title": null
+    },
+    {
+      "index": 14,
+      "name": "scene_14",
+      "id": "0a35c1148fdfcc0d",
+      "data": {
+        "0": {
+          "original_cell_id": "ff8d2469-21a9-45a7-a7ce-feb691332f71",
+          "origin_file": "03_Ray_Serve_online_serving.ipynb",
+          "range": {
+            "start_line": 1,
+            "end_line": 1
+          },
+          "raw_scene_id": "ff8d2469-21a9-45a7-a7ce-feb691332f71-before-null-after-null"
+        },
+        "1": {
+          "original_cell_id": "1cbac2d1-25e3-4401-b1f7-97e44633f5cb",
+          "origin_file": "03_Ray_Serve_online_serving.ipynb",
+          "range": {
+            "start_line": 1,
+            "end_line": 2
+          },
+          "raw_scene_id": "1cbac2d1-25e3-4401-b1f7-97e44633f5cb-before-null-after-null"
+        },
+        "2": {
+          "original_cell_id": "c3b92d26-20a7-4998-b38e-6d1aa8d542b1",
+          "origin_file": "03_Ray_Serve_online_serving.ipynb",
+          "range": {
+            "start_line": 1,
+            "end_line": 1
+          },
+          "raw_scene_id": "c3b92d26-20a7-4998-b38e-6d1aa8d542b1-before-null-after-null"
+        }
+      },
+      "type": "markdown",
+      "title": null
+    },
+    {
+      "index": 15,
+      "name": "scene_15",
+      "id": "298a69bb-2bab-4719-9749-15756243d92f-before-null-after-null",
+      "data": {
+        "0": {
+          "original_cell_id": "298a69bb-2bab-4719-9749-15756243d92f",
+          "origin_file": "03_Ray_Serve_online_serving.ipynb",
+          "range": {
+            "start_line": 1,
+            "end_line": 2
+          },
+          "raw_scene_id": "298a69bb-2bab-4719-9749-15756243d92f-before-null-after-null"
+        }
+      },
+      "type": "markdown",
+      "title": null
+    }
+  ],
+  "creation_date": "2026-01-28T14:16:24.779Z",
+  "updated_date": "2026-01-28T14:57:53.263Z",
+  "version": "2.0"
+}

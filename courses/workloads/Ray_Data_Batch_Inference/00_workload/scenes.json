@@ -1,0 +1,1355 @@
+{
+  "notebook_path": "01_Ray_Data_batch_inference.ipynb",
+  "notebook_hash": "4fb117a505a1207f",
+  "cells": {
+    "70254fc5-5082-4818-9878-dded83568923": {
+      "source": "# Batch Inference with Ray Data\n© 2025, Anyscale. All Rights Reserved",
+      "cell_type": "markdown",
+      "is_output": false
+    },
+    "a75b4c4e-ddcf-47a3-8cde-61d0988f83ac": {
+      "source": "💻 **Launch Locally**: You can run this notebook locally.\n\n🚀 **Launch on Cloud**: Think about running this notebook on a Ray Cluster (Click [here](http://console.anyscale.com/register) to easily start a Ray cluster on Anyscale)",
+      "cell_type": "markdown",
+      "is_output": false
+    },
+    "1002b2ca-83f6-41a2-b622-7210c68aa2c6": {
+      "source": "This example shows how to do batch inference with Ray Data.\n\nBatch inference with Ray Data enables you to efficiently generate predictions from machine learning models on large datasets by processing multiple data points at once. Instead of running inference on one row at a time, which can be slow and resource-inefficient, batch inference leverages vectorized computation and parallelism to maximize throughput. This is especially useful when working with modern deep learning models, which are optimized for batch processing on CPUs, GPUs, or Apple Silicon devices.\n\nThe typical workflow begins by loading your dataset—such as a public dataset from Hugging Face—into a Ray Dataset. Ray Data can automatically partition the data for parallel processing, or you can repartition it explicitly to control the number of data blocks. Once the data is loaded, you define a callable class (such as a text embedding model) that loads the machine learning model in its constructor and implements a `__call__` method to process each batch. Ray Data’s `map_batches` API is then used to apply this callable to each batch of data, with options to control concurrency and resource allocation (e.g., number of GPUs).\n\nThis approach allows you to spin up multiple concurrent model instances, each processing different batches of data in parallel. The result is a significant speedup in inference time, especially for large datasets. After inference, you can materialize the results, inspect the output, and shut down the Ray cluster to free up resources. Batch inference with Ray Data is scalable, flexible, and integrates seamlessly with modern ML workflows, making it a powerful tool for production and research environments alike.",
+      "cell_type": "markdown",
+      "is_output": false
+    },
+    "5032482d-a1b4-4adf-88e9-386e7771da06": {
+      "source": "### Outline\n<div class=\"alert alert-block alert-info\">\n<b>In this notebook, we go through a typical ML batch inference workflow:</b>\n\n<ul>\n    <li>Architecture\n    <li>Import Libraries\n    <li>Load a public dataset from Hugging Face and move it into Ray Data object store.\n    <li>Batch Inference Class\n        - Create a Ray actor class to load a ML model. In this example, we use SentenceTransformer library from Hugging Face to load a sentence embedding model.\n    <li>Create batches of data to do inference.\n    <li>Deploying at Scale\n    <li>Inference on the entire dataset\n    <li>Out of memory errors\n    <li>Summary\n</ul>\n</div>",
+      "cell_type": "markdown",
+      "is_output": false
+    },
+    "a1b835be-f7c7-4e7d-98ba-e57c7b2a08b8": {
+      "source": "## Architecture",
+      "cell_type": "markdown",
+      "is_output": false
+    },
+    "f03c400b-4a1c-4620-abd9-da0a5b3bb1df": {
+      "source": "![Architecture Diagram](https://lz-public-demo.s3.us-east-1.amazonaws.com/anyscale101/01_examples/01_Ray_Data_batch_inf_arch.svg?sanitize=true)",
+      "cell_type": "markdown",
+      "is_output": false
+    },
+    "e854dcdd-dbf3-47ad-a922-f8f605b55ba2": {
+      "source": "### Import Libraries",
+      "cell_type": "markdown",
+      "is_output": false
+    },
+    "a2b82093-aded-4ad1-a76c-9ec2ae9eeabb": {
+      "source": "import ray\nimport torch\nfrom typing import Dict\nimport numpy as np",
+      "cell_type": "code",
+      "is_output": false
+    },
+    "6f6440cf-a6b8-498d-8f8c-0d234f4d20f7": {
+      "source": "from sentence_transformers import SentenceTransformer # huggingface sentence transformers\nfrom datasets import load_dataset # huggingface datasets",
+      "cell_type": "code",
+      "is_output": false
+    },
+    "18054be8-ab05-4482-8497-690e28988884": {
+      "source": "## Load a dataset\nLoad a dataset from hugging face or local and convert into Ray Dataset. A Ray cluster automatically initialized on local or on Anyscale platform. You can also use **ray.init()** To explicitly create or connect to an existing Ray cluster.\n\nhttps://docs.ray.io/en/latest/ray-core/api/doc/ray.init.html#ray.init",
+      "cell_type": "markdown",
+      "is_output": false
+    },
+    "0bea5b85-b9dd-488c-9eef-0e9c25cf00cc": {
+      "source": "# load a Hugging Face dataset\nhf_dataset = load_dataset(\"cardiffnlp/tweet_eval\", \"sentiment\", split=\"train\")\n# Convert the Hugging Face dataset to a Ray Dataset\nds = ray.data.from_huggingface(hf_dataset).repartition(2) # repartition to 2 blocks for parallel processing. Not necessary if already partitioned due to the size of the dataset.",
+      "cell_type": "code",
+      "is_output": false
+    },
+    "98ee572b-f770-49c0-a24e-d6a61bbfb54e": {
+      "source": "2025-07-11 06:47:51,776\tINFO worker.py:1908 -- Started a local Ray instance. View the dashboard at \u001b[1m\u001b[32mhttp://127.0.0.1:8265 \u001b[39m\u001b[22m\n\u001b[36m(MapWorker(MapBatches(TextEmbedder)) pid=42475)\u001b[0m /opt/homebrew/Cellar/python@3.11/3.11.6_1/Frameworks/Python.framework/Versions/3.11/lib/python3.11/multiprocessing/resource_tracker.py:254: UserWarning: resource_tracker: There appear to be 1 leaked semaphore objects to clean up at shutdown\n\u001b[36m(MapWorker(MapBatches(TextEmbedder)) pid=42475)\u001b[0m   warnings.warn('resource_tracker: There appear to be %d '\n\u001b[36m(MapWorker(MapBatches(TextEmbedder)) pid=42487)\u001b[0m /opt/homebrew/Cellar/python@3.11/3.11.6_1/Frameworks/Python.framework/Versions/3.11/lib/python3.11/multiprocessing/resource_tracker.py:254: UserWarning: resource_tracker: There appear to be 1 leaked semaphore objects to clean up at shutdown\u001b[32m [repeated 2x across cluster] (Ray deduplicates logs by default. Set RAY_DEDUP_LOGS=0 to disable log deduplication, or see https://docs.ray.io/en/master/ray-observability/user-guides/configure-logging.html#log-deduplication for more options.)\u001b[0m\n\u001b[36m(MapWorker(MapBatches(TextEmbedder)) pid=42487)\u001b[0m   warnings.warn('resource_tracker: There appear to be %d '\u001b[32m [repeated 2x across cluster]\u001b[0m\n\u001b[36m(MapWorker(MapBatches(TextEmbedder)) pid=42486)\u001b[0m /opt/homebrew/Cellar/python@3.11/3.11.6_1/Frameworks/Python.framework/Versions/3.11/lib/python3.11/multiprocessing/resource_tracker.py:254: UserWarning: resource_tracker: There appear to be 1 leaked semaphore objects to clean up at shutdown\n\u001b[36m(MapWorker(MapBatches(TextEmbedder)) pid=42486)\u001b[0m   warnings.warn('resource_tracker: There appear to be %d '\n",
+      "cell_type": "output",
+      "is_output": true
+    },
+    "2af9a4de-9ab1-4561-9531-25f38bdb9947": {
+      "source": "# dataset metadata\nprint(ds)",
+      "cell_type": "code",
+      "is_output": false
+    },
+    "6898eb26-4d35-4049-ac0c-4fcf732ea3d0": {
+      "source": "Repartition\n+- Dataset(num_rows=45615, schema={text: string, label: int64})\n",
+      "cell_type": "output",
+      "is_output": true
+    },
+    "31d7450b-d756-4c8b-b027-0a661a4c2bfd": {
+      "source": "# show the first 10 rows\n# Each row has \"text\" and \"label\"\nds.show(10)",
+      "cell_type": "code",
+      "is_output": false
+    },
+    "0646951b-db06-476e-8224-6e7c86af7597": {
+      "source": "2025-07-11 06:49:24,021\tINFO dataset.py:3046 -- Tip: Use `take_batch()` instead of `take() / show()` to return records in pandas or numpy batch format.\n2025-07-11 06:49:24,031\tINFO logging.py:295 -- Registered dataset logger for dataset dataset_2_0\n2025-07-11 06:49:24,056\tINFO streaming_executor.py:117 -- Starting execution of Dataset dataset_2_0. Full logs are in /tmp/ray/session_2025-07-11_06-47-50_390429_98374/logs/ray-data\n2025-07-11 06:49:24,056\tINFO streaming_executor.py:118 -- Execution plan of Dataset dataset_2_0: InputDataBuffer[Input] -> AllToAllOperator[Repartition] -> LimitOperator[limit=10]\n",
+      "cell_type": "output",
+      "is_output": true
+    },
+    "cf07a5d3-bc2f-4258-b13a-93d15ed94c43": {
+      "source": "Running 0: 0.00 row [00:00, ? row/s]",
+      "cell_type": "output",
+      "is_output": true
+    },
+    "69366bc9-1e65-4eb4-adfd-e37c02fb02e7": {
+      "source": "- Repartition 1: 0.00 row [00:00, ? row/s]",
+      "cell_type": "output",
+      "is_output": true
+    },
+    "092ec97d-4167-4019-989d-576b2c8b1980": {
+      "source": "Split Repartition 2:   0%|                                                                                    …",
+      "cell_type": "output",
+      "is_output": true
+    },
+    "5c591adc-479e-4ef7-b66d-40749990c521": {
+      "source": "- limit=10 3: 0.00 row [00:00, ? row/s]",
+      "cell_type": "output",
+      "is_output": true
+    },
+    "27d48fcc-8762-47f2-ad6c-7d4373bc661f": {
+      "source": "2025-07-11 06:49:24,378\tINFO streaming_executor.py:227 -- ✔️  Dataset dataset_2_0 execution finished in 0.32 seconds\n",
+      "cell_type": "output",
+      "is_output": true
+    },
+    "6e3bc7b3-3798-4616-8db7-f704caf054f2": {
+      "source": "{'text': '\"QT @user In the original draft of the 7th book, Remus Lupin survived the Battle of Hogwarts. #HappyBirthdayRemusLupin\"', 'label': 2}\n{'text': '\"Ben Smith / Smith (concussion) remains out of the lineup Thursday, Curtis #NHL #SJ\"', 'label': 1}\n{'text': 'Sorry bout the stream last night I crashed out but will be on tonight for sure. Then back to Minecraft in pc tomorrow night.', 'label': 1}\n{'text': \"Chase Headley's RBI double in the 8th inning off David Price snapped a Yankees streak of 33 consecutive scoreless innings against Blue Jays\", 'label': 1}\n{'text': '@user Alciato: Bee will invest 150 million in January, another 200 in the Summer and plans to bring Messi by 2017\"', 'label': 2}\n{'text': \"@user LIT MY MUM 'Kerry the louboutins I wonder how many Willam owns!!! Look Kerry Warner Wednesday!'\", 'label': 2}\n{'text': '\"\\\\\"\"\"\" SOUL TRAIN\\\\\"\"\"\" OCT 27 HALLOWEEN SPECIAL ft T.dot FINEST rocking the mic...CRAZY CACTUS NIGHT CLUB ..ADV ticket $10 wt out costume $15...\"', 'label': 2}\n{'text': 'So disappointed in wwe summerslam! I want to see john cena wins his 16th title', 'label': 0}\n{'text': '\"This is the last Sunday w/o football .....,NFL is back baby\"', 'label': 2}\n{'text': \"@user @user CENA & AJ sitting in a tree K-I-S-S-I-N-G 1st goes AJ's  job then John's cred then goes Vicki with the GM position.\", 'label': 1}\n",
+      "cell_type": "output",
+      "is_output": true
+    },
+    "aad0ee49-0afb-4180-aa42-f1a97bab1ed9": {
+      "source": "## Batch Inference Class\nMany machine learning models are optimized for processing a batch of inputs at once. When working with a large dataset, there could be many batches of data. Instead of loading machine learning models repeatedly to run each batch of data, you want to spin up a number of actor processes that are **initialized once** with your model **and reused** to process multiple batches. \n\nTo implement this, you can use the `map_batches` API with a \"Callable\" class method that implements:\n\n- `__init__`: Initialize any expensive state.\n- `__call__`: Perform the stateful transformation.\n\nIn this example, a lightweight sentence transformer model, **all-MiniLM-L6-v2** is used to generate embeddings of text data.",
+      "cell_type": "markdown",
+      "is_output": false
+    },
+    "30f02fa3-69a5-4494-a71a-62ae4d21f14f": {
+      "source": "# Create an Ray actor class to embed text using the SentenceTransformer model\nclass TextEmbedder:\n    def __init__(self):\n        # load a pretrained sentence transformer model\n        model_name = \"all-MiniLM-L6-v2\"  # A popular, lightweight sentence transformer model\n        self.model = SentenceTransformer(model_name) # automatically detects cuda, mps, cpu\n\n    def __call__(self, batch: Dict[str, np.ndarray]) -> Dict[str, np.ndarray]:\n        sentences = batch[\"text\"] # use the \"text\" column\n        batch['embedding'] = self.model.encode(sentences) # create embedding\n        return batch\n",
+      "cell_type": "code",
+      "is_output": false
+    },
+    "c5134dae-999e-45ef-89d4-24208eb03f05": {
+      "source": "## Create a batch data and call the model\nDefine a Ray Data map_batches function to embed text using the SentenceTransformer model. This function will be applied to each batch of data in the Ray Data dataset. It will take a batch of sentences, encode them into embeddings, and return the batch with the embeddings added.\n\nShowcasing two options of to do batch inference based on if the ray cluster has have GPU nodes or if it has just CPU nodes. The second option also works on a local ray cluster on an Apple Silicon Mac with MPS.",
+      "cell_type": "markdown",
+      "is_output": false
+    },
+    "76ba30c3-829d-4293-b4ee-1c36e9ed8dbf": {
+      "source": "# setting manually so that code works on ray clusters with both CPU or GPU workers, or on a local mac with MPS\nworker_device = \"cpu\" # or \"cuda\" if you have a nvidia gpu on worker nodes\n# batch_size should be set based on VRAM \nif worker_device == \"cuda\": # if you have a nvidia gpu on worker nodes\n    # adjust batch_size based on the VRAM available on the GPU\n    ds = ds.map_batches(TextEmbedder, num_gpus=1, concurrency=2, batch_size=64) # 2 nodes with 1 GPU each\nelse:\n    ds = ds.map_batches(TextEmbedder, concurrency=2, batch_size=64) # either cpu or mps (on a mac)",
+      "cell_type": "code",
+      "is_output": false
+    },
+    "a7d1854c-b1a4-4de7-9469-e7ee9d7a66ee": {
+      "source": "### Deploying at scale\n- The batch size for encoding can be adjusted based on the available memory and performance requirements.\n- The `device` parameter ensures that the model runs on the correct device (CPU, GPU, or MPS).\n- The `concurrency` parameter controls how many batches are processed in parallel. If there are 2 nodes with 1 GPU each or 1 node with 2 GPUs, then set concurrency = 2 and num_gpus=1.\n- map_batches() is a lazy function and not executed until needed (example, using take or show).",
+      "cell_type": "markdown",
+      "is_output": false
+    },
+    "615fb42f-0066-4774-8d55-4760a793b13e": {
+      "source": "Run inference on a batch of 128 rows. This will return a batch of 128 rows with the embeddings added to the caller's machine.",
+      "cell_type": "markdown",
+      "is_output": false
+    },
+    "5244ffdd-25c3-4fc6-8ee8-982c809ea2a6": {
+      "source": "# Run inference on a batch of 128 rows for testing.\nds.take_batch(128)",
+      "cell_type": "code",
+      "is_output": false
+    },
+    "bc68cc75-357d-4cad-95b4-25f40aaaade7": {
+      "source": "2025-07-11 07:00:56,090\tINFO logging.py:295 -- Registered dataset logger for dataset dataset_4_0\n2025-07-11 07:00:56,094\tINFO streaming_executor.py:117 -- Starting execution of Dataset dataset_4_0. Full logs are in /tmp/ray/session_2025-07-11_06-47-50_390429_98374/logs/ray-data\n2025-07-11 07:00:56,095\tINFO streaming_executor.py:118 -- Execution plan of Dataset dataset_4_0: InputDataBuffer[Input] -> AllToAllOperator[Repartition] -> ActorPoolMapOperator[MapBatches(TextEmbedder)] -> LimitOperator[limit=128]\n",
+      "cell_type": "output",
+      "is_output": true
+    },
+    "5e334a3a-c3a8-4837-91df-36d72b4ef216": {
+      "source": "Running 0: 0.00 row [00:00, ? row/s]",
+      "cell_type": "output",
+      "is_output": true
+    },
+    "b2f1a898-605c-4877-abd7-e27cf2a4cc7a": {
+      "source": "2025-07-11 07:00:56,105\tINFO actor_pool_map_operator.py:633 -- Scaling up actor pool by 2 (reason=scaling to min size, running=0, restarting=0, pending=0)\n",
+      "cell_type": "output",
+      "is_output": true
+    },
+    "61a8dfd9-ffd3-4f7f-9d3f-f351d0215549": {
+      "source": "- Repartition 1: 0.00 row [00:00, ? row/s]",
+      "cell_type": "output",
+      "is_output": true
+    },
+    "dd743c0b-d954-4962-9873-b3f4b35da08c": {
+      "source": "Split Repartition 2:   0%|                                                                                    …",
+      "cell_type": "output",
+      "is_output": true
+    },
+    "17d908ba-f3f5-4eb7-a4e7-8d643e17c8dd": {
+      "source": "- MapBatches(TextEmbedder) 3: 0.00 row [00:00, ? row/s]",
+      "cell_type": "output",
+      "is_output": true
+    },
+    "632e7874-2935-4c67-889e-5b64a57491ae": {
+      "source": "- limit=128 4: 0.00 row [00:00, ? row/s]",
+      "cell_type": "output",
+      "is_output": true
+    },
+    "50db782d-dde6-49db-8aa8-2ac68d952a4f": {
+      "source": "2025-07-11 07:01:12,263\tINFO actor_pool_map_operator.py:661 -- Scaled down actor pool by 1 (reason=consumed all inputs; running=1, restarting=0, pending=0)\n2025-07-11 07:01:12,377\tINFO streaming_executor.py:227 -- ✔️  Dataset dataset_4_0 execution finished in 16.28 seconds\n",
+      "cell_type": "output",
+      "is_output": true
+    },
+    "edb00915-ee79-4d1e-aa2d-7300dd8bcaf3": {
+      "source": "{'text': array(['\"QT @user In the original draft of the 7th book, Remus Lupin survived the Battle of Hogwarts. #HappyBirthdayRemusLupin\"',\n        '\"Ben Smith / Smith (concussion) remains out of the lineup Thursday, Curtis #NHL #SJ\"',\n        'Sorry bout the stream last night I crashed out but will be on tonight for sure. Then back to Minecraft in pc tomorrow night.',\n        \"Chase Headley's RBI double in the 8th inning off David Price snapped a Yankees streak of 33 consecutive scoreless innings against Blue Jays\",\n        '@user Alciato: Bee will invest 150 million in January, another 200 in the Summer and plans to bring Messi by 2017\"',\n        \"@user LIT MY MUM 'Kerry the louboutins I wonder how many Willam owns!!! Look Kerry Warner Wednesday!'\",\n        '\"\\\\\"\"\"\" SOUL TRAIN\\\\\"\"\"\" OCT 27 HALLOWEEN SPECIAL ft T.dot FINEST rocking the mic...CRAZY CACTUS NIGHT CLUB ..ADV ticket $10 wt out costume $15...\"',\n        'So disappointed in wwe summerslam! I want to see john cena wins his 16th title',\n        '\"This is the last Sunday w/o football .....,NFL is back baby\"',\n        \"@user @user CENA & AJ sitting in a tree K-I-S-S-I-N-G 1st goes AJ's  job then John's cred then goes Vicki with the GM position.\",\n        '@user Well said on HMW. Can you now address why Texans fans file out of the stadium midway through the 4th qtr of every game?',\n        \"Just said hello to Dennis Kucinich as he walked casually through campus with his #hotwife. He's on 22nd st!\",\n        'Super excited for homecoming Saturday with Monroe! :D my new nephew is here but I can\\\\u2019t see him :(',\n        'That sucks if you have to take the SATs tomorrow',\n        '@user  6 tickets for Sam smith concert  Sept 30 cheap! Flew our family of 6 here fir the concert! BEYOND UPSET!',\n        '\"Fiorentina have reportedly opened talks with Chelsea over taking the 20yr old Kurt Zuoma on loan in January.\"',\n        'Creighton Volleyball leads 8-5 early in 2nd set. Match becomes even bigger with both Wichita St. & Missouri State down 0-1 at home tonight.',\n        \"This time tomorrow...we'll have the Iron on. Iron Maiden pieces Drops tomorrow nights.\",\n        \"Amy Schumer sat down with The Hollywood Reporter and opened up about the sexist remarks and unnecessary criticism she's faced since\",\n        \"What is Jamie Foxx doing sitting next to Niall like you could've sat in a better spot just saying lol\",\n        '@user @user 1st uneasyness was when he got v defensive about the Charlie Hebdo stuff, even tho he had pals patiently explaining\"',\n        'Reminder: Samsung Unveils the Galaxy Note 5 and S6 Edge+ Tomorrow Morning! - - #tech #news...',\n        '\"Gonna do a movie marathon with my friend today and tomorrow. Twilight, New Moon, Eclipse, BD1, The Runaways, Adventureland, (c)\"',\n        'Oscars Well makes his debut over fences at Punchestown tomorrow. It looks as though he\\\\u2019ll have Plan A and Darwins Fox to overcome.',\n        'Q2 10:30. Philip Rivers pass to Eddie Royal to the San Diego 19 for 7 yards. 3rd & 1.',\n        '@user Work colleague of mine on Thursday night: \"\"oh, look, they\\'re showing the Bee Gees on video.\"\" 23-yr old colleague: \"\"who?\"\"\"',\n        \"Who's going to get them Gucci foams tomorrow\",\n        'Yes glass of red\\\\u002c Rammstein and day off tomorrow (thank you @user just what I needed.',\n        'Vampettes we are back on the 21st place keep tweeting with the hashtag #MTVStars The Vamps #MTVStarsOf2015',\n        'Ryan Braun returned to the lineup on Wednesday after missing two games with lower back tightness.',\n        '\"#Ichiro has nothing. If you want to see hustle: Kenny Lofton, 17 October 1995, scores from second base on a past ball. #GoTribe #ALDS\"',\n        'Looking forward to going to Carrow Rd tonight. Last time we were there\\\\u002c Bale scored 2 and we were 3rd. Do not want extra time though',\n        'Gonna go to the north game tomorrow night. I better see some of you north kiddos',\n        'Right guys\\\\u002c last competition of the night... Like this status for a chance to win a copy of Judas Priest\\\\u2019s 30th...',\n        'We\\\\u2019re in the studio working on the new album and it sounds EPIC. We may as well pick up our Brit Award now\\\\u002c tbh.',\n        '\"last day of august, waiting for frank ocean to pull a beyonce.',\n        '#INFO --> Grand opening sharetea bubble tea with @user 2 nov 2012 mall taman anggrek 11:00 - 14:00 * Jadwal ke-1 besok !',\n        'Sunday (tomorrow) is National Ice Cream Day and have we got a gift for you!   Join us for an ice cream sundae and...',\n        'Gucci pants himself store january lay open the span thine atomic irruptive concomitant so that cons comburent:...',\n        'still not over how Nicki snapped like a 12th grader on their last day of high school',\n        'I may or may not buy myself the illustrated version of Harry potter for my birthday',\n        'I wanna see STUDIO FOOTAGE SO BAD. We are about to hear some unreleased STUFF! Likeeeeeeeeee I can\\\\u2019t wait until Sunday.',\n        '@user how the hell does every one else get to keep their religious and 1st amnt rights, except Christians!!! This is just wrong!!!\"',\n        'A @user rule change should allow Carly Fiorina to earn a spot on the main stage for the 2nd Republican debate.',\n        '\"TFI Friday doesn\\'t look like it\\'s coming back, as Chris Evans focuses on new-look Top Gear',\n        '#np The Way You Make Me Feel - 2012 Remaster by Michael Jackson from the album Bad 25th Anniversary.',\n        '\"I\\'m going to see Paper Towns. Saturday, 22 August 2015 at 17:40 in Leigh #Cineworld\"',\n        '@user Yepo I came in Milan it was my 1st concert and it was so good you guys did an amazing job! You are flawless live like PERFECT!',\n        '#days #dool Tuesday Hope has to pick up Ciara. Rafe wants a real case not just publicity like Justin',\n        'Seth Rollins talks &amp; talks every Monday on RAW for about 45 minutes',\n        'Thanks manager for putting me on the schedule for Sunday\"',\n        \"I'm sat at work just laughing at all these Hulk Hogan tweets. Hahha ffs\",\n        \"@user #MLBCentral David Wright crushing a dinger on his first swing since April 14th. I didn't think he would pull a Wilmer Flores!\",\n        'I feel like the new Janet Jackson single is bringing back 90s R&amp;B. via @user',\n        'Anyone want to see Sam smith with me on October 6th?',\n        'This Friday OUTHOUSE is playing at Still Partners in Sea Cliff ! Hop on the Expressway to Nirvana!',\n        '\"You can\\'t shit talk Kpop. Every group is so in sync and vocally on point. It may not be your thing, but it\\'s talent.\"',\n        'I hope Milan mom say that she can come over on the 28th',\n        'Don\\\\u2019t forget Mitch Daniels is going to be on Steven Colbert\\\\u2019s show Thursday.  Think this will come up as a topic?',\n        \"Amazon prime is literally a lie....I ordered a book LAST MONDAY &amp; it still isn't here. do better @user\",\n        'Who the hell moshes at Matt and Kim?? Next time watch out for my face\\\\u002c mofos! My cheekbones better not be purple tomorrow. @user',\n        '\"What a difference not having Sterling on the pitch makes! Welbeck dragged wide 1st half, the Ox replaces Sterling, Welbeck down middle, goal\"',\n        '\"Dear lovely Christians, I wish to inform you, tomorrow we got one Mass @ 10am as we\\'ll be submitting our parish family day collection!\"',\n        '\"To Kpop fans, we song along to vocals, 2nd voices, raps, fanchants, do the instruments &amp; even perform its own choreo',\n        'Cherie Blair is sat on our coach going to the games! #Olympics2012',\n        'continued : Emmanuel Adebayor has not travelled with the squad for our Europa League away tie in Greece tomorrow evening.',\n        \"Mario Williams is catching hell! He will be Exposed on Sunday... Not like Buffalo don't see him 4 who he is Already!\",\n        '\"Kris Bryant hurt, Joe Maddon ejected in today\\'s Cubs game, and it\\'s only the 6th inning.',\n        '@user Last Wednesday, when I saw you dressed as Robin, all I can think about is \"Who\\'s Batman? Where\\'s the Teen Titans?\"',\n        '@user Brock lesnar live from madison square garden sounds like it could just be a live feed of him sat on a chair for 3 hours',\n        '@user Frank ocean releasing his second album december 31st 2015 on new years eve. heres the interview...',\n        '@user @user at da end of da night no girl that roll with me is on da MTA! They are above that as long as I can afford that!',\n        '@user SCOTUS based their argument on the 14th. No matter how you stretch it race was not involved.',\n        \"My mom's over here tryna tell me that we're taking the CAHSEE tomorrow ._. Nigga it's only the second month of school.. #SlowYourRoll\",\n        '\"Rahul Gandhi held Indian citizenship from day one: Congress: New Delhi, Nov 18: Dismissing BJP leader Subraman...',\n        '\"I\\'m going to Paramore at Rock Im Park in Nuremburg, Germany - Jun 8',\n        'Happy Birthday Nick J  May you live long and Happy :)',\n        'ECHO: Sex offender is warned he may face jail over offences #Dorset',\n        'I hope Bernie Sanders is a sun and the other two are shooting stars or black holes.',\n        '\"Shows how much you can trust drivers answering these questions. Alonso was still saying on Monday that Ferrari split is \"\"\"\"just a rumor.\"\"\"\" #F1\"',\n        'Who else is going to the Chris brown tour this Thursday #ChrisBrown#onehellofanighttour',\n        'Your inspirational quotes on twitter/Feb never really got to me. But oh damn ur pics of them on IG have truly inspired me. #idiots\"',\n        'Another beauty of a day in Athens\\\\u002c Greece. I trust you\\\\u2019ll have an exceptional Friday wherever in the world you are. Much love.',\n        '\"Another great night in Split, off to Hvar on the 8:30 ferry tomorrow morning... dreading the packing but excited to get there!\"',\n        \"@user and im seeing Ed live this Saturday at b'ham NIA! It would be amazing to get the book signed. Thanks for putting it together\",\n        '\"Church tonight, who will you bring????\"',\n        'Q_Q Today was the day that Naruto shippuden: UNS4 was suppose to come out. WHYYYYYYY DID THEY PUSH IT ALL THE WAY TO JAN???? HELLO',\n        'Pics of the March Fourth Marching Band at the Oregon Country Fair closing out the show Sunday night. Their...',\n        'The audio booth is ready to blow the roof off the Comcast Center tomorrow! Are you? #MDMadness',\n        'welllll who wants to see Ed Sheeran with me on the 17th????',\n        'GOALdotCOM: Premier League Team of the Week: Van Persie & Aguero both star after City & Arsenal wins',\n        \"The Hitchhiker's Guide to the Galaxy Game - 30th Anniversary Edition Need to sign up with the BBC online.\",\n        \"I'm seeing Ed Sheeran on Wednesday in Miami so if you wanna meet up or say hi hmu!\",\n        '\"Chuck Close shares his best-kept secrets with @user on the eve of his new show, opening Thursday @user',\n        'Vermaelen the hero for Barca: Thomas Vermaelen was the unlikely hero as Barcelona laboured to a 1-0 home win over Malaga on Saturday ...',\n        '@user I\\\\u2019m sick with something ill be at school on Monday though',\n        '\"There\\'s something about Friday Night Lights, you just get chills thinking about it .\"',\n        'Googled the snake I stepped over on the trail Sunday. Baby timber rattler. So time to Google \"snake-proof hiking boots.\"',\n        '@user Also, his anger against Hindus are justified but couldn\\'t get why he was so anti Islam..may be he was just fed up of religions\"',\n        'Ricky Ponting and I now have something in common. Today he passed 23\\\\u002c000 1st class runs. Last night at training\\\\u002c i was hit for 23\\\\u002c000 runs.',\n        'Ted Nugent talks to us about #hunting and other stuff he\\\\u2019s got on his mind @user this Saturday at 7am on the Great Outdoors\\\\u002c #nuge',\n        'Check out Newsha Tavakolian at the Saatchi Gallery in London. Her photos of Iran may interest some of you!',\n        \"Mansbridge destroyed Justin tonite the polls for the lib's should tank tomorrow! Wake up people he is NOT ready!!\",\n        'For the ones tomorrow sunday in Milan (Italy): Aperitif and evening at Fiat Open Lounge:',\n        '\"J\\'regarde des infos sur Ragnarok (le film) &amp;bon: \"\"Thor will make it out of the third movie[..]Loki, on the other hand may not be so Lucky.\"\"\"',\n        '@user Donald trump said the same thing about the tax rate.  Fact check said he was a liar \"pant of fire\"',\n        '\"If you\\\\u2019re calling this little thing right here a \\\\\"\"\"\"party\\\\\"\"\"\" then Friday night\\\\u2019s gonna be Project X\\\\u002c Y\\\\u002c & Z.\"',\n        '\"Love this vid!! 1st time I\\\\u2019ve seen it!--- jules explains it all - David Archuleta sings \\\\\"\"\"\"Nandito Ako.\\\\\"\"\"\" via @user',\n        '@user @user Not just Christians, you are in the prayers of \"\"all of us\"\" humans.May you stay safe and be free soon!God bless.\"',\n        'Happy birthday @user ! National Bieber Day . Now he\\\\u2019s 18th years\\\\u002c but he\\\\u2019s #stillkidrauhl #IndonesiaSaysHBDforJustinBieber',\n        '\"If you put one over the plate he\\'s gonna fuck you up  Called it, Kris Bryant with his 21st\"',\n        'Good luck to Girls Tennis as the take on South Torrance today on 1st round CIF! #GoLions2012',\n        '\"\\\\\"\"Hey\\\\u002c you\\\\u2019re missing Beauty and the Beast\\\\u002c Vampire Diaries & Grey\\\\u2019s Anatomy right now on TV. Saturday is Merlin\\\\\"\" - @user #sisterlife\"',\n        'Decided to watch Rick and Morty will probably watch Naruto tomorrow such a good movie hits ya right in the feels',\n        \"first Hasek now Modano want to come back...who's next Mario Lemieux for the 4th time!\",\n        '@user isn\\\\u2019t it just!  staying in and watching the lovely James Martin on Saturday kitchen. Great pumpkin soup recipe to warm u up',\n        '@user how was your day today? Did you enjoy watching softball. We missed you on tiger woods',\n        'And to think I wrote this Dustin Johnson Tweet after the second round of the British Open',\n        \"Just Turned the corner into Ghetto n #Roma 1st thing I saw a group of Muslims! Now that's tourism for ya. It's a sm world after all #peace\",\n        \"Be sure to look for Nash's new video with Skylynn tomorrow #NashNewVideo love you @user\",\n        'Who wants to be my date to the White Sox vs Red Sox game Tuesday',\n        \"At long last, Lexus has developed a hoverboard, the 'Slide,' to be tested in public for the first time on Wed.\",\n        'I noticed all the Huddlestone haters were conspicuous by their absence yesterday\\\\u002c particularly when he assisted Bale for the 1st goal #THFC',\n        'Unexpected development-- saw Ant-Man on Saturday night in London. It was surprisingly charming. I actually quite enjoyed it.',\n        '\"Tomorrow is Star Wars day! New movie! And is @user and @user birthday! Great, isn\\'t? @user',\n        'Sun is shining... Bob Marley on the radio... hiya Monday!',\n        '\"Hope, Love &amp; Laughter; Warmth, Prosperity &amp; Joy; A fragrant bouquet filled with life; You may Enjoy! A very happy Eid -\"',\n        \"'Frank Ocean' appeared on Sunday 16 at the 11th place in the Top20 of Dallas-Ft. Worth's Trends: #trndnl\"],\n       dtype=object),\n 'label': array([2, 1, 1, 1, 2, 2, 2, 0, 2, 1, 1, 1, 2, 0, 1, 1, 2, 2, 0, 1, 1, 2,\n        1, 1, 1, 1, 1, 2, 2, 1, 1, 2, 1, 2, 2, 1, 1, 2, 1, 1, 2, 2, 0, 2,\n        1, 1, 2, 2, 1, 1, 0, 2, 1, 2, 1, 2, 1, 1, 1, 0, 0, 2, 2, 2, 1, 1,\n        0, 0, 1, 1, 1, 2, 1, 0, 1, 1, 2, 0, 2, 1, 2, 0, 2, 2, 2, 1, 0, 1,\n        2, 2, 2, 1, 2, 1, 2, 0, 2, 1, 0, 1, 1, 1, 1, 1, 1, 1, 1, 2, 2, 2,\n        0, 2, 0, 2, 1, 2, 1, 1, 1, 2, 1, 2, 0, 2, 2, 2, 2, 1]),\n 'embedding': array([[-0.11721872,  0.07510021,  0.00844238, ...,  0.05286286,\n          0.06096685,  0.08142687],\n        [-0.02556132, -0.01222771, -0.07829855, ...,  0.06099542,\n         -0.01231135,  0.00749106],\n        [-0.0092816 , -0.04148921,  0.01455652, ...,  0.07176238,\n         -0.06872221, -0.01504247],\n        ...,\n        [-0.01190887,  0.04831458,  0.03302041, ..., -0.00753223,\n         -0.08080895, -0.05962829],\n        [-0.06194988,  0.15394783,  0.050227  , ...,  0.08113792,\n          0.02496293, -0.06251295],\n        [-0.02202111, -0.02095584, -0.02791084, ..., -0.10536157,\n          0.03924675,  0.03357503]], shape=(128, 384), dtype=float32)}",
+      "cell_type": "output",
+      "is_output": true
+    },
+    "9dfb362c-a252-4ae7-8ea2-622f096cc23b": {
+      "source": "## Run inference on the entire dataset\nExecute and materialize this dataset into object store memory. This operation will trigger execution of the lazy transformations performed on this dataset. The embedding model 'TextEmbedder' in map_batches() is called on the entire dataset.",
+      "cell_type": "markdown",
+      "is_output": false
+    },
+    "86817a58-6792-476f-9342-e45c4857bfc1": {
+      "source": "# Run inference on the entire dataset\n# Note that this does not mutate the original Dataset.\nmaterialized_ds = ds.materialize()",
+      "cell_type": "code",
+      "is_output": false
+    },
+    "c398c31c-de4d-4c8c-9e81-5976f32fa2ec": {
+      "source": "2025-07-11 07:05:06,928\tINFO logging.py:295 -- Registered dataset logger for dataset dataset_5_0\n2025-07-11 07:05:06,931\tINFO streaming_executor.py:117 -- Starting execution of Dataset dataset_5_0. Full logs are in /tmp/ray/session_2025-07-11_06-47-50_390429_98374/logs/ray-data\n2025-07-11 07:05:06,932\tINFO streaming_executor.py:118 -- Execution plan of Dataset dataset_5_0: InputDataBuffer[Input] -> AllToAllOperator[Repartition] -> ActorPoolMapOperator[MapBatches(TextEmbedder)]\n",
+      "cell_type": "output",
+      "is_output": true
+    },
+    "8f72d9aa-37ac-40b5-80bc-d1e2bf477cca": {
+      "source": "Running 0: 0.00 row [00:00, ? row/s]",
+      "cell_type": "output",
+      "is_output": true
+    },
+    "07444bfd-b890-4e49-8581-49e3be98ad7e": {
+      "source": "2025-07-11 07:05:06,942\tINFO actor_pool_map_operator.py:633 -- Scaling up actor pool by 2 (reason=scaling to min size, running=0, restarting=0, pending=0)\n",
+      "cell_type": "output",
+      "is_output": true
+    },
+    "0b9ded8b-e607-4caf-a81a-d38b06c073fd": {
+      "source": "- Repartition 1: 0.00 row [00:00, ? row/s]",
+      "cell_type": "output",
+      "is_output": true
+    },
+    "a60d6a96-93c4-4741-9a2f-7e30ca72f734": {
+      "source": "Split Repartition 2:   0%|                                                                                    …",
+      "cell_type": "output",
+      "is_output": true
+    },
+    "5391ff33-bea4-416b-8905-e0a2095a12c1": {
+      "source": "- MapBatches(TextEmbedder) 3: 0.00 row [00:00, ? row/s]",
+      "cell_type": "output",
+      "is_output": true
+    },
+    "9b20f137-3838-4cf3-8511-969ddcc5ee34": {
+      "source": "2025-07-11 07:05:12,188\tINFO actor_pool_map_operator.py:661 -- Scaled down actor pool by 1 (reason=consumed all inputs; running=1, restarting=0, pending=0)\n2025-07-11 07:05:38,090\tINFO actor_pool_map_operator.py:661 -- Scaled down actor pool by 1 (reason=consumed all inputs; running=0, restarting=0, pending=0)\n2025-07-11 07:05:38,097\tINFO streaming_executor.py:227 -- ✔️  Dataset dataset_5_0 execution finished in 31.17 seconds\n",
+      "cell_type": "output",
+      "is_output": true
+    },
+    "37f8560d-5d22-4dcb-9a5c-451be075d4c2": {
+      "source": "# metadata after inference\nprint('** Original dataset:', ds)\nprint('\\n** Materialized dataset:', materialized_ds)",
+      "cell_type": "code",
+      "is_output": false
+    },
+    "0506df4d-d9f0-4863-8927-30187f78f182": {
+      "source": "** Original dataset: MapBatches(TextEmbedder)\n+- Repartition\n   +- Dataset(num_rows=45615, schema={text: string, label: int64})\n\n** Materialized dataset: MaterializedDataset(\n   num_blocks=2,\n   num_rows=45615,\n   schema={\n      text: string,\n      label: int64,\n      embedding: numpy.ndarray(shape=(384,), dtype=float)\n   }\n)\n",
+      "cell_type": "output",
+      "is_output": true
+    },
+    "4e78001c-5636-42d8-8053-6853d9f571ac": {
+      "source": "# Show a few rows of the materialized dataset with embeddings\nmaterialized_ds.show(3)",
+      "cell_type": "code",
+      "is_output": false
+    },
+    "b7f7bf29-c3f4-4c79-a30a-6e5b49ea2b31": {
+      "source": "2025-07-11 07:06:33,183\tINFO logging.py:295 -- Registered dataset logger for dataset dataset_7_0\n2025-07-11 07:06:33,184\tINFO streaming_executor.py:117 -- Starting execution of Dataset dataset_7_0. Full logs are in /tmp/ray/session_2025-07-11_06-47-50_390429_98374/logs/ray-data\n2025-07-11 07:06:33,185\tINFO streaming_executor.py:118 -- Execution plan of Dataset dataset_7_0: InputDataBuffer[Input] -> LimitOperator[limit=3]\n",
+      "cell_type": "output",
+      "is_output": true
+    },
+    "f1cdce3d-d7de-44de-bc6d-196ea5f74538": {
+      "source": "Running 0: 0.00 row [00:00, ? row/s]",
+      "cell_type": "output",
+      "is_output": true
+    },
+    "e579e24e-b569-4ac3-bc9e-a8fc32dc47a0": {
+      "source": "- limit=3 1: 0.00 row [00:00, ? row/s]",
+      "cell_type": "output",
+      "is_output": true
+    },
+    "e516c60c-9d30-48f0-9cec-2d45cdcc7d88": {
+      "source": "2025-07-11 07:06:33,232\tINFO streaming_executor.py:227 -- ✔️  Dataset dataset_7_0 execution finished in 0.05 seconds\n",
+      "cell_type": "output",
+      "is_output": true
+    },
+    "343abf2f-69dd-4dc0-a7f7-af5b604951a1": {
+      "source": "{'text': '\"QT @user In the original draft of the 7th book, Remus Lupin survived the Battle of Hogwarts. #HappyBirthdayRemusLupin\"', 'label': 2, 'embedding': array([-1.17218718e-01,  7.51002133e-02,  8.44237953e-03,  2.10537948e-02,\n       -8.00926834e-02,  6.09376505e-02,  8.09841380e-02,  6.39745891e-02,\n       -1.34842591e-02, -1.22891478e-02,  9.70130879e-03,  8.13238472e-02,\n        1.59728657e-02, -6.84826868e-03, -7.90290013e-02, -2.23982316e-02,\n       -5.93358018e-02,  4.27904241e-02, -5.25669474e-03, -4.10776436e-02,\n       -3.37784477e-02, -2.12912727e-02,  1.09729558e-01,  2.08834168e-02,\n        6.42482564e-02, -5.55025972e-02, -3.46165411e-02,  6.61124960e-02,\n       -5.21334969e-02, -3.30999158e-02, -1.77784879e-02,  3.47602344e-03,\n       -2.97606084e-02, -6.36240765e-02, -4.66033891e-02,  6.25401214e-02,\n        2.89564747e-02, -5.32266051e-02,  5.21380231e-02, -1.88834351e-02,\n       -3.40600796e-02,  1.02842702e-02, -2.32401919e-02,  6.98712543e-02,\n        5.05110919e-02, -1.33760041e-02, -6.32564947e-02,  2.94806529e-02,\n       -6.45845979e-02,  7.76715726e-02,  2.06234232e-02,  7.12174596e-03,\n       -2.40456108e-02, -4.19275388e-02,  4.32918817e-02,  1.97234564e-02,\n        6.78284839e-02, -5.84342591e-02,  6.50576949e-02, -6.35665376e-04,\n       -9.23694149e-02,  6.70160577e-02,  1.61644816e-02,  8.81150190e-04,\n       -1.06128380e-02, -1.53647423e-01, -6.23815991e-02,  1.25934454e-02,\n       -1.15874708e-02, -3.37391533e-03, -1.45804777e-03, -1.68279577e-02,\n        3.16142738e-02, -9.56896693e-03,  2.58824509e-02,  1.72043703e-02,\n       -1.06465332e-02, -4.50892793e-03, -1.57877821e-02, -4.38858718e-02,\n        4.12587933e-02, -1.05029851e-01, -9.40064341e-03, -1.93991698e-02,\n        8.07769895e-02, -1.46954274e-02,  7.76875392e-03, -9.70078446e-03,\n       -7.73954112e-03, -6.33768886e-02, -4.40336857e-03,  1.01402104e-02,\n        6.79888725e-02,  6.40537590e-02,  3.94202918e-02,  4.05897461e-02,\n       -5.73339425e-02, -1.31973000e-02, -1.77555919e-01,  1.75755769e-02,\n        3.35890651e-02, -2.96707787e-02,  6.60929009e-02,  5.90833239e-02,\n        7.71614686e-02, -4.89910729e-02, -1.19408388e-02, -2.27159020e-02,\n       -5.01141734e-02, -1.46210968e-01, -6.56389399e-03, -1.15747452e-01,\n        7.41516277e-02,  3.42241838e-04,  8.31499174e-02,  2.45558545e-02,\n        1.50099332e-02,  1.08849846e-01, -5.23204021e-02, -7.37850042e-03,\n        3.49425897e-02,  8.54113623e-02, -9.36829392e-03, -5.40084913e-02,\n       -1.64574068e-02, -7.19670653e-02,  3.98440845e-03,  3.58003160e-33,\n        4.58818898e-02, -1.07039157e-02, -7.70758316e-02,  8.17278847e-02,\n       -2.80772168e-02,  7.00596860e-03,  5.23302741e-02, -3.55900936e-02,\n       -2.84438897e-02, -5.47925606e-02, -4.97773625e-02, -2.41786465e-02,\n        1.80584863e-02, -7.33728483e-02, -7.44769201e-02,  4.01951000e-02,\n       -1.16273381e-01, -4.30478994e-03, -4.09788750e-02,  2.46128924e-02,\n       -1.12685782e-03, -3.20175812e-02, -4.27514724e-02, -5.19986786e-02,\n        4.28858958e-02,  4.66034375e-02,  3.08393911e-02,  6.15451038e-02,\n        3.45387161e-02,  3.17677706e-02, -1.05951829e-02, -4.23053056e-02,\n        4.84787306e-04, -2.49361154e-02, -8.93655512e-03, -2.25248020e-02,\n       -5.19684739e-02, -1.04188204e-01,  1.68928802e-02,  4.78072055e-02,\n       -5.54645248e-02,  1.28076579e-02, -1.21971425e-02, -7.01387227e-02,\n       -2.46787928e-02,  7.94926137e-02,  2.89146360e-02,  1.02481507e-01,\n        1.06039613e-01, -2.30980236e-02,  2.10956261e-02,  3.45463008e-02,\n       -5.59060508e-03, -3.63363028e-02, -3.71677093e-02,  2.28330866e-03,\n       -4.01646197e-02,  1.11712754e-01,  2.84649059e-02,  1.89326443e-02,\n        2.30981060e-03,  6.20113872e-02, -1.37751494e-02,  2.03241184e-02,\n       -2.80346647e-02, -7.75653571e-02, -4.14971709e-02, -7.20567256e-03,\n       -4.97926176e-02,  2.63391770e-02, -5.86166140e-03, -2.06317782e-04,\n        5.78927866e-04, -8.92704949e-02, -4.81969379e-02, -7.32145682e-02,\n        4.31562141e-02,  5.28947487e-02, -9.46654081e-02, -7.99955577e-02,\n        6.97478577e-02,  6.47439016e-03, -5.47678024e-02,  1.17145060e-03,\n        6.50785267e-02, -6.31659403e-02,  3.60769555e-02, -1.34668782e-01,\n        1.32890965e-03,  5.14443852e-02,  3.90151963e-02, -4.06383444e-03,\n       -6.79656491e-02,  3.05412337e-02, -3.91437262e-02, -3.31172134e-33,\n       -1.93256009e-02,  2.11085677e-02, -6.86359452e-03,  5.23793101e-02,\n       -5.23960292e-02, -2.27106623e-02, -5.45928478e-02,  7.00129196e-02,\n        1.41968962e-03, -5.32654747e-02,  3.35026570e-02,  5.39053045e-02,\n       -4.56011016e-03,  1.05699580e-02,  1.02750473e-02, -1.76138058e-03,\n       -4.18264270e-02,  7.87272584e-03,  9.69689246e-03, -2.13547181e-02,\n       -2.16129310e-02, -2.17952654e-02, -8.20093006e-02, -2.54546804e-03,\n        4.96112816e-02,  3.79144512e-02,  9.71367359e-02, -7.81605020e-02,\n        2.14656349e-02, -5.85630648e-02,  1.49249397e-02, -8.17982033e-02,\n       -7.98221380e-02, -4.16970104e-02,  6.06887527e-02, -2.16946062e-02,\n        8.99340957e-02, -2.06241195e-04, -2.82704625e-02,  1.48663167e-02,\n        9.76795331e-02,  4.07512747e-02,  3.91802080e-02,  1.84257627e-02,\n        3.35833579e-02, -2.44072895e-03,  4.15428728e-02,  6.70849383e-02,\n        1.69882979e-02,  5.21745682e-02, -2.44500265e-02, -6.58806413e-02,\n        1.15585802e-02, -7.51119480e-02, -2.09318195e-02,  3.46736982e-03,\n        3.93599756e-02, -9.12234001e-03,  2.78715137e-02, -3.19835320e-02,\n       -7.81974494e-02, -2.90528610e-02,  3.26309279e-02,  3.06678507e-02,\n        3.95409912e-02, -2.03319024e-02, -4.18165373e-03,  5.66712171e-02,\n       -6.88231084e-03, -3.81209888e-02,  2.90659517e-02, -1.93396618e-03,\n       -2.29473785e-02, -1.94511395e-02,  1.53534813e-02,  9.87687856e-02,\n       -3.49257514e-02,  3.95493992e-02, -2.22867932e-02, -6.29297644e-03,\n        8.33572224e-02,  2.73475703e-02, -3.66510823e-02,  3.77095975e-02,\n        6.62408248e-02, -6.19172417e-02, -2.96917129e-02,  3.25294994e-02,\n        3.17605399e-02, -6.35268092e-02,  5.86302094e-02,  9.55099240e-03,\n        7.19797611e-02,  5.65288996e-04,  5.88193573e-02, -3.06202352e-08,\n        4.70640138e-03,  1.02480531e-01, -2.98234466e-02, -9.26990714e-03,\n        3.66888866e-02,  7.81677291e-02,  4.95807119e-02, -6.63496330e-02,\n       -4.63559180e-02,  1.68990344e-01, -1.34740751e-02,  7.74639919e-02,\n       -7.67530221e-03, -2.24219281e-02, -1.29715446e-02,  9.00719017e-02,\n       -1.57175567e-02, -4.43267226e-02, -8.95755831e-03, -1.44299744e-02,\n        3.72793153e-02,  1.30715715e-02,  9.86067504e-02,  2.01104600e-02,\n       -4.95612733e-02,  6.32244647e-02,  5.00994138e-02, -4.25795130e-02,\n       -4.42548003e-03, -4.18200418e-02,  6.43996522e-02,  1.28545947e-02,\n       -1.49631714e-02, -6.33315668e-02, -6.71327189e-02,  6.92848936e-02,\n       -4.39268537e-03,  5.62317707e-02,  6.82934299e-02,  2.83462293e-02,\n       -5.08866049e-02,  5.43779554e-03,  8.86543170e-02,  1.91011913e-02,\n       -5.92106171e-02, -5.94048835e-02, -1.15786707e-02, -5.75899668e-02,\n       -1.15391724e-02, -5.88483773e-02, -6.32902160e-02, -6.89050034e-02,\n        6.49331436e-02, -2.99487356e-02, -4.41985670e-03,  2.54450669e-03,\n        2.28572544e-02,  4.88852262e-02,  3.76263633e-02, -6.22804798e-02,\n        7.95309842e-02,  5.28628640e-02,  6.09668531e-02,  8.14268738e-02],\n      dtype=float32)}\n{'text': '\"Ben Smith / Smith (concussion) remains out of the lineup Thursday, Curtis #NHL #SJ\"', 'label': 1, 'embedding': array([-2.55613178e-02, -1.22277103e-02, -7.82985464e-02,  2.23083012e-02,\n        4.47834991e-02,  9.60700288e-02,  6.89739510e-02,  1.91462375e-02,\n        3.44326049e-02, -1.80058852e-02, -7.94921815e-02,  8.78439620e-02,\n       -2.44877301e-02,  4.82736081e-02,  4.00641076e-02, -7.94008095e-03,\n       -5.26009388e-02,  7.12939501e-02, -6.52135583e-03, -6.82709087e-03,\n       -1.29825398e-01,  8.02508835e-03, -8.82670507e-02, -1.48856053e-02,\n        5.56896329e-02,  6.38554320e-02, -1.19254841e-02, -2.13803817e-02,\n       -8.43747482e-02,  1.26320729e-02, -4.74106744e-02, -1.50946071e-02,\n        8.63529071e-02, -4.39660065e-02,  3.20312032e-03, -8.74198601e-03,\n       -4.42857780e-02,  6.30582720e-02, -5.30618355e-02,  5.91205712e-03,\n        3.80778313e-02,  4.53377999e-02, -5.43168001e-02, -2.31449399e-03,\n        5.61808310e-02,  1.20103974e-02, -4.82929088e-02, -7.57502690e-02,\n        5.07813133e-02,  6.22332841e-02,  3.17716263e-02, -7.45667797e-03,\n        4.52154651e-02,  4.76346910e-02,  2.97699012e-02,  3.64353992e-02,\n       -1.03162946e-02, -2.26502474e-02, -6.53998228e-03,  4.38563488e-02,\n       -1.53381238e-02, -7.38687068e-02,  1.18025970e-02, -4.27902825e-02,\n        3.20152864e-02,  1.69849765e-04, -7.02338964e-02, -2.94919703e-02,\n       -5.24085984e-02,  5.06155156e-02,  5.58261052e-02,  4.48048115e-02,\n       -9.27486494e-02, -2.99074054e-02, -1.43916206e-02,  9.60254669e-03,\n        2.32722983e-03, -7.26314560e-02,  8.12841654e-02,  2.87622940e-02,\n        3.61495838e-02, -7.20370263e-02, -3.91010717e-02,  4.62209135e-02,\n        5.63077107e-02,  5.88136353e-02, -2.27219909e-02,  4.94449548e-02,\n       -5.53754605e-02,  8.89227986e-02, -8.43940079e-02,  3.83486040e-02,\n        1.23478852e-01, -1.62131321e-02,  5.37196398e-02,  1.14703774e-02,\n       -1.28796948e-02, -3.82876396e-02, -9.97122377e-02,  6.26244992e-02,\n        1.25175510e-02,  3.23107583e-03,  2.76067518e-02, -8.78041089e-02,\n        1.04419766e-02, -1.30746688e-03, -2.71802861e-02, -3.36855166e-02,\n        4.15072963e-03, -5.99537045e-02,  4.48855758e-02,  1.14159100e-01,\n       -5.89613281e-02,  3.30517557e-03,  3.20716389e-02, -3.87823978e-03,\n        2.39532143e-02,  7.92267558e-04,  6.68623075e-02, -4.79875319e-02,\n        2.11493243e-02,  8.82634446e-02,  2.38798335e-02,  4.41922843e-02,\n        1.60900429e-02,  5.62676229e-02, -1.37080820e-02, -1.52324782e-33,\n        1.40510444e-02,  1.25912409e-02,  1.56041365e-02,  5.57393692e-02,\n        2.67249476e-02, -4.11788076e-02,  1.36150215e-02, -8.49959813e-03,\n       -4.08855490e-02, -6.99530393e-02, -2.27213278e-02, -1.71361454e-02,\n        9.42177847e-02, -8.82237032e-02, -1.90656148e-02, -3.51617597e-02,\n        5.87068461e-02, -1.54304842e-03,  3.76780378e-03, -5.22918031e-02,\n       -5.45237213e-02, -1.76568236e-03, -7.63769671e-02,  3.08161136e-03,\n       -3.69230062e-02, -2.68261507e-02, -1.76323075e-02, -6.73842654e-02,\n       -3.03915609e-02,  1.09058516e-02, -5.56920916e-02,  1.28869668e-01,\n        7.84609653e-03,  8.80600139e-02,  7.00087994e-02, -3.35481167e-02,\n       -9.90392175e-03,  6.11897744e-02, -2.46281177e-02, -9.28131025e-03,\n        3.00403815e-02,  1.66808441e-02, -9.37153175e-02, -1.46350823e-02,\n       -5.96568063e-02,  1.21405767e-02,  2.86025219e-02,  7.83483610e-02,\n        2.18932852e-02, -5.49808554e-02,  3.51315774e-02,  6.61210120e-02,\n        1.81153491e-02,  2.04514116e-02, -9.43328887e-02,  1.73909385e-02,\n        5.59438765e-02,  4.97128675e-03,  2.51865722e-02, -1.96423475e-03,\n        1.33300245e-01,  1.53959617e-02, -8.91614705e-02,  8.85712914e-03,\n       -2.07582638e-02, -4.13841531e-02, -7.87826851e-02, -1.19861914e-02,\n       -4.14533243e-02, -1.92968845e-02,  2.61377022e-02,  5.39287962e-02,\n       -9.38115362e-03,  6.85030222e-02, -5.84072098e-02,  1.24473451e-03,\n       -6.05048873e-02,  1.36857450e-01, -3.39905545e-03,  3.11745796e-02,\n        7.76972622e-02, -6.35873899e-02, -4.34449054e-02, -1.58614498e-02,\n       -3.84016372e-02,  3.38910706e-03,  2.32756231e-02, -5.53193595e-03,\n       -1.38496622e-01,  2.69974936e-02,  2.49307863e-02,  3.71107422e-02,\n        5.30565623e-04, -1.60926636e-02, -3.14777484e-03, -2.76055871e-34,\n       -9.78836194e-02, -1.46938870e-02, -7.27394149e-02,  2.06164196e-02,\n        3.10279503e-02, -8.07614997e-02,  7.94474315e-03,  3.32296453e-02,\n        7.23314434e-02, -3.07590961e-02,  6.15157820e-02, -4.93274853e-02,\n       -8.39590132e-02,  3.49642932e-02,  4.63410094e-02, -1.90476887e-02,\n       -8.16249922e-02,  7.04781413e-02, -5.39747020e-03, -8.58904049e-03,\n        9.71276686e-02, -8.64927173e-02, -6.38451725e-02, -2.74092592e-02,\n       -6.03620186e-02,  3.69485952e-02,  7.36873224e-02,  2.89384127e-02,\n       -6.56188577e-02,  4.94507216e-02, -7.41920993e-02, -1.42943636e-02,\n        1.66672035e-04, -9.95530374e-03, -4.00982723e-02,  3.37605290e-02,\n       -5.95777296e-02,  6.70991046e-03, -1.57008413e-02,  3.73471044e-02,\n        3.79455946e-02,  5.53716086e-02,  3.18707759e-03,  1.51786283e-01,\n        7.76463524e-02,  1.42904809e-02,  5.78197911e-02,  4.46490431e-03,\n       -1.10954670e-02,  3.20407227e-02, -5.73056117e-02, -7.25806283e-04,\n       -7.94559568e-02,  3.97899076e-02, -4.93872128e-02, -1.19192507e-02,\n       -1.98645657e-03, -7.47399181e-02, -5.22234142e-02, -1.06282867e-01,\n       -9.44628939e-03,  4.59105931e-02,  1.49779003e-02, -1.83186028e-02,\n        9.78474542e-02,  3.79409343e-02,  1.98250581e-02, -1.93877090e-02,\n       -5.19630387e-02, -6.22458421e-02, -5.05403318e-02, -3.21796946e-02,\n        7.79880509e-02, -5.00046369e-03, -4.84560393e-02,  1.87722724e-02,\n       -4.44888324e-02,  2.35665385e-02,  1.78778227e-02,  2.74006203e-02,\n       -1.57440994e-02, -3.61626707e-02, -6.27598614e-02,  5.92633970e-02,\n        1.58189368e-02, -2.34323069e-02,  2.17458829e-02,  2.83414386e-02,\n       -6.52647242e-02, -4.23069037e-02, -1.01103884e-04, -1.94980036e-02,\n        1.46038486e-02,  8.76936167e-02, -8.81101489e-02, -2.34348310e-08,\n       -5.31913936e-02, -3.84204574e-02, -1.30834863e-01, -3.89393270e-02,\n        9.15531293e-02,  8.70207208e-04,  7.21508265e-02,  3.77374096e-03,\n        9.15844142e-02,  3.65297012e-02, -3.70606668e-02,  1.32635012e-02,\n       -2.73160497e-03, -4.00724374e-02,  4.21377383e-02,  4.44875658e-02,\n       -9.84100178e-02, -3.10863163e-02, -1.36786141e-02, -5.65908886e-02,\n       -1.04401015e-01,  1.89414667e-03, -1.74725649e-03,  3.48813944e-02,\n        2.80134752e-02,  6.42856956e-02, -4.85674404e-02,  6.26258478e-02,\n        3.54573391e-02, -1.47293536e-02,  1.23639209e-02,  6.23702966e-02,\n        4.56662523e-03,  1.61783993e-02,  9.06857569e-03, -4.01875377e-02,\n       -1.36868265e-02, -4.51042950e-02,  1.08593434e-01, -9.17549804e-02,\n       -2.72664893e-02, -6.42662169e-03, -4.96078059e-02,  7.15247765e-02,\n        6.12468980e-02, -2.39855982e-02,  3.41575071e-02,  3.28529142e-02,\n       -6.83045536e-02, -1.24854468e-01, -1.72060728e-02, -2.08318681e-02,\n        1.95717700e-02,  6.82900697e-02,  3.40240113e-02,  6.28125295e-02,\n        8.68410710e-03, -5.08967713e-02, -2.17342269e-04, -5.02352677e-02,\n       -3.67074795e-02,  6.09954223e-02, -1.23113478e-02,  7.49106100e-03],\n      dtype=float32)}\n{'text': 'Sorry bout the stream last night I crashed out but will be on tonight for sure. Then back to Minecraft in pc tomorrow night.', 'label': 1, 'embedding': array([-9.28160176e-03, -4.14892137e-02,  1.45565206e-02, -8.35185423e-02,\n        7.88125470e-02, -1.39421923e-02, -4.58531007e-02,  3.97312343e-02,\n       -7.73005784e-02,  1.19767813e-02, -4.00974117e-02,  6.80779386e-03,\n       -6.15553670e-02,  3.10526211e-02, -2.67168414e-03,  2.56718080e-02,\n       -8.10807291e-03,  2.01351717e-02, -1.05955295e-01,  7.41280317e-02,\n       -4.72918749e-02, -4.68044616e-02, -4.42471355e-02,  1.13586960e-02,\n       -1.18926680e-02,  7.31019164e-03,  8.72505680e-02,  5.27818017e-02,\n       -2.33023707e-02, -3.09640113e-02, -9.57536250e-02, -1.18500029e-03,\n       -1.26816351e-02, -2.40409318e-02,  2.89740060e-02,  2.65101083e-02,\n        2.42837034e-02, -2.03901269e-02,  1.64824829e-03, -2.51518283e-02,\n        7.54621774e-02,  5.11016287e-02, -6.16848189e-03, -3.56115811e-02,\n       -7.21600205e-02,  8.51503164e-02,  1.59831755e-02, -5.34999743e-02,\n        6.00217544e-02,  1.03347346e-01, -5.25707304e-02, -5.24885803e-02,\n        2.75378935e-02,  2.17306670e-02,  1.28086493e-03,  2.91938744e-02,\n       -2.06012297e-02,  6.30638674e-02,  7.67096058e-02, -2.18252768e-03,\n        5.29807210e-02, -5.36710434e-02, -1.47477984e-02,  3.15658525e-02,\n        1.01958193e-01, -2.24984046e-02, -9.17503238e-03,  3.21776196e-02,\n        3.12821269e-02, -2.82377563e-02, -3.95642184e-02,  2.62470581e-02,\n       -5.04267104e-02, -5.34561165e-02, -9.26208720e-02,  4.50164117e-02,\n        1.61173157e-02, -1.28749549e-01, -1.77606642e-02,  5.82819171e-02,\n        3.07420641e-02, -9.28947702e-03, -8.07348490e-02, -3.60559933e-02,\n       -6.85011083e-03, -1.41520910e-02, -1.73541475e-02,  1.04313433e-01,\n        7.97910169e-02,  2.97468323e-02, -1.14019522e-02,  9.90668219e-03,\n        7.12907687e-02,  1.58452298e-02, -2.38109175e-02,  1.05117615e-02,\n        7.72602186e-02, -6.75087003e-03, -5.08386130e-03,  1.63008086e-02,\n        8.83987024e-02,  5.79223316e-03,  1.43902507e-02,  2.57970206e-02,\n        2.62782574e-02, -5.59260547e-02, -3.66871315e-03,  8.70502144e-02,\n        6.40254933e-03, -6.49876371e-02, -3.90511677e-02,  4.14787792e-02,\n        7.07005756e-03, -2.71599907e-02,  5.49026504e-02,  1.06359579e-01,\n       -4.86110076e-02,  6.92230538e-02, -2.42604055e-02,  1.72232352e-02,\n       -1.01544438e-02, -1.07735191e-02, -1.26948217e-02, -5.11058047e-02,\n        9.76448804e-02,  6.84200376e-02,  2.25723777e-02,  6.43248991e-35,\n        7.32454751e-03, -6.26351237e-02, -4.04127836e-02,  6.97651729e-02,\n        1.08847059e-01, -9.73338448e-03,  7.00958297e-02,  1.52096841e-02,\n       -3.87136489e-02, -2.70176884e-02,  2.95678936e-02, -5.12014441e-02,\n       -5.13095595e-02, -4.07334603e-02, -8.59555081e-02, -3.13828215e-02,\n        7.55923614e-02, -4.56688479e-02, -9.45596695e-02,  4.87503409e-02,\n       -3.98070179e-02, -5.26156314e-02, -5.62014505e-02,  1.45803327e-02,\n       -7.69655108e-02,  2.29535252e-02, -1.21584712e-02, -2.18899436e-02,\n        3.46212946e-02,  2.07796153e-02, -6.07565679e-02, -7.80770779e-02,\n       -2.63716504e-02,  1.81611199e-02,  4.50653918e-02, -2.36595646e-02,\n       -1.03722222e-01, -1.41933542e-02, -1.13086134e-01, -5.26371822e-02,\n        1.93267390e-02,  2.75361482e-02, -4.88547347e-02, -6.93108886e-02,\n       -1.33832851e-02, -1.41709536e-01,  3.38281021e-02,  2.47783903e-02,\n        2.21503563e-02, -2.30557770e-02, -1.72964428e-02,  8.39066431e-02,\n        2.37764162e-03, -2.27935463e-02, -1.10879738e-03,  4.46190545e-03,\n       -6.24192730e-02,  2.34613437e-02, -4.95128240e-03,  6.39796034e-02,\n        2.01946776e-02,  5.57737350e-02,  7.97899440e-02, -1.58086956e-01,\n        2.69690510e-02, -2.01505721e-02,  3.97603959e-02,  1.86763499e-02,\n        5.12183236e-04, -5.84025085e-02,  2.22967193e-02,  2.96519734e-02,\n        3.64042781e-02, -4.09158831e-03,  3.81992236e-02,  9.54230055e-02,\n       -3.41169238e-02, -1.46371266e-02,  2.51320172e-02,  7.58155808e-02,\n       -3.54291149e-03,  1.05031021e-02,  4.76404205e-02, -1.32373542e-01,\n       -4.37142141e-02,  4.77830246e-02,  2.15556864e-02, -6.28415197e-02,\n        2.90165711e-02,  2.52539432e-03, -1.19884178e-01,  1.67702921e-02,\n        8.08926150e-02, -1.29964035e-02,  4.30540405e-02, -1.49187856e-33,\n       -3.76389585e-02,  1.70480572e-02, -9.97973699e-03, -2.76702512e-02,\n        3.40880044e-02, -4.40937243e-02,  5.09305708e-02,  8.44945610e-02,\n       -4.93653901e-02, -5.67625724e-02, -7.82248098e-03, -9.26000811e-03,\n       -1.28712449e-02,  2.40222309e-02, -4.32768166e-02, -1.10129036e-01,\n       -1.34206163e-02,  2.51739728e-03,  3.32192443e-02,  2.78793629e-02,\n       -5.87145798e-02, -3.75092961e-02, -1.92250460e-02,  1.93505753e-02,\n        4.26429361e-02,  1.96230914e-02, -6.79288665e-03,  7.65683129e-02,\n       -3.08306534e-02,  3.08888834e-02,  9.09694359e-02,  4.20587808e-02,\n       -2.68863142e-02,  5.45977615e-02,  5.81750199e-02,  8.59733031e-04,\n        7.85737485e-02, -2.00728178e-02,  1.43806068e-02, -2.88060308e-03,\n        2.99445761e-04,  1.96223371e-02, -1.04279362e-01,  4.70483862e-02,\n        3.43821533e-02,  5.97741865e-02,  2.01273207e-02,  1.25387060e-02,\n       -2.16315296e-02, -3.37964366e-03,  5.47997355e-02,  1.73962507e-02,\n        1.05964907e-01, -2.35189386e-02,  8.73528048e-02, -1.08117312e-01,\n        1.01148352e-01, -2.31141504e-02, -1.67394597e-02, -5.98530062e-02,\n       -1.05838008e-01, -1.03351809e-01, -3.96672040e-02,  4.51281480e-02,\n        1.55635225e-02,  8.08900222e-02,  2.57156566e-02,  4.25258800e-02,\n       -2.87305135e-02, -4.58301930e-03, -5.33827804e-02,  1.47896763e-02,\n       -2.74435990e-02, -1.04760937e-02,  3.67200039e-02,  1.03974594e-02,\n        5.51383309e-02,  2.80356482e-02, -3.77459675e-02,  1.33281359e-02,\n        4.06659506e-02,  6.29792884e-02, -3.57226282e-02, -8.08423311e-02,\n        1.12480514e-01, -6.56274483e-02,  8.19716156e-02,  8.39561000e-02,\n       -1.01000227e-01, -5.75359203e-02, -2.35024523e-02,  2.04023737e-02,\n       -3.35016027e-02,  2.55699139e-02,  5.16707636e-02, -2.47635157e-08,\n       -3.07316985e-02, -3.44269560e-03, -4.59552705e-02,  1.04871886e-02,\n        4.93218452e-02,  2.82714777e-02,  7.73386657e-03, -7.70623609e-02,\n        1.47110615e-02,  4.44087312e-02, -2.66246349e-02, -8.97952076e-03,\n       -2.92452052e-02,  4.84724203e-03,  2.41526775e-02, -8.97161290e-02,\n       -5.31209707e-02, -3.75342406e-02,  1.25268223e-02, -5.02448604e-02,\n        1.19601890e-01,  1.33688403e-02, -6.22192677e-03,  5.88282757e-02,\n        5.99094741e-02,  6.88624009e-02,  5.57160601e-02,  6.46354072e-03,\n       -5.55601753e-02, -4.85491417e-02, -5.22552105e-03,  2.33951919e-02,\n        7.89891556e-02, -3.87155861e-02,  3.01616676e-02, -1.01347007e-02,\n        2.88339034e-02, -7.21206143e-03,  2.96016713e-03,  6.87395632e-02,\n        7.59349391e-03, -5.99006638e-02, -1.45630976e-02, -6.54685497e-02,\n       -5.21637220e-03, -3.24615501e-02, -1.02316421e-02,  2.12832280e-02,\n       -5.23694418e-02, -4.33163792e-02, -1.01848297e-01, -6.08562492e-02,\n        2.72087287e-02, -1.84077434e-02,  1.33167297e-01, -5.71831726e-02,\n        4.76900255e-03, -2.59980466e-02, -5.92608377e-02, -9.81385726e-03,\n        8.45981687e-02,  7.17623755e-02, -6.87222108e-02, -1.50424745e-02],\n      dtype=float32)}\n",
+      "cell_type": "output",
+      "is_output": true
+    },
+    "648731c6-7cf7-4a60-9c9f-8a10603d7442": {
+      "source": "### Out of memory errors\nGPU (or MPS or CPU) memory has to keep the machine learning model and the batch of data in memory during the inference. If the batch_size is too large, it can run out of memory and throw out of memory errors. In that case, reduce the batch_size.",
+      "cell_type": "markdown",
+      "is_output": false
+    },
+    "c58ef704-a839-4731-8560-3d2182c5b265": {
+      "source": "### Shutdown Ray cluster",
+      "cell_type": "markdown",
+      "is_output": false
+    },
+    "9995e2f6-7816-4d06-9451-464254ddc612": {
+      "source": "# avoids collisons with other notebooks running ray jobs on the same machine\nray.shutdown()",
+      "cell_type": "code",
+      "is_output": false
+    },
+    "b69cb4b3-b820-4d44-b191-f370be77b39b": {
+      "source": "### Summary\nThis notebook demonstrates how to perform efficient batch inference on large datasets using Ray Data. It walks through loading a public dataset from Hugging Face, converting it into a Ray Dataset, and defining a callable class to load and apply a machine learning model (SentenceTransformer) for embedding text. The notebook shows how to use Ray Data’s `map_batches` API to process data in parallel batches, leveraging available CPUs or GPUs for high-throughput inference. It also covers best practices for scaling, handling memory constraints, and summarizes how Ray Data enables scalable, distributed batch inference for modern ML workflows.",
+      "cell_type": "markdown",
+      "is_output": false
+    },
+    "7be78a22-4848-47c9-ba9e-70e8c09c717c": {
+      "source": "",
+      "cell_type": "code",
+      "is_output": false
+    }
+  },
+  "cuts": [],
+  "merges": [
+    {
+      "raw_scene_ids": [
+        "70254fc5-5082-4818-9878-dded83568923-before-null-after-null",
+        "a75b4c4e-ddcf-47a3-8cde-61d0988f83ac-before-null-after-null"
+      ],
+      "id": "merge-70254fc5-5082-4818-9878-dded83568923-before-null-after-null-a75b4c4e-ddcf-47a3-8cde-61d0988f83ac-before-null-after-null-1769608749941"
+    },
+    {
+      "raw_scene_ids": [
+        "70254fc5-5082-4818-9878-dded83568923-before-null-after-null",
+        "a75b4c4e-ddcf-47a3-8cde-61d0988f83ac-before-null-after-null",
+        "1002b2ca-83f6-41a2-b622-7210c68aa2c6-before-null-after-null"
+      ],
+      "id": "merge-70254fc5-5082-4818-9878-dded83568923-before-null-after-null-a75b4c4e-ddcf-47a3-8cde-61d0988f83ac-before-null-after-null-1002b2ca-83f6-41a2-b622-7210c68aa2c6-before-null-after-null-1769608750919"
+    },
+    {
+      "raw_scene_ids": [
+        "a1b835be-f7c7-4e7d-98ba-e57c7b2a08b8-before-null-after-null",
+        "f03c400b-4a1c-4620-abd9-da0a5b3bb1df-before-null-after-null"
+      ],
+      "id": "merge-a1b835be-f7c7-4e7d-98ba-e57c7b2a08b8-before-null-after-null-f03c400b-4a1c-4620-abd9-da0a5b3bb1df-before-null-after-null-1769608757820"
+    },
+    {
+      "raw_scene_ids": [
+        "a2b82093-aded-4ad1-a76c-9ec2ae9eeabb-before-null-after-null",
+        "6f6440cf-a6b8-498d-8f8c-0d234f4d20f7-before-null-after-null"
+      ],
+      "id": "merge-a2b82093-aded-4ad1-a76c-9ec2ae9eeabb-before-null-after-null-6f6440cf-a6b8-498d-8f8c-0d234f4d20f7-before-null-after-null-1769608785148"
+    },
+    {
+      "raw_scene_ids": [
+        "e854dcdd-dbf3-47ad-a922-f8f605b55ba2-before-null-after-null",
+        "a2b82093-aded-4ad1-a76c-9ec2ae9eeabb-before-null-after-null",
+        "6f6440cf-a6b8-498d-8f8c-0d234f4d20f7-before-null-after-null"
+      ],
+      "id": "merge-e854dcdd-dbf3-47ad-a922-f8f605b55ba2-before-null-after-null-a2b82093-aded-4ad1-a76c-9ec2ae9eeabb-before-null-after-null-6f6440cf-a6b8-498d-8f8c-0d234f4d20f7-before-null-after-null-1769608799236"
+    },
+    {
+      "raw_scene_ids": [
+        "18054be8-ab05-4482-8497-690e28988884-before-null-after-null",
+        "0bea5b85-b9dd-488c-9eef-0e9c25cf00cc-before-null-after-null"
+      ],
+      "id": "merge-18054be8-ab05-4482-8497-690e28988884-before-null-after-null-0bea5b85-b9dd-488c-9eef-0e9c25cf00cc-before-null-after-null-1769608837434"
+    },
+    {
+      "raw_scene_ids": [
+        "2af9a4de-9ab1-4561-9531-25f38bdb9947-before-null-after-null",
+        "31d7450b-d756-4c8b-b027-0a661a4c2bfd-before-null-after-null"
+      ],
+      "id": "merge-2af9a4de-9ab1-4561-9531-25f38bdb9947-before-null-after-null-31d7450b-d756-4c8b-b027-0a661a4c2bfd-before-null-after-null-1769608838686"
+    },
+    {
+      "raw_scene_ids": [
+        "c5134dae-999e-45ef-89d4-24208eb03f05-before-null-after-null",
+        "76ba30c3-829d-4293-b4ee-1c36e9ed8dbf-before-null-after-null"
+      ],
+      "id": "merge-c5134dae-999e-45ef-89d4-24208eb03f05-before-null-after-null-76ba30c3-829d-4293-b4ee-1c36e9ed8dbf-before-null-after-null-1769608893523"
+    },
+    {
+      "raw_scene_ids": [
+        "a7d1854c-b1a4-4de7-9469-e7ee9d7a66ee-before-null-after-null",
+        "615fb42f-0066-4774-8d55-4760a793b13e-before-null-after-null"
+      ],
+      "id": "merge-a7d1854c-b1a4-4de7-9469-e7ee9d7a66ee-before-null-after-null-615fb42f-0066-4774-8d55-4760a793b13e-before-null-after-null-1769608895902"
+    },
+    {
+      "raw_scene_ids": [
+        "a7d1854c-b1a4-4de7-9469-e7ee9d7a66ee-before-null-after-null",
+        "615fb42f-0066-4774-8d55-4760a793b13e-before-null-after-null",
+        "5244ffdd-25c3-4fc6-8ee8-982c809ea2a6-before-null-after-null"
+      ],
+      "id": "merge-a7d1854c-b1a4-4de7-9469-e7ee9d7a66ee-before-null-after-null-615fb42f-0066-4774-8d55-4760a793b13e-before-null-after-null-5244ffdd-25c3-4fc6-8ee8-982c809ea2a6-before-null-after-null-1769608897042"
+    },
+    {
+      "raw_scene_ids": [
+        "9dfb362c-a252-4ae7-8ea2-622f096cc23b-before-null-after-null",
+        "86817a58-6792-476f-9342-e45c4857bfc1-before-null-after-null"
+      ],
+      "id": "merge-9dfb362c-a252-4ae7-8ea2-622f096cc23b-before-null-after-null-86817a58-6792-476f-9342-e45c4857bfc1-before-null-after-null-1769608910052"
+    },
+    {
+      "raw_scene_ids": [
+        "9dfb362c-a252-4ae7-8ea2-622f096cc23b-before-null-after-null",
+        "86817a58-6792-476f-9342-e45c4857bfc1-before-null-after-null",
+        "37f8560d-5d22-4dcb-9a5c-451be075d4c2-before-null-after-null"
+      ],
+      "id": "merge-9dfb362c-a252-4ae7-8ea2-622f096cc23b-before-null-after-null-86817a58-6792-476f-9342-e45c4857bfc1-before-null-after-null-37f8560d-5d22-4dcb-9a5c-451be075d4c2-before-null-after-null-1769608911202"
+    },
+    {
+      "raw_scene_ids": [
+        "9dfb362c-a252-4ae7-8ea2-622f096cc23b-before-null-after-null",
+        "86817a58-6792-476f-9342-e45c4857bfc1-before-null-after-null",
+        "37f8560d-5d22-4dcb-9a5c-451be075d4c2-before-null-after-null",
+        "4e78001c-5636-42d8-8053-6853d9f571ac-before-null-after-null"
+      ],
+      "id": "merge-9dfb362c-a252-4ae7-8ea2-622f096cc23b-before-null-after-null-86817a58-6792-476f-9342-e45c4857bfc1-before-null-after-null-37f8560d-5d22-4dcb-9a5c-451be075d4c2-before-null-after-null-4e78001c-5636-42d8-8053-6853d9f571ac-before-null-after-null-1769608914135"
+    },
+    {
+      "raw_scene_ids": [
+        "648731c6-7cf7-4a60-9c9f-8a10603d7442-before-null-after-null",
+        "c58ef704-a839-4731-8560-3d2182c5b265-before-null-after-null"
+      ],
+      "id": "merge-648731c6-7cf7-4a60-9c9f-8a10603d7442-before-null-after-null-c58ef704-a839-4731-8560-3d2182c5b265-before-null-after-null-1769608919491"
+    },
+    {
+      "raw_scene_ids": [
+        "648731c6-7cf7-4a60-9c9f-8a10603d7442-before-null-after-null",
+        "c58ef704-a839-4731-8560-3d2182c5b265-before-null-after-null",
+        "9995e2f6-7816-4d06-9451-464254ddc612-before-null-after-null"
+      ],
+      "id": "merge-648731c6-7cf7-4a60-9c9f-8a10603d7442-before-null-after-null-c58ef704-a839-4731-8560-3d2182c5b265-before-null-after-null-9995e2f6-7816-4d06-9451-464254ddc612-before-null-after-null-1769608920268"
+    },
+    {
+      "raw_scene_ids": [
+        "b69cb4b3-b820-4d44-b191-f370be77b39b-before-null-after-null",
+        "7be78a22-4848-47c9-ba9e-70e8c09c717c-before-null-after-null"
+      ],
+      "id": "merge-b69cb4b3-b820-4d44-b191-f370be77b39b-before-null-after-null-7be78a22-4848-47c9-ba9e-70e8c09c717c-before-null-after-null-1769608923953"
+    }
+  ],
+  "hidden_raw_scenes": [
+    "98ee572b-f770-49c0-a24e-d6a61bbfb54e-before-null-after-null",
+    "6898eb26-4d35-4049-ac0c-4fcf732ea3d0-before-null-after-null",
+    "0646951b-db06-476e-8224-6e7c86af7597-before-null-after-null",
+    "cf07a5d3-bc2f-4258-b13a-93d15ed94c43-before-null-after-null",
+    "69366bc9-1e65-4eb4-adfd-e37c02fb02e7-before-null-after-null",
+    "092ec97d-4167-4019-989d-576b2c8b1980-before-null-after-null",
+    "5c591adc-479e-4ef7-b66d-40749990c521-before-null-after-null",
+    "27d48fcc-8762-47f2-ad6c-7d4373bc661f-before-null-after-null",
+    "6e3bc7b3-3798-4616-8db7-f704caf054f2-before-null-after-null",
+    "bc68cc75-357d-4cad-95b4-25f40aaaade7-before-null-after-null",
+    "5e334a3a-c3a8-4837-91df-36d72b4ef216-before-null-after-null",
+    "b2f1a898-605c-4877-abd7-e27cf2a4cc7a-before-null-after-null",
+    "61a8dfd9-ffd3-4f7f-9d3f-f351d0215549-before-null-after-null",
+    "dd743c0b-d954-4962-9873-b3f4b35da08c-before-null-after-null",
+    "17d908ba-f3f5-4eb7-a4e7-8d643e17c8dd-before-null-after-null",
+    "632e7874-2935-4c67-889e-5b64a57491ae-before-null-after-null",
+    "50db782d-dde6-49db-8aa8-2ac68d952a4f-before-null-after-null",
+    "edb00915-ee79-4d1e-aa2d-7300dd8bcaf3-before-null-after-null",
+    "c398c31c-de4d-4c8c-9e81-5976f32fa2ec-before-null-after-null",
+    "8f72d9aa-37ac-40b5-80bc-d1e2bf477cca-before-null-after-null",
+    "07444bfd-b890-4e49-8581-49e3be98ad7e-before-null-after-null",
+    "0b9ded8b-e607-4caf-a81a-d38b06c073fd-before-null-after-null",
+    "a60d6a96-93c4-4741-9a2f-7e30ca72f734-before-null-after-null",
+    "5391ff33-bea4-416b-8905-e0a2095a12c1-before-null-after-null",
+    "9b20f137-3838-4cf3-8511-969ddcc5ee34-before-null-after-null",
+    "0506df4d-d9f0-4863-8927-30187f78f182-before-null-after-null",
+    "b7f7bf29-c3f4-4c79-a30a-6e5b49ea2b31-before-null-after-null",
+    "f1cdce3d-d7de-44de-bc6d-196ea5f74538-before-null-after-null",
+    "e579e24e-b569-4ac3-bc9e-a8fc32dc47a0-before-null-after-null",
+    "e516c60c-9d30-48f0-9cec-2d45cdcc7d88-before-null-after-null",
+    "343abf2f-69dd-4dc0-a7f7-af5b604951a1-before-null-after-null"
+  ],
+  "hidden_lines": {},
+  "inserts": [],
+  "cell_titles": {},
+  "insert_titles": {},
+  "cell_limits": {},
+  "lesson_cuts": [
+    {
+      "type": "lesson",
+      "id": "a1b835be-f7c7-4e7d-98ba-e57c7b2a08b8-before-null-after-null"
+    },
+    {
+      "type": "lesson",
+      "id": "18054be8-ab05-4482-8497-690e28988884-before-null-after-null"
+    },
+    {
+      "type": "lesson",
+      "id": "aad0ee49-0afb-4180-aa42-f1a97bab1ed9-before-null-after-null"
+    },
+    {
+      "type": "lesson",
+      "id": "c5134dae-999e-45ef-89d4-24208eb03f05-before-null-after-null"
+    },
+    {
+      "type": "lesson",
+      "id": "9dfb362c-a252-4ae7-8ea2-622f096cc23b-before-null-after-null"
+    }
+  ],
+  "lesson_titles": {
+    "0": "Batch Inference with Ray Data",
+    "1": "Architecture Overview",
+    "2": "Loading a Dataset",
+    "3": "Defining the Batch Inference Class",
+    "4": "Creating a Data Batch and Calling the Model",
+    "5": "Running inference on the entire dataset"
+  },
+  "scene_notes": {},
+  "raw_scenes": [
+    {
+      "index": 0,
+      "name": "raw_scene_0",
+      "id": "70254fc5-5082-4818-9878-dded83568923-before-null-after-null",
+      "data": {
+        "original_cell_id": "70254fc5-5082-4818-9878-dded83568923",
+        "origin_file": "01_Ray_Data_batch_inference.ipynb",
+        "cut_before": null,
+        "cut_after": null,
+        "range": {
+          "start_line": 1,
+          "end_line": 2
+        }
+      },
+      "type": "markdown"
+    },
+    {
+      "index": 1,
+      "name": "raw_scene_1",
+      "id": "a75b4c4e-ddcf-47a3-8cde-61d0988f83ac-before-null-after-null",
+      "data": {
+        "original_cell_id": "a75b4c4e-ddcf-47a3-8cde-61d0988f83ac",
+        "origin_file": "01_Ray_Data_batch_inference.ipynb",
+        "cut_before": null,
+        "cut_after": null,
+        "range": {
+          "start_line": 1,
+          "end_line": 3
+        }
+      },
+      "type": "markdown"
+    },
+    {
+      "index": 2,
+      "name": "raw_scene_2",
+      "id": "1002b2ca-83f6-41a2-b622-7210c68aa2c6-before-null-after-null",
+      "data": {
+        "original_cell_id": "1002b2ca-83f6-41a2-b622-7210c68aa2c6",
+        "origin_file": "01_Ray_Data_batch_inference.ipynb",
+        "cut_before": null,
+        "cut_after": null,
+        "range": {
+          "start_line": 1,
+          "end_line": 7
+        }
+      },
+      "type": "markdown"
+    },
+    {
+      "index": 3,
+      "name": "raw_scene_3",
+      "id": "5032482d-a1b4-4adf-88e9-386e7771da06-before-null-after-null",
+      "data": {
+        "original_cell_id": "5032482d-a1b4-4adf-88e9-386e7771da06",
+        "origin_file": "01_Ray_Data_batch_inference.ipynb",
+        "cut_before": null,
+        "cut_after": null,
+        "range": {
+          "start_line": 1,
+          "end_line": 17
+        }
+      },
+      "type": "markdown"
+    },
+    {
+      "index": 4,
+      "name": "raw_scene_4",
+      "id": "a1b835be-f7c7-4e7d-98ba-e57c7b2a08b8-before-null-after-null",
+      "data": {
+        "original_cell_id": "a1b835be-f7c7-4e7d-98ba-e57c7b2a08b8",
+        "origin_file": "01_Ray_Data_batch_inference.ipynb",
+        "cut_before": null,
+        "cut_after": null,
+        "range": {
+          "start_line": 1,
+          "end_line": 1
+        }
+      },
+      "type": "markdown"
+    },
+    {
+      "index": 5,
+      "name": "raw_scene_5",
+      "id": "f03c400b-4a1c-4620-abd9-da0a5b3bb1df-before-null-after-null",
+      "data": {
+        "original_cell_id": "f03c400b-4a1c-4620-abd9-da0a5b3bb1df",
+        "origin_file": "01_Ray_Data_batch_inference.ipynb",
+        "cut_before": null,
+        "cut_after": null,
+        "range": {
+          "start_line": 1,
+          "end_line": 1
+        }
+      },
+      "type": "markdown"
+    },
+    {
+      "index": 6,
+      "name": "raw_scene_6",
+      "id": "e854dcdd-dbf3-47ad-a922-f8f605b55ba2-before-null-after-null",
+      "data": {
+        "original_cell_id": "e854dcdd-dbf3-47ad-a922-f8f605b55ba2",
+        "origin_file": "01_Ray_Data_batch_inference.ipynb",
+        "cut_before": null,
+        "cut_after": null,
+        "range": {
+          "start_line": 1,
+          "end_line": 1
+        }
+      },
+      "type": "markdown"
+    },
+    {
+      "index": 7,
+      "name": "raw_scene_7",
+      "id": "a2b82093-aded-4ad1-a76c-9ec2ae9eeabb-before-null-after-null",
+      "data": {
+        "original_cell_id": "a2b82093-aded-4ad1-a76c-9ec2ae9eeabb",
+        "origin_file": "01_Ray_Data_batch_inference.ipynb",
+        "cut_before": null,
+        "cut_after": null,
+        "range": {
+          "start_line": 1,
+          "end_line": 4
+        }
+      },
+      "type": "code"
+    },
+    {
+      "index": 8,
+      "name": "raw_scene_8",
+      "id": "6f6440cf-a6b8-498d-8f8c-0d234f4d20f7-before-null-after-null",
+      "data": {
+        "original_cell_id": "6f6440cf-a6b8-498d-8f8c-0d234f4d20f7",
+        "origin_file": "01_Ray_Data_batch_inference.ipynb",
+        "cut_before": null,
+        "cut_after": null,
+        "range": {
+          "start_line": 1,
+          "end_line": 2
+        }
+      },
+      "type": "code"
+    },
+    {
+      "index": 9,
+      "name": "raw_scene_9",
+      "id": "18054be8-ab05-4482-8497-690e28988884-before-null-after-null",
+      "data": {
+        "original_cell_id": "18054be8-ab05-4482-8497-690e28988884",
+        "origin_file": "01_Ray_Data_batch_inference.ipynb",
+        "cut_before": null,
+        "cut_after": null,
+        "range": {
+          "start_line": 1,
+          "end_line": 4
+        }
+      },
+      "type": "markdown"
+    },
+    {
+      "index": 10,
+      "name": "raw_scene_10",
+      "id": "0bea5b85-b9dd-488c-9eef-0e9c25cf00cc-before-null-after-null",
+      "data": {
+        "original_cell_id": "0bea5b85-b9dd-488c-9eef-0e9c25cf00cc",
+        "origin_file": "01_Ray_Data_batch_inference.ipynb",
+        "cut_before": null,
+        "cut_after": null,
+        "range": {
+          "start_line": 1,
+          "end_line": 4
+        }
+      },
+      "type": "code"
+    },
+    {
+      "index": 12,
+      "name": "raw_scene_12",
+      "id": "2af9a4de-9ab1-4561-9531-25f38bdb9947-before-null-after-null",
+      "data": {
+        "original_cell_id": "2af9a4de-9ab1-4561-9531-25f38bdb9947",
+        "origin_file": "01_Ray_Data_batch_inference.ipynb",
+        "cut_before": null,
+        "cut_after": null,
+        "range": {
+          "start_line": 1,
+          "end_line": 2
+        }
+      },
+      "type": "code"
+    },
+    {
+      "index": 14,
+      "name": "raw_scene_14",
+      "id": "31d7450b-d756-4c8b-b027-0a661a4c2bfd-before-null-after-null",
+      "data": {
+        "original_cell_id": "31d7450b-d756-4c8b-b027-0a661a4c2bfd",
+        "origin_file": "01_Ray_Data_batch_inference.ipynb",
+        "cut_before": null,
+        "cut_after": null,
+        "range": {
+          "start_line": 1,
+          "end_line": 3
+        }
+      },
+      "type": "code"
+    },
+    {
+      "index": 22,
+      "name": "raw_scene_22",
+      "id": "aad0ee49-0afb-4180-aa42-f1a97bab1ed9-before-null-after-null",
+      "data": {
+        "original_cell_id": "aad0ee49-0afb-4180-aa42-f1a97bab1ed9",
+        "origin_file": "01_Ray_Data_batch_inference.ipynb",
+        "cut_before": null,
+        "cut_after": null,
+        "range": {
+          "start_line": 1,
+          "end_line": 9
+        }
+      },
+      "type": "markdown"
+    },
+    {
+      "index": 23,
+      "name": "raw_scene_23",
+      "id": "30f02fa3-69a5-4494-a71a-62ae4d21f14f-before-null-after-null",
+      "data": {
+        "original_cell_id": "30f02fa3-69a5-4494-a71a-62ae4d21f14f",
+        "origin_file": "01_Ray_Data_batch_inference.ipynb",
+        "cut_before": null,
+        "cut_after": null,
+        "range": {
+          "start_line": 1,
+          "end_line": 12
+        }
+      },
+      "type": "code"
+    },
+    {
+      "index": 24,
+      "name": "raw_scene_24",
+      "id": "c5134dae-999e-45ef-89d4-24208eb03f05-before-null-after-null",
+      "data": {
+        "original_cell_id": "c5134dae-999e-45ef-89d4-24208eb03f05",
+        "origin_file": "01_Ray_Data_batch_inference.ipynb",
+        "cut_before": null,
+        "cut_after": null,
+        "range": {
+          "start_line": 1,
+          "end_line": 4
+        }
+      },
+      "type": "markdown"
+    },
+    {
+      "index": 25,
+      "name": "raw_scene_25",
+      "id": "76ba30c3-829d-4293-b4ee-1c36e9ed8dbf-before-null-after-null",
+      "data": {
+        "original_cell_id": "76ba30c3-829d-4293-b4ee-1c36e9ed8dbf",
+        "origin_file": "01_Ray_Data_batch_inference.ipynb",
+        "cut_before": null,
+        "cut_after": null,
+        "range": {
+          "start_line": 1,
+          "end_line": 8
+        }
+      },
+      "type": "code"
+    },
+    {
+      "index": 26,
+      "name": "raw_scene_26",
+      "id": "a7d1854c-b1a4-4de7-9469-e7ee9d7a66ee-before-null-after-null",
+      "data": {
+        "original_cell_id": "a7d1854c-b1a4-4de7-9469-e7ee9d7a66ee",
+        "origin_file": "01_Ray_Data_batch_inference.ipynb",
+        "cut_before": null,
+        "cut_after": null,
+        "range": {
+          "start_line": 1,
+          "end_line": 5
+        }
+      },
+      "type": "markdown"
+    },
+    {
+      "index": 27,
+      "name": "raw_scene_27",
+      "id": "615fb42f-0066-4774-8d55-4760a793b13e-before-null-after-null",
+      "data": {
+        "original_cell_id": "615fb42f-0066-4774-8d55-4760a793b13e",
+        "origin_file": "01_Ray_Data_batch_inference.ipynb",
+        "cut_before": null,
+        "cut_after": null,
+        "range": {
+          "start_line": 1,
+          "end_line": 1
+        }
+      },
+      "type": "markdown"
+    },
+    {
+      "index": 28,
+      "name": "raw_scene_28",
+      "id": "5244ffdd-25c3-4fc6-8ee8-982c809ea2a6-before-null-after-null",
+      "data": {
+        "original_cell_id": "5244ffdd-25c3-4fc6-8ee8-982c809ea2a6",
+        "origin_file": "01_Ray_Data_batch_inference.ipynb",
+        "cut_before": null,
+        "cut_after": null,
+        "range": {
+          "start_line": 1,
+          "end_line": 2
+        }
+      },
+      "type": "code"
+    },
+    {
+      "index": 38,
+      "name": "raw_scene_38",
+      "id": "9dfb362c-a252-4ae7-8ea2-622f096cc23b-before-null-after-null",
+      "data": {
+        "original_cell_id": "9dfb362c-a252-4ae7-8ea2-622f096cc23b",
+        "origin_file": "01_Ray_Data_batch_inference.ipynb",
+        "cut_before": null,
+        "cut_after": null,
+        "range": {
+          "start_line": 1,
+          "end_line": 2
+        }
+      },
+      "type": "markdown"
+    },
+    {
+      "index": 39,
+      "name": "raw_scene_39",
+      "id": "86817a58-6792-476f-9342-e45c4857bfc1-before-null-after-null",
+      "data": {
+        "original_cell_id": "86817a58-6792-476f-9342-e45c4857bfc1",
+        "origin_file": "01_Ray_Data_batch_inference.ipynb",
+        "cut_before": null,
+        "cut_after": null,
+        "range": {
+          "start_line": 1,
+          "end_line": 3
+        }
+      },
+      "type": "code"
+    },
+    {
+      "index": 47,
+      "name": "raw_scene_47",
+      "id": "37f8560d-5d22-4dcb-9a5c-451be075d4c2-before-null-after-null",
+      "data": {
+        "original_cell_id": "37f8560d-5d22-4dcb-9a5c-451be075d4c2",
+        "origin_file": "01_Ray_Data_batch_inference.ipynb",
+        "cut_before": null,
+        "cut_after": null,
+        "range": {
+          "start_line": 1,
+          "end_line": 3
+        }
+      },
+      "type": "code"
+    },
+    {
+      "index": 49,
+      "name": "raw_scene_49",
+      "id": "4e78001c-5636-42d8-8053-6853d9f571ac-before-null-after-null",
+      "data": {
+        "original_cell_id": "4e78001c-5636-42d8-8053-6853d9f571ac",
+        "origin_file": "01_Ray_Data_batch_inference.ipynb",
+        "cut_before": null,
+        "cut_after": null,
+        "range": {
+          "start_line": 1,
+          "end_line": 2
+        }
+      },
+      "type": "code"
+    },
+    {
+      "index": 55,
+      "name": "raw_scene_55",
+      "id": "648731c6-7cf7-4a60-9c9f-8a10603d7442-before-null-after-null",
+      "data": {
+        "original_cell_id": "648731c6-7cf7-4a60-9c9f-8a10603d7442",
+        "origin_file": "01_Ray_Data_batch_inference.ipynb",
+        "cut_before": null,
+        "cut_after": null,
+        "range": {
+          "start_line": 1,
+          "end_line": 2
+        }
+      },
+      "type": "markdown"
+    },
+    {
+      "index": 56,
+      "name": "raw_scene_56",
+      "id": "c58ef704-a839-4731-8560-3d2182c5b265-before-null-after-null",
+      "data": {
+        "original_cell_id": "c58ef704-a839-4731-8560-3d2182c5b265",
+        "origin_file": "01_Ray_Data_batch_inference.ipynb",
+        "cut_before": null,
+        "cut_after": null,
+        "range": {
+          "start_line": 1,
+          "end_line": 1
+        }
+      },
+      "type": "markdown"
+    },
+    {
+      "index": 57,
+      "name": "raw_scene_57",
+      "id": "9995e2f6-7816-4d06-9451-464254ddc612-before-null-after-null",
+      "data": {
+        "original_cell_id": "9995e2f6-7816-4d06-9451-464254ddc612",
+        "origin_file": "01_Ray_Data_batch_inference.ipynb",
+        "cut_before": null,
+        "cut_after": null,
+        "range": {
+          "start_line": 1,
+          "end_line": 2
+        }
+      },
+      "type": "code"
+    },
+    {
+      "index": 58,
+      "name": "raw_scene_58",
+      "id": "b69cb4b3-b820-4d44-b191-f370be77b39b-before-null-after-null",
+      "data": {
+        "original_cell_id": "b69cb4b3-b820-4d44-b191-f370be77b39b",
+        "origin_file": "01_Ray_Data_batch_inference.ipynb",
+        "cut_before": null,
+        "cut_after": null,
+        "range": {
+          "start_line": 1,
+          "end_line": 2
+        }
+      },
+      "type": "markdown"
+    },
+    {
+      "index": 59,
+      "name": "raw_scene_59",
+      "id": "8fc36b3c-0319-4819-8a03-1a24dff0a9ac-before-null-after-null",
+      "data": {
+        "original_cell_id": "8fc36b3c-0319-4819-8a03-1a24dff0a9ac",
+        "origin_file": "01_Ray_Data_batch_inference.ipynb",
+        "cut_before": null,
+        "cut_after": null,
+        "range": {
+          "start_line": 1,
+          "end_line": 1
+        }
+      },
+      "type": "code"
+    }
+  ],
+  "scenes": [
+    {
+      "index": 0,
+      "name": "scene_0",
+      "id": "17afac29f4e51a71",
+      "data": {
+        "0": {
+          "original_cell_id": "70254fc5-5082-4818-9878-dded83568923",
+          "origin_file": "01_Ray_Data_batch_inference.ipynb",
+          "range": {
+            "start_line": 1,
+            "end_line": 2
+          },
+          "raw_scene_id": "70254fc5-5082-4818-9878-dded83568923-before-null-after-null"
+        },
+        "1": {
+          "original_cell_id": "a75b4c4e-ddcf-47a3-8cde-61d0988f83ac",
+          "origin_file": "01_Ray_Data_batch_inference.ipynb",
+          "range": {
+            "start_line": 1,
+            "end_line": 3
+          },
+          "raw_scene_id": "a75b4c4e-ddcf-47a3-8cde-61d0988f83ac-before-null-after-null"
+        },
+        "2": {
+          "original_cell_id": "1002b2ca-83f6-41a2-b622-7210c68aa2c6",
+          "origin_file": "01_Ray_Data_batch_inference.ipynb",
+          "range": {
+            "start_line": 1,
+            "end_line": 7
+          },
+          "raw_scene_id": "1002b2ca-83f6-41a2-b622-7210c68aa2c6-before-null-after-null"
+        }
+      },
+      "type": "markdown",
+      "title": null
+    },
+    {
+      "index": 1,
+      "name": "scene_1",
+      "id": "5032482d-a1b4-4adf-88e9-386e7771da06-before-null-after-null",
+      "data": {
+        "0": {
+          "original_cell_id": "5032482d-a1b4-4adf-88e9-386e7771da06",
+          "origin_file": "01_Ray_Data_batch_inference.ipynb",
+          "range": {
+            "start_line": 1,
+            "end_line": 17
+          },
+          "raw_scene_id": "5032482d-a1b4-4adf-88e9-386e7771da06-before-null-after-null"
+        }
+      },
+      "type": "markdown",
+      "title": null
+    },
+    {
+      "index": 2,
+      "name": "scene_2",
+      "id": "7fa5bbb6281c9642",
+      "data": {
+        "0": {
+          "original_cell_id": "a1b835be-f7c7-4e7d-98ba-e57c7b2a08b8",
+          "origin_file": "01_Ray_Data_batch_inference.ipynb",
+          "range": {
+            "start_line": 1,
+            "end_line": 1
+          },
+          "raw_scene_id": "a1b835be-f7c7-4e7d-98ba-e57c7b2a08b8-before-null-after-null"
+        },
+        "1": {
+          "original_cell_id": "f03c400b-4a1c-4620-abd9-da0a5b3bb1df",
+          "origin_file": "01_Ray_Data_batch_inference.ipynb",
+          "range": {
+            "start_line": 1,
+            "end_line": 1
+          },
+          "raw_scene_id": "f03c400b-4a1c-4620-abd9-da0a5b3bb1df-before-null-after-null"
+        }
+      },
+      "type": "markdown",
+      "title": null
+    },
+    {
+      "index": 3,
+      "name": "scene_3",
+      "id": "b6c43199356d35f5",
+      "data": {
+        "0": {
+          "original_cell_id": "e854dcdd-dbf3-47ad-a922-f8f605b55ba2",
+          "origin_file": "01_Ray_Data_batch_inference.ipynb",
+          "range": {
+            "start_line": 1,
+            "end_line": 1
+          },
+          "raw_scene_id": "e854dcdd-dbf3-47ad-a922-f8f605b55ba2-before-null-after-null"
+        },
+        "1": {
+          "original_cell_id": "a2b82093-aded-4ad1-a76c-9ec2ae9eeabb",
+          "origin_file": "01_Ray_Data_batch_inference.ipynb",
+          "range": {
+            "start_line": 1,
+            "end_line": 4
+          },
+          "raw_scene_id": "a2b82093-aded-4ad1-a76c-9ec2ae9eeabb-before-null-after-null"
+        },
+        "2": {
+          "original_cell_id": "6f6440cf-a6b8-498d-8f8c-0d234f4d20f7",
+          "origin_file": "01_Ray_Data_batch_inference.ipynb",
+          "range": {
+            "start_line": 1,
+            "end_line": 2
+          },
+          "raw_scene_id": "6f6440cf-a6b8-498d-8f8c-0d234f4d20f7-before-null-after-null"
+        }
+      },
+      "type": "markdown",
+      "title": null
+    },
+    {
+      "index": 4,
+      "name": "scene_4",
+      "id": "f21c9994be11607c",
+      "data": {
+        "0": {
+          "original_cell_id": "18054be8-ab05-4482-8497-690e28988884",
+          "origin_file": "01_Ray_Data_batch_inference.ipynb",
+          "range": {
+            "start_line": 1,
+            "end_line": 4
+          },
+          "raw_scene_id": "18054be8-ab05-4482-8497-690e28988884-before-null-after-null"
+        },
+        "1": {
+          "original_cell_id": "0bea5b85-b9dd-488c-9eef-0e9c25cf00cc",
+          "origin_file": "01_Ray_Data_batch_inference.ipynb",
+          "range": {
+            "start_line": 1,
+            "end_line": 4
+          },
+          "raw_scene_id": "0bea5b85-b9dd-488c-9eef-0e9c25cf00cc-before-null-after-null"
+        }
+      },
+      "type": "markdown",
+      "title": null
+    },
+    {
+      "index": 5,
+      "name": "scene_5",
+      "id": "9ba73753cdaaa4c6",
+      "data": {
+        "0": {
+          "original_cell_id": "2af9a4de-9ab1-4561-9531-25f38bdb9947",
+          "origin_file": "01_Ray_Data_batch_inference.ipynb",
+          "range": {
+            "start_line": 1,
+            "end_line": 2
+          },
+          "raw_scene_id": "2af9a4de-9ab1-4561-9531-25f38bdb9947-before-null-after-null"
+        },
+        "1": {
+          "original_cell_id": "31d7450b-d756-4c8b-b027-0a661a4c2bfd",
+          "origin_file": "01_Ray_Data_batch_inference.ipynb",
+          "range": {
+            "start_line": 1,
+            "end_line": 3
+          },
+          "raw_scene_id": "31d7450b-d756-4c8b-b027-0a661a4c2bfd-before-null-after-null"
+        }
+      },
+      "type": "code",
+      "title": null
+    },
+    {
+      "index": 6,
+      "name": "scene_6",
+      "id": "aad0ee49-0afb-4180-aa42-f1a97bab1ed9-before-null-after-null",
+      "data": {
+        "0": {
+          "original_cell_id": "aad0ee49-0afb-4180-aa42-f1a97bab1ed9",
+          "origin_file": "01_Ray_Data_batch_inference.ipynb",
+          "range": {
+            "start_line": 1,
+            "end_line": 9
+          },
+          "raw_scene_id": "aad0ee49-0afb-4180-aa42-f1a97bab1ed9-before-null-after-null"
+        }
+      },
+      "type": "markdown",
+      "title": null
+    },
+    {
+      "index": 7,
+      "name": "scene_7",
+      "id": "30f02fa3-69a5-4494-a71a-62ae4d21f14f-before-null-after-null",
+      "data": {
+        "0": {
+          "original_cell_id": "30f02fa3-69a5-4494-a71a-62ae4d21f14f",
+          "origin_file": "01_Ray_Data_batch_inference.ipynb",
+          "range": {
+            "start_line": 1,
+            "end_line": 12
+          },
+          "raw_scene_id": "30f02fa3-69a5-4494-a71a-62ae4d21f14f-before-null-after-null"
+        }
+      },
+      "type": "code",
+      "title": null
+    },
+    {
+      "index": 8,
+      "name": "scene_8",
+      "id": "fc5617761b2bc161",
+      "data": {
+        "0": {
+          "original_cell_id": "c5134dae-999e-45ef-89d4-24208eb03f05",
+          "origin_file": "01_Ray_Data_batch_inference.ipynb",
+          "range": {
+            "start_line": 1,
+            "end_line": 4
+          },
+          "raw_scene_id": "c5134dae-999e-45ef-89d4-24208eb03f05-before-null-after-null"
+        },
+        "1": {
+          "original_cell_id": "76ba30c3-829d-4293-b4ee-1c36e9ed8dbf",
+          "origin_file": "01_Ray_Data_batch_inference.ipynb",
+          "range": {
+            "start_line": 1,
+            "end_line": 8
+          },
+          "raw_scene_id": "76ba30c3-829d-4293-b4ee-1c36e9ed8dbf-before-null-after-null"
+        }
+      },
+      "type": "markdown",
+      "title": null
+    },
+    {
+      "index": 9,
+      "name": "scene_9",
+      "id": "60feb5baa3ae54cb",
+      "data": {
+        "0": {
+          "original_cell_id": "a7d1854c-b1a4-4de7-9469-e7ee9d7a66ee",
+          "origin_file": "01_Ray_Data_batch_inference.ipynb",
+          "range": {
+            "start_line": 1,
+            "end_line": 5
+          },
+          "raw_scene_id": "a7d1854c-b1a4-4de7-9469-e7ee9d7a66ee-before-null-after-null"
+        },
+        "1": {
+          "original_cell_id": "615fb42f-0066-4774-8d55-4760a793b13e",
+          "origin_file": "01_Ray_Data_batch_inference.ipynb",
+          "range": {
+            "start_line": 1,
+            "end_line": 1
+          },
+          "raw_scene_id": "615fb42f-0066-4774-8d55-4760a793b13e-before-null-after-null"
+        },
+        "2": {
+          "original_cell_id": "5244ffdd-25c3-4fc6-8ee8-982c809ea2a6",
+          "origin_file": "01_Ray_Data_batch_inference.ipynb",
+          "range": {
+            "start_line": 1,
+            "end_line": 2
+          },
+          "raw_scene_id": "5244ffdd-25c3-4fc6-8ee8-982c809ea2a6-before-null-after-null"
+        }
+      },
+      "type": "markdown",
+      "title": null
+    },
+    {
+      "index": 10,
+      "name": "scene_10",
+      "id": "50e541e05a648ee9",
+      "data": {
+        "0": {
+          "original_cell_id": "9dfb362c-a252-4ae7-8ea2-622f096cc23b",
+          "origin_file": "01_Ray_Data_batch_inference.ipynb",
+          "range": {
+            "start_line": 1,
+            "end_line": 2
+          },
+          "raw_scene_id": "9dfb362c-a252-4ae7-8ea2-622f096cc23b-before-null-after-null"
+        },
+        "1": {
+          "original_cell_id": "86817a58-6792-476f-9342-e45c4857bfc1",
+          "origin_file": "01_Ray_Data_batch_inference.ipynb",
+          "range": {
+            "start_line": 1,
+            "end_line": 3
+          },
+          "raw_scene_id": "86817a58-6792-476f-9342-e45c4857bfc1-before-null-after-null"
+        },
+        "2": {
+          "original_cell_id": "37f8560d-5d22-4dcb-9a5c-451be075d4c2",
+          "origin_file": "01_Ray_Data_batch_inference.ipynb",
+          "range": {
+            "start_line": 1,
+            "end_line": 3
+          },
+          "raw_scene_id": "37f8560d-5d22-4dcb-9a5c-451be075d4c2-before-null-after-null"
+        },
+        "3": {
+          "original_cell_id": "4e78001c-5636-42d8-8053-6853d9f571ac",
+          "origin_file": "01_Ray_Data_batch_inference.ipynb",
+          "range": {
+            "start_line": 1,
+            "end_line": 2
+          },
+          "raw_scene_id": "4e78001c-5636-42d8-8053-6853d9f571ac-before-null-after-null"
+        }
+      },
+      "type": "markdown",
+      "title": null
+    },
+    {
+      "index": 11,
+      "name": "scene_11",
+      "id": "87c5e8df62351c07",
+      "data": {
+        "0": {
+          "original_cell_id": "648731c6-7cf7-4a60-9c9f-8a10603d7442",
+          "origin_file": "01_Ray_Data_batch_inference.ipynb",
+          "range": {
+            "start_line": 1,
+            "end_line": 2
+          },
+          "raw_scene_id": "648731c6-7cf7-4a60-9c9f-8a10603d7442-before-null-after-null"
+        },
+        "1": {
+          "original_cell_id": "c58ef704-a839-4731-8560-3d2182c5b265",
+          "origin_file": "01_Ray_Data_batch_inference.ipynb",
+          "range": {
+            "start_line": 1,
+            "end_line": 1
+          },
+          "raw_scene_id": "c58ef704-a839-4731-8560-3d2182c5b265-before-null-after-null"
+        },
+        "2": {
+          "original_cell_id": "9995e2f6-7816-4d06-9451-464254ddc612",
+          "origin_file": "01_Ray_Data_batch_inference.ipynb",
+          "range": {
+            "start_line": 1,
+            "end_line": 2
+          },
+          "raw_scene_id": "9995e2f6-7816-4d06-9451-464254ddc612-before-null-after-null"
+        }
+      },
+      "type": "markdown",
+      "title": null
+    },
+    {
+      "index": 12,
+      "name": "scene_12",
+      "id": "b69cb4b3-b820-4d44-b191-f370be77b39b-before-null-after-null",
+      "data": {
+        "0": {
+          "original_cell_id": "b69cb4b3-b820-4d44-b191-f370be77b39b",
+          "origin_file": "01_Ray_Data_batch_inference.ipynb",
+          "range": {
+            "start_line": 1,
+            "end_line": 2
+          },
+          "raw_scene_id": "b69cb4b3-b820-4d44-b191-f370be77b39b-before-null-after-null"
+        }
+      },
+      "type": "markdown",
+      "title": null
+    },
+    {
+      "index": 13,
+      "name": "scene_13",
+      "id": "8fc36b3c-0319-4819-8a03-1a24dff0a9ac-before-null-after-null",
+      "data": {
+        "0": {
+          "original_cell_id": "8fc36b3c-0319-4819-8a03-1a24dff0a9ac",
+          "origin_file": "01_Ray_Data_batch_inference.ipynb",
+          "range": {
+            "start_line": 1,
+            "end_line": 1
+          },
+          "raw_scene_id": "8fc36b3c-0319-4819-8a03-1a24dff0a9ac-before-null-after-null"
+        }
+      },
+      "type": "code",
+      "title": null
+    }
+  ],
+  "creation_date": "2026-01-28T13:58:31.814Z",
+  "updated_date": "2026-01-28T14:32:43.859Z",
+  "version": "2.0"
+}

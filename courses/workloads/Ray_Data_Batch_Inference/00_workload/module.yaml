@@ -1,0 +1,47 @@
+00_workload:
+  title: Workload
+  description: Learn how to run scalable batch inference with Ray Data by loading
+    a Hugging Face dataset, converting it to a Ray Dataset, and applying a SentenceTransformer
+    embedding model in parallel using `map_batches`. You’ll configure batching, device
+    placement (CPU/GPU/MPS), and concurrency to efficiently materialize embeddings
+    for an entire dataset.
+  sources:
+  - 01_Ray_Data_batch_inference.ipynb
+  lessons:
+    00_lesson:
+      title: Batch Inference with Ray Data
+      description: Learn how to run scalable batch inference with Ray Data by loading
+        a public Hugging Face dataset into the Ray object store and applying a model
+        over batches for efficient prediction generation. The lesson walks through
+        the end-to-end workflow, including key architecture concepts and the core
+        APIs used to execute batch inference on a local machine or Ray cluster.
+    01_lesson:
+      title: Architecture Overview
+      description: Learn the high-level architecture of the batch inference pipeline
+        and how its components fit together end to end. You’ll also set up the core
+        Python libraries (Ray, PyTorch, Hugging Face SentenceTransformers and Datasets,
+        NumPy) needed to implement the workflow.
+    02_lesson:
+      title: Loading a Dataset
+      description: Learn how to load a dataset from Hugging Face or local files and
+        convert it into a Ray Dataset for scalable processing. You’ll also initialize
+        or connect to a Ray cluster and preview dataset metadata and sample rows.
+    03_lesson:
+      title: Defining the Batch Inference Class
+      description: Learn how to define a Ray actor-based Batch Inference class that
+        loads a SentenceTransformer model once and reuses it to efficiently embed
+        many batches of text. You’ll set up the class structure to scale batch processing
+        across multiple actors without repeatedly reloading the model.
+    04_lesson:
+      title: Creating a Data Batch and Calling the Model
+      description: Learn how to build a Ray Data `map_batches` pipeline that encodes
+        text into embeddings with a SentenceTransformer model. You’ll configure device,
+        batch size, and concurrency, then run a test batch to verify embeddings are
+        added correctly.
+    05_lesson:
+      title: Running inference on the entire dataset
+      description: Learn how to run batch inference across an entire Ray Dataset by
+        materializing lazy transformations, triggering the `TextEmbedder` model over
+        all batches and inspecting the resulting embeddings. You’ll also learn how
+        to avoid out-of-memory errors by tuning `batch_size` and how to cleanly shut
+        down the Ray cluster when finished.
