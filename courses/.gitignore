@@ -1,0 +1,15 @@
+# Production metadata files
+scenes.json
+production.json
+timeline.json
+
+# Production base files
+slides.md
+slides.pdf
+lesson.html
+lesson.ipynb
+public/
+
+# Content production folder
+production/
+outputs/

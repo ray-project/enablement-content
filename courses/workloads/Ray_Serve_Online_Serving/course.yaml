@@ -5,5 +5,5 @@ description: Deploy a Hugging Face sentiment analysis model as a scalable online
   app and Ray cluster.
 author: ''
 mediaStorage: ''
-category: foundation
+category: workload
 thumbnail: thumbnail.png

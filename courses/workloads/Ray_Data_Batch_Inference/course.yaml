@@ -6,5 +6,5 @@ description: Learn to run scalable batch inference with Ray Data by loading a Hu
   embeddings across an entire dataset.
 author: ''
 mediaStorage: ''
-category: foundation
+category: workload
 thumbnail: thumbnail.png

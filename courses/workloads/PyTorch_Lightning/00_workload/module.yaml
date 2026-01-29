@@ -1,0 +1,41 @@
+00_workload:
+  title: Workload
+  description: In this module, you’ll learn when to use Ray Train to scale deep learning
+    workloads and how to train a Stable Diffusion UNet with PyTorch Lightning. You’ll
+    build a simple Parquet-backed PyTorch Dataset/DataLoader and run single-GPU training
+    as a baseline before moving to distributed training on a multi-GPU Ray cluster.
+  sources:
+  - 02b_Intro_Ray_Train_with_PyTorch_Lightning.ipynb
+  lessons:
+    00_lesson:
+      title: 'Introduction to Ray Train: Ray Train + PyTorch Lightning'
+      description: Learn when to use Ray Train and how to integrate it with PyTorch
+        Lightning to scale model training from a single GPU to a multi-GPU Ray cluster.
+        You’ll apply this workflow by training a Stable Diffusion model using distributed
+        training with Ray Train.
+    01_lesson:
+      title: When to use Ray Train
+      description: Learn when to use Ray Train to speed up and scale machine learning
+        training workloads that are slow or require significant compute. This lesson
+        explains the key challenges Ray Train addresses and how its distributed training
+        framework helps solve them.
+    02_lesson:
+      title: Single GPU Training with PyTorch Lightning
+      description: In this lesson, you’ll set up single-GPU training for a Stable
+        Diffusion UNet using PyTorch Lightning, starting from preprocessed image and
+        text latents stored in Parquet. You’ll build a simple custom `Dataset` and
+        `DataLoader`, validate batch shapes/dtypes, and define a LightningModule-ready
+        UNet configuration for training.
+    03_lesson:
+      title: Distributed Training with Ray Train and PyTorch Lightning
+      description: Learn how to scale a PyTorch Lightning image training loop from
+        a single GPU to multi-GPU Distributed Data Parallel using Ray Train. You’ll
+        migrate your code to a Ray Train–compatible training function, configure GPU
+        scaling with `ScalingConfig`, and launch distributed runs with `TorchTrainer`
+        while managing checkpoints and metrics.
+    04_lesson:
+      title: Ray Train in Production
+      description: Learn how Ray Train is used in real-world production workflows
+        through a case study showing how Canva combined Ray Train and Ray Data to
+        reduce Stable Diffusion training costs by 3.7x. You’ll see practical patterns
+        and outcomes for scaling training efficiently and cost-effectively.
