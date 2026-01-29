@@ -226,12 +226,18 @@ This collection contains multiple courses on Ray and Anyscale:
 
 ### Ray Data Batch Inference
 
+- [lesson 01](courses/workloads/Ray_Data_Batch_Inference/00_workload/00_lesson/output/lesson_01.ipynb)
 - [01 Ray Data batch inference 01](courses/workloads/Ray_Data_Batch_Inference/00_workload/output/01_Ray_Data_batch_inference_01.ipynb)
 - [01 Ray Data batch inference 02](courses/workloads/Ray_Data_Batch_Inference/00_workload/output/01_Ray_Data_batch_inference_02.ipynb)
 - [01 Ray Data batch inference 03](courses/workloads/Ray_Data_Batch_Inference/00_workload/output/01_Ray_Data_batch_inference_03.ipynb)
 - [01 Ray Data batch inference 04](courses/workloads/Ray_Data_Batch_Inference/00_workload/output/01_Ray_Data_batch_inference_04.ipynb)
 - [01 Ray Data batch inference 05](courses/workloads/Ray_Data_Batch_Inference/00_workload/output/01_Ray_Data_batch_inference_05.ipynb)
 - [01 Ray Data batch inference 06](courses/workloads/Ray_Data_Batch_Inference/00_workload/output/01_Ray_Data_batch_inference_06.ipynb)
+- [lesson 01](courses/workloads/Ray_Data_Batch_Inference/00_workload/01_lesson/output/lesson_01.ipynb)
+- [lesson 01](courses/workloads/Ray_Data_Batch_Inference/00_workload/02_lesson/output/lesson_01.ipynb)
+- [lesson 01](courses/workloads/Ray_Data_Batch_Inference/00_workload/03_lesson/output/lesson_01.ipynb)
+- [lesson 01](courses/workloads/Ray_Data_Batch_Inference/00_workload/04_lesson/output/lesson_01.ipynb)
+- [lesson 01](courses/workloads/Ray_Data_Batch_Inference/00_workload/05_lesson/output/lesson_01.ipynb)
 
 ### Ray Data Processing
 
@@ -253,10 +259,16 @@ This collection contains multiple courses on Ray and Anyscale:
 
 ### Ray Serve Online Serving
 
+- [lesson 01](courses/workloads/Ray_Serve_Online_Serving/00_workload/00_lesson/output/lesson_01.ipynb)
+- [lesson 01](courses/workloads/Ray_Serve_Online_Serving/00_workload/01_lesson/output/lesson_01.ipynb)
+- [lesson 01](courses/workloads/Ray_Serve_Online_Serving/00_workload/02_lesson/output/lesson_01.ipynb)
 - [03 Ray Serve online serving 01](courses/workloads/Ray_Serve_Online_Serving/00_workload/output/03_Ray_Serve_online_serving_01.ipynb)
 - [03 Ray Serve online serving 02](courses/workloads/Ray_Serve_Online_Serving/00_workload/output/03_Ray_Serve_online_serving_02.ipynb)
 - [03 Ray Serve online serving 03](courses/workloads/Ray_Serve_Online_Serving/00_workload/output/03_Ray_Serve_online_serving_03.ipynb)
 - [03 Ray Serve online serving 04](courses/workloads/Ray_Serve_Online_Serving/00_workload/output/03_Ray_Serve_online_serving_04.ipynb)
+- [lesson 01](courses/workloads/Ray_Serve_Online_Serving/00_workload/03_lesson/output/lesson_01.ipynb)
+- [lesson 02](courses/workloads/Ray_Serve_Online_Serving/00_workload/03_lesson/output/lesson_02.ipynb)
+- [lesson 01](courses/workloads/Ray_Serve_Online_Serving/00_workload/04_lesson/output/lesson_01.ipynb)
 
 ### Train Generative Cv
 
