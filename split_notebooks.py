@@ -87,7 +87,7 @@ def fix_image_paths_in_cell(cell, notebook_path):
     return cell
 
 
-def split_notebook_by_h2(notebook_path, output_dir, force=False):
+def split_notebook_by_h2(notebook_path, output_dir, force=False, dry_run=False):
     """
     Splits a notebook into parts at each '##' (second-level markdown header).
     Returns a list of output notebook paths (relative to repo root).
@@ -129,17 +129,29 @@ def split_notebook_by_h2(notebook_path, output_dir, force=False):
         part_nb["nbformat_minor"] = nb.get("nbformat_minor", 2)
         out_name = f"{base}_{idx + 1:02d}.ipynb"
         out_path = os.path.join(output_dir, out_name)
-        os.makedirs(output_dir, exist_ok=True)
-        if force or not os.path.exists(out_path):
-            with open(out_path, "w", encoding="utf-8") as f:
-                json.dump(part_nb, f, indent=1)
+
+        if dry_run:
+            # In dry-run mode, just report what would be created
+            rel_path = os.path.relpath(out_path, Path.cwd())
+            if force or not os.path.exists(out_path):
+                print(f"  [DRY-RUN] Would create: {rel_path} ({len(part_cells)} cells)")
+            else:
+                print(
+                    f"  [DRY-RUN] Would skip existing: {rel_path} (use --force to regenerate)"
+                )
+            output_paths.append(rel_path)
         else:
-            print(
-                f"Skipping existing split notebook: {out_path} (use --force to regenerate)"
-            )
-        # Store path relative to repo root
-        rel_path = os.path.relpath(out_path, Path.cwd())
-        output_paths.append(rel_path)
+            os.makedirs(output_dir, exist_ok=True)
+            if force or not os.path.exists(out_path):
+                with open(out_path, "w", encoding="utf-8") as f:
+                    json.dump(part_nb, f, indent=1)
+            else:
+                print(
+                    f"Skipping existing split notebook: {out_path} (use --force to regenerate)"
+                )
+            # Store path relative to repo root
+            rel_path = os.path.relpath(out_path, Path.cwd())
+            output_paths.append(rel_path)
     return output_paths
 
 
@@ -185,8 +197,15 @@ def find_notebooks_by_course(root="courses", target_course=None):
 
     for search_path in search_paths:
         for dirpath, dirnames, filenames in os.walk(search_path):
-            # Skip output directories
-            dirnames[:] = [d for d in dirnames if d != "output"]
+            # Skip output directories, outputs, sources, and lesson folders
+            dirnames[:] = [
+                d
+                for d in dirnames
+                if d != "output"
+                and d != "outputs"
+                and d != "sources"
+                and not d.endswith("_lesson")
+            ]
 
             # Check if this directory contains notebooks (directly)
             has_notebooks = any(fname.endswith(".ipynb") for fname in filenames)
@@ -305,8 +324,15 @@ def find_notebooks_by_course(root="courses", target_course=None):
         all_notebooks = []
 
         for dirpath, dirnames, filenames in os.walk(course_path):
-            # Skip output directories
-            dirnames[:] = [d for d in dirnames if d != "output"]
+            # Skip output directories, outputs, sources, and lesson folders
+            dirnames[:] = [
+                d
+                for d in dirnames
+                if d != "output"
+                and d != "outputs"
+                and d != "sources"
+                and not d.endswith("_lesson")
+            ]
             for fname in filenames:
                 if fname.endswith(".ipynb"):
                     all_notebooks.append(os.path.join(dirpath, fname))
@@ -444,7 +470,11 @@ def group_courses_by_category(courses_data):
 
 
 def write_index_md_from_courses(
-    courses_data, display_names, index_path="index.md", courses_root="courses"
+    courses_data,
+    display_names,
+    index_path="index.md",
+    courses_root="courses",
+    dry_run=False,
 ):
     """Generate an index.md file with links organized by category and course."""
     lines = [
@@ -502,8 +532,16 @@ def write_index_md_from_courses(
                     lines.append(f"- [{name}]({part})")
                 lines.append("")
 
-    with open(index_path, "w", encoding="utf-8") as f:
-        f.write("\n".join(lines))
+    if dry_run:
+        total_notebooks = sum(
+            len(notebook_parts) for notebook_parts in courses_data.values()
+        )
+        print(
+            f"  [DRY-RUN] Would write index.md ({len(lines)} lines, {len(courses_data)} courses, {total_notebooks} notebook parts)"
+        )
+    else:
+        with open(index_path, "w", encoding="utf-8") as f:
+            f.write("\n".join(lines))
 
 
 def convert_notebook_to_html(notebook_path, force=False):
@@ -543,6 +581,12 @@ def find_all_split_notebooks(root="courses"):
     """
     split_notebooks = []
     for root_dir, dirs, files in os.walk(root):
+        # Skip outputs, sources, and lesson folders
+        dirs[:] = [
+            d
+            for d in dirs
+            if d != "outputs" and d != "sources" and not d.endswith("_lesson")
+        ]
         # Check if this directory is named 'output'
         if os.path.basename(root_dir) == "output":
             for filename in files:
@@ -589,15 +633,32 @@ def main():
         action="store_true",
         help="Regenerate outputs even if they already exist",
     )
+    parser.add_argument(
+        "--dry-run",
+        action="store_true",
+        help="Show what would be processed and generated without making any changes",
+    )
     args = parser.parse_args()
 
     # Load course display names from config
     display_names = load_course_display_names()
 
+    if args.dry_run:
+        print("=" * 70)
+        print("DRY-RUN MODE: No files will be created or modified")
+        print("=" * 70)
+        print()
+
     courses_root = "courses"
     courses_notebooks = find_notebooks_by_course(
         root=courses_root, target_course=args.course
     )
+
+    if args.dry_run:
+        print(f"Found {len(courses_notebooks)} course(s) to process:")
+        for course_folder, notebooks in courses_notebooks.items():
+            print(f"  - {course_folder}: {len(notebooks)} notebook(s)")
+        print()
     if args.course:
         # Check if the course was found (it might be nested, so check by key)
         course_found = False
@@ -626,6 +687,10 @@ def main():
     first_notebook = None
 
     # Process each course (skip deprecated folder)
+    if args.dry_run:
+        print("Notebooks that would be split:")
+        print()
+
     for course_folder, notebooks in courses_notebooks.items():
         # Skip deprecated courses
         if course_folder.startswith(
@@ -633,15 +698,26 @@ def main():
         ) or "deprecated" in course_folder.split("/"):
             continue
 
+        if args.dry_run:
+            print(f"Course: {course_folder}")
+
         course_parts = []
         for nb_path in notebooks:
             nb_dir = os.path.dirname(nb_path)
             output_dir = os.path.join(nb_dir, "output")
-            split_paths = split_notebook_by_h2(nb_path, output_dir, force=args.force)
+            if args.dry_run:
+                print(f"  Processing: {nb_path}")
+            split_paths = split_notebook_by_h2(
+                nb_path, output_dir, force=args.force, dry_run=args.dry_run
+            )
             if split_paths:
                 course_parts.extend(split_paths)
                 if first_notebook is None:
                     first_notebook = split_paths[0]
+
+        if args.dry_run and course_parts:
+            print(f"  → Would generate {len(course_parts)} split notebook(s)")
+            print()
 
         if course_parts:
             courses_data[course_folder] = course_parts
@@ -694,29 +770,53 @@ def main():
                 toc_data["parts"].append(course_part)
 
     # Write _toc.yml with blank lines between courses for readability
-    with open("_toc.yml", "w", encoding="utf-8") as f:
-        # Write header
-        f.write("format: jb-book\n")
-        f.write("root: index.md\n")
-        f.write("parts:\n")
+    if args.dry_run:
+        print(
+            f"  [DRY-RUN] Would write _toc.yml ({len(toc_data['parts'])} course parts)"
+        )
+    else:
+        with open("_toc.yml", "w", encoding="utf-8") as f:
+            # Write header
+            f.write("format: jb-book\n")
+            f.write("root: index.md\n")
+            f.write("parts:\n")
 
-        # Write each course part with a blank line between them
-        for i, part in enumerate(toc_data["parts"]):
-            if i > 0:
-                f.write("\n")  # Blank line between courses
-            # Use yaml.dump to format each part as a list item
-            part_yaml = yaml.dump(
-                [part], default_flow_style=False, sort_keys=False, allow_unicode=True
-            )
-            # The output will be "- caption: ...\n  chapters:\n  - file: ..."
-            # Write it directly - yaml.dump already produces the correct relative indentation
-            f.write(part_yaml)
+            # Write each course part with a blank line between them
+            for i, part in enumerate(toc_data["parts"]):
+                if i > 0:
+                    f.write("\n")  # Blank line between courses
+                # Use yaml.dump to format each part as a list item
+                part_yaml = yaml.dump(
+                    [part],
+                    default_flow_style=False,
+                    sort_keys=False,
+                    allow_unicode=True,
+                )
+                # The output will be "- caption: ...\n  chapters:\n  - file: ..."
+                # Write it directly - yaml.dump already produces the correct relative indentation
+                f.write(part_yaml)
 
     # Generate index.md with links organized by course
-    write_index_md_from_courses(courses_data, display_names, "index.md")
+    write_index_md_from_courses(
+        courses_data, display_names, "index.md", courses_root, args.dry_run
+    )
 
     # Convert all split notebooks to HTML (unless disabled)
-    if not args.no_html:
+    if args.dry_run:
+        print("\n" + "=" * 70)
+        print("HTML Conversion Summary:")
+        print("=" * 70)
+        html_root = (
+            os.path.join(courses_root, args.course) if args.course else courses_root
+        )
+        split_notebooks = find_all_split_notebooks(html_root)
+        if split_notebooks:
+            print(f"  Would convert {len(split_notebooks)} split notebook(s) to HTML")
+            if args.force:
+                print("  (--force flag: would regenerate existing HTML files)")
+        else:
+            print("  No split notebooks found to convert")
+    elif not args.no_html:
         print("\n" + "=" * 50)
         print("Converting split notebooks to HTML...")
         print("=" * 50)
@@ -726,6 +826,11 @@ def main():
         convert_all_split_notebooks_to_html(root=html_root, force=args.force)
     else:
         print("\nSkipping HTML conversion (--no-html flag provided)")
+
+    if args.dry_run:
+        print("\n" + "=" * 70)
+        print("DRY-RUN COMPLETE: No files were created or modified")
+        print("=" * 70)
 
 
 if __name__ == "__main__":
