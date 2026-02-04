@@ -64,22 +64,17 @@ This collection contains multiple courses on Ray and Anyscale:
 
 ### Anyscale Getting Started
 
-- [101 01 anyscale intro workspace 01](courses/foundations/Anyscale_Getting_Started/output/101_01_anyscale_intro_workspace_01.ipynb)
-- [101 02 anyscale development intro 01](courses/foundations/Anyscale_Getting_Started/output/101_02_anyscale_development_intro_01.ipynb)
-- [101 03 anyscale compute runtime intro 01](courses/foundations/Anyscale_Getting_Started/output/101_03_anyscale_compute_runtime_intro_01.ipynb)
-- [101 04 anyscale storage options 01](courses/foundations/Anyscale_Getting_Started/output/101_04_anyscale_storage_options_01.ipynb)
-- [101 05 anyscale logging metrics 01](courses/foundations/Anyscale_Getting_Started/output/101_05_anyscale_logging_metrics_01.ipynb)
-- [101 06 anyscale intro jobs 01](courses/foundations/Anyscale_Getting_Started/output/101_06_anyscale_intro_jobs_01.ipynb)
-- [101 07 anyscale intro services 01](courses/foundations/Anyscale_Getting_Started/output/101_07_anyscale_intro_services_01.ipynb)
-- [101 08 anyscale collaboration 01](courses/foundations/Anyscale_Getting_Started/output/101_08_anyscale_collaboration_01.ipynb)
-- [101 09 anyscale org setup 01](courses/foundations/Anyscale_Getting_Started/output/101_09_anyscale_org_setup_01.ipynb)
-- [101 09 anyscale org setup 02](courses/foundations/Anyscale_Getting_Started/output/101_09_anyscale_org_setup_02.ipynb)
-- [101 09 anyscale org setup 03](courses/foundations/Anyscale_Getting_Started/output/101_09_anyscale_org_setup_03.ipynb)
-- [101 anyscale intro jobs 01](courses/foundations/Anyscale_Getting_Started/output/101_anyscale_intro_jobs_01.ipynb)
-- [101 anyscale intro jobs 02](courses/foundations/Anyscale_Getting_Started/output/101_anyscale_intro_jobs_02.ipynb)
-- [101 anyscale intro jobs 03](courses/foundations/Anyscale_Getting_Started/output/101_anyscale_intro_jobs_03.ipynb)
-- [101 anyscale intro services 01](courses/foundations/Anyscale_Getting_Started/output/101_anyscale_intro_services_01.ipynb)
-- [101 anyscale intro services 02](courses/foundations/Anyscale_Getting_Started/output/101_anyscale_intro_services_02.ipynb)
+- [101 01 anyscale intro workspace 01](courses/foundations/Anyscale_Getting_Started/00_Intro_to_Workspaces/output/101_01_anyscale_intro_workspace_01.ipynb)
+- [101 02 anyscale development intro 01](courses/foundations/Anyscale_Getting_Started/01_dev_intro/output/101_02_anyscale_development_intro_01.ipynb)
+- [101 03 anyscale compute runtime intro 01](courses/foundations/Anyscale_Getting_Started/02_compute_runtime/output/101_03_anyscale_compute_runtime_intro_01.ipynb)
+- [101 04 anyscale storage options 01](courses/foundations/Anyscale_Getting_Started/03_storage_options/output/101_04_anyscale_storage_options_01.ipynb)
+- [101 05 anyscale logging metrics 01](courses/foundations/Anyscale_Getting_Started/04_logging_metrics/output/101_05_anyscale_logging_metrics_01.ipynb)
+- [101 06 anyscale intro jobs 01](courses/foundations/Anyscale_Getting_Started/05_intro_jobs/output/101_06_anyscale_intro_jobs_01.ipynb)
+- [101 07 anyscale intro services 01](courses/foundations/Anyscale_Getting_Started/06_intro_services/output/101_07_anyscale_intro_services_01.ipynb)
+- [101 08 anyscale collaboration 01](courses/foundations/Anyscale_Getting_Started/07_collaboration/output/101_08_anyscale_collaboration_01.ipynb)
+- [101 09 anyscale org setup 01](courses/foundations/Anyscale_Getting_Started/08_org_setup/output/101_09_anyscale_org_setup_01.ipynb)
+- [101 09 anyscale org setup 02](courses/foundations/Anyscale_Getting_Started/08_org_setup/output/101_09_anyscale_org_setup_02.ipynb)
+- [101 09 anyscale org setup 03](courses/foundations/Anyscale_Getting_Started/08_org_setup/output/101_09_anyscale_org_setup_03.ipynb)
 
 ### Llm Serving
 
@@ -105,6 +100,34 @@ This collection contains multiple courses on Ray and Anyscale:
 - [notebook 06](courses/foundations/LLM_Serving/02_advanced_llm_features/output/notebook_06.ipynb)
 - [notebook 07](courses/foundations/LLM_Serving/02_advanced_llm_features/output/notebook_07.ipynb)
 
+### Multimodal Ai Workloads
+
+- [README 01](courses/foundations/Multimodal AI Workloads/00_overview/output/README_01.ipynb)
+- [01-Batch-Inference 01](courses/foundations/Multimodal AI Workloads/01_batch_inference/output/01-Batch-Inference_01.ipynb)
+- [01-Batch-Inference 02](courses/foundations/Multimodal AI Workloads/01_batch_inference/output/01-Batch-Inference_02.ipynb)
+- [01-Batch-Inference 03](courses/foundations/Multimodal AI Workloads/01_batch_inference/output/01-Batch-Inference_03.ipynb)
+- [01-Batch-Inference 04](courses/foundations/Multimodal AI Workloads/01_batch_inference/output/01-Batch-Inference_04.ipynb)
+- [01-Batch-Inference 05](courses/foundations/Multimodal AI Workloads/01_batch_inference/output/01-Batch-Inference_05.ipynb)
+- [01-Batch-Inference 06](courses/foundations/Multimodal AI Workloads/01_batch_inference/output/01-Batch-Inference_06.ipynb)
+- [01-Batch-Inference 07](courses/foundations/Multimodal AI Workloads/01_batch_inference/output/01-Batch-Inference_07.ipynb)
+- [01-Batch-Inference 08](courses/foundations/Multimodal AI Workloads/01_batch_inference/output/01-Batch-Inference_08.ipynb)
+- [02-Distributed-Training 01](courses/foundations/Multimodal AI Workloads/02_distributed_training/output/02-Distributed-Training_01.ipynb)
+- [02-Distributed-Training 02](courses/foundations/Multimodal AI Workloads/02_distributed_training/output/02-Distributed-Training_02.ipynb)
+- [02-Distributed-Training 03](courses/foundations/Multimodal AI Workloads/02_distributed_training/output/02-Distributed-Training_03.ipynb)
+- [02-Distributed-Training 04](courses/foundations/Multimodal AI Workloads/02_distributed_training/output/02-Distributed-Training_04.ipynb)
+- [02-Distributed-Training 05](courses/foundations/Multimodal AI Workloads/02_distributed_training/output/02-Distributed-Training_05.ipynb)
+- [02-Distributed-Training 06](courses/foundations/Multimodal AI Workloads/02_distributed_training/output/02-Distributed-Training_06.ipynb)
+- [02-Distributed-Training 07](courses/foundations/Multimodal AI Workloads/02_distributed_training/output/02-Distributed-Training_07.ipynb)
+- [02-Distributed-Training 08](courses/foundations/Multimodal AI Workloads/02_distributed_training/output/02-Distributed-Training_08.ipynb)
+- [02-Distributed-Training 09](courses/foundations/Multimodal AI Workloads/02_distributed_training/output/02-Distributed-Training_09.ipynb)
+- [03-Online-Serving 01](courses/foundations/Multimodal AI Workloads/03_online_serving/output/03-Online-Serving_01.ipynb)
+- [03-Online-Serving 02](courses/foundations/Multimodal AI Workloads/03_online_serving/output/03-Online-Serving_02.ipynb)
+- [03-Online-Serving 03](courses/foundations/Multimodal AI Workloads/03_online_serving/output/03-Online-Serving_03.ipynb)
+- [03-Online-Serving 04](courses/foundations/Multimodal AI Workloads/03_online_serving/output/03-Online-Serving_04.ipynb)
+- [03-Online-Serving 05](courses/foundations/Multimodal AI Workloads/03_online_serving/output/03-Online-Serving_05.ipynb)
+- [03-Online-Serving 06](courses/foundations/Multimodal AI Workloads/03_online_serving/output/03-Online-Serving_06.ipynb)
+- [03-Online-Serving 07](courses/foundations/Multimodal AI Workloads/03_online_serving/output/03-Online-Serving_07.ipynb)
+
 ### Observability
 
 - [01 general intro and setup 01](courses/foundations/Observability/01_Intro_and_setup/output/01_general_intro_and_setup_01.ipynb)
@@ -120,10 +143,10 @@ This collection contains multiple courses on Ray and Anyscale:
 
 ### Ray Ai Libs
 
-- [01 Intro Ray AI Libs Overview 01](courses/foundations/Ray_AI_Libs/00_Overview/output/01_Intro_Ray_AI_Libs_Overview_01.ipynb)
-- [01 Intro Ray AI Libs Overview 02](courses/foundations/Ray_AI_Libs/00_Overview/output/01_Intro_Ray_AI_Libs_Overview_02.ipynb)
-- [01 Intro Ray AI Libs Overview 03](courses/foundations/Ray_AI_Libs/00_Overview/output/01_Intro_Ray_AI_Libs_Overview_03.ipynb)
 - [README 01](courses/foundations/Ray_AI_Libs/00_intro/output/README_01.ipynb)
+- [01 Intro Ray AI Libs Overview 01](courses/foundations/Ray_AI_Libs/01_Overview/output/01_Intro_Ray_AI_Libs_Overview_01.ipynb)
+- [01 Intro Ray AI Libs Overview 02](courses/foundations/Ray_AI_Libs/01_Overview/output/01_Intro_Ray_AI_Libs_Overview_02.ipynb)
+- [01 Intro Ray AI Libs Overview 03](courses/foundations/Ray_AI_Libs/01_Overview/output/01_Intro_Ray_AI_Libs_Overview_03.ipynb)
 
 ### Ray Core
 
@@ -179,32 +202,32 @@ This collection contains multiple courses on Ray and Anyscale:
 
 ### Ray Train
 
-- [01 02 03 intro to ray train 01](courses/foundations/Ray_Train/output/01_02_03_intro_to_ray_train_01.ipynb)
-- [01 02 03 intro to ray train 02](courses/foundations/Ray_Train/output/01_02_03_intro_to_ray_train_02.ipynb)
-- [01 02 03 intro to ray train 03](courses/foundations/Ray_Train/output/01_02_03_intro_to_ray_train_03.ipynb)
-- [01 02 03 intro to ray train 04](courses/foundations/Ray_Train/output/01_02_03_intro_to_ray_train_04.ipynb)
-- [01 02 03 intro to ray train 05](courses/foundations/Ray_Train/output/01_02_03_intro_to_ray_train_05.ipynb)
-- [01 02 03 intro to ray train 06](courses/foundations/Ray_Train/output/01_02_03_intro_to_ray_train_06.ipynb)
-- [01 02 03 intro to ray train 07](courses/foundations/Ray_Train/output/01_02_03_intro_to_ray_train_07.ipynb)
-- [01 02 03 intro to ray train 08](courses/foundations/Ray_Train/output/01_02_03_intro_to_ray_train_08.ipynb)
-- [01 02 03 intro to ray train 09](courses/foundations/Ray_Train/output/01_02_03_intro_to_ray_train_09.ipynb)
-- [01 02 03 intro to ray train 10](courses/foundations/Ray_Train/output/01_02_03_intro_to_ray_train_10.ipynb)
-- [01 02 03 intro to ray train 11](courses/foundations/Ray_Train/output/01_02_03_intro_to_ray_train_11.ipynb)
-- [01 02 03 intro to ray train 12](courses/foundations/Ray_Train/output/01_02_03_intro_to_ray_train_12.ipynb)
-- [01 02 03 intro to ray train 13](courses/foundations/Ray_Train/output/01_02_03_intro_to_ray_train_13.ipynb)
-- [01 02 03 intro to ray train 14](courses/foundations/Ray_Train/output/01_02_03_intro_to_ray_train_14.ipynb)
-- [01 02 03 intro to ray train 15](courses/foundations/Ray_Train/output/01_02_03_intro_to_ray_train_15.ipynb)
-- [01 02 03 intro to ray train 16](courses/foundations/Ray_Train/output/01_02_03_intro_to_ray_train_16.ipynb)
-- [01 02 03 intro to ray train 17](courses/foundations/Ray_Train/output/01_02_03_intro_to_ray_train_17.ipynb)
-- [01 02 03 intro to ray train 18](courses/foundations/Ray_Train/output/01_02_03_intro_to_ray_train_18.ipynb)
-- [01 02 03 intro to ray train 19](courses/foundations/Ray_Train/output/01_02_03_intro_to_ray_train_19.ipynb)
-- [01 02 03 intro to ray train 20](courses/foundations/Ray_Train/output/01_02_03_intro_to_ray_train_20.ipynb)
-- [01 02 03 intro to ray train 21](courses/foundations/Ray_Train/output/01_02_03_intro_to_ray_train_21.ipynb)
-- [01 02 03 intro to ray train 22](courses/foundations/Ray_Train/output/01_02_03_intro_to_ray_train_22.ipynb)
-- [01 02 03 intro to ray train 23](courses/foundations/Ray_Train/output/01_02_03_intro_to_ray_train_23.ipynb)
-- [01 02 03 intro to ray train 24](courses/foundations/Ray_Train/output/01_02_03_intro_to_ray_train_24.ipynb)
-- [01 02 03 intro to ray train 25](courses/foundations/Ray_Train/output/01_02_03_intro_to_ray_train_25.ipynb)
-- [01 02 03 intro to ray train 26](courses/foundations/Ray_Train/output/01_02_03_intro_to_ray_train_26.ipynb)
+- [01 intro to ray train 01](courses/foundations/Ray_Train/01_intro/output/01_intro_to_ray_train_01.ipynb)
+- [01 intro to ray train 02](courses/foundations/Ray_Train/01_intro/output/01_intro_to_ray_train_02.ipynb)
+- [01 intro to ray train 03](courses/foundations/Ray_Train/01_intro/output/01_intro_to_ray_train_03.ipynb)
+- [01 intro to ray train 04](courses/foundations/Ray_Train/01_intro/output/01_intro_to_ray_train_04.ipynb)
+- [01 intro to ray train 05](courses/foundations/Ray_Train/01_intro/output/01_intro_to_ray_train_05.ipynb)
+- [01 intro to ray train 06](courses/foundations/Ray_Train/01_intro/output/01_intro_to_ray_train_06.ipynb)
+- [01 intro to ray train 07](courses/foundations/Ray_Train/01_intro/output/01_intro_to_ray_train_07.ipynb)
+- [01 intro to ray train 08](courses/foundations/Ray_Train/01_intro/output/01_intro_to_ray_train_08.ipynb)
+- [01 intro to ray train 09](courses/foundations/Ray_Train/01_intro/output/01_intro_to_ray_train_09.ipynb)
+- [01 intro to ray train 10](courses/foundations/Ray_Train/01_intro/output/01_intro_to_ray_train_10.ipynb)
+- [01 intro to ray train 11](courses/foundations/Ray_Train/01_intro/output/01_intro_to_ray_train_11.ipynb)
+- [01 intro to ray train 12](courses/foundations/Ray_Train/01_intro/output/01_intro_to_ray_train_12.ipynb)
+- [01 intro to ray train 13](courses/foundations/Ray_Train/01_intro/output/01_intro_to_ray_train_13.ipynb)
+- [02 integrating ray train with ray data 01](courses/foundations/Ray_Train/02_train_and_data/output/02_integrating_ray_train_with_ray_data_01.ipynb)
+- [02 integrating ray train with ray data 02](courses/foundations/Ray_Train/02_train_and_data/output/02_integrating_ray_train_with_ray_data_02.ipynb)
+- [02 integrating ray train with ray data 03](courses/foundations/Ray_Train/02_train_and_data/output/02_integrating_ray_train_with_ray_data_03.ipynb)
+- [02 integrating ray train with ray data 04](courses/foundations/Ray_Train/02_train_and_data/output/02_integrating_ray_train_with_ray_data_04.ipynb)
+- [02 integrating ray train with ray data 05](courses/foundations/Ray_Train/02_train_and_data/output/02_integrating_ray_train_with_ray_data_05.ipynb)
+- [02 integrating ray train with ray data 06](courses/foundations/Ray_Train/02_train_and_data/output/02_integrating_ray_train_with_ray_data_06.ipynb)
+- [03 fault tolerance in ray train 01](courses/foundations/Ray_Train/03_fault_tolerance/output/03_fault_tolerance_in_ray_train_01.ipynb)
+- [03 fault tolerance in ray train 02](courses/foundations/Ray_Train/03_fault_tolerance/output/03_fault_tolerance_in_ray_train_02.ipynb)
+- [03 fault tolerance in ray train 03](courses/foundations/Ray_Train/03_fault_tolerance/output/03_fault_tolerance_in_ray_train_03.ipynb)
+- [03 fault tolerance in ray train 04](courses/foundations/Ray_Train/03_fault_tolerance/output/03_fault_tolerance_in_ray_train_04.ipynb)
+- [03 fault tolerance in ray train 05](courses/foundations/Ray_Train/03_fault_tolerance/output/03_fault_tolerance_in_ray_train_05.ipynb)
+- [03 fault tolerance in ray train 06](courses/foundations/Ray_Train/03_fault_tolerance/output/03_fault_tolerance_in_ray_train_06.ipynb)
+- [03 fault tolerance in ray train 07](courses/foundations/Ray_Train/03_fault_tolerance/output/03_fault_tolerance_in_ray_train_07.ipynb)
 
 ### Ray Tune
 
