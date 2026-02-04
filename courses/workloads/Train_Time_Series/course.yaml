@@ -1,9 +1,15 @@
-title: Distributed Transformer Time-Series Forecasting Pipeline
-description: Build an end-to-end time-series forecasting pipeline to predict NYC taxi
-  demand for the next 24 hours from a week of historical data using a sequence-to-sequence
-  Transformer. Then scale the solution from single-GPU PyTorch to distributed, multi-node
-  training on an Anyscale cluster with Ray Train V2.
-author: ''
+title: Time Series Data Workload (Ray Train)
+description: A time series data workload example built with Ray Train.
+author: Ian Jordan
 mediaStorage: ''
-category: foundation
+category: workload
+tags:
+  - Workload Examples
+  - Intermediate
+  - Model Training
+  - Data Processing
+features:
+  - "Level: Intermediate"
+  - Time Series Forecasting
+  - Transformer-Based Models
 thumbnail: thumbnail.png

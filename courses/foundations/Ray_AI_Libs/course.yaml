@@ -1,8 +1,13 @@
-title: Introduction to Ray and Environment Setup
-description: Learn what Ray is and how it enables scaling Python applications with
-  distributed computing. Set up a reproducible local Ray + Jupyter environment and
-  validate your installation by running a simple Ray task.
-author: ''
+title: Introduction to Ray and its AI Libraries (Overview)
+description: This course is designed for users new to Ray. It serves as an introductory step in learning Ray, covering fundamentals of the Ray ecosystem and its AI libraries.
+author: Max Pumperla
 mediaStorage: ''
 category: foundation
+tags:
+  - Foundations
+  - Beginner
+features:
+  - "Level: Beginner"
+  - Ray Ecosystem Overview
+  - Introduction to Ray AI Libraries
 thumbnail: thumbnail.png

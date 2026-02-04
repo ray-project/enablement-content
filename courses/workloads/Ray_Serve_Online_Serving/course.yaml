@@ -1,9 +1,14 @@
-title: Scalable Sentiment Inference with Ray Serve
-description: Deploy a Hugging Face sentiment analysis model as a scalable online inference
-  service using Ray Serve and a FastAPI HTTP endpoint. Learn to run and scale the
-  service with replicas, test it with client requests, and cleanly shut down the Serve
-  app and Ray cluster.
-author: ''
+title: Online Model Serving with Ray Serve (Example)
+description: An example of online model serving implemented with Ray Serve.
+author: Max Pumperla
 mediaStorage: ''
 category: workload
+tags:
+  - Workload Examples
+  - Beginner
+  - Model Serving
+features:
+  - "Level: Beginner"
+  - Online Inference Services
+  - FastAPI Integration
 thumbnail: thumbnail.png

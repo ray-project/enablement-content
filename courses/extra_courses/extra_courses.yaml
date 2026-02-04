@@ -1,0 +1,33 @@
+# Extra Courses Configuration
+# This file defines "synthetic" courses composed of modules from existing courses.
+# Each course has the same metadata structure as regular course.yaml files,
+# plus a list of modules that should be included in the course.
+#
+# Module paths are relative to the courses/ directory and should point to
+# existing module directories (e.g., "foundations/Ray_Data/00_Landscape")
+
+- title: Batch Inference Basics
+  description: Learn how to run scalable batch inference with Ray Data, from foundational concepts to practical implementations with text and image data. This course covers data loading, batch transformations, and efficient model inference at scale.
+  author: Max Pumperla
+  mediaStorage: ''
+  category: foundation
+  tags:
+    - Foundations
+    - Intermediate
+    - Model Serving
+    - Data Processing
+  features:
+    - "Level: Intermediate"
+    - Scalable Batch Inference
+    - Ray Data for Model Inference
+    - Text and Image Embeddings
+  thumbnail: batch_inference_basics.png
+  modules:
+    # Introduction to Ray Data - provides foundational context
+    - foundations/Ray_Data/00_Landscape
+    # Ray Data with structured data - shows core Ray Data APIs
+    - foundations/Ray_Data/01_Structured
+    # Practical batch inference example with text embeddings
+    - workloads/Ray_Data_Batch_Inference/00_workload
+    # Advanced batch inference with multimodal (image) data
+    - foundations/Multimodal AI Workloads/01_batch_inference

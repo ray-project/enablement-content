@@ -1,9 +1,14 @@
-title: Distributed Data and Compute Landscape
-description: Learn how the distributed data and compute ecosystem is structured across
-  the data, compute, and orchestration layers, and how these layers work together.
-  You’ll be able to categorize major distributed computing frameworks and commercial
-  platforms by their primary use cases.
-author: ''
+title: Data Processing Foundations (Ray Data)
+description: Explore the foundations of processing structured and unstructured data with Ray Data and get an overview of the key concepts and patterns for distributed data processing.
+author: Max Pumperla
 mediaStorage: ''
 category: foundation
+tags:
+  - Foundations
+  - Beginner
+  - Data Processing
+features:
+  - "Level: Beginner"
+  - Structured and Unstructured Data Processing
+  - Distributed Data Pipelines
 thumbnail: thumbnail.png

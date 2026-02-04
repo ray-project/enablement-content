@@ -1,10 +1,14 @@
-title: Distributed Matrix Factorization with Ray Train
-description: Learn to build a scalable matrix factorization recommender on the MovieLens
-  100K dataset, from data preparation (CSV/Parquet) through end-to-end collaborative
-  filtering training to predict user–item ratings. You’ll migrate your local workflow
-  to distributed, fault-tolerant training on an Anyscale cluster using Ray Data and
-  Ray Train V2.
-author: ''
+title: Recommender Systems Workload (Ray Train)
+description: A recommender systems workload example built with Ray Train.
+author: Ian Jordan
 mediaStorage: ''
-category: foundation
+category: workload
+tags:
+  - Workload Examples
+  - Advanced
+  - Model Training
+features:
+  - "Level: Advanced"
+  - Collaborative Filtering
+  - Matrix Factorization Techniques
 thumbnail: thumbnail.png

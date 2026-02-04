@@ -1,9 +1,15 @@
-title: Distributed XGBoost Training with Ray Train
-description: Learn how to scale a tabular XGBoost forest-cover classification workflow
-  from local training to a distributed Ray Train V2 job on an Anyscale cluster. You’ll
-  ingest the UCI Cover Type dataset, write train/validation Parquet splits to shared
-  storage, and train and evaluate the model using Ray Datasets with distributed execution.
-author: ''
+title: Tabular Data Workload Example (Ray Train)
+description: A tabular data workload example built with Ray Train.
+author: Ian Jordan
 mediaStorage: ''
-category: foundation
+category: workload
+tags:
+  - Workload Examples
+  - Intermediate
+  - Model Training
+  - Data Processing
+features:
+  - "Level: Intermediate"
+  - Tabular Data Workloads
+  - XGBoost and Tree-Based Models
 thumbnail: thumbnail.png

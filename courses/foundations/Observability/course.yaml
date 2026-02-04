@@ -1,9 +1,13 @@
-title: Ray Observability Fundamentals and Setup
-description: Learn the core observability pillars—metrics, logs, and traces—and how
-  they’re used to monitor and debug distributed systems. You’ll then set up local
-  Ray observability by deploying Prometheus and Grafana, starting a two-node Ray cluster,
-  and using the Ray Dashboard to validate and explore collected metrics.
-author: ''
+title: Introduction to Observability
+description: Explore the basics of observability with Ray and Anyscale in this foundations course.
+author: Max Pumperla
 mediaStorage: ''
 category: foundation
+tags:
+  - Foundations
+  - Beginner
+features:
+  - "Level: Beginner"
+  - Metrics, Logs, and Traces
+  - Ray Dashboard and Monitoring
 thumbnail: thumbnail.png

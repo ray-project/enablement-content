@@ -5,4 +5,10 @@ description: Learn the end-to-end multi-modal AI pipeline, including how each co
 author: ''
 mediaStorage: ''
 category: foundation
+tags:
+  - Foundations
+features:
+  - "Level: Intermediate"
+  - End-to-End AI Pipeline
+  - Batch Inference, Training, and Serving
 thumbnail: thumbnail.png

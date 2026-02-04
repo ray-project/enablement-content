@@ -1,10 +1,14 @@
-title: Scalable Batch Inference with Ray Data
-description: Learn to run scalable batch inference with Ray Data by loading a Hugging
-  Face dataset, converting it to a Ray Dataset, and generating SentenceTransformer
-  embeddings in parallel with `map_batches`. You’ll optimize throughput by configuring
-  batching, CPU/GPU/MPS device placement, and concurrency to efficiently materialize
-  embeddings across an entire dataset.
-author: ''
+title: Batch Inference with Ray Data (Example)
+description: An example of batch inference implemented with Ray Data.
+author: Max Pumperla
 mediaStorage: ''
 category: workload
+tags:
+  - Workload Examples
+  - Beginner
+  - Data Processing
+features:
+  - "Level: Beginner"
+  - Batch Inference Patterns
+  - Parallel Embedding Generation
 thumbnail: thumbnail.png

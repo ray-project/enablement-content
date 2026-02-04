@@ -1,9 +1,14 @@
-title: Distributed Diffusion Training with Ray Train V2
-description: Learn to build and run an end-to-end mini diffusion (image denoising)
-  pipeline on the Food-101-Lite dataset using Ray Train V2 on an Anyscale cluster.
-  You’ll parallelize image decoding, preprocessing, and encoding with Ray Data and
-  scale generative computer-vision model training across a distributed environment.
-author: ''
+title: Generative Computer Vision Workload (Ray Train)
+description: A generative computer vision workload example built with Ray Train.
+author: Ian Jordan
 mediaStorage: ''
-category: foundation
+category: workload
+tags:
+  - Workload Examples
+  - Intermediate
+  - Model Training
+features:
+  - "Level: Intermediate"
+  - Generative AI Workloads
+  - Diffusion Model Training
 thumbnail: thumbnail.png

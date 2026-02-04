@@ -1,0 +1,63 @@
+- name: Introduction to Ray
+  description: "The Ray 101 learning path is the perfect entry point to get you started with Ray. You'll learn about all of our libraries, from low-level distributed computing with Ray Core to running AI workloads with Ray Data, Train, Tune and Serve"
+  thumbnail: ray_101.png
+  author: Max Pumperla
+  courses:
+    - foundations/Ray_AI_Libs
+    - foundations/Ray_Core
+    - foundations/Ray_Data
+    - foundations/Ray_Train
+    - foundations/Ray_Tune
+    - foundations/Ray_Serve
+  features:
+    - "Level: Beginner"
+    - Ray Ecosystem Overview
+    - Introduction to Ray AI Libraries
+    - Introduction to Ray Core
+    - Introduction to Ray Data
+    - Introduction to Ray Train
+    - Introduction to Ray Tune
+    - Introduction to Ray Serve
+
+- name: Ray Train Specialization
+  description: "The Ray Train learning path is a deep dive into distributed model training with Ray Train and gives you a large sample of interesting workloads to explore."
+  thumbnail: ray_train.png
+  author: Ian Jordan
+  courses:
+    - foundations/Ray_Train
+    - workloads/Train_Tabular
+    - workloads/Train_Time_Series
+    - workloads/Train_Vision_Pattern
+    - workloads/Train_Generative_CV
+    - workloads/Train_Policy_Learning
+    - workloads/Train_Rec_sys
+  features:
+    - "Level: Advanced"
+    - Distributed Model Training
+    - Multi-GPU Training Workflows
+    - Reinforcement Learning Workloads
+    - Policy Gradient Methods
+    - Collaborative Filtering
+    - Matrix Factorization Techniques
+    - Image Classification Workloads
+    - Computer Vision with Ray Train
+    - Time Series Forecasting
+    - Transformer-Based Models
+
+- name: Ray Data Specialization
+  description: "The Ray Data learning path provides a comprehensive guide to distributed data processing and batch inference with Ray Data. You'll learn foundational concepts, practical data processing workflows, and how to scale batch inference pipelines for production workloads."
+  thumbnail: ray_data.png
+  author: Max Pumperla
+  courses:
+    - foundations/Ray_Data
+    - workloads/Ray_Data_Processing
+    - workloads/Ray_Data_Batch_Inference
+  features:
+    - "Level: Intermediate"
+    - Distributed Data Processing
+    - Scalable Batch Inference
+    - Structured and Unstructured Data Handling
+    - Large-Scale Data Pipelines
+    - Parallel Embedding Generation
+    - Data Transformation Workflows
+    - Production-Ready Data Processing

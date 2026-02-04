@@ -1,10 +1,13 @@
-title: Anyscale Cloud Administration and Deployment
-description: Learn how to deploy, configure, and manage an Anyscale Cloud in your
-  own infrastructure, comparing VM vs. Kubernetes and managed vs. custom deployment
-  options and the resources needed to run Ray clusters. You’ll also complete an AWS
-  EC2 walkthrough covering core components like IAM roles and foundational cloud resources,
-  typically provisioned with the Anyscale CLI or Terraform.
-author: ''
+title: Getting Started with Anyscale for Administrators
+description: This course helps admins deploy Anyscale clouds in custom environments (AWS vs. GCP, VMs vs. Kubernetes, etc.).
+author: Max Pumperla
 mediaStorage: ''
 category: foundation
+tags:
+  - Foundations
+  - Advanced
+features:
+  - "Level: Advanced"
+  - Cloud Infrastructure Setup
+  - AWS, GCP, VMs, and Kubernetes Deployment
 thumbnail: thumbnail.png

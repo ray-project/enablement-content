@@ -1,9 +1,14 @@
-title: Scaling Stable Diffusion Training with Ray Train
-description: Learn when and how to use Ray Train to scale deep learning workloads
-  by training a Stable Diffusion UNet with PyTorch Lightning. You’ll build a Parquet-backed
-  PyTorch Dataset/DataLoader, establish a single-GPU baseline, and then scale the
-  same training job to multi-GPU distributed training on a Ray cluster.
-author: ''
+title: Model Training with PyTorch and Lightning
+description: A workload example demonstrating model training with PyTorch and Lightning.
+author: Max Pumperla
 mediaStorage: ''
 category: workload
+tags:
+  - Workload Examples
+  - Intermediate
+  - Model Training
+features:
+  - "Level: Intermediate"
+  - PyTorch Lightning Integration
+  - Stable Diffusion Training
 thumbnail: thumbnail.png

@@ -1,9 +1,14 @@
-title: Scalable ML Serving with Ray Serve
-description: Learn when and how to use Ray Serve to build scalable ML inference services
-  by understanding its application and deployment architecture. You’ll convert a local
-  PyTorch MNIST model into an online Ray Serve deployment and run predictions through
-  a served endpoint.
-author: ''
+title: Model Serving Foundations (Ray Serve)
+description: Learn to deploy your machine learning models in this foundations course on Ray Serve.
+author: Max Pumperla
 mediaStorage: ''
 category: foundation
+tags:
+  - Foundations
+  - Beginner
+  - Model Serving
+features:
+  - "Level: Beginner"
+  - ML Model Deployment
+  - Scalable Inference Services
 thumbnail: thumbnail.png

@@ -1,9 +1,13 @@
-title: Anyscale Workspaces Setup and Configuration
-description: Learn what Anyscale Workspaces are and how they streamline developing
-  Ray applications by managing compute, dependencies, storage, and IDE integration.
-  You’ll also set up and launch a workspace by choosing cloud resources, configuring
-  worker node sizing, and enabling autoscaling.
-author: ''
+title: Getting Started with Anyscale for Developers
+description: This course helps developers kick-start their work on Anyscale.
+author: Lu Zhang
 mediaStorage: ''
 category: foundation
+tags:
+  - Foundations
+  - Intermediate
+features:
+  - "Level: Intermediate"
+  - Workspaces and Development Setup
+  - Compute, Storage, and Collaboration Tools
 thumbnail: thumbnail.png
