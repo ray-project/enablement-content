@@ -2,147 +2,147 @@
   "notebook_path": "04_Ray_Train_distributed_training.ipynb",
   "notebook_hash": "03a357ba57141e28",
   "cells": {
-    "2bb7130e-6914-4a69-8d6f-a54fec43d2b6": {
+    "a2226e5f-ccb4-4b6f-9bfa-131b231adacc": {
       "source": "# Distributed training with Ray Train, PyTorch and Hugging Face\n© 2025, Anyscale. All Rights Reserved",
       "cell_type": "markdown",
       "is_output": false
     },
-    "535f298d-bfb8-41e0-8963-40b22f61f56e": {
+    "e0dc7c09-837e-4647-923f-469c46ec0904": {
       "source": "💻 **Launch Locally**: You can run this notebook locally.\n\n🚀 **Launch on Cloud**: Think about running this notebook on a Ray Cluster (Click [here](http://console.anyscale.com/register) to easily start a Ray cluster on Anyscale)",
       "cell_type": "markdown",
       "is_output": false
     },
-    "30605f4e-3931-459a-8de7-d465fee04769": {
+    "ca440156-9404-4bf4-83cf-148918d7e72f": {
       "source": "\nThis notebook demonstrates how to perform distributed training of a BERT model for sequence classification using Ray Train, PyTorch, and Hugging Face libraries. The goal is to classify Yelp reviews into categories by leveraging the power of distributed computing, which allows you to train large models efficiently across multiple CPUs or GPUs.\n\nThe notebook starts by importing all the necessary libraries, including PyTorch for deep learning, Hugging Face Transformers for model and tokenizer utilities, and Ray Train for distributed training. It then sets up the evaluation metric (accuracy) and defines a function to compute this metric during model evaluation.\n\nA key part of the notebook is the training function, which is executed by each worker in the distributed setup. This function handles loading the Yelp review dataset, tokenizing the text data, preparing data loaders for batching, and setting up the BERT model for training. The function is designed to automatically use the best available hardware, whether that's a CPU, GPU, or Apple Silicon's MPS.\n\nThe main training function, `train_bert`, configures the distributed environment using Ray, sets up the training parameters, and launches the training process across multiple workers. This approach allows you to scale up your training easily, making it suitable for both local machines and cloud platforms. After training, Ray is properly shut down to free up resources.\n\nOverall, this notebook provides a practical introduction to distributed deep learning with modern Python tools, making it easier for machine learning engineers to train large models on big datasets efficiently.",
       "cell_type": "markdown",
       "is_output": false
     },
-    "ce8593c8-fff5-42f5-9805-9d6dd4891de9": {
+    "3a33560a-9013-403f-9750-7f5438ff48e5": {
       "source": "### Outline\n<div class=\"alert alert-block alert-info\">\n<ol>\n    <li>Architecture Diagram\n    <li>Library Imports\n        <ul>\n            <li>Importing PyTorch, Hugging Face Transformers, Ray Train, and other dependencies\n        </ul>\n    <li>Metrics Setup\n        <ul>\n            <li>Defining accuracy as the evaluation metric\n            <li>Function to compute metrics during evaluation\n        </ul>\n    <li>Training Function Per Worker\n        <ul>\n            <li>Data loading and preprocessing (tokenization)\n            <li>Preparing data loaders for batching\n            <li>Model initialization (BERT for sequence classification)\n            <li>Device selection (CPU, GPU, or MPS)\n            <li>Training and evaluation loop\n        </ul>\n    <li>Main Training Function\n        <ul>\n            <li>Setting up distributed training configuration with Ray\n            <li>Scaling configuration for CPUs/GPUs\n            <li>Initializing and running the Ray TorchTrainer\n        </ul>\n    <li>Running the Training\n        <ul>\n            <li>Executing the main training function with a specified number of workers\n        </ul>\n    <li>Shutdown Ray Cluster\n    <li>Summary\n</ol>\n</div>\n",
       "cell_type": "markdown",
       "is_output": false
     },
-    "c733dd12-5cbd-423e-87e5-3f33d49a1c90": {
+    "8f3aeef5-c82a-41c3-874e-c02f8540cf7a": {
       "source": "## 1. Architecture",
       "cell_type": "markdown",
       "is_output": false
     },
-    "5f0d5b7e-69e7-4a73-9afa-e6e335584c16": {
+    "08287e30-cd31-47a7-a08a-950fa8243697": {
       "source": "![Architecture Diagram](https://lz-public-demo.s3.us-east-1.amazonaws.com/anyscale101/01_examples/04_Ray_Train_architecture.svg?sanitize=true)",
       "cell_type": "markdown",
       "is_output": false
     },
-    "71c36c0d-ed5e-4041-ac5d-722c12b32c59": {
+    "ad63712e-678b-41c9-9b0c-6c7a4881c6d3": {
       "source": "### 2. Library Imports",
       "cell_type": "markdown",
       "is_output": false
     },
-    "22585009-6dff-4def-a275-b56929b87cdb": {
+    "c8b325e8-5297-4cb7-9b81-d54db537ce95": {
       "source": "# Import necessary libraries\n\nimport os\nfrom typing import Dict # For type hinting\n\nimport torch # PyTorch for tensor operations\nfrom torch import nn # PyTorch for deep learning\nfrom torch.utils.data import DataLoader # DataLoader for batching and shuffling data\nfrom tqdm import tqdm\n\nimport numpy as np\nimport evaluate\nfrom datasets import load_dataset # To load datasets from Hugging Face\nimport transformers # Transformers library for model and tokenizer\nfrom transformers import (\n    Trainer, # \n    TrainingArguments,\n    AutoTokenizer, # Tokenizer for Hugging Face models\n    AutoModelForSequenceClassification, # Model for sequence classification\n)\n\nimport ray.train # Ray Train for distributed training\nfrom ray.train import ScalingConfig\nfrom ray.train.torch import TorchTrainer # Trainer for PyTorch\nfrom ray.train.torch import TorchConfig # Configuration for PyTorch training\nfrom ray.runtime_env import RuntimeEnv # Runtime environment for Ray tasks\n",
       "cell_type": "code",
       "is_output": false
     },
-    "835f5d34-baf6-4f4a-81be-9846d858bbe2": {
+    "1acf7da2-0e07-4d42-944e-3bfdc07c14dc": {
       "source": "## 3. Metrics Setup\nWe will use accuracy as our evaluation metric. The compute_metrics function will calculate the accuracy of our model’s predictions.",
       "cell_type": "markdown",
       "is_output": false
     },
-    "16891880-871e-4875-95cb-03fb6545d0dc": {
+    "fc8f3d9d-592f-4a38-9b73-28f149145456": {
       "source": "# Metrics\nmetric = evaluate.load(\"accuracy\") # Load accuracy metric from Hugging Face evaluate library\n\n# Function to compute metrics\n# This function takes the evaluation predictions and computes the accuracy metric\ndef compute_metrics(eval_pred):\n    logits, labels = eval_pred\n    predictions = np.argmax(logits, axis=-1)\n    return metric.compute(predictions=predictions, references=labels)",
       "cell_type": "code",
       "is_output": false
     },
-    "c2c14721-9497-44d2-8b32-fe961b4c742e": {
+    "4d3e5e5a-1ccc-4cbe-bd44-a4f128c3835b": {
       "source": "## 4. Training function per worker\nThis function will be executed by each worker during training. It handles data loading, tokenization, model initialization, and the training loop. This will automatically select GPU, MPS (on Apple Silicon), or CPU.\n\n### Tokenizer\nTokenizer function is used to convert text into input IDs and attention masks.\n\nPadding and truncation are applied to ensure uniform input size. This is essential for training models that require fixed-size inputs. The function is applied to the dataset using the map method. The map method applies the function to each example in the dataset. The batched=True argument allows processing multiple examples at once, which is more efficient.\n\nThe resulting dataset will have the tokenized inputs ready for training. This is a crucial step in preparing the dataset for model training. It ensures that the text data is converted into a format that the model can understand.",
       "cell_type": "markdown",
       "is_output": false
     },
-    "17af6988-f571-4472-8035-f725d97d69ee": {
+    "6efc2eb3-7961-4482-ad1d-bdaaaed26fae": {
       "source": "### Dataloaders\nDataloaders are used to load the dataset in batches for training and evaluation. This is essential for efficient training, especially with large datasets. The DataLoader will shuffle the training data and collate it into batches\nThe collate_fn is set to transformers.default_data_collator, which handles padding and batching automatically. The batch_size is set to the batch size per worker, which is defined in the config. This allows each worker to process a subset of the data in parallel. This is crucial for distributed training, where each worker processes a portion of the dataset.",
       "cell_type": "markdown",
       "is_output": false
     },
-    "1eef119d-8785-45d2-89fb-7042dee915a0": {
+    "3f666a93-ed18-4e05-b9ba-491cba6b2a3a": {
       "source": "def train_func_per_worker(config: Dict):\n    \n    # Datasets\n    dataset = load_dataset(\"yelp_review_full\")\n    tokenizer = AutoTokenizer.from_pretrained(\"bert-base-cased\")\n    \n    # Tokenization function\n    def tokenize_function(examples):\n        \"\"\"    \n        This function will tokenize the text data in the dataset\n        It uses the tokenizer to convert text into input IDs and attention masks\n        Padding and truncation are applied to ensure uniform input size\n        This is essential for training models that require fixed-size inputs\n        \"\"\"\n        return tokenizer(examples[\"text\"], padding=\"max_length\", truncation=True)\n\n    lr = config[\"lr\"]\n    epochs = config[\"epochs\"]\n    batch_size = config[\"batch_size_per_worker\"]\n\n    # select a subset of the dataset for training and evaluation\n    # In a real-world scenario, you would use the entire dataset\n    SMALL_SIZE = 100\n    # The map method applies the function to each example in the dataset\n    # The batched=True argument allows processing multiple examples at once, which is more efficient\n    # The resulting dataset will have the tokenized inputs ready for training\n    # This is a crucial step in preparing the dataset for model training\n    # It ensures that the text data is converted into a format that the model can understand\n    train_dataset = dataset[\"train\"].select(range(SMALL_SIZE)).map(tokenize_function, batched=True)\n    eval_dataset = dataset[\"test\"].select(range(SMALL_SIZE)).map(tokenize_function, batched=True)\n\n    # Prepare dataloader for each worker\n    # Dataloaders are used to load the dataset in batches for training and evaluation\n    # The dataloaders dictionary will hold the training and evaluation dataloaders\n    # This allows for easy access to the dataloaders during training and evaluation\n    # The dataloaders will be used in the training loop to fetch batches of data for each worker\n    dataloaders = {}\n    dataloaders[\"train\"] = torch.utils.data.DataLoader(\n        train_dataset, \n        shuffle=True, \n        collate_fn=transformers.default_data_collator, \n        batch_size=batch_size\n    )\n    dataloaders[\"test\"] = torch.utils.data.DataLoader(\n        eval_dataset, \n        shuffle=True, \n        collate_fn=transformers.default_data_collator, \n        batch_size=batch_size\n    )\n\n    # Obtain GPU device automatically\n    # device = ray.train.torch.get_device()\n    \n    # Alternatively, you can specify the device manually\n    # Check if CUDA or MPS is available and set device accordingly\n    # This is useful for running on different hardware configurations\n    if torch.cuda.is_available():\n        device = torch.device(\"cuda\")\n    elif torch.backends.mps.is_available():\n        device = torch.device(\"mps\") # For Apple Silicon Macs\n    else:\n        device = torch.device(\"cpu\")\n\n    # Prepare model and optimizer\n    # Load a pre-trained BERT model for sequence classification\n    # The model is initialized with the number of labels for classification\n    model = AutoModelForSequenceClassification.from_pretrained(\n        \"bert-base-cased\", num_labels=5\n    )\n    # The model is moved to the selected device (GPU, MPS, or CPU)\n    model = model.to(device)\n    \n    # The optimizer is set to SGD with momentum\n    # This is essential for training the model\n    # The optimizer will update the model parameters during training\n    # The learning rate and momentum are set based on the configuration\n    optimizer = torch.optim.SGD(model.parameters(), lr=lr, momentum=0.9)\n\n    # Start training loops\n    # The model will be trained for the specified number of epochs\n    # The model will be trained using the training dataloader\n    # The model will be evaluated using the evaluation dataloader\n    # The training loop will iterate over the epochs and batches\n    for epoch in range(epochs):\n        # Each epoch has a training and validation phase\n        for phase in [\"train\", \"test\"]:\n            if phase == \"train\":\n                model.train()  # Set model to training mode\n            else:\n                model.eval()  # Set model to evaluate mode\n\n            # breakpoint()\n            for batch in dataloaders[phase]: # Iterate over batches in the dataloader\n                batch = {k: v.to(device) for k, v in batch.items()}\n\n                # zero the parameter gradients\n                optimizer.zero_grad()\n\n                # forward pass\n                with torch.set_grad_enabled(phase == \"train\"):\n                    # Get model outputs and calculate loss\n                    # The model processes the input batch and returns outputs\n                    # The outputs include the loss and logits\n                    # The loss is calculated based on the model's predictions and the true labels\n                    # The logits are the raw predictions from the model\n                    # The loss is used to update the model parameters during training\n                    outputs = model(**batch)\n                    loss = outputs.loss\n\n                    # backward + optimize only if in training phase\n                    if phase == \"train\":\n                        loss.backward() # Backpropagate the loss to compute gradients\n                        # The optimizer updates the model parameters based on the computed gradients\n                        optimizer.step()\n                        print(f\"train epoch:[{epoch}]\\tloss:{loss:.6f}\")",
       "cell_type": "code",
       "is_output": false
     },
-    "7ef466d5-a410-4691-b892-83ca88643b86": {
+    "911f8632-9f12-4ba8-a113-0ae2934238ad": {
       "source": "## 5. Main Training Function\nThe *train_bert* function sets up the distributed training environment using Ray and starts the training process. To enable training using GPU, we only need to make the following changes:\n\n* Require an GPU for each worker in ScalingConfig\n* Set backend to “nccl” in TorchConfig\n\nThis function is designed to train a BERT model using Ray Train. It sets up the training configuration, scaling, and starts the Ray cluster. The function initializes the Ray Train environment, configures the trainer, and starts the training process.\n* It is intended to be run in a distributed setting with multiple workers, allowing for efficient training of large models on large datasets by leveraging Ray's distributed computing capabilities.\n* The function uses the Ray Train library to manage distributed training and the TorchTrainer for PyTorch models.\n* It supports both GPU and CPU training, making it flexible for different hardware configurations. \n* Additionally, it can be easily adapted for different models and datasets by changing the model and dataset loading parts. \n* This approach provides a scalable solution for training deep learning models in a distributed manner and can be used in various environments, including local machines and cloud platforms.\n* It is a powerful tool for researchers and developers working with large-scale machine learning tasks, enabling efficient training on large datasets and easy integration into existing machine learning workflows with minimal changes.",
       "cell_type": "markdown",
       "is_output": false
     },
-    "ca26285c-37c9-4a73-acb0-435fc99e2de1": {
+    "af205ba4-0d67-40b1-bfc8-27b5b24ba023": {
       "source": "# function to train BERT model using Ray Train\n# This function sets up the training configuration, scaling, and starts the Ray cluster.\n# It initializes the Ray Train environment, configures the trainer, and starts the training process.\ndef train_bert(num_workers=2):\n    global_batch_size = 8 # This is the total batch size across all workers\n\n    # Define the training configuration\n    # This configuration includes the learning rate, number of epochs, and batch size per worker\n    train_config = {\n        \"lr\": 1e-3,  # Learning rate\n        \"epochs\": 2,  # Reduced for faster testing\n        \"batch_size_per_worker\": global_batch_size // num_workers,\n    }\n\n    # Configure computation resources\n    # if using CPUs or MPS\n    scaling_config = ScalingConfig(num_workers=num_workers, resources_per_worker={\"CPU\": 1,})\n    \n    # If using GPUs, you can specify resources_per_worker={\"CPU\": 1, \"GPU\": 1}\n    # scaling_config = ScalingConfig(num_workers=num_workers, resources_per_worker={\"CPU\": 1, \"GPU\": 1})\n    # Set backend to nccl in TorchConfig\n    # torch_config = TorchConfig(backend = \"nccl\")\n    \n    # start your ray cluster\n    ray.init() \n    \n    # Initialize a Ray TorchTrainer\n    trainer = TorchTrainer(\n        train_loop_per_worker=train_func_per_worker,\n        train_loop_config=train_config,\n        # torch_config=torch_config, # Uncomment if using nccl backend\n        scaling_config=scaling_config,\n    )\n\n    result = trainer.fit() # Start the training process\n    print(f\"Training result: {result}\") # This will print the training result, which includes metrics like loss and accuracy",
       "cell_type": "code",
       "is_output": false
     },
-    "7563e1c1-01db-43df-8d8d-ad29a598b65b": {
+    "e2074d0c-9a26-410d-a487-c2e154092dcd": {
       "source": "## 6. Start Training\nFinally, we call the train_bert function to start the training process. You can adjust the number of workers to use.",
       "cell_type": "markdown",
       "is_output": false
     },
-    "92638c3b-26a9-4c03-8722-329e87f48cd0": {
+    "1f3c1571-f6c6-42ea-87f6-ecb531525be8": {
       "source": "# Run the training function with the specified number of workers\n# You can adjust the number of workers based on your hardware configuration\ntrain_bert(num_workers=2)",
       "cell_type": "code",
       "is_output": false
     },
-    "7efb9312-bf0e-4eb3-8fd6-128dc9ec0638": {
+    "afe8b506-aa92-42fa-9b16-888dc3b7c44c": {
       "source": "2025-07-11 10:16:10,519\tINFO worker.py:1908 -- Started a local Ray instance. View the dashboard at \u001b[1m\u001b[32mhttp://127.0.0.1:8265 \u001b[39m\u001b[22m\n2025-07-11 10:16:11,092\tINFO tune.py:616 -- [output] This uses the legacy output and progress reporter, as Jupyter notebooks are not supported by the new engine, yet. For more information, please see https://github.com/ray-project/ray/issues/36949\n",
       "cell_type": "output",
       "is_output": true
     },
-    "f763fcd0-3e61-4d25-b4f4-6602387735f8": {
+    "7bb02be9-cf46-4a24-8ecb-e2c4e5ae1ff6": {
       "source": "== Status ==\nCurrent time: 2025-07-11 10:16:11 (running for 00:00:00.11)\nUsing FIFO scheduling algorithm.\nLogical resource usage: 3.0/16 CPUs, 0/0 GPUs\nResult logdir: /tmp/ray/session_2025-07-11_10-16-09_200164_18044/artifacts/2025-07-11_10-16-11/TorchTrainer_2025-07-11_10-16-11/driver_artifacts\nNumber of trials: 1/1 (1 PENDING)\n\n\n== Status ==\nCurrent time: 2025-07-11 10:16:16 (running for 00:00:05.14)\nUsing FIFO scheduling algorithm.\nLogical resource usage: 3.0/16 CPUs, 0/0 GPUs\nResult logdir: /tmp/ray/session_2025-07-11_10-16-09_200164_18044/artifacts/2025-07-11_10-16-11/TorchTrainer_2025-07-11_10-16-11/driver_artifacts\nNumber of trials: 1/1 (1 RUNNING)\n\n\n",
       "cell_type": "output",
       "is_output": true
     },
-    "1d34b3b5-5e07-4ef7-805b-ef9d2377f8fe": {
+    "5167104f-56cf-4e99-b804-012774a7436d": {
       "source": "\u001b[36m(RayTrainWorker pid=41599)\u001b[0m Setting up process group for: env:// [rank=0, world_size=2]\n\u001b[36m(TorchTrainer pid=41521)\u001b[0m Started distributed worker processes: \n\u001b[36m(TorchTrainer pid=41521)\u001b[0m - (node_id=0eca5bdc14957219701f50108487dbd39f13987d253f812c0d6b29a9, ip=127.0.0.1, pid=41599) world_rank=0, local_rank=0, node_rank=0\n\u001b[36m(TorchTrainer pid=41521)\u001b[0m - (node_id=0eca5bdc14957219701f50108487dbd39f13987d253f812c0d6b29a9, ip=127.0.0.1, pid=41598) world_rank=1, local_rank=1, node_rank=0\n",
       "cell_type": "output",
       "is_output": true
     },
-    "9599c2a3-ea75-4a54-8c71-45d6d77dbf98": {
+    "3cbd3103-3281-4fbb-b668-9c39d293997c": {
       "source": "== Status ==\nCurrent time: 2025-07-11 10:16:21 (running for 00:00:10.22)\nUsing FIFO scheduling algorithm.\nLogical resource usage: 3.0/16 CPUs, 0/0 GPUs\nResult logdir: /tmp/ray/session_2025-07-11_10-16-09_200164_18044/artifacts/2025-07-11_10-16-11/TorchTrainer_2025-07-11_10-16-11/driver_artifacts\nNumber of trials: 1/1 (1 RUNNING)\n\n\n",
       "cell_type": "output",
       "is_output": true
     },
-    "7ee34075-cbf2-449d-b5b5-16e4ee98f162": {
+    "783ab46c-5a1f-4cbe-a485-1c41ef6cf9f1": {
       "source": "Map: 100%|██████████| 100/100 [00:00<00:00, 5090.92 examples/s]\n\u001b[36m(RayTrainWorker pid=41599)\u001b[0m Some weights of BertForSequenceClassification were not initialized from the model checkpoint at bert-base-cased and are newly initialized: ['classifier.bias', 'classifier.weight']\n\u001b[36m(RayTrainWorker pid=41599)\u001b[0m You should probably TRAIN this model on a down-stream task to be able to use it for predictions and inference.\n",
       "cell_type": "output",
       "is_output": true
     },
-    "2fec7503-264d-40eb-90a6-1011a1cfc500": {
+    "5a977863-e0e3-42e0-9123-c9171ee70793": {
       "source": "\u001b[36m(RayTrainWorker pid=41599)\u001b[0m train epoch:[0]\tloss:1.764641\n== Status ==\nCurrent time: 2025-07-11 10:16:26 (running for 00:00:15.28)\nUsing FIFO scheduling algorithm.\nLogical resource usage: 3.0/16 CPUs, 0/0 GPUs\nResult logdir: /tmp/ray/session_2025-07-11_10-16-09_200164_18044/artifacts/2025-07-11_10-16-11/TorchTrainer_2025-07-11_10-16-11/driver_artifacts\nNumber of trials: 1/1 (1 RUNNING)\n\n\n\u001b[36m(RayTrainWorker pid=41598)\u001b[0m train epoch:[0]\tloss:1.949393\u001b[32m [repeated 27x across cluster] (Ray deduplicates logs by default. Set RAY_DEDUP_LOGS=0 to disable log deduplication, or see https://docs.ray.io/en/master/ray-observability/user-guides/configure-logging.html#log-deduplication for more options.)\u001b[0m\n== Status ==\nCurrent time: 2025-07-11 10:16:31 (running for 00:00:20.35)\nUsing FIFO scheduling algorithm.\nLogical resource usage: 3.0/16 CPUs, 0/0 GPUs\nResult logdir: /tmp/ray/session_2025-07-11_10-16-09_200164_18044/artifacts/2025-07-11_10-16-11/TorchTrainer_2025-07-11_10-16-11/driver_artifacts\nNumber of trials: 1/1 (1 RUNNING)\n\n\n== Status ==\nCurrent time: 2025-07-11 10:16:36 (running for 00:00:25.46)\nUsing FIFO scheduling algorithm.\nLogical resource usage: 3.0/16 CPUs, 0/0 GPUs\nResult logdir: /tmp/ray/session_2025-07-11_10-16-09_200164_18044/artifacts/2025-07-11_10-16-11/TorchTrainer_2025-07-11_10-16-11/driver_artifacts\nNumber of trials: 1/1 (1 RUNNING)\n\n\n\u001b[36m(RayTrainWorker pid=41599)\u001b[0m train epoch:[1]\tloss:1.799808\u001b[32m [repeated 23x across cluster]\u001b[0m\n== Status ==\nCurrent time: 2025-07-11 10:16:41 (running for 00:00:30.54)\nUsing FIFO scheduling algorithm.\nLogical resource usage: 3.0/16 CPUs, 0/0 GPUs\nResult logdir: /tmp/ray/session_2025-07-11_10-16-09_200164_18044/artifacts/2025-07-11_10-16-11/TorchTrainer_2025-07-11_10-16-11/driver_artifacts\nNumber of trials: 1/1 (1 RUNNING)\n\n\n\u001b[36m(RayTrainWorker pid=41598)\u001b[0m train epoch:[1]\tloss:1.422321\u001b[32m [repeated 27x across cluster]\u001b[0m\n== Status ==\nCurrent time: 2025-07-11 10:16:46 (running for 00:00:35.63)\nUsing FIFO scheduling algorithm.\nLogical resource usage: 3.0/16 CPUs, 0/0 GPUs\nResult logdir: /tmp/ray/session_2025-07-11_10-16-09_200164_18044/artifacts/2025-07-11_10-16-11/TorchTrainer_2025-07-11_10-16-11/driver_artifacts\nNumber of trials: 1/1 (1 RUNNING)\n\n\n",
       "cell_type": "output",
       "is_output": true
     },
-    "1f7490f8-7591-41eb-8a31-16539f2b4b83": {
+    "3230f85c-a388-4592-874e-c22695cc62a8": {
       "source": "2025-07-11 10:16:49,397\tINFO tune.py:1009 -- Wrote the latest version of all result files and experiment state to '/Users/maxpumperla/ray_results/TorchTrainer_2025-07-11_10-16-11' in 0.0033s.\n2025-07-11 10:16:49,400\tINFO tune.py:1041 -- Total run time: 38.31 seconds (38.29 seconds for the tuning loop).\n",
       "cell_type": "output",
       "is_output": true
     },
-    "331de33c-80e4-4f65-b8f0-c521154b2bbb": {
+    "e56e6595-4376-4e6b-a246-997cd30e4932": {
       "source": "Trial TorchTrainer_4dd7a_00000 completed. Last result: \n== Status ==\nCurrent time: 2025-07-11 10:16:49 (running for 00:00:38.30)\nUsing FIFO scheduling algorithm.\nLogical resource usage: 3.0/16 CPUs, 0/0 GPUs\nResult logdir: /tmp/ray/session_2025-07-11_10-16-09_200164_18044/artifacts/2025-07-11_10-16-11/TorchTrainer_2025-07-11_10-16-11/driver_artifacts\nNumber of trials: 1/1 (1 TERMINATED)\n\n\nTraining result: Result(\n  metrics={},\n  path='/Users/maxpumperla/ray_results/TorchTrainer_2025-07-11_10-16-11/TorchTrainer_4dd7a_00000_0_2025-07-11_10-16-11',\n  filesystem='local',\n  checkpoint=None\n)\n",
       "cell_type": "output",
       "is_output": true
     },
-    "088e15d9-62ad-48d0-a438-acf6f4dcf239": {
+    "94bf8608-e01b-4651-b7ff-b2645e40aa4a": {
       "source": "### 7. Shutdown Ray Cluster",
       "cell_type": "markdown",
       "is_output": false
     },
-    "d4003e52-2b62-4941-b1b4-be111374964e": {
+    "b148f5a0-f17b-42d0-981e-36791e0984f1": {
       "source": "# Shutdown Ray after training is complete\nray.shutdown()",
       "cell_type": "code",
       "is_output": false
     },
-    "3e1670d8-11e1-4f3f-8ba0-c8079fb99af1": {
+    "fbca4c7b-d9b9-47ab-8234-45626110a6e3": {
       "source": "### 8. Summary\nThis notebook demonstrates how to use Ray Train, PyTorch, and Hugging Face Transformers to perform distributed training of a BERT model for sequence classification on the Yelp review dataset. It covers data loading, tokenization, model setup, and distributed training configuration, allowing you to efficiently train large models across multiple CPUs or GPUs. The notebook is designed to be accessible for machine learning engineers who want to learn scalable deep learning workflows using modern Python tools.",
       "cell_type": "markdown",
       "is_output": false
     },
-    "63fb2fb2-66c9-4880-81d3-d16b0d8a7baa": {
+    "ecd3dbfb-f7f9-4f84-9968-815cb614aeb0": {
       "source": "",
       "cell_type": "code",
       "is_output": false
@@ -151,101 +151,188 @@
   "cuts": [
     {
       "type": "cut",
-      "cell_id": "ce8593c8-fff5-42f5-9805-9d6dd4891de9",
+      "cell_id": "3a33560a-9013-403f-9750-7f5438ff48e5",
       "line_index": 20,
-      "id": "cut-ce8593c8-fff5-42f5-9805-9d6dd4891de9-655022"
+      "id": "cut-3a33560a-9013-403f-9750-7f5438ff48e5-379540"
     },
     {
       "type": "cut",
-      "cell_id": "22585009-6dff-4def-a275-b56929b87cdb",
+      "cell_id": "c8b325e8-5297-4cb7-9b81-d54db537ce95",
       "line_index": 10,
-      "id": "cut-22585009-6dff-4def-a275-b56929b87cdb-459000"
+      "id": "cut-c8b325e8-5297-4cb7-9b81-d54db537ce95-507658"
     },
     {
       "type": "cut",
-      "cell_id": "1eef119d-8785-45d2-89fb-7042dee915a0",
+      "cell_id": "3f666a93-ed18-4e05-b9ba-491cba6b2a3a",
       "line_index": 16,
-      "id": "cut-1eef119d-8785-45d2-89fb-7042dee915a0-996181"
+      "id": "cut-3f666a93-ed18-4e05-b9ba-491cba6b2a3a-347649"
     },
     {
       "type": "cut",
-      "cell_id": "1eef119d-8785-45d2-89fb-7042dee915a0",
+      "cell_id": "3f666a93-ed18-4e05-b9ba-491cba6b2a3a",
       "line_index": 31,
-      "id": "cut-1eef119d-8785-45d2-89fb-7042dee915a0-169081"
+      "id": "cut-3f666a93-ed18-4e05-b9ba-491cba6b2a3a-476711"
     },
     {
       "type": "cut",
-      "cell_id": "1eef119d-8785-45d2-89fb-7042dee915a0",
+      "cell_id": "3f666a93-ed18-4e05-b9ba-491cba6b2a3a",
       "line_index": 50,
-      "id": "cut-1eef119d-8785-45d2-89fb-7042dee915a0-447938"
+      "id": "cut-3f666a93-ed18-4e05-b9ba-491cba6b2a3a-905715"
     },
     {
       "type": "cut",
-      "cell_id": "1eef119d-8785-45d2-89fb-7042dee915a0",
+      "cell_id": "3f666a93-ed18-4e05-b9ba-491cba6b2a3a",
       "line_index": 63,
-      "id": "cut-1eef119d-8785-45d2-89fb-7042dee915a0-583004"
+      "id": "cut-3f666a93-ed18-4e05-b9ba-491cba6b2a3a-936055"
     },
     {
       "type": "cut",
-      "cell_id": "1eef119d-8785-45d2-89fb-7042dee915a0",
+      "cell_id": "3f666a93-ed18-4e05-b9ba-491cba6b2a3a",
       "line_index": 78,
-      "id": "cut-1eef119d-8785-45d2-89fb-7042dee915a0-235486"
+      "id": "cut-3f666a93-ed18-4e05-b9ba-491cba6b2a3a-200826"
     },
     {
       "type": "cut",
-      "cell_id": "1eef119d-8785-45d2-89fb-7042dee915a0",
+      "cell_id": "3f666a93-ed18-4e05-b9ba-491cba6b2a3a",
       "line_index": 95,
-      "id": "cut-1eef119d-8785-45d2-89fb-7042dee915a0-945710"
+      "id": "cut-3f666a93-ed18-4e05-b9ba-491cba6b2a3a-816917"
     },
     {
       "type": "cut",
-      "cell_id": "1eef119d-8785-45d2-89fb-7042dee915a0",
+      "cell_id": "3f666a93-ed18-4e05-b9ba-491cba6b2a3a",
       "line_index": 109,
-      "id": "cut-1eef119d-8785-45d2-89fb-7042dee915a0-787608"
+      "id": "cut-3f666a93-ed18-4e05-b9ba-491cba6b2a3a-814305"
     },
     {
       "type": "cut",
-      "cell_id": "ca26285c-37c9-4a73-acb0-435fc99e2de1",
+      "cell_id": "af205ba4-0d67-40b1-bfc8-27b5b24ba023",
       "line_index": 18,
-      "id": "cut-ca26285c-37c9-4a73-acb0-435fc99e2de1-542407"
+      "id": "cut-af205ba4-0d67-40b1-bfc8-27b5b24ba023-306493"
     }
   ],
-  "merges": [],
+  "merges": [
+    {
+      "raw_scene_ids": [
+        "a2226e5f-ccb4-4b6f-9bfa-131b231adacc-before-null-after-null",
+        "e0dc7c09-837e-4647-923f-469c46ec0904-before-null-after-null",
+        "ca440156-9404-4bf4-83cf-148918d7e72f-before-null-after-null"
+      ],
+      "id": "merge-0abafa62"
+    },
+    {
+      "raw_scene_ids": [
+        "8f3aeef5-c82a-41c3-874e-c02f8540cf7a-before-null-after-null",
+        "08287e30-cd31-47a7-a08a-950fa8243697-before-null-after-null",
+        "ad63712e-678b-41c9-9b0c-6c7a4881c6d3-before-null-after-null"
+      ],
+      "id": "merge-4fbe23dc"
+    },
+    {
+      "raw_scene_ids": [
+        "1acf7da2-0e07-4d42-944e-3bfdc07c14dc-before-null-after-null",
+        "fc8f3d9d-592f-4a38-9b73-28f149145456-before-null-after-null"
+      ],
+      "id": "merge-d5b9fcaf"
+    },
+    {
+      "raw_scene_ids": [
+        "4d3e5e5a-1ccc-4cbe-bd44-a4f128c3835b-before-null-after-null",
+        "6efc2eb3-7961-4482-ad1d-bdaaaed26fae-before-null-after-null"
+      ],
+      "id": "merge-5cf8aaaf"
+    },
+    {
+      "raw_scene_ids": [
+        "3f666a93-ed18-4e05-b9ba-491cba6b2a3a-before-814305-after-null",
+        "911f8632-9f12-4ba8-a113-0ae2934238ad-before-null-after-null"
+      ],
+      "id": "merge-1dfa8fa9"
+    },
+    {
+      "raw_scene_ids": [
+        "e2074d0c-9a26-410d-a487-c2e154092dcd-before-null-after-null",
+        "1f3c1571-f6c6-42ea-87f6-ecb531525be8-before-null-after-null",
+        "afe8b506-aa92-42fa-9b16-888dc3b7c44c-before-null-after-null",
+        "7bb02be9-cf46-4a24-8ecb-e2c4e5ae1ff6-before-null-after-null"
+      ],
+      "id": "merge-66bffd63"
+    },
+    {
+      "raw_scene_ids": [
+        "5167104f-56cf-4e99-b804-012774a7436d-before-null-after-null",
+        "3cbd3103-3281-4fbb-b668-9c39d293997c-before-null-after-null",
+        "783ab46c-5a1f-4cbe-a485-1c41ef6cf9f1-before-null-after-null"
+      ],
+      "id": "merge-001b9415"
+    },
+    {
+      "raw_scene_ids": [
+        "3230f85c-a388-4592-874e-c22695cc62a8-before-null-after-null",
+        "e56e6595-4376-4e6b-a246-997cd30e4932-before-null-after-null"
+      ],
+      "id": "merge-6e32338a"
+    },
+    {
+      "raw_scene_ids": [
+        "94bf8608-e01b-4651-b7ff-b2645e40aa4a-before-null-after-null",
+        "b148f5a0-f17b-42d0-981e-36791e0984f1-before-null-after-null",
+        "fbca4c7b-d9b9-47ab-8234-45626110a6e3-before-null-after-null",
+        "ecd3dbfb-f7f9-4f84-9968-815cb614aeb0-before-null-after-null"
+      ],
+      "id": "merge-4674ac2a"
+    }
+  ],
   "hidden_raw_scenes": [
-    "7efb9312-bf0e-4eb3-8fd6-128dc9ec0638-before-null-after-null",
-    "f763fcd0-3e61-4d25-b4f4-6602387735f8-before-null-after-null",
-    "1d34b3b5-5e07-4ef7-805b-ef9d2377f8fe-before-null-after-null",
-    "9599c2a3-ea75-4a54-8c71-45d6d77dbf98-before-null-after-null",
-    "7ee34075-cbf2-449d-b5b5-16e4ee98f162-before-null-after-null",
-    "2fec7503-264d-40eb-90a6-1011a1cfc500-before-null-after-null",
-    "1f7490f8-7591-41eb-8a31-16539f2b4b83-before-null-after-null",
-    "331de33c-80e4-4f65-b8f0-c521154b2bbb-before-null-after-null"
+    "afe8b506-aa92-42fa-9b16-888dc3b7c44c-before-null-after-null",
+    "7bb02be9-cf46-4a24-8ecb-e2c4e5ae1ff6-before-null-after-null",
+    "5167104f-56cf-4e99-b804-012774a7436d-before-null-after-null",
+    "3cbd3103-3281-4fbb-b668-9c39d293997c-before-null-after-null",
+    "3230f85c-a388-4592-874e-c22695cc62a8-before-null-after-null",
+    "e56e6595-4376-4e6b-a246-997cd30e4932-before-null-after-null"
   ],
   "hidden_lines": {},
   "inserts": [],
-  "cell_titles": {},
+  "cell_titles": {
+    "c8b325e8-5297-4cb7-9b81-d54db537ce95-before-null-after-507658": "Import Libraries for Ray and PyTorch Training",
+    "c8b325e8-5297-4cb7-9b81-d54db537ce95-before-507658-after-null": "Import Libraries for Ray and PyTorch Training",
+    "3f666a93-ed18-4e05-b9ba-491cba6b2a3a-before-null-after-347649": "Implement Worker Training Function: Dataset Loading",
+    "3f666a93-ed18-4e05-b9ba-491cba6b2a3a-before-347649-after-476711": "Implement Worker Training Function: Preprocessing Steps",
+    "3f666a93-ed18-4e05-b9ba-491cba6b2a3a-before-476711-after-905715": "Implement Worker Training Function: Model Setup",
+    "3f666a93-ed18-4e05-b9ba-491cba6b2a3a-before-905715-after-936055": "Implement Worker Training Function: Training Loop",
+    "3f666a93-ed18-4e05-b9ba-491cba6b2a3a-before-936055-after-200826": "Implement Worker Training Function: Evaluation and Metrics",
+    "3f666a93-ed18-4e05-b9ba-491cba6b2a3a-before-200826-after-816917": "Implement Worker Training Function: Ray Reporting Hooks",
+    "3f666a93-ed18-4e05-b9ba-491cba6b2a3a-before-816917-after-814305": "Implement Worker Training Function: Finalize and Return",
+    "24bd80b806d4723a": "Transition to Main Training Orchestration Function",
+    "af205ba4-0d67-40b1-bfc8-27b5b24ba023-before-null-after-306493": "Define train_bert: Configure Ray Train and Trainer",
+    "af205ba4-0d67-40b1-bfc8-27b5b24ba023-before-306493-after-null": "Define train_bert: Configure Ray Train and Trainer",
+    "1f3c1571-f6c6-42ea-87f6-ecb531525be8-before-null-after-null": "Run Training with Configured Number of Workers",
+    "783ab46c-5a1f-4cbe-a485-1c41ef6cf9f1-before-null-after-null": "Observe Dataset Mapping and Worker Startup Logs",
+    "5a977863-e0e3-42e0-9123-c9171ee70793-before-null-after-null": "Monitor Training Loss and Ray Job Status Output"
+  },
   "insert_titles": {},
-  "cell_limits": {},
+  "cell_limits": {
+    "5a977863-e0e3-42e0-9123-c9171ee70793": 20
+  },
   "lesson_cuts": [
     {
       "type": "lesson",
-      "id": "c733dd12-5cbd-423e-87e5-3f33d49a1c90-before-null-after-null"
+      "id": "8f3aeef5-c82a-41c3-874e-c02f8540cf7a-before-null-after-null"
     },
     {
       "type": "lesson",
-      "id": "835f5d34-baf6-4f4a-81be-9846d858bbe2-before-null-after-null"
+      "id": "1acf7da2-0e07-4d42-944e-3bfdc07c14dc-before-null-after-null"
     },
     {
       "type": "lesson",
-      "id": "c2c14721-9497-44d2-8b32-fe961b4c742e-before-null-after-null"
+      "id": "4d3e5e5a-1ccc-4cbe-bd44-a4f128c3835b-before-null-after-null"
     },
     {
       "type": "lesson",
-      "id": "7ef466d5-a410-4691-b892-83ca88643b86-before-null-after-null"
+      "id": "911f8632-9f12-4ba8-a113-0ae2934238ad-before-null-after-null"
     },
     {
       "type": "lesson",
-      "id": "7563e1c1-01db-43df-8d8d-ad29a598b65b-before-null-after-null"
+      "id": "e2074d0c-9a26-410d-a487-c2e154092dcd-before-null-after-null"
     }
   ],
   "lesson_titles": {
@@ -256,14 +343,38 @@
     "4": "5. Main Training Function",
     "5": "6. Start Training"
   },
-  "scene_notes": {},
+  "scene_notes": {
+    "364ed2e6c7fd22b4": "Introduces the notebook’s goal: distributed model training using Ray Train with PyTorch and Hugging Face. Learners understand the environment options (local vs cloud) and the overall topic scope.",
+    "3a33560a-9013-403f-9750-7f5438ff48e5-before-null-after-379540": "Provides a roadmap of the sections to set expectations for what will be built. Learners see the sequence from architecture to implementation components.",
+    "3a33560a-9013-403f-9750-7f5438ff48e5-before-379540-after-null": "Reinforces the notebook structure and helps learners orient before diving into code. Emphasizes the planned progression of concepts and steps.",
+    "508f3006f587af65": "Shows the high-level system design for distributed training, clarifying how components interact. Learners connect Ray Train workers, data flow, and model training responsibilities.",
+    "c8b325e8-5297-4cb7-9b81-d54db537ce95-before-null-after-507658": "Sets up the Python environment by importing core dependencies used throughout the notebook. Learners see which libraries are required for distributed training and type-hinted configuration.",
+    "c8b325e8-5297-4cb7-9b81-d54db537ce95-before-507658-after-null": "Continues the foundational setup by ensuring all required imports are available before defining training logic. Learners understand the baseline dependencies for the rest of the workflow.",
+    "2a676763cb061cca": "Defines the evaluation metric (accuracy) and demonstrates using Hugging Face Evaluate. Learners learn how metrics are loaded and later computed during training/evaluation.",
+    "8421c28ad25bc687": "Explains the purpose of a per-worker training function in Ray Train and introduces dataloaders. Learners understand batching, train/eval splits, and why each worker needs its own data pipeline.",
+    "3f666a93-ed18-4e05-b9ba-491cba6b2a3a-before-null-after-347649": "Begins implementing the worker function by loading the dataset inside each worker context. Learners see how data access is handled in distributed execution.",
+    "3f666a93-ed18-4e05-b9ba-491cba6b2a3a-before-347649-after-476711": "Extends the worker function with preprocessing steps needed before training (e.g., tokenization or formatting). Learners learn where to place transformation logic for scalable training.",
+    "3f666a93-ed18-4e05-b9ba-491cba6b2a3a-before-476711-after-905715": "Adds model and training component initialization within the worker function. Learners understand how each worker constructs the model/training objects consistently from config.",
+    "3f666a93-ed18-4e05-b9ba-491cba6b2a3a-before-905715-after-936055": "Implements the core training loop executed on each worker. Learners see how forward/backward passes and optimization steps fit into distributed training.",
+    "3f666a93-ed18-4e05-b9ba-491cba6b2a3a-before-936055-after-200826": "Introduces evaluation logic and metric computation within the worker workflow. Learners learn how to calculate and aggregate metrics during or after epochs.",
+    "3f666a93-ed18-4e05-b9ba-491cba6b2a3a-before-200826-after-816917": "Shows how training progress and metrics are reported back to Ray Train. Learners understand the mechanism for centralized logging/monitoring from distributed workers.",
+    "3f666a93-ed18-4e05-b9ba-491cba6b2a3a-before-816917-after-814305": "Finalizes the worker function, ensuring outputs and cleanup are handled correctly. Learners see how to structure a complete per-worker entrypoint for Ray Train.",
+    "24bd80b806d4723a": "Bridges from per-worker logic to the orchestration layer that launches distributed training. Learners understand the separation between worker code and the driver/main training function.",
+    "af205ba4-0d67-40b1-bfc8-27b5b24ba023-before-null-after-306493": "Defines the main training orchestration function that configures Ray Train (resources, scaling, and run settings). Learners learn how to wrap the worker function in a Trainer and pass configuration.",
+    "af205ba4-0d67-40b1-bfc8-27b5b24ba023-before-306493-after-null": "Completes the train_bert setup, emphasizing how distributed execution is launched from a single driver function. Learners see how configuration and runtime settings are centralized.",
+    "e2074d0c-9a26-410d-a487-c2e154092dcd-before-null-after-null": "Explains the final step of starting the training run by calling the orchestration function. Learners understand how all prior components come together to execute distributed training.",
+    "1f3c1571-f6c6-42ea-87f6-ecb531525be8-before-null-after-null": "Executes the training with a specified number of workers, demonstrating how to scale out. Learners learn which parameter controls parallelism and how to kick off the run.",
+    "783ab46c-5a1f-4cbe-a485-1c41ef6cf9f1-before-null-after-null": "Shows runtime logs for dataset processing and worker initialization. Learners learn what healthy startup output looks like and how to spot progress indicators.",
+    "5a977863-e0e3-42e0-9123-c9171ee70793-before-null-after-null": "Displays training loss and Ray status, illustrating monitoring during distributed runs. Learners learn how to interpret worker logs and track training progress over time.",
+    "40201464be11919e": "Demonstrates proper cleanup by shutting down Ray after training. Learners learn resource management best practices to avoid lingering processes and cluster resource usage."
+  },
   "raw_scenes": [
     {
       "index": 0,
       "name": "raw_scene_0",
-      "id": "2bb7130e-6914-4a69-8d6f-a54fec43d2b6-before-null-after-null",
+      "id": "a2226e5f-ccb4-4b6f-9bfa-131b231adacc-before-null-after-null",
       "data": {
-        "original_cell_id": "2bb7130e-6914-4a69-8d6f-a54fec43d2b6",
+        "original_cell_id": "a2226e5f-ccb4-4b6f-9bfa-131b231adacc",
         "origin_file": "04_Ray_Train_distributed_training.ipynb",
         "cut_before": null,
         "cut_after": null,
@@ -277,9 +388,9 @@
     {
       "index": 1,
       "name": "raw_scene_1",
-      "id": "535f298d-bfb8-41e0-8963-40b22f61f56e-before-null-after-null",
+      "id": "e0dc7c09-837e-4647-923f-469c46ec0904-before-null-after-null",
       "data": {
-        "original_cell_id": "535f298d-bfb8-41e0-8963-40b22f61f56e",
+        "original_cell_id": "e0dc7c09-837e-4647-923f-469c46ec0904",
         "origin_file": "04_Ray_Train_distributed_training.ipynb",
         "cut_before": null,
         "cut_after": null,
@@ -293,9 +404,9 @@
     {
       "index": 2,
       "name": "raw_scene_2",
-      "id": "30605f4e-3931-459a-8de7-d465fee04769-before-null-after-null",
+      "id": "ca440156-9404-4bf4-83cf-148918d7e72f-before-null-after-null",
       "data": {
-        "original_cell_id": "30605f4e-3931-459a-8de7-d465fee04769",
+        "original_cell_id": "ca440156-9404-4bf4-83cf-148918d7e72f",
         "origin_file": "04_Ray_Train_distributed_training.ipynb",
         "cut_before": null,
         "cut_after": null,
@@ -309,12 +420,12 @@
     {
       "index": 3,
       "name": "raw_scene_3",
-      "id": "ce8593c8-fff5-42f5-9805-9d6dd4891de9-before-null-after-655022",
+      "id": "3a33560a-9013-403f-9750-7f5438ff48e5-before-null-after-379540",
       "data": {
-        "original_cell_id": "ce8593c8-fff5-42f5-9805-9d6dd4891de9",
+        "original_cell_id": "3a33560a-9013-403f-9750-7f5438ff48e5",
         "origin_file": "04_Ray_Train_distributed_training.ipynb",
         "cut_before": null,
-        "cut_after": "cut-ce8593c8-fff5-42f5-9805-9d6dd4891de9-655022",
+        "cut_after": "cut-3a33560a-9013-403f-9750-7f5438ff48e5-379540",
         "range": {
           "start_line": 1,
           "end_line": 20
@@ -325,11 +436,11 @@
     {
       "index": 4,
       "name": "raw_scene_4",
-      "id": "ce8593c8-fff5-42f5-9805-9d6dd4891de9-before-655022-after-null",
+      "id": "3a33560a-9013-403f-9750-7f5438ff48e5-before-379540-after-null",
       "data": {
-        "original_cell_id": "ce8593c8-fff5-42f5-9805-9d6dd4891de9",
+        "original_cell_id": "3a33560a-9013-403f-9750-7f5438ff48e5",
         "origin_file": "04_Ray_Train_distributed_training.ipynb",
-        "cut_before": "cut-ce8593c8-fff5-42f5-9805-9d6dd4891de9-655022",
+        "cut_before": "cut-3a33560a-9013-403f-9750-7f5438ff48e5-379540",
         "cut_after": null,
         "range": {
           "start_line": 21,
@@ -341,9 +452,9 @@
     {
       "index": 5,
       "name": "raw_scene_5",
-      "id": "c733dd12-5cbd-423e-87e5-3f33d49a1c90-before-null-after-null",
+      "id": "8f3aeef5-c82a-41c3-874e-c02f8540cf7a-before-null-after-null",
       "data": {
-        "original_cell_id": "c733dd12-5cbd-423e-87e5-3f33d49a1c90",
+        "original_cell_id": "8f3aeef5-c82a-41c3-874e-c02f8540cf7a",
         "origin_file": "04_Ray_Train_distributed_training.ipynb",
         "cut_before": null,
         "cut_after": null,
@@ -357,9 +468,9 @@
     {
       "index": 6,
       "name": "raw_scene_6",
-      "id": "5f0d5b7e-69e7-4a73-9afa-e6e335584c16-before-null-after-null",
+      "id": "08287e30-cd31-47a7-a08a-950fa8243697-before-null-after-null",
       "data": {
-        "original_cell_id": "5f0d5b7e-69e7-4a73-9afa-e6e335584c16",
+        "original_cell_id": "08287e30-cd31-47a7-a08a-950fa8243697",
         "origin_file": "04_Ray_Train_distributed_training.ipynb",
         "cut_before": null,
         "cut_after": null,
@@ -373,9 +484,9 @@
     {
       "index": 7,
       "name": "raw_scene_7",
-      "id": "71c36c0d-ed5e-4041-ac5d-722c12b32c59-before-null-after-null",
+      "id": "ad63712e-678b-41c9-9b0c-6c7a4881c6d3-before-null-after-null",
       "data": {
-        "original_cell_id": "71c36c0d-ed5e-4041-ac5d-722c12b32c59",
+        "original_cell_id": "ad63712e-678b-41c9-9b0c-6c7a4881c6d3",
         "origin_file": "04_Ray_Train_distributed_training.ipynb",
         "cut_before": null,
         "cut_after": null,
@@ -389,12 +500,12 @@
     {
       "index": 8,
       "name": "raw_scene_8",
-      "id": "22585009-6dff-4def-a275-b56929b87cdb-before-null-after-459000",
+      "id": "c8b325e8-5297-4cb7-9b81-d54db537ce95-before-null-after-507658",
       "data": {
-        "original_cell_id": "22585009-6dff-4def-a275-b56929b87cdb",
+        "original_cell_id": "c8b325e8-5297-4cb7-9b81-d54db537ce95",
         "origin_file": "04_Ray_Train_distributed_training.ipynb",
         "cut_before": null,
-        "cut_after": "cut-22585009-6dff-4def-a275-b56929b87cdb-459000",
+        "cut_after": "cut-c8b325e8-5297-4cb7-9b81-d54db537ce95-507658",
         "range": {
           "start_line": 1,
           "end_line": 10
@@ -405,11 +516,11 @@
     {
       "index": 9,
       "name": "raw_scene_9",
-      "id": "22585009-6dff-4def-a275-b56929b87cdb-before-459000-after-null",
+      "id": "c8b325e8-5297-4cb7-9b81-d54db537ce95-before-507658-after-null",
       "data": {
-        "original_cell_id": "22585009-6dff-4def-a275-b56929b87cdb",
+        "original_cell_id": "c8b325e8-5297-4cb7-9b81-d54db537ce95",
         "origin_file": "04_Ray_Train_distributed_training.ipynb",
-        "cut_before": "cut-22585009-6dff-4def-a275-b56929b87cdb-459000",
+        "cut_before": "cut-c8b325e8-5297-4cb7-9b81-d54db537ce95-507658",
         "cut_after": null,
         "range": {
           "start_line": 11,
@@ -421,9 +532,9 @@
     {
       "index": 10,
       "name": "raw_scene_10",
-      "id": "835f5d34-baf6-4f4a-81be-9846d858bbe2-before-null-after-null",
+      "id": "1acf7da2-0e07-4d42-944e-3bfdc07c14dc-before-null-after-null",
       "data": {
-        "original_cell_id": "835f5d34-baf6-4f4a-81be-9846d858bbe2",
+        "original_cell_id": "1acf7da2-0e07-4d42-944e-3bfdc07c14dc",
         "origin_file": "04_Ray_Train_distributed_training.ipynb",
         "cut_before": null,
         "cut_after": null,
@@ -437,9 +548,9 @@
     {
       "index": 11,
       "name": "raw_scene_11",
-      "id": "16891880-871e-4875-95cb-03fb6545d0dc-before-null-after-null",
+      "id": "fc8f3d9d-592f-4a38-9b73-28f149145456-before-null-after-null",
       "data": {
-        "original_cell_id": "16891880-871e-4875-95cb-03fb6545d0dc",
+        "original_cell_id": "fc8f3d9d-592f-4a38-9b73-28f149145456",
         "origin_file": "04_Ray_Train_distributed_training.ipynb",
         "cut_before": null,
         "cut_after": null,
@@ -453,9 +564,9 @@
     {
       "index": 12,
       "name": "raw_scene_12",
-      "id": "c2c14721-9497-44d2-8b32-fe961b4c742e-before-null-after-null",
+      "id": "4d3e5e5a-1ccc-4cbe-bd44-a4f128c3835b-before-null-after-null",
       "data": {
-        "original_cell_id": "c2c14721-9497-44d2-8b32-fe961b4c742e",
+        "original_cell_id": "4d3e5e5a-1ccc-4cbe-bd44-a4f128c3835b",
         "origin_file": "04_Ray_Train_distributed_training.ipynb",
         "cut_before": null,
         "cut_after": null,
@@ -469,9 +580,9 @@
     {
       "index": 13,
       "name": "raw_scene_13",
-      "id": "17af6988-f571-4472-8035-f725d97d69ee-before-null-after-null",
+      "id": "6efc2eb3-7961-4482-ad1d-bdaaaed26fae-before-null-after-null",
       "data": {
-        "original_cell_id": "17af6988-f571-4472-8035-f725d97d69ee",
+        "original_cell_id": "6efc2eb3-7961-4482-ad1d-bdaaaed26fae",
         "origin_file": "04_Ray_Train_distributed_training.ipynb",
         "cut_before": null,
         "cut_after": null,
@@ -485,12 +596,12 @@
     {
       "index": 14,
       "name": "raw_scene_14",
-      "id": "1eef119d-8785-45d2-89fb-7042dee915a0-before-null-after-996181",
+      "id": "3f666a93-ed18-4e05-b9ba-491cba6b2a3a-before-null-after-347649",
       "data": {
-        "original_cell_id": "1eef119d-8785-45d2-89fb-7042dee915a0",
+        "original_cell_id": "3f666a93-ed18-4e05-b9ba-491cba6b2a3a",
         "origin_file": "04_Ray_Train_distributed_training.ipynb",
         "cut_before": null,
-        "cut_after": "cut-1eef119d-8785-45d2-89fb-7042dee915a0-996181",
+        "cut_after": "cut-3f666a93-ed18-4e05-b9ba-491cba6b2a3a-347649",
         "range": {
           "start_line": 1,
           "end_line": 16
@@ -501,12 +612,12 @@
     {
       "index": 15,
       "name": "raw_scene_15",
-      "id": "1eef119d-8785-45d2-89fb-7042dee915a0-before-996181-after-169081",
+      "id": "3f666a93-ed18-4e05-b9ba-491cba6b2a3a-before-347649-after-476711",
       "data": {
-        "original_cell_id": "1eef119d-8785-45d2-89fb-7042dee915a0",
+        "original_cell_id": "3f666a93-ed18-4e05-b9ba-491cba6b2a3a",
         "origin_file": "04_Ray_Train_distributed_training.ipynb",
-        "cut_before": "cut-1eef119d-8785-45d2-89fb-7042dee915a0-996181",
-        "cut_after": "cut-1eef119d-8785-45d2-89fb-7042dee915a0-169081",
+        "cut_before": "cut-3f666a93-ed18-4e05-b9ba-491cba6b2a3a-347649",
+        "cut_after": "cut-3f666a93-ed18-4e05-b9ba-491cba6b2a3a-476711",
         "range": {
           "start_line": 17,
           "end_line": 31
@@ -517,12 +628,12 @@
     {
       "index": 16,
       "name": "raw_scene_16",
-      "id": "1eef119d-8785-45d2-89fb-7042dee915a0-before-169081-after-447938",
+      "id": "3f666a93-ed18-4e05-b9ba-491cba6b2a3a-before-476711-after-905715",
       "data": {
-        "original_cell_id": "1eef119d-8785-45d2-89fb-7042dee915a0",
+        "original_cell_id": "3f666a93-ed18-4e05-b9ba-491cba6b2a3a",
         "origin_file": "04_Ray_Train_distributed_training.ipynb",
-        "cut_before": "cut-1eef119d-8785-45d2-89fb-7042dee915a0-169081",
-        "cut_after": "cut-1eef119d-8785-45d2-89fb-7042dee915a0-447938",
+        "cut_before": "cut-3f666a93-ed18-4e05-b9ba-491cba6b2a3a-476711",
+        "cut_after": "cut-3f666a93-ed18-4e05-b9ba-491cba6b2a3a-905715",
         "range": {
           "start_line": 32,
           "end_line": 50
@@ -533,12 +644,12 @@
     {
       "index": 17,
       "name": "raw_scene_17",
-      "id": "1eef119d-8785-45d2-89fb-7042dee915a0-before-447938-after-583004",
+      "id": "3f666a93-ed18-4e05-b9ba-491cba6b2a3a-before-905715-after-936055",
       "data": {
-        "original_cell_id": "1eef119d-8785-45d2-89fb-7042dee915a0",
+        "original_cell_id": "3f666a93-ed18-4e05-b9ba-491cba6b2a3a",
         "origin_file": "04_Ray_Train_distributed_training.ipynb",
-        "cut_before": "cut-1eef119d-8785-45d2-89fb-7042dee915a0-447938",
-        "cut_after": "cut-1eef119d-8785-45d2-89fb-7042dee915a0-583004",
+        "cut_before": "cut-3f666a93-ed18-4e05-b9ba-491cba6b2a3a-905715",
+        "cut_after": "cut-3f666a93-ed18-4e05-b9ba-491cba6b2a3a-936055",
         "range": {
           "start_line": 51,
           "end_line": 63
@@ -549,12 +660,12 @@
     {
       "index": 18,
       "name": "raw_scene_18",
-      "id": "1eef119d-8785-45d2-89fb-7042dee915a0-before-583004-after-235486",
+      "id": "3f666a93-ed18-4e05-b9ba-491cba6b2a3a-before-936055-after-200826",
       "data": {
-        "original_cell_id": "1eef119d-8785-45d2-89fb-7042dee915a0",
+        "original_cell_id": "3f666a93-ed18-4e05-b9ba-491cba6b2a3a",
         "origin_file": "04_Ray_Train_distributed_training.ipynb",
-        "cut_before": "cut-1eef119d-8785-45d2-89fb-7042dee915a0-583004",
-        "cut_after": "cut-1eef119d-8785-45d2-89fb-7042dee915a0-235486",
+        "cut_before": "cut-3f666a93-ed18-4e05-b9ba-491cba6b2a3a-936055",
+        "cut_after": "cut-3f666a93-ed18-4e05-b9ba-491cba6b2a3a-200826",
         "range": {
           "start_line": 64,
           "end_line": 78
@@ -565,12 +676,12 @@
     {
       "index": 19,
       "name": "raw_scene_19",
-      "id": "1eef119d-8785-45d2-89fb-7042dee915a0-before-235486-after-945710",
+      "id": "3f666a93-ed18-4e05-b9ba-491cba6b2a3a-before-200826-after-816917",
       "data": {
-        "original_cell_id": "1eef119d-8785-45d2-89fb-7042dee915a0",
+        "original_cell_id": "3f666a93-ed18-4e05-b9ba-491cba6b2a3a",
         "origin_file": "04_Ray_Train_distributed_training.ipynb",
-        "cut_before": "cut-1eef119d-8785-45d2-89fb-7042dee915a0-235486",
-        "cut_after": "cut-1eef119d-8785-45d2-89fb-7042dee915a0-945710",
+        "cut_before": "cut-3f666a93-ed18-4e05-b9ba-491cba6b2a3a-200826",
+        "cut_after": "cut-3f666a93-ed18-4e05-b9ba-491cba6b2a3a-816917",
         "range": {
           "start_line": 79,
           "end_line": 95
@@ -581,12 +692,12 @@
     {
       "index": 20,
       "name": "raw_scene_20",
-      "id": "1eef119d-8785-45d2-89fb-7042dee915a0-before-945710-after-787608",
+      "id": "3f666a93-ed18-4e05-b9ba-491cba6b2a3a-before-816917-after-814305",
       "data": {
-        "original_cell_id": "1eef119d-8785-45d2-89fb-7042dee915a0",
+        "original_cell_id": "3f666a93-ed18-4e05-b9ba-491cba6b2a3a",
         "origin_file": "04_Ray_Train_distributed_training.ipynb",
-        "cut_before": "cut-1eef119d-8785-45d2-89fb-7042dee915a0-945710",
-        "cut_after": "cut-1eef119d-8785-45d2-89fb-7042dee915a0-787608",
+        "cut_before": "cut-3f666a93-ed18-4e05-b9ba-491cba6b2a3a-816917",
+        "cut_after": "cut-3f666a93-ed18-4e05-b9ba-491cba6b2a3a-814305",
         "range": {
           "start_line": 96,
           "end_line": 109
@@ -597,11 +708,11 @@
     {
       "index": 21,
       "name": "raw_scene_21",
-      "id": "1eef119d-8785-45d2-89fb-7042dee915a0-before-787608-after-null",
+      "id": "3f666a93-ed18-4e05-b9ba-491cba6b2a3a-before-814305-after-null",
       "data": {
-        "original_cell_id": "1eef119d-8785-45d2-89fb-7042dee915a0",
+        "original_cell_id": "3f666a93-ed18-4e05-b9ba-491cba6b2a3a",
         "origin_file": "04_Ray_Train_distributed_training.ipynb",
-        "cut_before": "cut-1eef119d-8785-45d2-89fb-7042dee915a0-787608",
+        "cut_before": "cut-3f666a93-ed18-4e05-b9ba-491cba6b2a3a-814305",
         "cut_after": null,
         "range": {
           "start_line": 110,
@@ -613,9 +724,9 @@
     {
       "index": 22,
       "name": "raw_scene_22",
-      "id": "7ef466d5-a410-4691-b892-83ca88643b86-before-null-after-null",
+      "id": "911f8632-9f12-4ba8-a113-0ae2934238ad-before-null-after-null",
       "data": {
-        "original_cell_id": "7ef466d5-a410-4691-b892-83ca88643b86",
+        "original_cell_id": "911f8632-9f12-4ba8-a113-0ae2934238ad",
         "origin_file": "04_Ray_Train_distributed_training.ipynb",
         "cut_before": null,
         "cut_after": null,
@@ -629,12 +740,12 @@
     {
       "index": 23,
       "name": "raw_scene_23",
-      "id": "ca26285c-37c9-4a73-acb0-435fc99e2de1-before-null-after-542407",
+      "id": "af205ba4-0d67-40b1-bfc8-27b5b24ba023-before-null-after-306493",
       "data": {
-        "original_cell_id": "ca26285c-37c9-4a73-acb0-435fc99e2de1",
+        "original_cell_id": "af205ba4-0d67-40b1-bfc8-27b5b24ba023",
         "origin_file": "04_Ray_Train_distributed_training.ipynb",
         "cut_before": null,
-        "cut_after": "cut-ca26285c-37c9-4a73-acb0-435fc99e2de1-542407",
+        "cut_after": "cut-af205ba4-0d67-40b1-bfc8-27b5b24ba023-306493",
         "range": {
           "start_line": 1,
           "end_line": 18
@@ -645,11 +756,11 @@
     {
       "index": 24,
       "name": "raw_scene_24",
-      "id": "ca26285c-37c9-4a73-acb0-435fc99e2de1-before-542407-after-null",
+      "id": "af205ba4-0d67-40b1-bfc8-27b5b24ba023-before-306493-after-null",
       "data": {
-        "original_cell_id": "ca26285c-37c9-4a73-acb0-435fc99e2de1",
+        "original_cell_id": "af205ba4-0d67-40b1-bfc8-27b5b24ba023",
         "origin_file": "04_Ray_Train_distributed_training.ipynb",
-        "cut_before": "cut-ca26285c-37c9-4a73-acb0-435fc99e2de1-542407",
+        "cut_before": "cut-af205ba4-0d67-40b1-bfc8-27b5b24ba023-306493",
         "cut_after": null,
         "range": {
           "start_line": 19,
@@ -661,9 +772,9 @@
     {
       "index": 25,
       "name": "raw_scene_25",
-      "id": "7563e1c1-01db-43df-8d8d-ad29a598b65b-before-null-after-null",
+      "id": "e2074d0c-9a26-410d-a487-c2e154092dcd-before-null-after-null",
       "data": {
-        "original_cell_id": "7563e1c1-01db-43df-8d8d-ad29a598b65b",
+        "original_cell_id": "e2074d0c-9a26-410d-a487-c2e154092dcd",
         "origin_file": "04_Ray_Train_distributed_training.ipynb",
         "cut_before": null,
         "cut_after": null,
@@ -677,9 +788,9 @@
     {
       "index": 26,
       "name": "raw_scene_26",
-      "id": "92638c3b-26a9-4c03-8722-329e87f48cd0-before-null-after-null",
+      "id": "1f3c1571-f6c6-42ea-87f6-ecb531525be8-before-null-after-null",
       "data": {
-        "original_cell_id": "92638c3b-26a9-4c03-8722-329e87f48cd0",
+        "original_cell_id": "1f3c1571-f6c6-42ea-87f6-ecb531525be8",
         "origin_file": "04_Ray_Train_distributed_training.ipynb",
         "cut_before": null,
         "cut_after": null,
@@ -691,11 +802,139 @@
       "type": "code"
     },
     {
+      "index": 27,
+      "name": "raw_scene_27",
+      "id": "afe8b506-aa92-42fa-9b16-888dc3b7c44c-before-null-after-null",
+      "data": {
+        "original_cell_id": "afe8b506-aa92-42fa-9b16-888dc3b7c44c",
+        "origin_file": "04_Ray_Train_distributed_training.ipynb",
+        "cut_before": null,
+        "cut_after": null,
+        "range": {
+          "start_line": 1,
+          "end_line": 3
+        }
+      },
+      "type": "output"
+    },
+    {
+      "index": 28,
+      "name": "raw_scene_28",
+      "id": "7bb02be9-cf46-4a24-8ecb-e2c4e5ae1ff6-before-null-after-null",
+      "data": {
+        "original_cell_id": "7bb02be9-cf46-4a24-8ecb-e2c4e5ae1ff6",
+        "origin_file": "04_Ray_Train_distributed_training.ipynb",
+        "cut_before": null,
+        "cut_after": null,
+        "range": {
+          "start_line": 1,
+          "end_line": 17
+        }
+      },
+      "type": "output"
+    },
+    {
+      "index": 29,
+      "name": "raw_scene_29",
+      "id": "5167104f-56cf-4e99-b804-012774a7436d-before-null-after-null",
+      "data": {
+        "original_cell_id": "5167104f-56cf-4e99-b804-012774a7436d",
+        "origin_file": "04_Ray_Train_distributed_training.ipynb",
+        "cut_before": null,
+        "cut_after": null,
+        "range": {
+          "start_line": 1,
+          "end_line": 5
+        }
+      },
+      "type": "output"
+    },
+    {
+      "index": 30,
+      "name": "raw_scene_30",
+      "id": "3cbd3103-3281-4fbb-b668-9c39d293997c-before-null-after-null",
+      "data": {
+        "original_cell_id": "3cbd3103-3281-4fbb-b668-9c39d293997c",
+        "origin_file": "04_Ray_Train_distributed_training.ipynb",
+        "cut_before": null,
+        "cut_after": null,
+        "range": {
+          "start_line": 1,
+          "end_line": 9
+        }
+      },
+      "type": "output"
+    },
+    {
+      "index": 31,
+      "name": "raw_scene_31",
+      "id": "783ab46c-5a1f-4cbe-a485-1c41ef6cf9f1-before-null-after-null",
+      "data": {
+        "original_cell_id": "783ab46c-5a1f-4cbe-a485-1c41ef6cf9f1",
+        "origin_file": "04_Ray_Train_distributed_training.ipynb",
+        "cut_before": null,
+        "cut_after": null,
+        "range": {
+          "start_line": 1,
+          "end_line": 4
+        }
+      },
+      "type": "output"
+    },
+    {
+      "index": 32,
+      "name": "raw_scene_32",
+      "id": "5a977863-e0e3-42e0-9123-c9171ee70793-before-null-after-null",
+      "data": {
+        "original_cell_id": "5a977863-e0e3-42e0-9123-c9171ee70793",
+        "origin_file": "04_Ray_Train_distributed_training.ipynb",
+        "cut_before": null,
+        "cut_after": null,
+        "range": {
+          "start_line": 1,
+          "end_line": 20
+        }
+      },
+      "type": "output"
+    },
+    {
+      "index": 33,
+      "name": "raw_scene_33",
+      "id": "3230f85c-a388-4592-874e-c22695cc62a8-before-null-after-null",
+      "data": {
+        "original_cell_id": "3230f85c-a388-4592-874e-c22695cc62a8",
+        "origin_file": "04_Ray_Train_distributed_training.ipynb",
+        "cut_before": null,
+        "cut_after": null,
+        "range": {
+          "start_line": 1,
+          "end_line": 3
+        }
+      },
+      "type": "output"
+    },
+    {
+      "index": 34,
+      "name": "raw_scene_34",
+      "id": "e56e6595-4376-4e6b-a246-997cd30e4932-before-null-after-null",
+      "data": {
+        "original_cell_id": "e56e6595-4376-4e6b-a246-997cd30e4932",
+        "origin_file": "04_Ray_Train_distributed_training.ipynb",
+        "cut_before": null,
+        "cut_after": null,
+        "range": {
+          "start_line": 1,
+          "end_line": 16
+        }
+      },
+      "type": "output"
+    },
+    {
       "index": 35,
       "name": "raw_scene_35",
-      "id": "088e15d9-62ad-48d0-a438-acf6f4dcf239-before-null-after-null",
+      "id": "94bf8608-e01b-4651-b7ff-b2645e40aa4a-before-null-after-null",
       "data": {
-        "original_cell_id": "088e15d9-62ad-48d0-a438-acf6f4dcf239",
+        "original_cell_id": "94bf8608-e01b-4651-b7ff-b2645e40aa4a",
         "origin_file": "04_Ray_Train_distributed_training.ipynb",
         "cut_before": null,
         "cut_after": null,
@@ -709,9 +948,9 @@
     {
       "index": 36,
       "name": "raw_scene_36",
-      "id": "d4003e52-2b62-4941-b1b4-be111374964e-before-null-after-null",
+      "id": "b148f5a0-f17b-42d0-981e-36791e0984f1-before-null-after-null",
       "data": {
-        "original_cell_id": "d4003e52-2b62-4941-b1b4-be111374964e",
+        "original_cell_id": "b148f5a0-f17b-42d0-981e-36791e0984f1",
         "origin_file": "04_Ray_Train_distributed_training.ipynb",
         "cut_before": null,
         "cut_after": null,
@@ -725,9 +964,9 @@
     {
       "index": 37,
       "name": "raw_scene_37",
-      "id": "3e1670d8-11e1-4f3f-8ba0-c8079fb99af1-before-null-after-null",
+      "id": "fbca4c7b-d9b9-47ab-8234-45626110a6e3-before-null-after-null",
       "data": {
-        "original_cell_id": "3e1670d8-11e1-4f3f-8ba0-c8079fb99af1",
+        "original_cell_id": "fbca4c7b-d9b9-47ab-8234-45626110a6e3",
         "origin_file": "04_Ray_Train_distributed_training.ipynb",
         "cut_before": null,
         "cut_after": null,
@@ -741,9 +980,9 @@
     {
       "index": 38,
       "name": "raw_scene_38",
-      "id": "63fb2fb2-66c9-4880-81d3-d16b0d8a7baa-before-null-after-null",
+      "id": "ecd3dbfb-f7f9-4f84-9968-815cb614aeb0-before-null-after-null",
       "data": {
-        "original_cell_id": "63fb2fb2-66c9-4880-81d3-d16b0d8a7baa",
+        "original_cell_id": "ecd3dbfb-f7f9-4f84-9968-815cb614aeb0",
         "origin_file": "04_Ray_Train_distributed_training.ipynb",
         "cut_before": null,
         "cut_after": null,
@@ -759,563 +998,533 @@
     {
       "index": 0,
       "name": "scene_0",
-      "id": "2bb7130e-6914-4a69-8d6f-a54fec43d2b6-before-null-after-null",
+      "id": "364ed2e6c7fd22b4",
       "data": {
         "0": {
-          "original_cell_id": "2bb7130e-6914-4a69-8d6f-a54fec43d2b6",
+          "original_cell_id": "a2226e5f-ccb4-4b6f-9bfa-131b231adacc",
           "origin_file": "04_Ray_Train_distributed_training.ipynb",
           "range": {
             "start_line": 1,
             "end_line": 2
           },
-          "raw_scene_id": "2bb7130e-6914-4a69-8d6f-a54fec43d2b6-before-null-after-null"
-        }
-      },
-      "type": "markdown",
-      "title": null
-    },
-    {
-      "index": 1,
-      "name": "scene_1",
-      "id": "535f298d-bfb8-41e0-8963-40b22f61f56e-before-null-after-null",
-      "data": {
-        "0": {
-          "original_cell_id": "535f298d-bfb8-41e0-8963-40b22f61f56e",
+          "raw_scene_id": "a2226e5f-ccb4-4b6f-9bfa-131b231adacc-before-null-after-null"
+        },
+        "1": {
+          "original_cell_id": "e0dc7c09-837e-4647-923f-469c46ec0904",
           "origin_file": "04_Ray_Train_distributed_training.ipynb",
           "range": {
             "start_line": 1,
             "end_line": 3
           },
-          "raw_scene_id": "535f298d-bfb8-41e0-8963-40b22f61f56e-before-null-after-null"
-        }
-      },
-      "type": "markdown",
-      "title": null
-    },
-    {
-      "index": 2,
-      "name": "scene_2",
-      "id": "30605f4e-3931-459a-8de7-d465fee04769-before-null-after-null",
-      "data": {
-        "0": {
-          "original_cell_id": "30605f4e-3931-459a-8de7-d465fee04769",
+          "raw_scene_id": "e0dc7c09-837e-4647-923f-469c46ec0904-before-null-after-null"
+        },
+        "2": {
+          "original_cell_id": "ca440156-9404-4bf4-83cf-148918d7e72f",
           "origin_file": "04_Ray_Train_distributed_training.ipynb",
           "range": {
             "start_line": 1,
             "end_line": 10
           },
-          "raw_scene_id": "30605f4e-3931-459a-8de7-d465fee04769-before-null-after-null"
+          "raw_scene_id": "ca440156-9404-4bf4-83cf-148918d7e72f-before-null-after-null"
         }
       },
       "type": "markdown",
-      "title": null
+      "title": null,
+      "note": "Introduces the notebook’s goal: distributed model training using Ray Train with PyTorch and Hugging Face. Learners understand the environment options (local vs cloud) and the overall topic scope."
     },
     {
-      "index": 3,
-      "name": "scene_3",
-      "id": "ce8593c8-fff5-42f5-9805-9d6dd4891de9-before-null-after-655022",
+      "index": 1,
+      "name": "scene_1",
+      "id": "3a33560a-9013-403f-9750-7f5438ff48e5-before-null-after-379540",
       "data": {
         "0": {
-          "original_cell_id": "ce8593c8-fff5-42f5-9805-9d6dd4891de9",
+          "original_cell_id": "3a33560a-9013-403f-9750-7f5438ff48e5",
           "origin_file": "04_Ray_Train_distributed_training.ipynb",
           "range": {
             "start_line": 1,
             "end_line": 20
           },
-          "raw_scene_id": "ce8593c8-fff5-42f5-9805-9d6dd4891de9-before-null-after-655022"
+          "raw_scene_id": "3a33560a-9013-403f-9750-7f5438ff48e5-before-null-after-379540"
         }
       },
       "type": "markdown",
-      "title": null
+      "title": null,
+      "note": "Provides a roadmap of the sections to set expectations for what will be built. Learners see the sequence from architecture to implementation components."
     },
     {
-      "index": 4,
-      "name": "scene_4",
-      "id": "ce8593c8-fff5-42f5-9805-9d6dd4891de9-before-655022-after-null",
+      "index": 2,
+      "name": "scene_2",
+      "id": "3a33560a-9013-403f-9750-7f5438ff48e5-before-379540-after-null",
       "data": {
         "0": {
-          "original_cell_id": "ce8593c8-fff5-42f5-9805-9d6dd4891de9",
+          "original_cell_id": "3a33560a-9013-403f-9750-7f5438ff48e5",
           "origin_file": "04_Ray_Train_distributed_training.ipynb",
           "range": {
             "start_line": 21,
             "end_line": 36
           },
-          "raw_scene_id": "ce8593c8-fff5-42f5-9805-9d6dd4891de9-before-655022-after-null"
+          "raw_scene_id": "3a33560a-9013-403f-9750-7f5438ff48e5-before-379540-after-null"
         }
       },
       "type": "markdown",
-      "title": null
+      "title": null,
+      "note": "Reinforces the notebook structure and helps learners orient before diving into code. Emphasizes the planned progression of concepts and steps."
     },
     {
-      "index": 5,
-      "name": "scene_5",
-      "id": "c733dd12-5cbd-423e-87e5-3f33d49a1c90-before-null-after-null",
+      "index": 3,
+      "name": "scene_3",
+      "id": "508f3006f587af65",
       "data": {
         "0": {
-          "original_cell_id": "c733dd12-5cbd-423e-87e5-3f33d49a1c90",
+          "original_cell_id": "8f3aeef5-c82a-41c3-874e-c02f8540cf7a",
           "origin_file": "04_Ray_Train_distributed_training.ipynb",
           "range": {
             "start_line": 1,
             "end_line": 1
           },
-          "raw_scene_id": "c733dd12-5cbd-423e-87e5-3f33d49a1c90-before-null-after-null"
-        }
-      },
-      "type": "markdown",
-      "title": null
-    },
-    {
-      "index": 6,
-      "name": "scene_6",
-      "id": "5f0d5b7e-69e7-4a73-9afa-e6e335584c16-before-null-after-null",
-      "data": {
-        "0": {
-          "original_cell_id": "5f0d5b7e-69e7-4a73-9afa-e6e335584c16",
+          "raw_scene_id": "8f3aeef5-c82a-41c3-874e-c02f8540cf7a-before-null-after-null"
+        },
+        "1": {
+          "original_cell_id": "08287e30-cd31-47a7-a08a-950fa8243697",
           "origin_file": "04_Ray_Train_distributed_training.ipynb",
           "range": {
             "start_line": 1,
             "end_line": 1
           },
-          "raw_scene_id": "5f0d5b7e-69e7-4a73-9afa-e6e335584c16-before-null-after-null"
-        }
-      },
-      "type": "markdown",
-      "title": null
-    },
-    {
-      "index": 7,
-      "name": "scene_7",
-      "id": "71c36c0d-ed5e-4041-ac5d-722c12b32c59-before-null-after-null",
-      "data": {
-        "0": {
-          "original_cell_id": "71c36c0d-ed5e-4041-ac5d-722c12b32c59",
+          "raw_scene_id": "08287e30-cd31-47a7-a08a-950fa8243697-before-null-after-null"
+        },
+        "2": {
+          "original_cell_id": "ad63712e-678b-41c9-9b0c-6c7a4881c6d3",
           "origin_file": "04_Ray_Train_distributed_training.ipynb",
           "range": {
             "start_line": 1,
             "end_line": 1
           },
-          "raw_scene_id": "71c36c0d-ed5e-4041-ac5d-722c12b32c59-before-null-after-null"
+          "raw_scene_id": "ad63712e-678b-41c9-9b0c-6c7a4881c6d3-before-null-after-null"
         }
       },
       "type": "markdown",
-      "title": null
+      "title": null,
+      "note": "Shows the high-level system design for distributed training, clarifying how components interact. Learners connect Ray Train workers, data flow, and model training responsibilities."
     },
     {
-      "index": 8,
-      "name": "scene_8",
-      "id": "22585009-6dff-4def-a275-b56929b87cdb-before-null-after-459000",
+      "index": 4,
+      "name": "scene_4",
+      "id": "c8b325e8-5297-4cb7-9b81-d54db537ce95-before-null-after-507658",
       "data": {
         "0": {
-          "original_cell_id": "22585009-6dff-4def-a275-b56929b87cdb",
+          "original_cell_id": "c8b325e8-5297-4cb7-9b81-d54db537ce95",
           "origin_file": "04_Ray_Train_distributed_training.ipynb",
           "range": {
             "start_line": 1,
             "end_line": 10
           },
-          "raw_scene_id": "22585009-6dff-4def-a275-b56929b87cdb-before-null-after-459000"
+          "raw_scene_id": "c8b325e8-5297-4cb7-9b81-d54db537ce95-before-null-after-507658"
         }
       },
       "type": "code",
-      "title": null
+      "title": "Import Libraries for Ray and PyTorch Training",
+      "note": "Sets up the Python environment by importing core dependencies used throughout the notebook. Learners see which libraries are required for distributed training and type-hinted configuration."
     },
     {
-      "index": 9,
-      "name": "scene_9",
-      "id": "22585009-6dff-4def-a275-b56929b87cdb-before-459000-after-null",
+      "index": 5,
+      "name": "scene_5",
+      "id": "c8b325e8-5297-4cb7-9b81-d54db537ce95-before-507658-after-null",
       "data": {
         "0": {
-          "original_cell_id": "22585009-6dff-4def-a275-b56929b87cdb",
+          "original_cell_id": "c8b325e8-5297-4cb7-9b81-d54db537ce95",
           "origin_file": "04_Ray_Train_distributed_training.ipynb",
           "range": {
             "start_line": 11,
             "end_line": 27
           },
-          "raw_scene_id": "22585009-6dff-4def-a275-b56929b87cdb-before-459000-after-null"
+          "raw_scene_id": "c8b325e8-5297-4cb7-9b81-d54db537ce95-before-507658-after-null"
         }
       },
       "type": "code",
-      "title": null
+      "title": "Import Libraries for Ray and PyTorch Training",
+      "note": "Continues the foundational setup by ensuring all required imports are available before defining training logic. Learners understand the baseline dependencies for the rest of the workflow."
     },
     {
-      "index": 10,
-      "name": "scene_10",
-      "id": "835f5d34-baf6-4f4a-81be-9846d858bbe2-before-null-after-null",
+      "index": 6,
+      "name": "scene_6",
+      "id": "2a676763cb061cca",
       "data": {
         "0": {
-          "original_cell_id": "835f5d34-baf6-4f4a-81be-9846d858bbe2",
+          "original_cell_id": "1acf7da2-0e07-4d42-944e-3bfdc07c14dc",
           "origin_file": "04_Ray_Train_distributed_training.ipynb",
           "range": {
             "start_line": 1,
             "end_line": 2
           },
-          "raw_scene_id": "835f5d34-baf6-4f4a-81be-9846d858bbe2-before-null-after-null"
-        }
-      },
-      "type": "markdown",
-      "title": null
-    },
-    {
-      "index": 11,
-      "name": "scene_11",
-      "id": "16891880-871e-4875-95cb-03fb6545d0dc-before-null-after-null",
-      "data": {
-        "0": {
-          "original_cell_id": "16891880-871e-4875-95cb-03fb6545d0dc",
+          "raw_scene_id": "1acf7da2-0e07-4d42-944e-3bfdc07c14dc-before-null-after-null"
+        },
+        "1": {
+          "original_cell_id": "fc8f3d9d-592f-4a38-9b73-28f149145456",
           "origin_file": "04_Ray_Train_distributed_training.ipynb",
           "range": {
             "start_line": 1,
             "end_line": 9
           },
-          "raw_scene_id": "16891880-871e-4875-95cb-03fb6545d0dc-before-null-after-null"
+          "raw_scene_id": "fc8f3d9d-592f-4a38-9b73-28f149145456-before-null-after-null"
         }
       },
-      "type": "code",
-      "title": null
+      "type": "markdown",
+      "title": null,
+      "note": "Defines the evaluation metric (accuracy) and demonstrates using Hugging Face Evaluate. Learners learn how metrics are loaded and later computed during training/evaluation."
     },
     {
-      "index": 12,
-      "name": "scene_12",
-      "id": "c2c14721-9497-44d2-8b32-fe961b4c742e-before-null-after-null",
+      "index": 7,
+      "name": "scene_7",
+      "id": "8421c28ad25bc687",
       "data": {
         "0": {
-          "original_cell_id": "c2c14721-9497-44d2-8b32-fe961b4c742e",
+          "original_cell_id": "4d3e5e5a-1ccc-4cbe-bd44-a4f128c3835b",
           "origin_file": "04_Ray_Train_distributed_training.ipynb",
           "range": {
             "start_line": 1,
             "end_line": 9
           },
-          "raw_scene_id": "c2c14721-9497-44d2-8b32-fe961b4c742e-before-null-after-null"
-        }
-      },
-      "type": "markdown",
-      "title": null
-    },
-    {
-      "index": 13,
-      "name": "scene_13",
-      "id": "17af6988-f571-4472-8035-f725d97d69ee-before-null-after-null",
-      "data": {
-        "0": {
-          "original_cell_id": "17af6988-f571-4472-8035-f725d97d69ee",
+          "raw_scene_id": "4d3e5e5a-1ccc-4cbe-bd44-a4f128c3835b-before-null-after-null"
+        },
+        "1": {
+          "original_cell_id": "6efc2eb3-7961-4482-ad1d-bdaaaed26fae",
           "origin_file": "04_Ray_Train_distributed_training.ipynb",
           "range": {
             "start_line": 1,
             "end_line": 3
           },
-          "raw_scene_id": "17af6988-f571-4472-8035-f725d97d69ee-before-null-after-null"
+          "raw_scene_id": "6efc2eb3-7961-4482-ad1d-bdaaaed26fae-before-null-after-null"
         }
       },
       "type": "markdown",
-      "title": null
+      "title": null,
+      "note": "Explains the purpose of a per-worker training function in Ray Train and introduces dataloaders. Learners understand batching, train/eval splits, and why each worker needs its own data pipeline."
     },
     {
-      "index": 14,
-      "name": "scene_14",
-      "id": "1eef119d-8785-45d2-89fb-7042dee915a0-before-null-after-996181",
+      "index": 8,
+      "name": "scene_8",
+      "id": "3f666a93-ed18-4e05-b9ba-491cba6b2a3a-before-null-after-347649",
       "data": {
         "0": {
-          "original_cell_id": "1eef119d-8785-45d2-89fb-7042dee915a0",
+          "original_cell_id": "3f666a93-ed18-4e05-b9ba-491cba6b2a3a",
           "origin_file": "04_Ray_Train_distributed_training.ipynb",
           "range": {
             "start_line": 1,
             "end_line": 16
           },
-          "raw_scene_id": "1eef119d-8785-45d2-89fb-7042dee915a0-before-null-after-996181"
+          "raw_scene_id": "3f666a93-ed18-4e05-b9ba-491cba6b2a3a-before-null-after-347649"
         }
       },
       "type": "code",
-      "title": null
+      "title": "Implement Worker Training Function: Dataset Loading",
+      "note": "Begins implementing the worker function by loading the dataset inside each worker context. Learners see how data access is handled in distributed execution."
     },
     {
-      "index": 15,
-      "name": "scene_15",
-      "id": "1eef119d-8785-45d2-89fb-7042dee915a0-before-996181-after-169081",
+      "index": 9,
+      "name": "scene_9",
+      "id": "3f666a93-ed18-4e05-b9ba-491cba6b2a3a-before-347649-after-476711",
       "data": {
         "0": {
-          "original_cell_id": "1eef119d-8785-45d2-89fb-7042dee915a0",
+          "original_cell_id": "3f666a93-ed18-4e05-b9ba-491cba6b2a3a",
           "origin_file": "04_Ray_Train_distributed_training.ipynb",
           "range": {
             "start_line": 17,
             "end_line": 31
           },
-          "raw_scene_id": "1eef119d-8785-45d2-89fb-7042dee915a0-before-996181-after-169081"
+          "raw_scene_id": "3f666a93-ed18-4e05-b9ba-491cba6b2a3a-before-347649-after-476711"
         }
       },
       "type": "code",
-      "title": null
+      "title": "Implement Worker Training Function: Preprocessing Steps",
+      "note": "Extends the worker function with preprocessing steps needed before training (e.g., tokenization or formatting). Learners learn where to place transformation logic for scalable training."
     },
     {
-      "index": 16,
-      "name": "scene_16",
-      "id": "1eef119d-8785-45d2-89fb-7042dee915a0-before-169081-after-447938",
+      "index": 10,
+      "name": "scene_10",
+      "id": "3f666a93-ed18-4e05-b9ba-491cba6b2a3a-before-476711-after-905715",
       "data": {
         "0": {
-          "original_cell_id": "1eef119d-8785-45d2-89fb-7042dee915a0",
+          "original_cell_id": "3f666a93-ed18-4e05-b9ba-491cba6b2a3a",
           "origin_file": "04_Ray_Train_distributed_training.ipynb",
           "range": {
             "start_line": 32,
             "end_line": 50
           },
-          "raw_scene_id": "1eef119d-8785-45d2-89fb-7042dee915a0-before-169081-after-447938"
+          "raw_scene_id": "3f666a93-ed18-4e05-b9ba-491cba6b2a3a-before-476711-after-905715"
         }
       },
       "type": "code",
-      "title": null
+      "title": "Implement Worker Training Function: Model Setup",
+      "note": "Adds model and training component initialization within the worker function. Learners understand how each worker constructs the model/training objects consistently from config."
     },
     {
-      "index": 17,
-      "name": "scene_17",
-      "id": "1eef119d-8785-45d2-89fb-7042dee915a0-before-447938-after-583004",
+      "index": 11,
+      "name": "scene_11",
+      "id": "3f666a93-ed18-4e05-b9ba-491cba6b2a3a-before-905715-after-936055",
       "data": {
         "0": {
-          "original_cell_id": "1eef119d-8785-45d2-89fb-7042dee915a0",
+          "original_cell_id": "3f666a93-ed18-4e05-b9ba-491cba6b2a3a",
           "origin_file": "04_Ray_Train_distributed_training.ipynb",
           "range": {
             "start_line": 51,
             "end_line": 63
           },
-          "raw_scene_id": "1eef119d-8785-45d2-89fb-7042dee915a0-before-447938-after-583004"
+          "raw_scene_id": "3f666a93-ed18-4e05-b9ba-491cba6b2a3a-before-905715-after-936055"
         }
       },
       "type": "code",
-      "title": null
+      "title": "Implement Worker Training Function: Training Loop",
+      "note": "Implements the core training loop executed on each worker. Learners see how forward/backward passes and optimization steps fit into distributed training."
     },
     {
-      "index": 18,
-      "name": "scene_18",
-      "id": "1eef119d-8785-45d2-89fb-7042dee915a0-before-583004-after-235486",
+      "index": 12,
+      "name": "scene_12",
+      "id": "3f666a93-ed18-4e05-b9ba-491cba6b2a3a-before-936055-after-200826",
       "data": {
         "0": {
-          "original_cell_id": "1eef119d-8785-45d2-89fb-7042dee915a0",
+          "original_cell_id": "3f666a93-ed18-4e05-b9ba-491cba6b2a3a",
           "origin_file": "04_Ray_Train_distributed_training.ipynb",
           "range": {
             "start_line": 64,
             "end_line": 78
           },
-          "raw_scene_id": "1eef119d-8785-45d2-89fb-7042dee915a0-before-583004-after-235486"
+          "raw_scene_id": "3f666a93-ed18-4e05-b9ba-491cba6b2a3a-before-936055-after-200826"
         }
       },
       "type": "code",
-      "title": null
+      "title": "Implement Worker Training Function: Evaluation and Metrics",
+      "note": "Introduces evaluation logic and metric computation within the worker workflow. Learners learn how to calculate and aggregate metrics during or after epochs."
     },
     {
-      "index": 19,
-      "name": "scene_19",
-      "id": "1eef119d-8785-45d2-89fb-7042dee915a0-before-235486-after-945710",
+      "index": 13,
+      "name": "scene_13",
+      "id": "3f666a93-ed18-4e05-b9ba-491cba6b2a3a-before-200826-after-816917",
       "data": {
         "0": {
-          "original_cell_id": "1eef119d-8785-45d2-89fb-7042dee915a0",
+          "original_cell_id": "3f666a93-ed18-4e05-b9ba-491cba6b2a3a",
           "origin_file": "04_Ray_Train_distributed_training.ipynb",
           "range": {
             "start_line": 79,
             "end_line": 95
           },
-          "raw_scene_id": "1eef119d-8785-45d2-89fb-7042dee915a0-before-235486-after-945710"
+          "raw_scene_id": "3f666a93-ed18-4e05-b9ba-491cba6b2a3a-before-200826-after-816917"
         }
       },
       "type": "code",
-      "title": null
+      "title": "Implement Worker Training Function: Ray Reporting Hooks",
+      "note": "Shows how training progress and metrics are reported back to Ray Train. Learners understand the mechanism for centralized logging/monitoring from distributed workers."
     },
     {
-      "index": 20,
-      "name": "scene_20",
-      "id": "1eef119d-8785-45d2-89fb-7042dee915a0-before-945710-after-787608",
+      "index": 14,
+      "name": "scene_14",
+      "id": "3f666a93-ed18-4e05-b9ba-491cba6b2a3a-before-816917-after-814305",
       "data": {
         "0": {
-          "original_cell_id": "1eef119d-8785-45d2-89fb-7042dee915a0",
+          "original_cell_id": "3f666a93-ed18-4e05-b9ba-491cba6b2a3a",
           "origin_file": "04_Ray_Train_distributed_training.ipynb",
           "range": {
             "start_line": 96,
             "end_line": 109
           },
-          "raw_scene_id": "1eef119d-8785-45d2-89fb-7042dee915a0-before-945710-after-787608"
+          "raw_scene_id": "3f666a93-ed18-4e05-b9ba-491cba6b2a3a-before-816917-after-814305"
         }
       },
       "type": "code",
-      "title": null
+      "title": "Implement Worker Training Function: Finalize and Return",
+      "note": "Finalizes the worker function, ensuring outputs and cleanup are handled correctly. Learners see how to structure a complete per-worker entrypoint for Ray Train."
     },
     {
-      "index": 21,
-      "name": "scene_21",
-      "id": "1eef119d-8785-45d2-89fb-7042dee915a0-before-787608-after-null",
+      "index": 15,
+      "name": "scene_15",
+      "id": "24bd80b806d4723a",
       "data": {
         "0": {
-          "original_cell_id": "1eef119d-8785-45d2-89fb-7042dee915a0",
+          "original_cell_id": "3f666a93-ed18-4e05-b9ba-491cba6b2a3a",
           "origin_file": "04_Ray_Train_distributed_training.ipynb",
           "range": {
             "start_line": 110,
             "end_line": 115
           },
-          "raw_scene_id": "1eef119d-8785-45d2-89fb-7042dee915a0-before-787608-after-null"
-        }
-      },
-      "type": "code",
-      "title": null
-    },
-    {
-      "index": 22,
-      "name": "scene_22",
-      "id": "7ef466d5-a410-4691-b892-83ca88643b86-before-null-after-null",
-      "data": {
-        "0": {
-          "original_cell_id": "7ef466d5-a410-4691-b892-83ca88643b86",
+          "raw_scene_id": "3f666a93-ed18-4e05-b9ba-491cba6b2a3a-before-814305-after-null"
+        },
+        "1": {
+          "original_cell_id": "911f8632-9f12-4ba8-a113-0ae2934238ad",
           "origin_file": "04_Ray_Train_distributed_training.ipynb",
           "range": {
             "start_line": 1,
             "end_line": 13
           },
-          "raw_scene_id": "7ef466d5-a410-4691-b892-83ca88643b86-before-null-after-null"
+          "raw_scene_id": "911f8632-9f12-4ba8-a113-0ae2934238ad-before-null-after-null"
         }
       },
-      "type": "markdown",
-      "title": null
+      "type": "code",
+      "title": "Transition to Main Training Orchestration Function",
+      "note": "Bridges from per-worker logic to the orchestration layer that launches distributed training. Learners understand the separation between worker code and the driver/main training function."
     },
     {
-      "index": 23,
-      "name": "scene_23",
-      "id": "ca26285c-37c9-4a73-acb0-435fc99e2de1-before-null-after-542407",
+      "index": 16,
+      "name": "scene_16",
+      "id": "af205ba4-0d67-40b1-bfc8-27b5b24ba023-before-null-after-306493",
       "data": {
         "0": {
-          "original_cell_id": "ca26285c-37c9-4a73-acb0-435fc99e2de1",
+          "original_cell_id": "af205ba4-0d67-40b1-bfc8-27b5b24ba023",
           "origin_file": "04_Ray_Train_distributed_training.ipynb",
           "range": {
             "start_line": 1,
             "end_line": 18
           },
-          "raw_scene_id": "ca26285c-37c9-4a73-acb0-435fc99e2de1-before-null-after-542407"
+          "raw_scene_id": "af205ba4-0d67-40b1-bfc8-27b5b24ba023-before-null-after-306493"
         }
       },
       "type": "code",
-      "title": null
+      "title": "Define train_bert: Configure Ray Train and Trainer",
+      "note": "Defines the main training orchestration function that configures Ray Train (resources, scaling, and run settings). Learners learn how to wrap the worker function in a Trainer and pass configuration."
     },
     {
-      "index": 24,
-      "name": "scene_24",
-      "id": "ca26285c-37c9-4a73-acb0-435fc99e2de1-before-542407-after-null",
+      "index": 17,
+      "name": "scene_17",
+      "id": "af205ba4-0d67-40b1-bfc8-27b5b24ba023-before-306493-after-null",
       "data": {
         "0": {
-          "original_cell_id": "ca26285c-37c9-4a73-acb0-435fc99e2de1",
+          "original_cell_id": "af205ba4-0d67-40b1-bfc8-27b5b24ba023",
           "origin_file": "04_Ray_Train_distributed_training.ipynb",
           "range": {
             "start_line": 19,
             "end_line": 36
           },
-          "raw_scene_id": "ca26285c-37c9-4a73-acb0-435fc99e2de1-before-542407-after-null"
+          "raw_scene_id": "af205ba4-0d67-40b1-bfc8-27b5b24ba023-before-306493-after-null"
         }
       },
       "type": "code",
-      "title": null
+      "title": "Define train_bert: Configure Ray Train and Trainer",
+      "note": "Completes the train_bert setup, emphasizing how distributed execution is launched from a single driver function. Learners see how configuration and runtime settings are centralized."
     },
     {
-      "index": 25,
-      "name": "scene_25",
-      "id": "7563e1c1-01db-43df-8d8d-ad29a598b65b-before-null-after-null",
+      "index": 18,
+      "name": "scene_18",
+      "id": "e2074d0c-9a26-410d-a487-c2e154092dcd-before-null-after-null",
       "data": {
         "0": {
-          "original_cell_id": "7563e1c1-01db-43df-8d8d-ad29a598b65b",
+          "original_cell_id": "e2074d0c-9a26-410d-a487-c2e154092dcd",
           "origin_file": "04_Ray_Train_distributed_training.ipynb",
           "range": {
             "start_line": 1,
             "end_line": 2
           },
-          "raw_scene_id": "7563e1c1-01db-43df-8d8d-ad29a598b65b-before-null-after-null"
+          "raw_scene_id": "e2074d0c-9a26-410d-a487-c2e154092dcd-before-null-after-null"
         }
       },
       "type": "markdown",
-      "title": null
+      "title": null,
+      "note": "Explains the final step of starting the training run by calling the orchestration function. Learners understand how all prior components come together to execute distributed training."
     },
     {
-      "index": 26,
-      "name": "scene_26",
-      "id": "92638c3b-26a9-4c03-8722-329e87f48cd0-before-null-after-null",
+      "index": 19,
+      "name": "scene_19",
+      "id": "1f3c1571-f6c6-42ea-87f6-ecb531525be8-before-null-after-null",
       "data": {
         "0": {
-          "original_cell_id": "92638c3b-26a9-4c03-8722-329e87f48cd0",
+          "original_cell_id": "1f3c1571-f6c6-42ea-87f6-ecb531525be8",
           "origin_file": "04_Ray_Train_distributed_training.ipynb",
           "range": {
             "start_line": 1,
             "end_line": 3
           },
-          "raw_scene_id": "92638c3b-26a9-4c03-8722-329e87f48cd0-before-null-after-null"
+          "raw_scene_id": "1f3c1571-f6c6-42ea-87f6-ecb531525be8-before-null-after-null"
         }
       },
       "type": "code",
-      "title": null
+      "title": "Run Training with Configured Number of Workers",
+      "note": "Executes the training with a specified number of workers, demonstrating how to scale out. Learners learn which parameter controls parallelism and how to kick off the run."
     },
     {
-      "index": 27,
-      "name": "scene_27",
-      "id": "088e15d9-62ad-48d0-a438-acf6f4dcf239-before-null-after-null",
+      "index": 20,
+      "name": "scene_20",
+      "id": "783ab46c-5a1f-4cbe-a485-1c41ef6cf9f1-before-null-after-null",
       "data": {
         "0": {
-          "original_cell_id": "088e15d9-62ad-48d0-a438-acf6f4dcf239",
+          "original_cell_id": "783ab46c-5a1f-4cbe-a485-1c41ef6cf9f1",
+          "origin_file": "04_Ray_Train_distributed_training.ipynb",
+          "range": {
+            "start_line": 1,
+            "end_line": 4
+          },
+          "raw_scene_id": "783ab46c-5a1f-4cbe-a485-1c41ef6cf9f1-before-null-after-null"
+        }
+      },
+      "type": "output",
+      "title": "Observe Dataset Mapping and Worker Startup Logs",
+      "note": "Shows runtime logs for dataset processing and worker initialization. Learners learn what healthy startup output looks like and how to spot progress indicators."
+    },
+    {
+      "index": 21,
+      "name": "scene_21",
+      "id": "5a977863-e0e3-42e0-9123-c9171ee70793-before-null-after-null",
+      "data": {
+        "0": {
+          "original_cell_id": "5a977863-e0e3-42e0-9123-c9171ee70793",
+          "origin_file": "04_Ray_Train_distributed_training.ipynb",
+          "range": {
+            "start_line": 1,
+            "end_line": 20
+          },
+          "raw_scene_id": "5a977863-e0e3-42e0-9123-c9171ee70793-before-null-after-null"
+        }
+      },
+      "type": "output",
+      "title": "Monitor Training Loss and Ray Job Status Output",
+      "note": "Displays training loss and Ray status, illustrating monitoring during distributed runs. Learners learn how to interpret worker logs and track training progress over time."
+    },
+    {
+      "index": 22,
+      "name": "scene_22",
+      "id": "40201464be11919e",
+      "data": {
+        "0": {
+          "original_cell_id": "94bf8608-e01b-4651-b7ff-b2645e40aa4a",
           "origin_file": "04_Ray_Train_distributed_training.ipynb",
           "range": {
             "start_line": 1,
             "end_line": 1
           },
-          "raw_scene_id": "088e15d9-62ad-48d0-a438-acf6f4dcf239-before-null-after-null"
-        }
-      },
-      "type": "markdown",
-      "title": null
-    },
-    {
-      "index": 28,
-      "name": "scene_28",
-      "id": "d4003e52-2b62-4941-b1b4-be111374964e-before-null-after-null",
-      "data": {
-        "0": {
-          "original_cell_id": "d4003e52-2b62-4941-b1b4-be111374964e",
+          "raw_scene_id": "94bf8608-e01b-4651-b7ff-b2645e40aa4a-before-null-after-null"
+        },
+        "1": {
+          "original_cell_id": "b148f5a0-f17b-42d0-981e-36791e0984f1",
           "origin_file": "04_Ray_Train_distributed_training.ipynb",
           "range": {
             "start_line": 1,
             "end_line": 2
           },
-          "raw_scene_id": "d4003e52-2b62-4941-b1b4-be111374964e-before-null-after-null"
-        }
-      },
-      "type": "code",
-      "title": null
-    },
-    {
-      "index": 29,
-      "name": "scene_29",
-      "id": "3e1670d8-11e1-4f3f-8ba0-c8079fb99af1-before-null-after-null",
-      "data": {
-        "0": {
-          "original_cell_id": "3e1670d8-11e1-4f3f-8ba0-c8079fb99af1",
+          "raw_scene_id": "b148f5a0-f17b-42d0-981e-36791e0984f1-before-null-after-null"
+        },
+        "2": {
+          "original_cell_id": "fbca4c7b-d9b9-47ab-8234-45626110a6e3",
           "origin_file": "04_Ray_Train_distributed_training.ipynb",
           "range": {
             "start_line": 1,
             "end_line": 2
           },
-          "raw_scene_id": "3e1670d8-11e1-4f3f-8ba0-c8079fb99af1-before-null-after-null"
-        }
-      },
-      "type": "markdown",
-      "title": null
-    },
-    {
-      "index": 30,
-      "name": "scene_30",
-      "id": "63fb2fb2-66c9-4880-81d3-d16b0d8a7baa-before-null-after-null",
-      "data": {
-        "0": {
-          "original_cell_id": "63fb2fb2-66c9-4880-81d3-d16b0d8a7baa",
+          "raw_scene_id": "fbca4c7b-d9b9-47ab-8234-45626110a6e3-before-null-after-null"
+        },
+        "3": {
+          "original_cell_id": "ecd3dbfb-f7f9-4f84-9968-815cb614aeb0",
           "origin_file": "04_Ray_Train_distributed_training.ipynb",
           "range": {
             "start_line": 1,
             "end_line": 1
           },
-          "raw_scene_id": "63fb2fb2-66c9-4880-81d3-d16b0d8a7baa-before-null-after-null"
+          "raw_scene_id": "ecd3dbfb-f7f9-4f84-9968-815cb614aeb0-before-null-after-null"
         }
       },
-      "type": "code",
-      "title": null
+      "type": "markdown",
+      "title": null,
+      "note": "Demonstrates proper cleanup by shutting down Ray after training. Learners learn resource management best practices to avoid lingering processes and cluster resource usage."
     }
   ],
-  "creation_date": "2026-01-28T14:16:56.136Z",
-  "updated_date": "2026-01-28T14:16:58.226Z",
+  "creation_date": "2026-02-03T15:41:45.696Z",
+  "updated_date": "2026-02-03T15:41:45.696Z",
+  "finished_processing": true,
   "version": "2.0"
 }

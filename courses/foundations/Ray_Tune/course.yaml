@@ -1,0 +1,9 @@
+title: Distributed Hyperparameter Tuning with Ray Tune
+description: Learn to use Ray Tune for distributed hyperparameter tuning by scaling
+  a baseline PyTorch MNIST training loop across available GPUs. You’ll define a Tune
+  training function, set up a search space, and run parallel trials to identify better-performing
+  model configurations.
+author: ''
+mediaStorage: ''
+category: foundation
+thumbnail: thumbnail.png

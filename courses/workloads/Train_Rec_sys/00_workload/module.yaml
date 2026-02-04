@@ -1,0 +1,44 @@
+00_workload:
+  title: Workload
+  description: Learn how to build a scalable matrix factorization recommendation system
+    on the MovieLens 100K dataset and migrate it from a local workflow to distributed,
+    fault-tolerant training on an Anyscale cluster using Ray Train V2 and Ray Data.
+    You’ll prepare the dataset (CSV/Parquet) and run end-to-end collaborative filtering
+    training to predict user–item ratings.
+  sources:
+  - 04e_rec_sys_workload_pattern.ipynb
+  lessons:
+    00_lesson:
+      title: 04e Recommendation system pattern with Ray Train
+      description: Learn how to build a scalable matrix factorization (collaborative
+        filtering) recommendation system on the MovieLens 100K dataset. You’ll migrate
+        a local pipeline to a distributed, fault-tolerant training workflow using
+        Ray Train V2 and Ray Data on an Anyscale cluster.
+    01_lesson:
+      title: 1. Imports
+      description: In this lesson, you’ll set up the notebook environment by installing
+        required packages and importing the core libraries used throughout the tutorial
+        (e.g., `pandas`, `matplotlib`, PyTorch, and Ray). By the end, you’ll have
+        all dependencies loaded and ready for distributed data processing and model
+        training.
+    02_lesson:
+      title: 7. Define matrix factorization model
+      description: Learn how to implement a basic matrix factorization recommender
+        in PyTorch by creating user and item embedding layers. You’ll predict ratings
+        by taking the dot product of the corresponding user and item embeddings.
+    03_lesson:
+      title: 8. Define Ray Train loop (with validation, checkpointing, and Ray-managed
+        metrics)
+      description: Learn how to implement `train_loop_per_worker`, the core Ray Train
+        worker function that performs distributed training with a validation pass
+        each epoch. You’ll also add checkpointing and report Ray-managed metrics (e.g.,
+        train/val loss) so results are automatically tracked and retrievable for analysis.
+    04_lesson:
+      title: 11. Resume training from checkpoint
+      description: Learn how to resume a Ray `TorchTrainer` run by calling `trainer.fit()`
+        again, automatically restoring the latest model state from persistent checkpoint
+        storage. You’ll confirm that training continues seamlessly from the most recent
+        saved checkpoint without manual reload steps.
+    05_lesson:
+      title: '12. Inference: recommend top-N items for a user'
+      description: ''

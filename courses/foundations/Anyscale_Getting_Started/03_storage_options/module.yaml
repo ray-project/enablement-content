@@ -1,0 +1,19 @@
+03_storage_options:
+  title: Storage Options
+  description: Learn how to choose and use Anyscale’s storage options for AI workloads—cloud
+    object storage, shared file storage, local cluster storage, and workspace-local
+    persistence. You’ll practice accessing each option via environment variables and
+    mount paths and perform basic tasks like uploading, listing, and cleaning up files.
+  sources:
+  - 101_04_anyscale_storage_options.ipynb
+  lessons:
+    00_lesson:
+      title: 101 -- Storage Options in the Anyscale Platform
+      description: ''
+    01_lesson:
+      title: Lesson 1
+      description: Learn the four storage options available in the Anyscale Platform—cloud
+        object storage, shared file storage, local cluster storage, and the workspace
+        file store—and when to use each for AI workloads. You’ll practice accessing
+        them via environment variables and mount paths, and perform basic tasks like
+        uploading/deleting files and locating installed packages.

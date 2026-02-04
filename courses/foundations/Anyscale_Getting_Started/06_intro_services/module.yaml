@@ -1,0 +1,15 @@
+06_intro_services:
+  title: Intro Services
+  description: Learn how Anyscale Services uses Ray Serve to deploy scalable, reliable
+    APIs on dedicated Ray clusters. You’ll create a workspace, update a simple Serve
+    app and `service.yaml`, deploy with the Anyscale CLI, monitor the rollout, and
+    clean up resources.
+  sources:
+  - 101_07_anyscale_intro_services.ipynb
+  lessons:
+    00_lesson:
+      title: 101 --  Introduction to Anyscale Services
+      description: Learn how Anyscale Services uses Ray Serve to deploy scalable,
+        reliable services on dedicated Ray clusters. You’ll create an Anyscale Workspace,
+        configure a service with `service.yaml`, deploy it via the CLI, monitor the
+        rollout, and clean up resources when finished.

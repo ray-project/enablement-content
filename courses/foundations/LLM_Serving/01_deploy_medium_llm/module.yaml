@@ -1,0 +1,51 @@
+01_deploy_medium_llm:
+  title: Deploy Medium Llm
+  description: Learn how to configure and deploy a medium-sized LLM (4–8 GPUs) using
+    Ray Serve LLM, from defining an `LLMConfig` to launching an OpenAI-compatible
+    serving endpoint. You’ll practice running the deployment locally or on an Anyscale
+    Ray cluster and sending inference requests to the live service.
+  sources:
+  - notebook.ipynb
+  lessons:
+    00_lesson:
+      title: Deploy a Medium-Sized LLM with Ray Serve LLM
+      description: Learn how to deploy a medium-sized LLM using Ray Serve LLM, from
+        initial configuration through production-ready serving. You’ll practice running
+        the deployment locally on multi-GPU hardware and on a 4–8 GPU Ray cluster
+        in the cloud using Anyscale Services.
+    01_lesson:
+      title: 'Overview: Why Medium-Sized Models?'
+      description: Learn what defines a medium-sized LLM (typically 4–8 GPUs on a
+        single node) and why it’s a practical choice. You’ll understand how these
+        models balance accuracy and reasoning improvements over small models with
+        lower cost and resource demands than very large models.
+    02_lesson:
+      title: Setting up Ray Serve LLM
+      description: In this lesson, you’ll learn how to configure and deploy a medium-sized
+        LLM with Ray Serve LLM using core APIs like `LLMConfig` and `build_openai_app`.
+        You’ll set up model loading (model ID/source, Hugging Face token) and understand
+        the key hardware and deployment settings needed to serve the model.
+    03_lesson:
+      title: Local Deployment & Inference
+      description: Learn how to deploy a 70B-scale LLM locally using Ray Serve LLM,
+        expose it as a localhost API endpoint, and send chat completion requests to
+        test inference. You’ll also practice starting the service and cleanly shutting
+        it down when finished.
+    04_lesson:
+      title: Deploying to Anyscale Services
+      description: Learn how to deploy your existing Ray Serve LLM app to a dedicated
+        production cluster using Anyscale Services with no code changes. You’ll also
+        launch the service via a YAML config and run inference against the generated
+        endpoint using an OpenAI-compatible client.
+    05_lesson:
+      title: 'Advanced Topics: Monitoring & Optimization'
+      description: Learn how to enable and use the Ray Serve LLM Dashboard in Grafana
+        to monitor production LLM performance and key metrics. You’ll also interpret
+        vLLM concurrency logs to guide tuning for higher throughput and know how to
+        safely shut down/terminate services when finished.
+    06_lesson:
+      title: Summary & Outlook
+      description: Review the key steps you completed to deploy a medium-sized (≈70B)
+        LLM using Ray Serve LLM, consolidating the core concepts and workflow. Leave
+        with a clear outlook on next options—such as scaling, optimization, and extending
+        the deployment to new use cases.

@@ -1,0 +1,9 @@
+title: Distributed Diffusion Training with Ray Train V2
+description: Learn to build and run an end-to-end mini diffusion (image denoising)
+  pipeline on the Food-101-Lite dataset using Ray Train V2 on an Anyscale cluster.
+  You’ll parallelize image decoding, preprocessing, and encoding with Ray Data and
+  scale generative computer-vision model training across a distributed environment.
+author: ''
+mediaStorage: ''
+category: foundation
+thumbnail: thumbnail.png

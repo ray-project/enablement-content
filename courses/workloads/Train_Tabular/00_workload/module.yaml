@@ -1,0 +1,41 @@
+00_workload:
+  title: Workload
+  description: In this Workload module, you’ll learn how to scale a tabular XGBoost
+    forest-cover classification pipeline from local training to a distributed Ray
+    Train V2 job on an Anyscale cluster. You’ll ingest the UCI Cover Type dataset,
+    persist train/validation Parquet splits to shared storage, and train/evaluate
+    the model using Ray Datasets and distributed execution.
+  sources:
+  - 04b_tabular_workload_pattern.ipynb
+  lessons:
+    00_lesson:
+      title: 04b Tabular workload pattern with Ray Train
+      description: Learn how to scale an XGBoost tabular classification pipeline on
+        the Cover Type dataset from a local workflow to an Anyscale cluster using
+        Ray Train V2. You’ll ingest and train on large tabular data in a distributed
+        setup to predict forest cover types from cartographic features.
+    01_lesson:
+      title: 1. Imports
+      description: Learn how to set up the project environment and import the full
+        scientific Python stack plus XGBoost and Ray Train components needed for distributed
+        data loading and model training. By the end, you’ll have all dependencies
+        installed and the core libraries ready to use before working with the dataset.
+    02_lesson:
+      title: 8. Define the Ray Train worker loop (Arrow-based, memory-efficient)
+      description: In this lesson, you’ll implement the Ray Train worker loop so each
+        worker independently pulls its assigned train/validation shard as a PyArrow
+        table. You’ll learn how to materialize shards efficiently and clean up accidental
+        index columns to keep the pipeline Arrow-based and memory-friendly.
+    03_lesson:
+      title: 12. Confusion matrix visualization
+      description: Learn how to compute and visualize a confusion matrix as a heatmap
+        using both raw counts and row-normalized ratios to pinpoint which cover types
+        are most frequently misclassified. You’ll interpret diagonal strength and
+        off-diagonal “hot spots” to identify classes that may need more data or targeted
+        feature engineering.
+    04_lesson:
+      title: 15. Continue training from the latest checkpoint
+      description: Learn how to resume XGBoost training automatically from the latest
+        Ray Trainer checkpoint by simply calling `trainer.fit()` again. You’ll also
+        retrieve the new best checkpoint and rerun the Ray Data inference pipeline
+        to confirm improved validation performance.

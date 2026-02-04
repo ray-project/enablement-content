@@ -1,0 +1,46 @@
+00_workload:
+  title: Workload
+  description: Learn how to preprocess large datasets with Ray Data by loading a public
+    dataset, converting it into a distributed Ray Dataset, and applying common transformations
+    like adding IDs, filtering rows, and joining with a second dataset. By the end,
+    you’ll be able to build scalable data preparation workflows that run locally or
+    on a Ray cluster.
+  sources:
+  - 02_Ray_Data_data_processing.ipynb
+  lessons:
+    00_lesson:
+      title: Data Processing with Ray Data
+      description: Learn how to use Ray Data to preprocess large datasets at scale
+        by loading public data into distributed Ray Datasets and applying common transformations
+        like filtering, joining, and dataset creation. By the end, you’ll be able
+        to run the workflow locally or on a Ray cluster for scalable data processing.
+    01_lesson:
+      title: Library Imports
+      description: Learn how to import and initialize Ray alongside Hugging Face Datasets
+        and related utilities, then load the IMDB dataset for quick inspection. You’ll
+        practice exploring dataset structure, previewing sample rows, and computing
+        a simple label summary to prepare for downstream Ray data transformations.
+    02_lesson:
+      title: Convert to Ray Dataset
+      description: Learn how to add a unique ID to each record and convert raw review
+        data into a distributed Ray Dataset for parallel processing. You’ll also create
+        a second (metadata) Ray Dataset to set up common IDs for demonstrating joins
+        between datasets.
+    03_lesson:
+      title: Filter Ray Dataset
+      description: Learn how to filter rows in a Ray Dataset to keep only positive
+        reviews using either an expression or a function. You’ll also see how the
+        `concurrency` setting parallelizes filtering to improve performance on larger
+        datasets.
+    04_lesson:
+      title: Join Two Ray Datasets
+      description: Learn how to perform an inner join in Ray Datasets by combining
+        a filtered reviews dataset with a metadata dataset on the `id` field. You’ll
+        also see how to control join parallelism with `num_partitions` and preview
+        the joined results.
+    05_lesson:
+      title: Preprocessing with a Tokenizer
+      description: Learn how to preprocess text data by applying a custom tokenizer
+        to a Ray Dataset, removing punctuation and splitting text into tokens for
+        model-ready inputs. You’ll also convert the tokenized dataset to a Pandas
+        DataFrame for inspection and downstream analysis.

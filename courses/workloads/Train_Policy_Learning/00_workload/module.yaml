@@ -1,0 +1,41 @@
+00_workload:
+  title: Workload
+  description: Learn how to build and run an end-to-end diffusion-policy training
+    workload for the `Pendulum-v1` control task using a real offline dataset, from
+    data generation/preprocessing with Ray Data to distributed training on an Anyscale
+    cluster with Ray Train V2. You’ll accomplish migrating a local PyTorch + Gymnasium
+    workflow into a scalable, fault-tolerant Ray pipeline with minimal code changes.
+  sources:
+  - 04d2_policy_learning_pattern.ipynb
+  lessons:
+    00_lesson:
+      title: 04-d2 Diffusion-Policy Pattern with Ray Train
+      description: Build and run an end-to-end mini diffusion-policy training pipeline
+        on the real `Pendulum-v1` offline dataset, scaled out on an Anyscale cluster
+        with Ray Train V2. You’ll learn how to stream and preprocess data with Ray
+        Data and migrate a local PyTorch + Gymnasium workflow into a distributed,
+        fault-tolerant Ray training job.
+    01_lesson:
+      title: 1. Imports and setup
+      description: Learn how to set up the runtime and import the core libraries needed
+        to scale a local PyTorch + Gymnasium workflow to Ray on Anyscale. You’ll install
+        dependencies, enable the Ray Train v2 flag, and bring in Ray Data and Lightning
+        for distributed data processing and training.
+    02_lesson:
+      title: 4. DiffusionPolicy LightningModule
+      description: 'In this lesson, you’ll implement a PyTorch Lightning `DiffusionPolicy`
+        module: a small MLP that predicts the injected noise \( \epsilon \) from a
+        normalized 3D observation, a noisy 1D action, and a timestep. You’ll also
+        add epoch-level loss logging so training progress can be tracked and plotted.'
+    03_lesson:
+      title: 5. Distributed Train loop with checkpointing
+      description: Learn how to build a per-worker distributed PyTorch Lightning training
+        loop on Ray that streams Ray Data batches each epoch and runs one GPU trainer
+        per worker. You’ll also add fault-tolerant checkpointing to automatically
+        resume from the latest Ray Train checkpoint when workers restart.
+    04_lesson:
+      title: 8. Reverse diffusion helper
+      description: Learn how to implement a reverse-diffusion sampling helper that
+        iteratively denoises a random 1‑D action over 50 steps into a feasible Pendulum
+        torque command conditioned on an observation. You’ll then use the helper with
+        the latest trained checkpoint to generate an action for a sample state.

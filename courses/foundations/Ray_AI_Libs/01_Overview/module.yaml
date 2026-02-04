@@ -1,0 +1,29 @@
+01_Overview:
+  title: Overview
+  description: Learn how the Ray AI Libraries (Ray Data, Train, Tune, and Serve) fit
+    together to build scalable ML workflows. You’ll walk through an end-to-end XGBoost
+    regression example on NYC taxi data, covering data loading, distributed hyperparameter
+    tuning, and training.
+  sources:
+  - 01_Intro_Ray_AI_Libs_Overview.ipynb
+  lessons:
+    00_lesson:
+      title: 'Introduction to the Ray AI Libraries: An example of using Ray data,
+        Ray Train, Ray Tune, Ray Serve to implement a XGBoost regression model'
+      description: 'Learn how to build an end-to-end XGBoost regression workflow using
+        Ray AI Libraries: ingest and preprocess data with Ray Data, train with Ray
+        Train, tune hyperparameters with Ray Tune, and deploy a scalable inference
+        service with Ray Serve. By the end, you’ll have a working example that runs
+        locally or on a Ray cluster.'
+    01_lesson:
+      title: 1. Overview of the Ray AI Libraries
+      description: Learn how the Ray AI Libraries build on Ray Core to deliver scalable,
+        high-performance building blocks for AI and ML workloads. You’ll understand
+        what these libraries are, how they fit together, and when to use them to accelerate
+        development and deployment.
+    02_lesson:
+      title: 2. Quick end-to-end example
+      description: Build an end-to-end XGBoost model on NYC taxi trip data to predict
+        tip amount, starting from a vanilla training loop. Then scale the workflow
+        by running distributed hyperparameter tuning with Ray Tune and speeding up
+        training with sharded, multi-worker XGBoost via Ray Train.

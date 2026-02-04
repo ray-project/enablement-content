@@ -1,0 +1,45 @@
+00_workload:
+  title: Workload
+  description: Learn how to run distributed fine-tuning of a BERT sequence-classification
+    model on the Yelp Reviews dataset using Ray Train with PyTorch and Hugging Face.
+    You’ll set up metrics, tokenization, dataloaders, and a per-worker training loop
+    that scales across CPUs/GPUs locally or on a Ray cluster.
+  sources:
+  - 04_Ray_Train_distributed_training.ipynb
+  lessons:
+    00_lesson:
+      title: Distributed training with Ray Train, PyTorch and Hugging Face
+      description: Learn how to fine-tune a BERT sequence-classification model on
+        Yelp reviews using PyTorch and Hugging Face, then scale training across multiple
+        workers with Ray Train. You’ll set up the distributed training workflow, configure
+        metrics, and run the job locally or on a Ray cluster.
+    01_lesson:
+      title: 1. Architecture
+      description: Learn the high-level architecture of the training pipeline and
+        how its components fit together. You’ll also set up the required Python imports
+        (PyTorch, DataLoader, tqdm, and utilities) to prepare for the rest of the
+        lesson.
+    02_lesson:
+      title: 3. Metrics Setup
+      description: Learn how to set up accuracy as the evaluation metric using Hugging
+        Face’s `evaluate` library and implement a `compute_metrics` function to calculate
+        accuracy from model predictions during evaluation.
+    03_lesson:
+      title: 4. Training function per worker
+      description: Learn how to implement a per-worker training function that loads
+        a dataset, tokenizes text, builds dataloaders, initializes a model, and runs
+        the training/evaluation loop. You’ll also configure automatic device selection
+        (GPU, Apple MPS, or CPU) for efficient distributed training.
+    04_lesson:
+      title: 5. Main Training Function
+      description: Learn how to implement the main Ray Train entry point that loads
+        and tokenizes the Yelp Reviews dataset, configures distributed BERT training
+        (including GPU workers and the NCCL backend), and launches the training run
+        across multiple workers. You'll be able to start scalable training by defining
+        the trainer configuration and invoking the training function.
+    05_lesson:
+      title: 6. Start Training
+      description: In this lesson, you’ll launch distributed BERT training by calling
+        `train_bert` and configuring the number of worker processes to match your
+        hardware. You’ll monitor training output (e.g., initialization warnings, loss,
+        and resource usage) to confirm the run is progressing correctly.

@@ -1,0 +1,52 @@
+03_online_serving:
+  title: Online Serving
+  description: Learn how to deploy a trained image classification model as a scalable
+    online API using Ray Serve and FastAPI, including configuring GPU resources and
+    replica scaling. You’ll also integrate MLflow to load the best model artifacts
+    and send real-time prediction requests via an HTTP `/predict` endpoint.
+  sources:
+  - 03-Online-Serving.ipynb
+  lessons:
+    00_lesson:
+      title: Online serving
+      description: Learn how to deploy a multimodal ML model for online inference
+        using Ray Serve and FastAPI, including setting up dependencies and integrating
+        a Torch-based predictor. You’ll build an endpoint that accepts image inputs
+        (e.g., via URL), runs preprocessing and CLIP/PyTorch inference, and returns
+        predictions.
+    01_lesson:
+      title: Deployments
+      description: Learn how to package a trained image model as a Ray Serve deployment
+        that returns class probability distributions from an image URL. You’ll configure
+        compute resources and horizontal scaling (GPUs, accelerator type, and replicas)
+        and see how to compose multiple deployments into a single application.
+    02_lesson:
+      title: Application
+      description: Learn how to build and run a FastAPI + Ray Serve application that
+        exposes a `/predict/` endpoint for dog-breed classification. You’ll load the
+        best model artifacts from an MLflow registry, deploy the service locally,
+        and send a test request to retrieve sorted prediction probabilities.
+    03_lesson:
+      title: Ray Serve
+      description: Learn how to use Ray Serve to build scalable online inference APIs
+        by packaging models and business logic into independent Serve deployments.
+        You’ll also see how RayTurbo Serve on Anyscale enhances Ray Serve with faster
+        autoscaling and model loading for quicker service startup.
+    04_lesson:
+      title: Observability
+      description: Learn how to use the Ray Dashboard’s Serve view to observe Ray
+        Serve applications, including monitoring service deployments and their replicas.
+        By the end, you’ll know where to find key runtime visibility and health information
+        for your Serve services.
+    05_lesson:
+      title: Production services
+      description: Learn how to deploy and operate a production-grade Ray Serve application
+        using Anyscale Services, including defining dependencies and compute, rolling
+        out updates, and ensuring scalable, fault-tolerant serving. You’ll also practice
+        deploying a service with the CLI and invoking it via an authenticated HTTP
+        request.
+    06_lesson:
+      title: CI/CD
+      description: Learn how to integrate Anyscale Jobs and Services into a larger
+        CI/CD workflow for production ML pipelines, including safely terminating a
+        running service via the CLI to support automated deployments and cleanups.

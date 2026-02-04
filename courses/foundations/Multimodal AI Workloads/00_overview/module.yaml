@@ -1,0 +1,14 @@
+00_overview:
+  title: Overview
+  description: Get an end-to-end overview of the multi-modal AI pipeline and how its
+    components fit together. You’ll learn what the project provides and how to run
+    and explore the implementation via Anyscale or the GitHub repository.
+  sources:
+  - README.ipynb
+  lessons:
+    00_lesson:
+      title: Multi-modal AI pipeline
+      description: Learn how to design and run a multi-modal AI pipeline that combines
+        multiple data types (e.g., text and images) into a single end-to-end workflow.
+        You’ll implement the pipeline and execute it on Anyscale, with reference code
+        available on GitHub.

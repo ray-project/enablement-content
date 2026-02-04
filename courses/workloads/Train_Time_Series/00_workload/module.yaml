@@ -1,0 +1,45 @@
+00_workload:
+  title: Workload
+  description: Learn how to build a time-series forecasting pipeline for NYC taxi
+    demand using a sequence-to-sequence Transformer, predicting the next 24 hours
+    from a week of history. You’ll also migrate the workflow from single-GPU PyTorch
+    to distributed multi-node training on an Anyscale cluster with Ray Train V2.
+  sources:
+  - 04c_time_series_workload_pattern.ipynb
+  lessons:
+    00_lesson:
+      title: 04c Time-Series workload pattern with Ray Train
+      description: Learn how to build a sequence-to-sequence Transformer to forecast
+        NYC taxi demand (next 24 hours from one week of history) and scale the training
+        from a single-GPU PyTorch workflow to a multi-node Anyscale cluster using
+        Ray Train V2. You’ll practice migrating the end-to-end time-series pipeline
+        for distributed training and faster experimentation.
+    01_lesson:
+      title: 1. Imports
+      description: This lesson sets up the tutorial by importing the core libraries
+        for data processing (PyData), model development and training (PyTorch), and
+        distributed execution (Ray Train). You’ll also learn which Ray Train utilities—`TorchTrainer`,
+        `prepare_model`, and `prepare_data_loader`—are used to run PyTorch training
+        across multiple workers.
+    02_lesson:
+      title: 9. PositionalEncoding and Transformer model
+      description: Learn how to implement sinusoidal positional encodings and integrate
+        them into a PyTorch encoder–decoder Transformer for sequence forecasting.
+        By the end, you’ll have a working Transformer model that consumes past observations
+        (and optional decoder inputs) to produce predictions.
+    03_lesson:
+      title: 10. Ray Train training loop (with teacher forcing)
+      description: Learn how to implement `train_loop_per_worker` in Ray Train, where
+        each worker runs an independent PyTorch training loop while Ray handles orchestration,
+        checkpointing, and fault recovery. You’ll also add teacher forcing by feeding
+        shifted ground-truth tokens into the decoder to stabilize and speed up sequence-to-sequence
+        training.
+    04_lesson:
+      title: 13. Resume training from checkpoint
+      description: Learn how Ray automatically resumes training from the latest available
+        checkpoint to provide seamless fault tolerance after interruptions or node
+        failures. You’ll run `trainer.fit()` to continue training without manual checkpoint
+        management and inspect the resulting metrics after the resume.
+    05_lesson:
+      title: 14. Inference helper — Ray Data batch predictor on GPU
+      description: ''

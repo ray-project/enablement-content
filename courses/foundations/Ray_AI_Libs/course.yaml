@@ -1,0 +1,8 @@
+title: Introduction to Ray and Environment Setup
+description: Learn what Ray is and how it enables scaling Python applications with
+  distributed computing. Set up a reproducible local Ray + Jupyter environment and
+  validate your installation by running a simple Ray task.
+author: ''
+mediaStorage: ''
+category: foundation
+thumbnail: thumbnail.png

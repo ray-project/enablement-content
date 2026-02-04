@@ -1,0 +1,17 @@
+07_collaboration:
+  title: Collaboration
+  description: Learn how to collaborate in Anyscale by organizing work into shareable
+    projects with granular access controls. You’ll also practice cloning jobs, services,
+    and workspaces to quickly duplicate identical environments for your team.
+  sources:
+  - 101_08_anyscale_collaboration.ipynb
+  lessons:
+    00_lesson:
+      title: 101 -- Collaboration on Anyscale
+      description: ''
+    01_lesson:
+      title: Lesson 1
+      description: Learn how to collaborate effectively in Anyscale by organizing
+        work into shareable projects with granular access controls. You’ll also practice
+        cloning jobs, services, and workspaces to quickly duplicate environments for
+        teammates.

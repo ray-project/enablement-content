@@ -1,0 +1,51 @@
+01_Structured:
+  title: Structured
+  description: In **Structured**, you’ll learn how to use Ray Data to load large structured
+    datasets (e.g., NYC taxi Parquet files) in a distributed, lazy-executed way and
+    inspect their schema and blocks. You’ll also practice applying scalable batch
+    transformations with `map_batches` to engineer new features in parallel.
+  sources:
+  - 04b_Intro_Ray_Data_Structured.ipynb
+  lessons:
+    00_lesson:
+      title: 'Introduction to Ray Data: Ray Data + Structured Data'
+      description: Learn what Ray Data is and how it enables scalable, distributed
+        processing of structured datasets. You’ll practice loading and transforming
+        data with Ray Data locally or on a Ray cluster.
+    01_lesson:
+      title: 0. What is Ray Data?
+      description: Learn what Ray Data is and how it fits into the Ray ecosystem as
+        a Python API for distributed, parallel data processing. You’ll understand
+        its core goals—ease of use, scalability, and fault tolerance—for building
+        data pipelines.
+    02_lesson:
+      title: 2. Loading Data
+      description: Learn how to load the NYC Taxi Trip Record dataset efficiently
+        using Ray Data by reading Parquet files from S3 with selected columns. You’ll
+        compare a single-machine pandas load to Ray Data’s distributed, lazily executed
+        `read_parquet` approach to scale across many files without exhausting memory.
+    03_lesson:
+      title: 3. Transforming Data
+      description: Learn how to create new features with pandas functions and apply
+        them efficiently to Ray Datasets using `map_batches`, including controlling
+        batch size and format. You’ll also understand Ray Data’s lazy execution model
+        and how to materialize or inspect transformed results with methods like `take_batch()`.
+    04_lesson:
+      title: 4. Writing Data
+      description: Learn how to persist your adjusted dataset to disk using both pandas
+        (`to_parquet`) and Ray Data (`write_parquet`), including how to verify the
+        output files. You’ll also understand why Ray writes multiple Parquet files
+        (distributed tasks) and how to choose a shared storage path to avoid multi-node
+        file access errors.
+    05_lesson:
+      title: '5. Data Operations: Shuffling, Grouping and Aggregation'
+      description: Learn how to shuffle datasets in Ray Data using file-based shuffling,
+        block-order randomization, and full global row shuffling. You’ll understand
+        the trade-offs between randomness, performance, and network/compute cost to
+        choose the right approach for your pipeline.
+    06_lesson:
+      title: 6. When to use Ray Data
+      description: Learn when Ray Data is the right choice for your pipeline—especially
+        for streaming processing, very large datasets, and heterogeneous CPU/GPU clusters.
+        The lesson also highlights real-world production use cases (e.g., batch inference
+        at scale) and previews upcoming Ray Data performance and feature improvements.

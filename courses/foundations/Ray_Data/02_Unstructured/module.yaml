@@ -1,0 +1,75 @@
+02_Unstructured:
+  title: Unstructured
+  description: This module introduces Ray Data for working with unstructured datasets
+    at scale, explaining when to use it and how its distributed execution model (blocks
+    and lazy transformations) works. You’ll practice building an end-to-end pipeline
+    to read image data (e.g., MNIST from S3), apply transformations, and materialize/consume
+    results in a parallel, distributed way.
+  sources:
+  - 04c_Intro_Ray_Data_Unstructured.ipynb
+  lessons:
+    00_lesson:
+      title: 'Intro to Ray Data:  Ray Data + Unstructured Data'
+      description: Learn when and why to use Ray Data, and how to read, transform,
+        and write unstructured data at scale using distributed Ray Datasets. By the
+        end, you’ll be able to run common data processing workflows locally or on
+        a Ray cluster.
+    01_lesson:
+      title: 1. When to Consider Ray Data
+      description: Learn when Ray Data is the right fit for your workflow, especially
+        for loading and processing massive datasets or running large-scale batch inference.
+        You’ll see how Ray Data enables scalable, streaming pipelines across heterogeneous
+        CPU/GPU clusters.
+    02_lesson:
+      title: 2. How to work with Ray Data
+      description: 'Learn the three-step Ray Data workflow: create a distributed `Dataset`
+        from sources like S3/files, apply parallel transformations, and then consume
+        results by writing to a sink or iterating for downstream processing. You’ll
+        also understand how Ray Data reads data via Ray tasks and organizes it into
+        distributed “blocks” for scalable execution.'
+    03_lesson:
+      title: 3. Loading data
+      description: Learn how Ray Data uses lazy execution to build an execution plan
+        without immediately running transformations. You’ll also identify which dataset
+        methods trigger execution by materializing or consuming the data (for example,
+        `take_batch`).
+    04_lesson:
+      title: 3. Lazy execution mode
+      description: Learn how to transform Ray Data datasets lazily using `map_batches`,
+        including how to tune batch size and control resource usage and concurrency
+        for efficient execution. You’ll also validate results with `take_batch()`
+        and add derived columns such as labels extracted from file paths.
+    05_lesson:
+      title: 4. Transforming data
+      description: Learn how to perform stateful, reusable batch transformations in
+        Ray Data using Ray Actors with `map_batches`, including initializing models
+        once for batch inference. You’ll also configure hardware/resource requirements
+        (e.g., GPUs and accelerator types) and understand how autoscaling behaves
+        for actor-based transformations.
+    06_lesson:
+      title: 5. Stateful transformations with Ray Actors
+      description: Learn how to materialize a Ray Dataset into the distributed object
+        store using `materialize()` to force execution and cache results for reuse.
+        You’ll understand when to use materialization, what it triggers, and how to
+        interpret the resulting execution plan logs.
+    07_lesson:
+      title: 6. Materializing data
+      description: Learn how Ray Data operations like `groupby`/`map_groups`, dataset-wide
+        aggregations, and shuffling can require materializing data in the object store,
+        and how to use these transformations to compute metrics (e.g., accuracy by
+        label and overall means) efficiently. You’ll also learn how to identify materializing
+        “all-to-all” operations and choose appropriate shuffling strategies.
+    08_lesson:
+      title: '7. Data Operations: grouping, aggregation, and shuffling'
+      description: Learn how to persist Ray Data datasets to storage using supported
+        write functions. You’ll export model predictions to a Parquet dataset and
+        understand where to find other input/output options in the Ray Data API.
+    09_lesson:
+      title: 8. Persisting data
+      description: Learn how to persist Ray Data outputs and model artifacts to durable
+        storage, including practical cleanup patterns for production workflows. See
+        real-world examples of Ray Data in production (e.g., Netflix and Pinterest)
+        to understand how these persistence practices fit into inference pipelines.
+    10_lesson:
+      title: 9. Ray Data in production
+      description: ''

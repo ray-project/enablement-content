@@ -1,0 +1,46 @@
+02_advanced_llm_features:
+  title: Advanced Llm Features
+  description: In this module, you’ll explore advanced, production-ready Ray Serve
+    LLM capabilities beyond basic deployment through hands-on examples. You’ll learn
+    how to extend a base model with LoRA adapters to serve multiple specialized behaviors
+    from a single scalable LLM service.
+  sources:
+  - notebook.ipynb
+  lessons:
+    00_lesson:
+      title: Advanced LLM Features with Ray Serve LLM
+      description: Learn how to use Ray Serve LLM’s advanced production features beyond
+        basic deployment through hands-on examples, including serving multiple specialized
+        behaviors by dynamically loading LoRA adapters on a shared base model. You’ll
+        practice configuring and running these workflows on GPU-backed local or cloud
+        Ray clusters.
+    01_lesson:
+      title: 'Overview: Advanced Features Preview'
+      description: Learn how to preview and use Ray Serve LLM’s advanced structured-output
+        capabilities to reliably generate schema-compliant JSON. You’ll deploy a model
+        in “JSON mode,” validate responses with a Pydantic schema, and produce type-safe,
+        consistent outputs ready for direct application integration.
+    02_lesson:
+      title: 'Example: Deploying LoRA Adapters'
+      description: Learn how to deploy an LLM with tool-calling enabled using Ray
+        Serve’s OpenAI-compatible API, including configuring the model and autoscaling
+        settings. You’ll then write a simple client that defines external “tools”
+        (dummy APIs) and verifies the model can choose when to call them and use the
+        returned results.
+    03_lesson:
+      title: 'Example: Getting Structured JSON Output'
+      description: Learn a practical framework for choosing the right LLM for your
+        use case, based on Anyscale’s model selection guidance. You’ll evaluate key
+        trade-offs (like quality, latency, and cost) to make an informed model choice.
+    04_lesson:
+      title: 'Example: Setting up Tool Calling'
+      description: Learn how to configure and deploy an LLM service with tool calling
+        enabled, so the model can invoke external functions during inference. You’ll
+        walk away knowing how to wire up tools and validate that requests trigger
+        the right tool executions in your Ray Serve LLM app.
+    05_lesson:
+      title: How to Choose an LLM?
+      description: ''
+    06_lesson:
+      title: 'Conclusion: Next Steps'
+      description: ''

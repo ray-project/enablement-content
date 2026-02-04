@@ -1,0 +1,10 @@
+title: Ray Core Distributed Tasks Fundamentals
+description: Learn the fundamentals of Ray Core by converting Python functions into
+  distributed tasks with `@ray.remote`, running them in parallel with `.remote()`,
+  and collecting results with `ray.get`. You’ll build and execute your own remote
+  task and learn how to avoid the common anti-pattern of calling `ray.get` in a loop
+  to maintain parallel performance.
+author: ''
+mediaStorage: ''
+category: foundation
+thumbnail: thumbnail.png

@@ -1,0 +1,68 @@
+02_distributed_training:
+  title: Distributed Training
+  description: Learn how to scale image model training across multiple workers using
+    Ray Train, including setting up the runtime, ingesting and preprocessing datasets
+    with Ray Data, and converting classes to numeric labels. By the end, you’ll have
+    a distributed-ready training pipeline with reusable preprocessing (including optional
+    embedding computation) for efficient large-scale training.
+  sources:
+  - 02-Distributed-Training.ipynb
+  lessons:
+    00_lesson:
+      title: Distributed training
+      description: Learn how to set up a Ray environment for distributed model training,
+        including installing dependencies and enabling Ray Train v2. By the end, you’ll
+        be able to initialize and configure a Ray cluster runtime to run training
+        workloads across multiple workers.
+    01_lesson:
+      title: Preprocess
+      description: In this lesson, you’ll ingest the image train/validation splits,
+        extract class names from file paths, and convert them into unique integer
+        labels for classification. You’ll also build and apply a reusable `Preprocessor`
+        that generates image embeddings and writes the processed datasets to shared
+        storage to avoid repeated preprocessing during training.
+    02_lesson:
+      title: Model
+      description: Learn how to define and instantiate a simple two-layer PyTorch
+        classification model with dropout and a Softmax output to produce class probabilities.
+        You’ll configure key hyperparameters (embedding size, hidden size, dropout,
+        and number of classes) and create the model based on your dataset’s class
+        count.
+    03_lesson:
+      title: Batching
+      description: Learn how to inspect a sample batch from a dataset and implement
+        a `collate_fn` that converts batch fields into tensors with the correct dtypes
+        (and device placement) for Torch training. You'll ensure features like embeddings
+        and labels are properly typed and ready for model input.
+    04_lesson:
+      title: Model registry
+      description: Learn how to create a model registry in Anyscale user storage to
+        persist and manage model checkpoints. You’ll set up an OSS MLflow-backed registry
+        directory (with a clean initialization step) that can be used with Ray training
+        workflows.
+    05_lesson:
+      title: Training
+      description: Learn how to configure and run a scalable Ray Train workload by
+        setting experiment/model hyperparameters, compute scaling settings, and implementing
+        the per-batch forward pass and per-epoch training/validation loops. You’ll
+        also add checkpointing and experiment tracking to reliably train and evaluate
+        your model across workers.
+    06_lesson:
+      title: Ray Train
+      description: Learn how to use Ray Train to launch distributed training across
+        multi-node, multi-GPU clusters without manual SSH or hostfile setup, including
+        fractional per-worker CPU/GPU resource allocation and heterogeneous scaling.
+        You’ll also see how to enable elastic training and track metrics and artifacts
+        with an OSS MLflow model registry.
+    07_lesson:
+      title: Production Job
+      description: Learn how to package your training workload into a production-grade
+        Anyscale Job, including defining dependencies via a Containerfile or using
+        a pre-built image. You’ll also submit a production model training job using
+        a provided YAML configuration and the Anyscale CLI/API.
+    08_lesson:
+      title: Evaluation
+      description: Learn how to evaluate a trained model on a test dataset by running
+        high-throughput batch inference with Ray Data and comparing predictions to
+        true labels. You’ll compute and aggregate confusion-matrix-based metrics (TN/FP/FN/TP)
+        across batches to quantify model performance.

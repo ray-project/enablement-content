@@ -1,0 +1,46 @@
+00_workload:
+  title: Workload
+  description: '**Workload** shows you how to build and run an end-to-end mini diffusion
+    (image denoising) pipeline on the Food-101-Lite dataset using Ray Train V2 on
+    an Anyscale cluster. You’ll learn to use Ray Data to decode, preprocess, and encode
+    images in parallel, then scale training of a generative computer-vision model
+    across a distributed setup.'
+  sources:
+  - 04d1_generative_cv_pattern.ipynb
+  lessons:
+    00_lesson:
+      title: 04-d1 Generative computer-vision pattern with Ray Train
+      description: Build and run an end-to-end mini diffusion image-generation pipeline
+        on the Food-101-Lite dataset using Ray Train V2 on an Anyscale cluster. You’ll
+        learn how to use Ray Data for decoding and preprocessing, then scale training
+        from a local setup to distributed execution for denoising diffusion models.
+    01_lesson:
+      title: 1. Imports and setup
+      description: In this lesson, you’ll set up the runtime for distributed training
+        by installing pinned dependencies and importing the core libraries used throughout
+        the tutorial (Python utilities, Ray Core/Data/Train/Lightning, and PyTorch
+        Lightning). You’ll also enable the required Ray Train configuration so your
+        code is ready to run on an Anyscale-backed Ray cluster.
+    02_lesson:
+      title: 8. Pixel diffusion LightningModule
+      description: Build a minimal PyTorch Lightning `PixelDiffusion` module that
+        takes a noisy image plus a timestep channel and predicts the noise \( \epsilon
+        \) for denoising diffusion training. You’ll also learn how to log and persist
+        per-epoch train/validation losses so distributed workers can later aggregate
+        and plot global learning curves.
+    03_lesson:
+      title: 9. Ray Train `train_loop` (Lightning + Ray integration)
+      description: Learn how to implement a Ray Train V2 `train_loop` that runs once
+        per worker using PyTorch Lightning, with `RayDDPStrategy` handling distributed
+        setup. You’ll also wire in Ray-native checkpointing and metric reporting via
+        `RayTrainReportCallback` so training progress is tracked and recoverable across
+        workers.
+    04_lesson:
+      title: 12. Resume from latest checkpoint
+      description: Learn how to rerun `trainer.fit()` to automatically detect the
+        previous run snapshot, load the latest checkpoint, and resume training. You’ll
+        verify the resume path works by seeing the run exit immediately when the configured
+        epochs are already complete.
+    05_lesson:
+      title: 13. Reverse diffusion sampler
+      description: ''

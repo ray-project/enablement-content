@@ -1,0 +1,45 @@
+00_Landscape:
+  title: Landscape
+  description: This module maps the distributed data and compute industry landscape,
+    covering the data, compute, and orchestration layers and the tools commonly used
+    in each. You’ll learn how these layers fit together and how to categorize major
+    distributed computing frameworks and commercial platforms by their primary use
+    cases.
+  sources:
+  - 04a_Intro_Ray_Data_Industry_Landscape.ipynb
+  lessons:
+    00_lesson:
+      title: 'Introduction to Ray Data: Industry Landscape'
+      description: Learn how the modern distributed data ecosystem is organized across
+        the data, compute, and orchestration layers, including common tools and commercial
+        platforms. You’ll also understand how data storage patterns have evolved and
+        how these layers work together to execute distributed workloads.
+    01_lesson:
+      title: The Compute Layer
+      description: Learn how the compute layer is organized by function and how different
+        types of compute support key workflows. You’ll be able to distinguish compute
+        used for tasks like data engineering (transforming datasets) and understand
+        where it fits in the overall system.
+    02_lesson:
+      title: The Orchestration Layer
+      description: Learn how the orchestration layer coordinates multi-stage compute
+        using workflow engines and orchestration platforms. You’ll get introduced
+        to common tools used to schedule, manage, and monitor these pipelines end
+        to end.
+    03_lesson:
+      title: Distributed Computing Frameworks
+      description: Learn how distributed computing frameworks scale data processing
+        by splitting workloads across clusters, and how they differ across batch,
+        stream, and general-purpose use cases. You’ll also examine common challenges
+        in JVM-based systems like Spark and Flink, including how their execution and
+        data flow can impact performance.
+    04_lesson:
+      title: Data Processing with Ray Data
+      description: Learn what Ray Data is and how it enables high-performance, distributed
+        data processing. You’ll see how it supports efficient “last-mile” transformations
+        that integrate smoothly with model training workflows.
+    05_lesson:
+      title: Ray Serve
+      description: Learn what Ray Serve is and how it enables scalable, distributed
+        ML inference services. You’ll also understand the end-to-end request lifecycle
+        and data flow through a Ray Serve deployment.

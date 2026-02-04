@@ -1,0 +1,44 @@
+00_intro_serve_llm:
+  title: Intro Serve Llm
+  description: Learn the foundations of production LLM serving with Ray Serve LLM,
+    including how real-time inference differs from training and the core challenges
+    of deploying models at scale. You’ll understand key performance concepts and optimizations—such
+    as KV caching, batching strategies, and model parallelization—to meet latency
+    and throughput SLOs.
+  sources:
+  - notebook.ipynb
+  lessons:
+    00_lesson:
+      title: 'Introduction to Ray Serve LLM: Foundations of Large Language Model Serving'
+      description: Learn the fundamentals of production LLM serving and the core performance
+        challenges (prefill vs. decode, latency/throughput tradeoffs, and SLOs). You’ll
+        see how Ray Serve LLM addresses these with key optimizations like KV caching,
+        continuous batching, and multi-GPU/model-parallel deployment patterns for
+        scalable inference.
+    01_lesson:
+      title: What is LLM Serving?
+      description: Learn what “LLM serving” means in production and how Ray Serve
+        LLM on Anyscale fits into a deployment architecture. You’ll understand the
+        key components and request flow involved in reliably scaling and operating
+        LLM inference.
+    02_lesson:
+      title: Key Concepts and Optimizations
+      description: Learn how to configure and deploy an LLM with Ray Serve LLM (locally
+        or on Anyscale), then query it through an OpenAI-compatible endpoint. You’ll
+        also practice operational basics like running the service non-blocking and
+        cleanly shutting down or terminating deployments.
+    03_lesson:
+      title: Challenges in LLM Serving
+      description: Learn how LLM serving works by breaking down the prefill and decode
+        phases, and identify the core challenges that impact latency and throughput.
+        You’ll also understand key serving optimizations—KV caching, paged attention,
+        and continuous batching—and when to apply them in Ray Serve LLM.
+    04_lesson:
+      title: Ray Serve LLM + Anyscale Architecture
+      description: ''
+    05_lesson:
+      title: Getting Started with Ray Serve LLM
+      description: ''
+    06_lesson:
+      title: Key Takeaways
+      description: ''

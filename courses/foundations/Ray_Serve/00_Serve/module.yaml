@@ -1,0 +1,40 @@
+00_Serve:
+  title: Serve
+  description: Learn when to use Ray Serve and how its application/deployment architecture
+    supports scalable ML serving. Build and deploy a PyTorch MNIST image-classification
+    service by converting a local model into an online Ray Serve deployment and running
+    inference via an endpoint.
+  sources:
+  - 05_Intro_Ray_Serve_PyTorch.ipynb
+  lessons:
+    00_lesson:
+      title: Introduction to Ray Serve with PyTorch
+      description: Learn when to use Ray Serve and how to deploy a PyTorch model as
+        a scalable, production-ready inference service. You’ll set up a Ray Serve
+        deployment, handle HTTP requests, and run/test the service locally or on a
+        Ray cluster.
+    01_lesson:
+      title: 1. When to Consider Ray Serve
+      description: Learn how to evaluate whether Ray Serve is the right fit for your
+        ML serving needs by mapping common production challenges—such as slow iteration
+        speed for ML engineers—to the specific capabilities Ray Serve provides. By
+        the end, you’ll be able to identify clear criteria for adopting Ray Serve
+        in your project.
+    02_lesson:
+      title: 2. Overview of Ray Serve
+      description: Learn what Ray Serve is and how it’s used to deploy and scale ML
+        applications. This lesson introduces the high-level architecture of a Ray
+        Serve application and the core components involved in serving requests.
+    03_lesson:
+      title: 3. Implement an image classification service
+      description: Build and deploy a simple MNIST image classification service with
+        Ray Serve by loading a TorchScript model and wrapping it in a `@serve.deployment`.
+        You’ll run the app and invoke it via both HTTP and gRPC to perform online
+        batch inference and return predicted digit labels.
+    04_lesson:
+      title: 4. Development workflow
+      description: 'Learn the recommended Ray Serve development workflow: define your
+        app in `main.py`, deploy it with `serve run`, and optionally manage deployment
+        settings via `config.yaml` (including scaffolding with `serve build` and updating
+        a running app). You’ll also see how to parameterize builds using an application
+        builder callable and how to use local testing mode for unit testing and debugging.'

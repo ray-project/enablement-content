@@ -1,0 +1,68 @@
+02_03c_Deploy_to_K8s_New_GCP_GKE:
+  title: 03C Deploy To K8S New Gcp Gke
+  description: Learn how to deploy Anyscale Ray on a brand-new Google Kubernetes Engine
+    (GKE) cluster using the `anyscale cloud register` workflow. You’ll configure GCP
+    authentication and required APIs, provision the GKE infrastructure with Terraform,
+    and capture the registration output needed to connect the cluster to Anyscale.
+  sources:
+  - deploy_to_new_GKE.ipynb
+  lessons:
+    00_lesson:
+      title: 'Introduction: Deploy Anyscale Ray on A New Google Kubernetes Engine
+        (GKE) Cluster'
+      description: ''
+    01_lesson:
+      title: Prerequisites
+      description: Learn what you need to have in place before deploying Anyscale
+        Ray on a new GKE cluster, including creating a Google Cloud project and installing/configuring
+        the required tools (Google Cloud SDK/CLI and Terraform 1.9+). You’ll also
+        see an alternative Terraform setup option using `tfenv` if Homebrew installation
+        isn’t available.
+    02_lesson:
+      title: 1. Installation
+      description: Learn how to set up Google Cloud authentication and configuration
+        for your deployment by adding `gcloud` to your PATH, logging in with application
+        default credentials, and setting your project and region. You’ll also enable
+        and verify the required GCP APIs (e.g., GKE, Compute, Storage, IAM) needed
+        to proceed.
+    03_lesson:
+      title: 2. Create Anyscale Resources with Terraform
+      description: In this lesson, you’ll configure `terraform.tfvars` and use Terraform
+        to initialize, plan, and apply the deployment that provisions the required
+        GKE infrastructure for Anyscale. You’ll also capture the `terraform apply`
+        output needed to register your Anyscale cloud with your GCP environment.
+    04_lesson:
+      title: 3. Troubleshooting GPU Availability
+      description: Learn how to diagnose and resolve GPU availability errors in GCP
+        by checking accelerator availability per zone (e.g., T4 GPUs) and updating
+        your Terraform configuration to target zones where the required GPUs are available.
+    05_lesson:
+      title: 4. kubectl Configuration
+      description: Learn how to configure `kubectl` to authenticate with and connect
+        to a GKE cluster using the GKE auth plugin and `gcloud` credentials. You’ll
+        verify cluster access and then install and validate the NGINX Ingress Controller
+        via Helm to enable external traffic routing.
+    06_lesson:
+      title: 5. Install NGINX Ingress Controller
+      description: In this lesson, you’ll install/upgrade the Anyscale CLI and required
+        GCP dependencies, verify the installation, and log in to Anyscale. You’ll
+        then register your Anyscale Cloud using the outputs from `terraform apply`
+        and a provided `anyscale cloud register` command.
+    07_lesson:
+      title: 6. (Optional) Upgrade Anyscale Dependencies
+      description: Learn how to upgrade/install the Anyscale Operator and related
+        dependencies on your Kubernetes cluster using Helm. You’ll also validate the
+        setup by submitting a test job and then clean up by uninstalling Helm releases
+        and deleting Anyscale cloud resources.
+    08_lesson:
+      title: 7. Register the Anyscale Cloud
+      description: ''
+    09_lesson:
+      title: 8. Install the Anyscale Operator
+      description: ''
+    10_lesson:
+      title: 8. Test
+      description: ''
+    11_lesson:
+      title: 9. Cleanup
+      description: ''

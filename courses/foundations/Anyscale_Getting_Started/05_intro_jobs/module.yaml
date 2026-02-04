@@ -1,0 +1,15 @@
+05_intro_jobs:
+  title: Intro Jobs
+  description: Learn how to productionize batch and training workloads with Anyscale
+    Jobs by creating and submitting your first Ray job from a workspace using the
+    Anyscale CLI. You’ll also automate job submission and scheduling with the Anyscale
+    SDK/API while Anyscale manages cluster lifecycle and execution.
+  sources:
+  - 101_06_anyscale_intro_jobs.ipynb
+  lessons:
+    00_lesson:
+      title: 101 -- Introduction to Anyscale Jobs
+      description: Learn how to productionize and run scalable AI/ML batch or training
+        workloads using Anyscale Jobs by creating and submitting your first Ray job
+        from the Console and CLI. You’ll also see how to automate job submission with
+        the Anyscale SDK/API and track jobs while Anyscale manages the cluster lifecycle.

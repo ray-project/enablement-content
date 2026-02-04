@@ -1,0 +1,58 @@
+01_batch_inference:
+  title: Batch Inference
+  description: Learn how to use Ray Data to ingest a large image dataset from cloud
+    storage, enrich each record with labels, and run scalable batch inference by generating
+    CLIP embeddings with `map_batches`. You’ll see how to structure preprocessing
+    and model execution for efficient, streaming, distributed batch pipelines.
+  sources:
+  - 01-Batch-Inference.ipynb
+  lessons:
+    00_lesson:
+      title: Batch inference
+      description: Learn how to run batch inference by setting up the required environment
+        and dependencies, then executing model predictions over many inputs efficiently.
+        You’ll be able to install and configure the project (including optional uv
+        workflow) and prepare your notebook for large-scale inference runs.
+    01_lesson:
+      title: Data ingestion
+      description: Learn how to ingest an image dataset from a public S3 bucket using
+        Ray Data, triggering lazy execution to efficiently load samples. You’ll also
+        extract and attach class labels from file paths by mapping a transformation
+        over the dataset.
+    02_lesson:
+      title: Batch embeddings
+      description: Learn how to generate image embeddings at scale by applying a CLIP
+        model over dataset batches using Ray Data’s `map_batches`. You’ll configure
+        batch size, concurrency, and GPU usage, and use Ray’s object store references
+        to avoid reloading the model for each worker.
+    03_lesson:
+      title: Ray Data
+      description: Learn how Ray Data simplifies distributing and streaming data workloads
+        while maximizing efficiency through heterogeneous CPU/GPU scheduling and scaling
+        to massive datasets (including LLM pipelines). You’ll also see how RayTurbo
+        Data extends Ray Data with faster metadata fetching and optimized autoscaling
+        for quicker job startup and throughput.
+    04_lesson:
+      title: Data storage
+      description: Learn how to persist generated embeddings to shared artifact storage
+        on Anyscale by writing them as Parquet files and managing existing directories.
+        You’ll also understand when to use object storage versus a vector database
+        for longer-term, searchable embedding storage.
+    05_lesson:
+      title: Monitoring and Debugging
+      description: Learn how to monitor and debug Ray workloads using built-in logs
+        and the Ray observability dashboard to track resource usage and inspect task-level
+        execution. You’ll also see how Anyscale enhances Ray’s observability features
+        to make troubleshooting faster and easier.
+    06_lesson:
+      title: Production jobs
+      description: Learn how to package a production batch workload—like embedding
+        generation—into an Anyscale Job by specifying the run command, compute resources,
+        dependencies, and working directory. You’ll then submit and manage the job
+        using the Anyscale CLI and configuration YAML.
+    07_lesson:
+      title: Similar images
+      description: Learn how to embed a new image with a CLIP model and use cosine
+        similarity to retrieve the most similar images from a precomputed embeddings
+        dataset. You’ll implement the full workflow—from loading an image URL to ranking
+        and displaying the top matches.

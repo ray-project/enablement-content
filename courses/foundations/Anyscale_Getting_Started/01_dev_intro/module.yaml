@@ -1,0 +1,18 @@
+01_dev_intro:
+  title: Dev Intro
+  description: Learn how to develop and run Ray applications in an Anyscale Workspace
+    using the hosted VS Code editor and built-in JupyterLab. You’ll also see how to
+    integrate a local IDE workflow—coding locally and executing remotely on an Anyscale
+    cluster.
+  sources:
+  - 101_02_anyscale_development_intro.ipynb
+  lessons:
+    00_lesson:
+      title: 101 -- Developing Application with Anyscale
+      description: ''
+    01_lesson:
+      title: Lesson 1
+      description: Learn how to develop and run Ray applications on Anyscale using
+        the hosted VS Code editor and JupyterLab, including submitting jobs directly
+        to an Anyscale cluster. You’ll also see how to integrate a local IDE workflow
+        by writing code locally and executing it remotely in an Anyscale Workspace.

@@ -1,0 +1,18 @@
+00_Intro_to_Workspaces:
+  title: Intro To Workspaces
+  description: Learn what Anyscale Workspaces are and how they simplify building Ray
+    applications by managing compute, dependencies, storage, and IDE integration.
+    You’ll also launch and configure a workspace by selecting cloud resources, sizing
+    worker nodes, and enabling autoscaling.
+  sources:
+  - 101_01_anyscale_intro_workspace.ipynb
+  lessons:
+    00_lesson:
+      title: 101 — Introduction to Anyscale Workspaces
+      description: ''
+    01_lesson:
+      title: Lesson 1
+      description: Learn what Anyscale Workspaces are and how they streamline building
+        Ray applications by managing compute, dependencies, storage, and IDE integration.
+        You’ll also launch and configure a Workspace by selecting cloud resources,
+        setting up worker node groups, and enabling autoscaling.

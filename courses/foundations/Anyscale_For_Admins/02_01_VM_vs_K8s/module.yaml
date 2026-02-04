@@ -1,0 +1,28 @@
+02_01_VM_vs_K8s:
+  title: Vm Vs K8S
+  description: Learn how Anyscale deploys Ray on either Virtual Machines or Kubernetes,
+    including what the Anyscale Operator manages on K8s. Compare VM vs. K8s across
+    control, data, and execution layers to choose the right deployment model for your
+    infrastructure and automation needs.
+  sources:
+  - anyscale_vm_vs_k8s.ipynb
+  lessons:
+    00_lesson:
+      title: 'Deployment Options: Virtual Machines vs. Kubernetes'
+      description: Learn how to deploy and manage Ray workloads on your existing Kubernetes
+        infrastructure using the Anyscale Operator, a Kubernetes-native controller
+        that provisions and orchestrates Ray clusters. You’ll understand when Kubernetes
+        is a better fit than virtual machines and what the operator handles for you
+        in production.
+    01_lesson:
+      title: 2. Virtual Machines (VM) vs. Kubernetes (K8s)
+      description: Learn the key differences between VM-based and Kubernetes-based
+        Anyscale deployments across the control, data, and workload execution layers.
+        By the end, you’ll be able to choose the right option for your use case based
+        on automation needs, required cloud/K8s access, and operational responsibilities.
+    02_lesson:
+      title: 3. (Optional) More Kubernetes Deployments Components
+      description: Learn how Kubernetes Cluster Autoscaler and a load balancer controller
+        extend Ray deployments by automatically scaling cluster nodes and enabling
+        external access to Ray applications. You’ll also preview VM-based deployment
+        options on AWS EC2 and GCP GCE using the Ray autoscaler.

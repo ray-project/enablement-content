@@ -1,0 +1,41 @@
+00_Tune:
+  title: Tune
+  description: In this module, you’ll learn how to use Ray Tune to run distributed
+    hyperparameter tuning, starting from a baseline PyTorch MNIST training loop and
+    scaling experiments across available GPUs. By the end, you’ll be able to define
+    a Tune training function, specify a search space, and execute parallel trials
+    to find better-performing model configurations.
+  sources:
+  - 03_Intro_Ray_Tune.ipynb
+  lessons:
+    00_lesson:
+      title: Introduction to Ray Tune
+      description: Learn how to perform hyperparameter tuning with Ray Tune by building
+        a baseline PyTorch training workflow on MNIST and then scaling experiments
+        efficiently on a Ray cluster. By the end, you’ll be able to set up data loading,
+        define a model/training loop, and run distributed tuning runs to find better
+        configurations faster.
+    01_lesson:
+      title: 1. Loading the data
+      description: Learn how to download and load the MNIST handwritten digits dataset
+        in PyTorch by building a normalized, shuffled `DataLoader`. You’ll also visualize
+        a sample batch of images and labels to verify the data pipeline.
+    02_lesson:
+      title: 2. Starting out with vanilla PyTorch
+      description: Learn how to build and train a simple MNIST digit classifier in
+        “vanilla” PyTorch, including setting up the model, loss, data loading, and
+        accuracy evaluation. You’ll also run the training on GPU by submitting the
+        training loop as a Ray Core remote task.
+    03_lesson:
+      title: 3. Hyperparameter tuning with Ray Tune
+      description: Learn how to use Ray Tune to run distributed hyperparameter searches
+        by writing a Tune-compatible training function, configuring a `Tuner` with
+        a parameter space and optimization metric, and retrieving the best-performing
+        configuration. You’ll also understand core Ray Tune concepts like trials,
+        resource allocation, and search strategies to scale tuning beyond sequential
+        runs.
+    04_lesson:
+      title: 4. Ray Tune in Production
+      description: Learn how to retrieve the best hyperparameter tuning result and
+        its configuration from Ray Tune runs, then explore real-world production use
+        cases of Ray Tune at companies like Uber and Spotify.

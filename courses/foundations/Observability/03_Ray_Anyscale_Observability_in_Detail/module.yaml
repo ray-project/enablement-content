@@ -1,0 +1,26 @@
+03_Ray_Anyscale_Observability_in_Detail:
+  title: Ray Anyscale Observability In Detail
+  description: Learn how to monitor and debug Ray workloads using Ray and Anyscale
+    observability dashboards, with hands-on examples that show when to use each view.
+    You’ll explore Ray Data pipeline execution status, logs, and metrics (and Anyscale-specific
+    workload dashboards) to identify bottlenecks and operational issues.
+  sources:
+  - 03_Ray_Anyscale_Observability_in_Details.ipynb
+  lessons:
+    00_lesson:
+      title: Ray and Anyscale Observability in Detail
+      description: Learn how to use Ray and Anyscale observability dashboards to monitor
+        workloads and diagnose issues. You’ll see practical examples of when to use
+        each dashboard for effective debugging and performance troubleshooting.
+    01_lesson:
+      title: Data Pipeline Observability (Ray Data)
+      description: Learn how to monitor and debug Ray Data pipelines using Ray/Anyscale
+        observability tools, including the Jobs view, Ray Data Overview, logs, and
+        metrics dashboards. You’ll run a simple pipeline and interpret operator-level
+        states, block outputs, backpressure signals, and throughput/resource metrics.
+    02_lesson:
+      title: Web Application Observability (Ray Serve)
+      description: Learn how to deploy a Ray Serve web application, generate HTTP
+        traffic, and monitor its behavior using Ray Serve observability tools. You’ll
+        explore key metrics in Grafana (e.g., QPS and error rates), configure and
+        inspect logs, and understand options for end-to-end request tracing (Anyscale).

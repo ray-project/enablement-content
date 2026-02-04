@@ -1,0 +1,50 @@
+02_train_and_data:
+  title: Train And Data
+  description: Learn how to integrate **Ray Data** into a **Ray Train** workflow by
+    streaming batches from distributed Ray Datasets instead of a local PyTorch `DataLoader`.
+    You’ll prepare data in Parquet, load it as a Ray Dataset, apply distributed preprocessing/transforms,
+    and build a Ray Data–backed training loop that scales across a cluster.
+  sources:
+  - 02_integrating_ray_train_with_ray_data.ipynb
+  lessons:
+    00_lesson:
+      title: 🔄 02 · Integrating Ray Train with Ray Data
+      description: ''
+    01_lesson:
+      title: 01 · Define Training Loop with Ray Data
+      description: Learn how to integrate Ray Data into a Ray Train training loop
+        to stream batches from a distributed Ray Dataset instead of a local PyTorch
+        DataLoader. You’ll build a scalable input pipeline that supports distributed,
+        just-in-time preprocessing during training.
+    02_lesson:
+      title: 02 · Build DataLoader from Ray Data
+      description: Learn how to replace a standard PyTorch `DataLoader` with a Ray
+        Data–backed loader by implementing `build_data_loader_ray_train_ray_data()`
+        to stream batches into your training loop. By the end, you’ll have a working
+        training loop that consumes Ray Data iterators while keeping the model, loss,
+        and optimizer setup unchanged.
+    03_lesson:
+      title: 03 · Prepare Dataset for Ray Data
+      description: Learn how to replace PyTorch’s `DataLoader` with a Ray Data–backed
+        loader by retrieving each worker’s dataset shard via `ray.train.get_dataset_shard("train")`
+        and streaming batches with `.iter_torch_batches()`. You’ll build an efficient
+        per-worker batch iterator with configurable batch size and prefetching for
+        distributed training.
+    04_lesson:
+      title: 05 · Define Image Transformation
+      description: Learn how to prepare image data for Ray Data by converting the
+        MNIST dataset into a two-column pandas DataFrame (`image`, `label`) and saving
+        it as Parquet. Then load the Parquet file back into a distributed Ray Dataset
+        using `ray.data.read_parquet()` for scalable processing.
+    05_lesson:
+      title: 07 · Configure `TorchTrainer` with Ray Data
+      description: Learn how to preprocess raw image arrays for PyTorch by defining
+        a `transform_images` function (NumPy → PIL → TorchVision `ToTensor`/`Normalize`)
+        and applying it to a Ray Dataset with `map()`. You’ll enable distributed,
+        parallel data transformation across the cluster before feeding data into `TorchTrainer`.
+    06_lesson:
+      title: Lesson 6
+      description: In Lesson 6, you’ll apply an image preprocessing function across
+        a Ray Dataset in parallel using `map()`. You’ll then connect the transformed
+        dataset to a distributed PyTorch training loop by configuring `TorchTrainer`
+        with Ray Data and launching training with `trainer.fit()`.

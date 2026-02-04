@@ -1,0 +1,20 @@
+02_compute_runtime:
+  title: Compute Runtime
+  description: Learn how to build and register container images in Anyscale to standardize
+    dependencies and runtime settings, then create compute configs that define instance
+    types and autoscaling behavior for Ray clusters. You’ll apply these settings by
+    updating an Anyscale Workspace and validating the environment with a simple runtime
+    test.
+  sources:
+  - 101_03_anyscale_compute_runtime_intro.ipynb
+  lessons:
+    00_lesson:
+      title: 101 -- Compute Configs and Execution Environments in Anyscale
+      description: ''
+    01_lesson:
+      title: Lesson 1
+      description: Learn how to create and use Anyscale container images and compute
+        configs to standardize your Ray execution environment, manage dependencies,
+        and choose cluster hardware and scaling options. By the end, you’ll update
+        an Anyscale Workspace to run on your custom image and compute configuration
+        and verify it in a notebook.

@@ -1,0 +1,28 @@
+01_Intro_and_setup:
+  title: Intro And Setup
+  description: Learn the fundamentals of observability—metrics, logs, and traces—and
+    how they help you monitor and debug distributed systems. Then set up local Ray
+    observability by installing Ray, launching Prometheus and Grafana, starting a
+    two-node Ray cluster, and using the Ray Dashboard to verify and explore collected
+    metrics.
+  sources:
+  - 01_general_intro_and_setup.ipynb
+  lessons:
+    00_lesson:
+      title: Observability Introduction
+      description: Learn the fundamentals of observability and why it matters for
+        distributed systems. Set up Ray observability on your local machine to start
+        monitoring and troubleshooting Ray workloads.
+    01_lesson:
+      title: Observability Overview
+      description: Learn what observability is and how it helps you understand and
+        improve software behavior. You’ll identify the key telemetry types—especially
+        metrics such as system and cluster performance data—and what they reveal about
+        your applications.
+    02_lesson:
+      title: Setting Up Local Ray Observability
+      description: Learn how to set up local Ray observability by installing Ray,
+        launching Prometheus and Grafana, and starting a two-node Ray cluster (head
+        + worker) with metrics enabled. By the end, you’ll be able to use the Ray
+        Dashboard and Grafana to monitor and debug local Ray workloads for later course
+        examples.

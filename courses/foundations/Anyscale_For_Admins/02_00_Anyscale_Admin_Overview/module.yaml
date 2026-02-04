@@ -1,0 +1,48 @@
+02_00_Anyscale_Admin_Overview:
+  title: Anyscale Admin Overview
+  description: Learn how to set up and manage an Anyscale Cloud in your own infrastructure,
+    including deployment options (VMs vs. Kubernetes, managed vs. custom) and the
+    resources required to run Ray clusters. You’ll also walk through an AWS EC2 example
+    that explains key components like IAM roles and other foundational cloud resources,
+    typically provisioned via the Anyscale CLI or Terraform.
+  sources:
+  - anyscale_administrator_overview.ipynb
+  lessons:
+    00_lesson:
+      title: Anyscale Administrator Overview
+      description: Learn how to set up and administer Anyscale in your infrastructure,
+        including an overview of Anyscale Clouds, deployment types, and required resources.
+        You’ll also walk through an example EC2 deployment using the Anyscale CLI
+        to understand how an Anyscale Cloud is configured.
+    01_lesson:
+      title: 1. What is an Anyscale Cloud?
+      description: Learn what an Anyscale Cloud is and how it abstracts and manages
+        the infrastructure needed to run Ray clusters. You’ll understand its role
+        as an isolated deployment layer between your Anyscale organization and the
+        Ray projects you create.
+    02_lesson:
+      title: 2. Cloud Deployment Types
+      description: Learn how to deploy Anyscale Clouds across different infrastructure
+        options—virtual machines or Kubernetes—and choose the right deployment model
+        (managed vs. custom) for your environment. You'll understand the supported
+        platforms for each infrastructure type and how these choices impact setup
+        and operations.
+    03_lesson:
+      title: 3. A Demonstrative Example of Resource Creation with AWS EC2
+      description: Learn how to deploy Anyscale on AWS EC2 by creating the required
+        cloud resources, guided by the “Architecture of an Anyscale Cloud runs on
+        AWS EC2” diagram. You’ll see how modular Terraform components (e.g., the required
+        `aws-anyscale-iam` module) provision IAM roles and policies for secure cross-account
+        access.
+    04_lesson:
+      title: 3.1 IAM Role Definition
+      description: Learn how to deploy an Anyscale cloud by defining and creating
+        the two required AWS IAM roles, including the Anyscale control plane role.
+        You’ll understand who assumes each role and what permissions and trust relationships
+        are needed for Anyscale to manage your resources securely.
+    05_lesson:
+      title: 4. Register Anyscale Cloud to Your Cloud Provider
+      description: Learn how to register your AWS infrastructure (VPC, subnets, S3
+        bucket, and IAM roles) as an Anyscale Cloud deployment using the `anyscale
+        cloud register` CLI command. By the end, you’ll have a unified Anyscale Cloud
+        configured to run on your AWS account.

@@ -1,0 +1,40 @@
+00_Basics:
+  title: Basics
+  description: Learn the fundamentals of Ray Core by turning Python functions into
+    distributed tasks with `@ray.remote`, executing them in parallel with `.remote()`,
+    and retrieving results using `ray.get`. You’ll practice by writing and running
+    your own remote task and learn a key anti-pattern to avoid (`ray.get` in a loop)
+    to preserve parallelism.
+  sources:
+  - 00_Intro_Ray_Core_Basics.ipynb
+  lessons:
+    00_lesson:
+      title: 'Introduction to Ray Core: Getting Started'
+      description: This lesson gives a step-by-step tour of Ray Core fundamentals,
+        showing you how to create and run remote functions for distributed execution.
+        You’ll learn how to execute tasks and retrieve results, whether running locally
+        or on a Ray cluster in the cloud.
+    01_lesson:
+      title: 0. Overview
+      description: This lesson introduces Ray Core and explains how it enables you
+        to scale Python applications with distributed computing. You’ll learn what
+        Ray is, where it fits in the Python ecosystem, and what problems it helps
+        solve.
+    02_lesson:
+      title: 1. Creating Remote Functions
+      description: Learn how to convert a standard Python function into a Ray remote
+        function using the `@ray.remote` decorator, enabling it to run as a distributed
+        task on any process in your cluster. You’ll understand how remote, stateless
+        task invocations work in Ray.
+    03_lesson:
+      title: 2. Executing Remote Functions
+      description: Learn how to execute Ray remote functions as distributed tasks
+        using the `.remote()` suffix instead of a normal Python call. You’ll see how
+        Ray schedules the work on the cluster and immediately returns an `ObjectRef`
+        representing the future result.
+    04_lesson:
+      title: 4. Putting It All Together
+      description: 'Learn how to complete the full Ray task workflow: define a `@ray.remote`
+        function, execute it asynchronously, and retrieve results with `ray.get`.
+        You’ll practice by building and running a `sqrt_add` task and learn why calling
+        `ray.get` inside a loop can reduce parallelism.'

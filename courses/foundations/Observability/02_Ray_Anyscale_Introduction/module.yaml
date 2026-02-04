@@ -1,0 +1,34 @@
+02_Ray_Anyscale_Introduction:
+  title: Ray Anyscale Introduction
+  description: Learn the core observability concepts in Ray—logs, metrics, and events—and
+    how to use the Ray Dashboard to monitor application and cluster behavior. Then
+    compare Ray’s native tooling with Anyscale’s managed, contextualized observability
+    (persistent metrics, workload context, and post-failure visibility) through an
+    example job that triggers memory pressure and OOM failures.
+  sources:
+  - 2_Ray_Anyscale_Observability_Overview.ipynb
+  lessons:
+    00_lesson:
+      title: Ray and Anyscale Observability Introduction
+      description: Learn the core observability features available in Ray and Anyscale
+        and how to use them to monitor and debug distributed workloads. Walk through
+        a practical example that compares the two approaches to help you choose the
+        right tooling for your deployment.
+    01_lesson:
+      title: Ray Observability
+      description: Learn how to monitor and understand Ray applications and clusters
+        using observability signals. You’ll focus on interpreting Ray logs from both
+        driver and worker processes to diagnose behavior and issues.
+    02_lesson:
+      title: Anyscale Observability
+      description: Learn how Anyscale enhances Ray’s native dashboard with managed
+        observability components, including persistent system-level metrics and additional
+        context for monitoring workloads. You’ll understand what each Anyscale observability
+        feature provides and how it helps diagnose and optimize production deployments.
+    03_lesson:
+      title: Example
+      description: Learn what “contextualized observability” means in Anyscale and
+        how it helps you quickly diagnose a Ray job that gradually exhausts worker
+        memory and triggers OOM failures. You’ll see how Anyscale turns raw metrics
+        and logs into actionable insights that remain available even if the Ray head
+        node fails.

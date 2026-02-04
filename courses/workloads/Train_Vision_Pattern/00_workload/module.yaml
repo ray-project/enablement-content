@@ -1,0 +1,65 @@
+00_workload:
+  title: Workload
+  description: In this Workload module, you’ll build an end-to-end computer-vision
+    pipeline that loads and preprocesses a Food-101-Lite dataset slice, then trains
+    a ResNet-18 image classifier. You’ll learn how to migrate the workflow from a
+    single-node PyTorch setup to a fully distributed training job on an Anyscale cluster
+    using Ray Train.
+  sources:
+  - 04a_vision_pattern.ipynb
+  lessons:
+    00_lesson:
+      title: 04a Computer-vision pattern with Ray Train
+      description: Learn how to build an end-to-end computer-vision training pipeline
+        on an Anyscale cluster using Ray Train, from downloading and preprocessing
+        a Food-101-Lite dataset slice to storing data for training. You’ll migrate
+        a local PyTorch ResNet-18 image classifier into a fully distributed workflow
+        that scales across a Ray cluster.
+    01_lesson:
+      title: 1. Imports
+      description: In this lesson, you’ll set up the notebook environment by installing
+        required packages and importing the core Python, PyTorch/TorchVision, Ray
+        Train, and Hugging Face Datasets utilities used throughout the workflow. By
+        the end, you’ll have all dependencies loaded and ready for data preprocessing,
+        visualization, and distributed training.
+    02_lesson:
+      title: 6. Custom `Food101Dataset` for Parquet
+      description: Learn how to implement a custom PyTorch `Food101Dataset` that reads
+        samples efficiently from Parquet by caching metadata, mapping global indices
+        to row groups, and returning ready-to-transform `(image, label)` pairs. You’ll
+        also set up an ImageNet-normalized transform pipeline, create reproducible
+        train/val Parquet splits, and sanity-check batching with a `DataLoader`.
+    03_lesson:
+      title: '10. Helper: Ray-prepared DataLoaders'
+      description: Learn how to wrap a PyTorch `DataLoader` with Ray’s `prepare_data_loader`
+        to automatically enable distributed sampling, correct GPU pinning, and worker-rank
+        bookkeeping. By the end, you’ll build a Ray-prepared DataLoader without manually
+        creating a `DistributedSampler` or handling device placement.
+    04_lesson:
+      title: 11. `train_loop_per_worker`
+      description: Learn how to implement Ray Train’s `train_loop_per_worker`, where
+        each distributed worker initializes its own model/optimizer/dataloaders, restores
+        from the latest Ray-managed checkpoint when available, and reports metrics/checkpoints
+        during training. You’ll be able to define robust per-worker training logic
+        that scales across ranks.
+    05_lesson:
+      title: 12. Launch distributed training with `TorchTrainer`
+      description: Learn how to configure and launch fault-tolerant distributed training
+        with Ray Train’s `TorchTrainer` by requesting 8 GPU workers, enabling automatic
+        retries, and retaining the best checkpoints by validation loss. You’ll start
+        the full training job with a single `trainer.fit()` call.
+    06_lesson:
+      title: 13. Plot training and validation loss curves
+      description: Learn how to retrieve the full per-epoch training history from
+        Ray Train via `result.metrics_dataframe` and use it to plot training and validation
+        loss curves. You’ll filter the relevant metric columns (e.g., `epoch`, `train_loss`,
+        `val_loss`) without exporting or manually managing CSV files.
+    07_lesson:
+      title: 14. Demonstrate fault-tolerant resumption
+      description: 'Re-run `trainer.fit()` to verify Ray’s fault-tolerant checkpointing:
+        if the previous run crashed mid-epoch, training automatically resumes from
+        the latest checkpoint; if it already completed, a fresh run starts. You’ll
+        confirm resumption behavior by inspecting the final returned metrics.'
+    08_lesson:
+      title: 15. Batch inference with Ray Data
+      description: ''

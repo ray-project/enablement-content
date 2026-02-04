@@ -1,0 +1,10 @@
+title: Scalable Diffusion-Policy Training with Ray
+description: Learn to build and run an end-to-end diffusion-policy training workload
+  for the `Pendulum-v1` control task using a real offline dataset, from data generation
+  and preprocessing with Ray Data to distributed training on an Anyscale cluster with
+  Ray Train V2. You’ll migrate a local PyTorch + Gymnasium workflow into a scalable,
+  fault-tolerant Ray pipeline with minimal code changes.
+author: ''
+mediaStorage: ''
+category: foundation
+thumbnail: thumbnail.png

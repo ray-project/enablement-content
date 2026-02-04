@@ -1,0 +1,9 @@
+title: Distributed Computer Vision Training with Ray Train
+description: Build an end-to-end computer vision pipeline that loads and preprocesses
+  the Food-101-Lite dataset and trains a ResNet-18 image classifier in PyTorch. Then
+  migrate the workflow from single-node training to a fully distributed job on an
+  Anyscale cluster using Ray Train.
+author: ''
+mediaStorage: ''
+category: foundation
+thumbnail: thumbnail.png

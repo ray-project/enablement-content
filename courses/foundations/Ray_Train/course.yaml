@@ -1,0 +1,9 @@
+title: Distributed PyTorch Training with Ray Train V2
+description: Learn to use Ray Train V2 to run distributed PyTorch data-parallel (DDP)
+  training on an Anyscale cluster by training a ResNet-18 model on MNIST across multiple
+  GPUs. You’ll also learn when to use Ray Train and how to set up scalable training
+  workflows with data loading, visualization, checkpointing, and metric reporting.
+author: ''
+mediaStorage: ''
+category: foundation
+thumbnail: thumbnail.png

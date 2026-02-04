@@ -1,0 +1,43 @@
+02_02a_Deploy_to_VM_AWS_EC2:
+  title: 02A Deploy To Vm Aws Ec2
+  description: Learn how to deploy Anyscale Ray on AWS EC2 using the `anyscale cloud
+    register` workflow by setting up prerequisites, provisioning required AWS/Anyscale
+    resources with Terraform, and registering the resulting cloud in Anyscale. By
+    the end, you’ll have an EC2-backed Anyscale cloud ready for Ray installation and
+    cluster use.
+  sources:
+  - deploy_to_ec2.ipynb
+  lessons:
+    00_lesson:
+      title: 'Introduction: Deploy Anyscale Ray on AWS EC2 Instances'
+      description: Learn how to deploy Anyscale Ray on AWS EC2 using the custom `anyscale
+        cloud register` workflow, from setting up prerequisites (AWS CLI, credentials,
+        Terraform) to completing the Ray installation and initial configuration.
+    01_lesson:
+      title: 1. Create Anyscale Resources with Terraform
+      description: In this lesson, you’ll configure Terraform variables (via `variables.tf`
+        and optional `terraform.tfvars`) and run `terraform init/plan/apply` to provision
+        the required Anyscale resources in AWS. You’ll also learn to capture the `terraform
+        apply` outputs needed to register your Anyscale cloud and troubleshoot common
+        AWS service limit issues.
+    02_lesson:
+      title: 2. Register the Anyscale Cloud
+      description: In this lesson, you’ll log into Anyscale and use your `terraform
+        apply` outputs to register a new Anyscale Cloud via the `anyscale cloud register`
+        command. By the end, you’ll have a successfully created cloud with your chosen
+        `ANYSCALE_CLOUD_NAME`.
+    03_lesson:
+      title: 3. Test
+      description: Learn how to validate your newly created Anyscale cluster by submitting
+        a test job from the terminal and checking its status and logs in the Anyscale
+        Console. You’ll also know where to view job results under **Jobs** in the
+        console.
+    04_lesson:
+      title: 4. Cleanup
+      description: Learn how to safely clean up your Anyscale-on-AWS setup by removing
+        the Terraform-provisioned resources (VPC/subnets, IAM roles, S3, EFS, and
+        related components). By the end, you’ll know how to tear down the environment
+        to avoid ongoing AWS costs.
+    05_lesson:
+      title: 5. Conclusion
+      description: ''

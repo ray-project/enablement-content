@@ -1,0 +1,47 @@
+02_02b_Deploy_to_VM_GCP_GCE:
+  title: 02B Deploy To Vm Gcp Gce
+  description: Learn how to deploy Anyscale Ray on GCP Compute Engine (GCE) by configuring
+    GCP authentication and required APIs, provisioning infrastructure with the official
+    Anyscale Terraform modules, and registering the resulting Anyscale cloud using
+    the `anyscale cloud register` workflow.
+  sources:
+  - deploy_to_GCE.ipynb
+  lessons:
+    00_lesson:
+      title: 'Introduction: Deploy Anyscale Ray on GCP Compute Engine Instances (GCE)'
+      description: Learn how to set up the required GCP Compute Engine (GCE) infrastructure
+        and Anyscale resources to deploy Ray on GCP. This lesson walks you through
+        using the custom `anyscale cloud register` method to register and configure
+        your cloud environment for deployment.
+    01_lesson:
+      title: Prerequisites
+      description: In this lesson, you’ll set up the required Google Cloud environment
+        by creating a Google Cloud Project and installing and configuring the Google
+        Cloud SDK/CLI so you’re ready to follow along with the rest of the course.
+    02_lesson:
+      title: 1. Installation
+      description: Learn how to authenticate with Google Cloud using application default
+        credentials, set your active GCP project, and enable and verify the required
+        APIs needed for deployment.
+    03_lesson:
+      title: 2. Create Anyscale Resources with Terraform
+      description: In this lesson, you’ll configure Terraform variables (`terraform.tfvars`)
+        and use the official Anyscale Terraform modules to provision the required
+        Anyscale resources on GCP. You’ll run `terraform init/plan/apply` and capture
+        the registration command output needed to register your Anyscale cloud.
+    04_lesson:
+      title: 3. Register the Anyscale Cloud
+      description: In this lesson, you’ll log into Anyscale and use your `terraform
+        apply` outputs to register a new Anyscale Cloud via the `anyscale cloud register`
+        command. By the end, you’ll have a named Anyscale Cloud successfully created
+        and ready to use.
+    05_lesson:
+      title: 4. Test
+      description: Learn how to validate your newly created Anyscale cluster by submitting
+        a test job from the command line. You’ll also learn how to monitor job status
+        and view logs and results in the Anyscale Console.
+    06_lesson:
+      title: 5. Cleanup
+      description: Learn how to safely tear down your Ray cluster and remove associated
+        Anyscale cloud resources when you’re finished. You’ll also optionally empty
+        and delete the GCS bucket to avoid lingering costs.

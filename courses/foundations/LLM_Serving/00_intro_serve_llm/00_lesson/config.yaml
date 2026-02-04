@@ -1,0 +1,29 @@
+slide_mode: true
+export_dark_mode: false
+extra_prompt: ''
+openai_model: gpt-5.2
+openai_max_retries: 3
+openai_retry_delay: 1.0
+openai_retry_backoff: 2.0
+elevenlabs_voice: vzAIw1IOznu9xnFkqzTc
+audio_force_override: false
+audio_speed: 1.1
+use_batch_audio_generation: true
+static_recording_max_workers: 8
+record_slides_statically: true
+headless_recording: true
+use_first_scene_video: true
+video_resolution:
+- 1920
+- 1080
+avatar_corner: bottom-right
+avatar_shape: circle
+avatar_position: null
+avatar_height: 200
+avatar_size:
+- 336
+- 336
+enable_post_processing: false
+post_processing_cut_points: ''
+debug_cap_cells: 0
+base_path: /Users/maxpumperla/code/ray-enablement-content/courses/foundations/LLM_Serving/00_intro_serve_llm/00_lesson

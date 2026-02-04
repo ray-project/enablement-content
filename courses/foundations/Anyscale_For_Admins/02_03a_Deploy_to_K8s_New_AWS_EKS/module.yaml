@@ -1,0 +1,63 @@
+02_03a_Deploy_to_K8s_New_AWS_EKS:
+  title: 03A Deploy To K8S New Aws Eks
+  description: Learn how to deploy Anyscale Ray by creating a new AWS EKS–backed Anyscale
+    Cloud using Terraform and required AWS tooling. You’ll configure prerequisites,
+    provision the necessary AWS/Anyscale resources, then register the cloud with `anyscale
+    cloud register` using the Terraform outputs.
+  sources:
+  - deploy_to_a_new_EKS.ipynb
+  lessons:
+    00_lesson:
+      title: 'Introduction: Deploy Anyscale Ray on A New AWS EKS Cluster'
+      description: Learn how to deploy Anyscale Cloud (Ray) on a brand-new AWS EKS
+        cluster using the `anyscale cloud register` workflow. This lesson walks you
+        through prerequisites, required tooling (AWS CLI, Terraform), and the AWS
+        account/VPC/IAM setup needed to complete the deployment.
+    01_lesson:
+      title: 1. Create Anyscale Resources with Terraform
+      description: Learn how to configure Terraform variables and run `init`, `plan`,
+        and `apply` to provision the required Anyscale resources on AWS (EKS). You’ll
+        also capture the `terraform apply` outputs—especially the Anyscale cloud registration
+        command—needed for the next setup step.
+    02_lesson:
+      title: 2. Install Kubernetes Components
+      description: Learn how to install and configure the core Kubernetes add-ons
+        required by the Anyscale Operator on EKS—Cluster Autoscaler, AWS Load Balancer
+        Controller, and NGINX Ingress Controller—using `kubectl` and Helm. You’ll
+        also understand when and how to add the optional NVIDIA device plugin for
+        GPU-enabled nodes.
+    03_lesson:
+      title: 3. Register the Anyscale Cloud
+      description: In this lesson, you’ll log into Anyscale and use your Terraform
+        apply outputs to register a new Anyscale Cloud via the `anyscale cloud register`
+        command. By the end, you’ll have a named cloud successfully created and ready
+        for use in Anyscale.
+    04_lesson:
+      title: 4. Install the Anyscale Operator
+      description: Learn how to add the Anyscale Helm chart repository and use Helm
+        to install or upgrade the Anyscale Operator in your Kubernetes cluster, configuring
+        it with your cloud deployment ID. By the end, you’ll have the operator deployed
+        and ready to manage Anyscale resources.
+    05_lesson:
+      title: 5. Verify the Installation
+      description: Learn how to confirm your Anyscale installation is working by verifying
+        that the Anyscale/Ray operator pods are running in Kubernetes and that your
+        Anyscale cloud is properly registered using `kubectl` and the `anyscale` CLI.
+    06_lesson:
+      title: 6. Test
+      description: Submit a sample job to validate your newly created Anyscale Kubernetes
+        cluster, then monitor its status and logs from the CLI and Anyscale Console.
+        You’ll also observe autoscaling behavior in Kubernetes and learn how the job’s
+        compute configuration defines the Ray head and worker node resources.
+    07_lesson:
+      title: 7. Clean up
+      description: Learn how to fully tear down your Anyscale setup by deleting the
+        cloud, verifying removal, and emptying the associated S3 bucket. You’ll also
+        uninstall the Anyscale operator and related Kubernetes resources (including
+        optional ingress components) to prevent ongoing costs and leftover infrastructure.
+    08_lesson:
+      title: 8. Conclusion
+      description: Wrap up the setup by confirming your Anyscale environment is successfully
+        running on an existing AWS EKS cluster. You’ll review the AWS resources provisioned
+        with Terraform and the key Kubernetes components installed (Cluster Autoscaler,
+        AWS Load Balancer Controller, and NGINX Ingress).

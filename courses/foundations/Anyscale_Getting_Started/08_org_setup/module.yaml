@@ -1,0 +1,28 @@
+08_org_setup:
+  title: Org Setup
+  description: Learn how to set up and structure an Anyscale organization for a team,
+    including how organizations, clouds, projects, and workloads relate. You’ll also
+    understand key terminology and best practices for managing multi-cloud environments,
+    user roles/RBAC, and billing-ready governance.
+  sources:
+  - 101_09_anyscale_org_setup.ipynb
+  lessons:
+    00_lesson:
+      title: 101 - Anyscale Organization and Cloud Setup
+      description: ''
+    01_lesson:
+      title: 📌 Overview of Structure
+      description: Learn how an Anyscale organization is structured and how to set
+        it up for a team, including key terminology and best practices. You’ll understand
+        how organizations and projects are used to manage users, clouds, workspaces,
+        jobs, services, and billing across one or more cloud environments.
+    02_lesson:
+      title: 🧠 Summary
+      description: Learn how Anyscale organizes Ray deployments using the hierarchy
+        **Organization → Clouds → Projects → Workloads**, and how different cloud
+        options support compute provisioning. You’ll also understand the main workload
+        types (workspaces, jobs, services) and how users and roles (RBAC) enable secure
+        team collaboration.
+    03_lesson:
+      title: Lesson 3
+      description: ''

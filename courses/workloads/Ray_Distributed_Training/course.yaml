@@ -1,0 +1,9 @@
+title: Distributed BERT Fine-Tuning with Ray Train
+description: Learn to fine-tune a BERT sequence-classification model on the Yelp Reviews
+  dataset using Ray Train with PyTorch and Hugging Face. You’ll build a scalable distributed
+  training pipeline—covering tokenization, dataloaders, metrics, and per-worker training
+  loops—that runs efficiently across CPUs/GPUs locally or on a Ray cluster.
+author: ''
+mediaStorage: ''
+category: foundation
+thumbnail: thumbnail.png

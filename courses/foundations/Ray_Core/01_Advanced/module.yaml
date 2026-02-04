@@ -1,0 +1,67 @@
+01_Advanced:
+  title: Advanced
+  description: In this Advanced module, you’ll learn Ray Core’s fundamental building
+    blocks—object store, tasks, and actors—and how to use `ObjectRef`s to efficiently
+    share large data and chain distributed computations without unnecessary `ray.get()`
+    calls. You’ll practice key patterns (and avoid common anti-patterns) for building
+    scalable execution graphs locally or on a Ray cluster.
+  sources:
+  - 00a_Intro_Ray_Core_Advancement.ipynb
+  lessons:
+    00_lesson:
+      title: 'Introduction to Ray Core (Advancement): Object store, Tasks, Actors'
+      description: Learn how Ray Core’s object store, remote tasks, and actors work
+        together to enable distributed computing. By the end, you’ll be able to store
+        and share data efficiently and run parallel and stateful workloads across
+        a Ray cluster.
+    01_lesson:
+      title: 1. Object store
+      description: Learn how Ray’s distributed object store works, including creating
+        immutable remote objects with `ray.put()` and retrieving them with `ray.get()`.
+        You’ll also practice the common pattern of passing large, reusable objects
+        as top-level task arguments to avoid repeated data transfers when running
+        many remote computations.
+    02_lesson:
+      title: 2. Chaining Tasks and Passing Data
+      description: Learn how to chain Ray tasks by passing `ObjectRef`s directly between
+        remote functions, avoiding the anti-pattern of fetching intermediate results
+        to the driver. You’ll build a two-step task graph (square then add) that minimizes
+        data movement and improves performance, especially with large outputs.
+    03_lesson:
+      title: 3. Task retries
+      description: Learn how Ray handles task retries by default for system failures
+        versus application-level exceptions. You’ll also practice configuring custom
+        retry behavior (e.g., retrying on `ValueError`) using `retry_exceptions` and
+        `.options()` with `max_retries`.
+    04_lesson:
+      title: 4. Task Runtime Environments
+      description: Learn how Ray task runtime environments layer on top of a cluster’s
+        base setup to customize task execution (e.g., setting environment variables
+        and installing dependencies). You’ll also understand the startup-time tradeoffs
+        of per-task pip installs and when to bake common dependencies into your cluster
+        image.
+    05_lesson:
+      title: 5. Resource allocation and management
+      description: Learn how Ray schedules tasks using logical resource requests (e.g.,
+        `num_cpus` in `@ray.remote`) and how to inspect available resources. You’ll
+        also see why these requests aren’t physically enforced and how to manage real
+        CPU usage in multi-threaded/multi-process workloads (e.g., via `OMP_NUM_THREADS`).
+    06_lesson:
+      title: 6. Nested Tasks
+      description: Learn how Ray supports nested task execution, where a task can
+        launch other tasks and wait for their results without relying on a single
+        driver process. You’ll see how to structure a “main” remote task that schedules
+        subtasks across the cluster and safely blocks while Ray yields resources to
+        avoid deadlocks.
+    07_lesson:
+      title: '7. Pattern: Pipeline data processing and waiting for results'
+      description: Learn how to pipeline Ray tasks by using `ray.wait()` to detect
+        and retrieve completed results incrementally instead of blocking on all tasks
+        with `ray.get()`. You’ll implement a loop that processes each result as soon
+        as it’s ready, improving throughput and responsiveness.
+    08_lesson:
+      title: 8. Ray Actors
+      description: Learn how to define and use Ray Actors—remote, stateful Python
+        classes that run on dedicated workers. You’ll create an actor with `@ray.remote`,
+        instantiate it with `.remote()`, and call its methods via RPC-style `.remote()`
+        calls to manage and access state over time.

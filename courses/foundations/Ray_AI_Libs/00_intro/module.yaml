@@ -1,0 +1,16 @@
+00_intro:
+  title: Intro
+  description: In this intro module, you’ll get an overview of what Ray is and how
+    the course will help you scale Python applications with distributed computing.
+    You’ll also set up a reproducible local Ray + Jupyter development environment
+    and verify your installation by running a simple Ray task.
+  sources:
+  - README.ipynb
+  lessons:
+    00_lesson:
+      title: 'Introduction to Ray: Developer'
+      description: Learn how to set up a reproducible local Ray development environment
+        (Conda + UV + Jupyter) and verify your installation with a simple distributed
+        “hello world” task. You’ll also get an overview of how Ray helps you scale
+        Python applications from single-machine development to production-ready distributed
+        computing.
