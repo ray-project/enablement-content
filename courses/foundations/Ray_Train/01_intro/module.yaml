@@ -1,10 +1,6 @@
 01_intro:
   title: Intro
-  description: Learn how to use Ray Train V2 to run distributed PyTorch data-parallel
-    training on an Anyscale cluster by training a ResNet-18 model on MNIST across
-    multiple GPUs. You’ll also understand when to use Ray Train, the basics of DDP,
-    and how to set up data, visualization, checkpointing, and metric reporting for
-    scalable training runs.
+  description: Learn how to use Ray Train V2 to run distributed PyTorch data-parallel training on an Anyscale cluster by training a ResNet-18 model on MNIST across multiple GPUs. You’ll also understand when to use Ray Train, the basics of DDP, and how to set up data, visualization, checkpointing, and metric reporting for scalable training runs.
   sources:
   - 01_intro_to_ray_train.ipynb
   lessons:
@@ -13,83 +9,55 @@
       description: ''
     01_lesson:
       title: 01 · Imports
-      description: Learn how to set up the core imports and environment needed to
-        run distributed data-parallel PyTorch training with Ray Train V2 on an Anyscale
-        cluster. By the end, you’ll be ready to train a ResNet-18 on MNIST across
-        multiple GPUs with built-in checkpointing and metrics reporting.
+      description: Learn how to set up the core imports and environment needed to run distributed data-parallel PyTorch training with Ray Train V2 on an Anyscale cluster. By the end, you’ll be ready to train a ResNet-18 on MNIST across multiple GPUs with built-in checkpointing and metrics reporting.
     02_lesson:
       title: 04 · Define ResNet-18 Model for MNIST
-      description: In this lesson, you’ll set up the MNIST workflow by importing required
-        libraries, downloading the dataset, and visualizing sample digits. By the
-        end, you’ll be ready to define and train a ResNet-18 model on 28×28 grayscale
-        MNIST images.
+      description: In this lesson, you’ll set up the MNIST workflow by importing required libraries, downloading the dataset, and visualizing sample digits. By the end, you’ll be ready to define and train a ResNet-18 model on 28×28 grayscale MNIST images.
     03_lesson:
       title: 05 · Define the Ray Train Loop (DDP per-worker)
-      description: Learn how to wrap your PyTorch training logic into a Ray Train
-        per-worker training function, defining what each worker executes in a distributed
-        run. You’ll also understand Ray Train’s core concepts (training function,
-        workers, scaling configuration, and Trainer) and how they map from a standalone
-        loop to a scalable distributed setup.
+      description: Learn how to wrap your PyTorch training logic into a Ray Train per-worker training function, defining what each worker executes in a distributed run. You’ll also understand Ray Train’s core concepts (training function, workers, scaling configuration, and Trainer) and how they map from a standalone loop to a scalable distributed setup.
     04_lesson:
       title: 06 · Define `train_loop_config`
-      description: Learn how to define `train_loop_config`, the configuration dictionary
-        that packages hyperparameters (e.g., epochs, global batch size, gradient accumulation)
-        and runtime settings to pass into Ray Train’s per-worker `train_loop`. By
-        the end, you’ll be able to centralize and control training behavior through
-        a single config object used by `TorchTrainer`.
+      description: Learn how to define `train_loop_config`, the configuration dictionary that packages hyperparameters (e.g., epochs, global batch size, gradient accumulation) and runtime settings to pass into Ray Train’s per-worker `train_loop`. By the end, you’ll be able to centralize and control training behavior through a single config object used by `TorchTrainer`.
     05_lesson:
       title: 07 · Configure Scaling with `ScalingConfig`
-      description: Learn how to configure distributed training scale using Ray’s `ScalingConfig`,
-        including how worker count and related settings affect your effective `global_batch_size`.
-        You’ll connect these scaling choices to your training loop so you can size
-        and run a multi-worker job correctly.
+      description: Learn how to configure distributed training scale using Ray’s `ScalingConfig`, including how worker count and related settings affect your effective `global_batch_size`. You’ll connect these scaling choices to your training loop so you can size and run a multi-worker job correctly.
     06_lesson:
       title: 08 · Wrap the Model with `prepare_model()`
-      description: Learn how to use Ray Train’s `ScalingConfig` to control distributed
-        training by specifying the number of parallel workers and the CPU/GPU resources
-        assigned to each. By the end, you’ll be able to scale a training job across
-        multiple workers with Ray handling synchronization automatically.
+      description: Learn how to use Ray Train’s `ScalingConfig` to control distributed training by specifying the number of parallel workers and the CPU/GPU resources assigned to each. By the end, you’ll be able to scale a training job across multiple workers with Ray handling synchronization automatically.
     07_lesson:
       title: 09 · Build the DataLoader with `prepare_data_loader()`
-      description: In this lesson, you’ll build the MNIST `DataLoader` and prepare
-        it for Ray Train using `prepare_data_loader()`. You’ll learn how Ray automatically
-        handles device placement and distributed sharding so each worker receives
-        the correct portion of the data.
+      description: In this lesson, you’ll build the MNIST `DataLoader` and prepare it for Ray Train using `prepare_data_loader()`. You’ll learn how Ray automatically handles device placement and distributed sharding so each worker receives the correct portion of the data.
     08_lesson:
       title: 10 · Report Training Metrics
-      description: Learn how to build an MNIST `DataLoader` that’s ready for Ray Train
-        by applying standard preprocessing (`ToTensor` and `Normalize`) inside a reusable
-        helper function. You’ll be able to prepare batched, normalized training data
-        for distributed training (or keep it separate from Ray Data when needed).
+      description: Learn how to build an MNIST `DataLoader` that’s ready for Ray Train by applying standard preprocessing (`ToTensor` and `Normalize`) inside a reusable helper function. You’ll be able to prepare batched, normalized training data for distributed training (or keep it separate from Ray Data when needed).
     09_lesson:
       title: 11 · Save Checkpoints and Report Metrics
-      description: Learn how to report training metrics (e.g., loss and epoch) from
-        Ray Train workers, including how to restrict logging to rank 0. You’ll also
-        save model checkpoints safely by writing checkpoint files only from the rank-0
-        worker while attaching relevant metrics.
+      description: Learn how to report training metrics (e.g., loss and epoch) from Ray Train workers, including how to restrict logging to rank 0. You’ll also save model checkpoints safely by writing checkpoint files only from the rank-0 worker while attaching relevant metrics.
     10_lesson:
       title: 14 · Create the `TorchTrainer`
-      description: In this lesson, you’ll build a `TorchTrainer` that wraps your PyTorch
-        DDP training loop with Ray Train, including metric reporting and checkpointing
-        via `ray.train.report`. You’ll also configure persistent output storage (and
-        rank-0-only checkpoint writes) using `RunConfig` so results, logs, and checkpoints
-        are saved reliably.
+      description: In this lesson, you’ll build a `TorchTrainer` that wraps your PyTorch DDP training loop with Ray Train, including metric reporting and checkpointing via `ray.train.report`. You’ll also configure persistent output storage (and rank-0-only checkpoint writes) using `RunConfig` so results, logs, and checkpoints are saved reliably.
     11_lesson:
       title: 16 · Inspect the Training Results
-      description: Learn how to review the outputs of a Ray Train run after calling
-        `trainer.fit()`, including the logs, metrics, and checkpoints collected in
-        the returned `result`. You’ll be able to confirm that the distributed workers
-        launched correctly and interpret the training artifacts saved to your run
-        directory.
+      description: Learn how to review the outputs of a Ray Train run after calling `trainer.fit()`, including the logs, metrics, and checkpoints collected in the returned `result`. You’ll be able to confirm that the distributed workers launched correctly and interpret the training artifacts saved to your run directory.
     12_lesson:
       title: 18 · Load a Checkpoint for Inference
-      description: Learn how to inspect the `Result` object returned by `trainer.fit()`
-        to access final metrics, checkpoints, and run history. You’ll also view the
-        full per-epoch metric history using `result.metrics_dataframe` for deeper
-        analysis of training progress.
+      description: Learn how to inspect the `Result` object returned by `trainer.fit()` to access final metrics, checkpoints, and run history. You’ll also view the full per-epoch metric history using `result.metrics_dataframe` for deeper analysis of training progress.
     13_lesson:
       title: Lesson 13
-      description: In Lesson 13, you’ll learn how to reload a trained ResNet-18 checkpoint
-        into a GPU-backed Ray actor and serve inference requests. You’ll run CPU-side
-        preprocessing, generate and visualize MNIST predictions, and then cleanly
-        shut down the actor to release GPU resources.
+      description: In Lesson 13, you’ll learn how to reload a trained ResNet-18 checkpoint into a GPU-backed Ray actor and serve inference requests. You’ll run CPU-side preprocessing, generate and visualize MNIST predictions, and then cleanly shut down the actor to release GPU resources.
+  videoLessons:
+    00_lesson: videos/01-1 Introduction.mp4
+    01_lesson: videos/01-2 Imports & Loading the Dataset.mp4
+    02_lesson: videos/01-3 Defining the Model.mp4
+    03_lesson: videos/01-4 Train Loop per Worker.mp4
+    04_lesson: videos/01-5 Define Train_Loop_Config.mp4
+    05_lesson: videos/01-6 Configure ScalingConfig.mp4
+    06_lesson: videos/01-7 Wrap the model with prepare_model().mp4
+    07_lesson: videos/01-8 Building the Dataloader.mp4
+    08_lesson: videos/01-9 Reporting Metrics and Checkpointing.mp4
+    09_lesson: videos/01-10 Persistent Storage with Run Config.mp4
+    10_lesson: videos/01-11 Putting it all together with TorchTrainer.mp4
+    11_lesson: videos/01-12 Inspecting the Training Results.mp4
+    12_lesson: videos/01-13 Inference with your trained model.mp4
+    13_lesson: videos/01-14 Cleaning up computational resources and outro.mp4

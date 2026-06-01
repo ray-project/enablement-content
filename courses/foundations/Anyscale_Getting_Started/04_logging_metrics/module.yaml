@@ -1,9 +1,6 @@
 04_logging_metrics:
   title: Logging Metrics
-  description: Learn how to monitor and troubleshoot Ray applications on Anyscale
-    by using the Log Viewer, Metrics tab, and Ray Dashboard. You’ll run a sample π-estimation
-    workload and practice locating, querying, and downloading logs and interpreting
-    cluster/workload metrics.
+  description: Learn how to monitor and troubleshoot Ray applications on Anyscale by using the Log Viewer, Metrics tab, and Ray Dashboard. You’ll run a sample π-estimation workload and practice locating, querying, and downloading logs and interpreting cluster/workload metrics.
   sources:
   - 101_05_anyscale_logging_metrics.ipynb
   lessons:
@@ -12,7 +9,8 @@
       description: ''
     01_lesson:
       title: Lesson 1
-      description: In this lesson, you’ll run a simple Ray workload on Anyscale and
-        learn how to monitor and debug it using the Log Viewer, Metrics tab, and the
-        Ray Dashboard. You’ll also practice retrieving logs (even after a cluster
-        terminates) and properly cleaning up resources to avoid unnecessary costs.
+      description: In this lesson, you’ll run a simple Ray workload on Anyscale and learn how to monitor and debug it using the Log Viewer, Metrics tab, and the Ray Dashboard. You’ll also practice retrieving logs (even after a cluster terminates) and properly cleaning up resources to avoid unnecessary costs.
+  videoMatch: false
+  videoLessons:
+    00_lesson: videos/06 Debug and Monitor your Anyscale Application.mp4
+    01_lesson: null

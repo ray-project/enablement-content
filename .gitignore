@@ -161,3 +161,9 @@ _build/
 *.zip
 
 output/
+
+# Thinkific source assets + generated transcripts/frame analysis (repo root)
+videos/
+
+# Per-module video bundles copied beside module.yaml for LMS import
+courses/**/videos/

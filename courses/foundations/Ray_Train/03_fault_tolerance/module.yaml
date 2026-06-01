@@ -1,9 +1,6 @@
 03_fault_tolerance:
   title: Fault Tolerance
-  description: Learn how to make Ray Train jobs resilient to worker or node failures
-    by adding checkpoint loading/saving (model, optimizer, epoch) to your training
-    loop. You’ll also configure automatic retries with `FailureConfig` and run training
-    that can recover and resume after interruptions.
+  description: Learn how to make Ray Train jobs resilient to worker or node failures by adding checkpoint loading/saving (model, optimizer, epoch) to your training loop. You’ll also configure automatic retries with `FailureConfig` and run training that can recover and resume after interruptions.
   sources:
   - 03_fault_tolerance_in_ray_train.ipynb
   lessons:
@@ -12,43 +9,27 @@
       description: ''
     01_lesson:
       title: 01 · Modify Training Loop to Enable Checkpoint Loading
-      description: Learn how to update a Ray Train training loop to load from checkpoints
-        so jobs can resume after failures. You’ll implement checkpoint-aware recovery
-        to enable fault-tolerant training with automatic retries or manual restoration.
+      description: Learn how to update a Ray Train training loop to load from checkpoints so jobs can resume after failures. You’ll implement checkpoint-aware recovery to enable fault-tolerant training with automatic retries or manual restoration.
     02_lesson:
       title: 02 · Save Full Checkpoint with Extra State
-      description: Learn how to extend a Ray Train training loop to detect and load
-        an existing checkpoint via `ray.train.get_checkpoint()` so training can resume
-        after interruptions. You’ll restore key state (e.g., model and optimizer)
-        to enable fault-tolerant continuation.
+      description: Learn how to extend a Ray Train training loop to detect and load an existing checkpoint via `ray.train.get_checkpoint()` so training can resume after interruptions. You’ll restore key state (e.g., model and optimizer) to enable fault-tolerant continuation.
     03_lesson:
       title: 04 · Launch Fault-Tolerant Training
-      description: Learn how to make a Ray Train training loop fault-tolerant by loading
-        from checkpoints and saving full recovery state (model weights, optimizer
-        state, and current epoch). You’ll also configure `FailureConfig` to enable
-        automatic retries so training can resume after worker or node failures.
+      description: Learn how to make a Ray Train training loop fault-tolerant by loading from checkpoints and saving full recovery state (model weights, optimizer state, and current epoch). You’ll also configure `FailureConfig` to enable automatic retries so training can resume after worker or node failures.
     04_lesson:
       title: 05 · Manual Restoration from Checkpoints
-      description: Learn how to manually restore a Ray Train job from saved checkpoints
-        after a failure or interruption. You’ll practice selecting the right checkpoint
-        and restarting training so it resumes from the last saved state instead of
-        starting over.
+      description: Learn how to manually restore a Ray Train job from saved checkpoints after a failure or interruption. You’ll practice selecting the right checkpoint and restarting training so it resumes from the last saved state instead of starting over.
     05_lesson:
       title: 07 · Clean Up Cluster Storage
-      description: Learn how to run a fault-tolerant Ray training job with checkpointing
-        and automatic retries, then manually restore and resume training from the
-        latest saved checkpoint by recreating a `TorchTrainer` with the same configuration.
-        You’ll verify the resumed run continues where it left off—or exits immediately
-        if training already completed.
+      description: Learn how to run a fault-tolerant Ray training job with checkpointing and automatic retries, then manually restore and resume training from the latest saved checkpoint by recreating a `TorchTrainer` with the same configuration. You’ll verify the resumed run continues where it left off—or exits immediately if training already completed.
     06_lesson:
       title: 🎉 Wrapping Up & Next Steps
-      description: Learn how to clean up persistent cluster storage by deleting tutorial
-        artifacts such as the downloaded MNIST dataset, training output directories,
-        and the generated Parquet dataset. By the end, you’ll safely remove these
-        paths to free space and leave your environment tidy for next steps.
-    07_lesson:
-      title: Lesson 7
-      description: 'In Lesson 7, you’ll recap and consolidate what you built across
-        the course: a production-style training workflow using Ray Train on Anyscale,
-        extended with Ray Data. You’ll also review how you added fault tolerance and
-        identify next steps for applying these patterns in your own projects.'
+      description: Learn how to clean up persistent cluster storage by deleting tutorial artifacts such as the downloaded MNIST dataset, training output directories, and the generated Parquet dataset. By the end, you’ll safely remove these paths to free space and leave your environment tidy for next steps.
+  videoLessons:
+    00_lesson: videos/03-1 Introduction.mp4
+    01_lesson: videos/03-2 Checkpoint Loading for Fault Tolerance.mp4
+    02_lesson: videos/03-3 Saving Fault Tolerant Checkpoints.mp4
+    03_lesson: videos/03-4 Launching Fault Tolerant Training.mp4
+    04_lesson: videos/03-5 Manually Restoring from Checkpoints.mp4
+    05_lesson: videos/03-6 Cleaning up Cluster Storage and Conclusion.mp4
+    06_lesson: videos/03-7 Concluding the Intro Tutorials and next steps.mp4
